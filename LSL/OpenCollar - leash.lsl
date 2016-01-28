@@ -796,7 +796,8 @@ default {
     {
         if (iPerm & PERMISSION_TAKE_CONTROLS) {
             //disbale all controls but left mouse button (for stay cmd)
-            llTakeControls(CONTROL_ROT_LEFT | CONTROL_ROT_RIGHT | CONTROL_LBUTTON | CONTROL_ML_LBUTTON, FALSE, FALSE);
+            llTakeControls(CONTROL_LEFT & CONTROL_RIGHT & CONTROL_FWD & CONTROL_BACK &
+                CONTROL_UP & CONTROL_DOWN, FALSE, FALSE);
         }
     }
     object_rez(key id) {

@@ -230,7 +230,8 @@ DumpGroupSettings(string group, key id)
         {
             tok = SplitToken(tok, 1);
             val = llList2String(DESIGN_SETTINGS, i + 1);
-            if (~x=llListFindList(out, [tok])) out = llListReplaceList(out, [val], x + 1, x + 1);
+            x=llListFindList(out, [tok]);
+            if (~x) out = llListReplaceList(out, [val], x + 1, x + 1);
             else out += [tok, val];
         }
     }
@@ -243,7 +244,8 @@ DumpGroupSettings(string group, key id)
         {
             tok = SplitToken(tok, 1);
             val = llList2String(USER_SETTINGS, i + 1);
-            if (~x=llListFindList(out, [tok])) out = llListReplaceList(out, [val], x + 1, x + 1);
+            x=llListFindList(out, [tok]);
+            if (~x) out = llListReplaceList(out, [val], x + 1, x + 1);
             else out += [tok, val];
         }
     }
@@ -546,7 +548,7 @@ default {
                 // Next we wish to peel the special settings for this collar
                 // unique collar id is followed by Script (that settings are for) + "=tok~val~tok~val"
                 i = llSubStringIndex(data, "_");
-                string id = llGetSubString(data, 0, i);
+                id = llGetSubString(data, 0, i);
                 if (id != DESIGN_ID && id != "User_") jump nextline;
                 data = llGetSubString(data, i + 1, -1); // shave id off
                 i = llSubStringIndex(data, "=");

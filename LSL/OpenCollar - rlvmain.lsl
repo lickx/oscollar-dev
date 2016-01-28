@@ -132,7 +132,8 @@ DoMenu(key kID, integer iAuth){
     if (g_iRlvaVersion) sPrompt += " (RLVa: "+g_sRlvaVersionString+")";
     if (!g_iViewerCheck) sPrompt += "Could not detect Restrained Love Viewer.\nRestrained Love functions disabled.";
     sPrompt +="\n\nwww.opencollar.at/rlv";
-    llMessageLinked(LINK_SET, DIALOG, (string)kID + "|" + sPrompt + "|0|" + llDumpList2String(lButtons, "`") + "|" + UPMENU + "|" + (string)iAuth, kMenuID = llGenerateKey());
+    kMenuID = llGenerateKey();
+    llMessageLinked(LINK_SET, DIALOG, (string)kID + "|" + sPrompt + "|0|" + llDumpList2String(lButtons, "`") + "|" + UPMENU + "|" + (string)iAuth, kMenuID);
     //Debug("Made menu.");
 } 
 
@@ -222,7 +223,7 @@ AddRestriction(key kID, string sBehav) {
     if (kID=="rlvex"){  //if its an exception, add it to the exceptions list
         list lParams = llParseString2List(sBehav, [":"], []);
         key kAv = (key)llList2String(lParams, 1);
-        string sBehav = llList2String(lParams, 0);
+        sBehav = llList2String(lParams, 0);
         
         //Debug("apply exception ("+(string)kAv+")"+sBehav);
         if ((key)kAv){
@@ -234,7 +235,7 @@ AddRestriction(key kID, string sBehav) {
             }
             //Debug("trying to apply exception ("+(string)kID+")"+sBehav);
             string sSrcRestr = llList2String(g_lExceptions,iSource+1);
-            if (!(sSrcRestr==sBehav || ~llSubStringIndex(sSrcRestr,"§"+sBehav) || ~llSubStringIndex(sSrcRestr,sBehav+"§")) ) {
+            if (!(sSrcRestr==sBehav || (~llSubStringIndex(sSrcRestr,"§"+sBehav)) || (~llSubStringIndex(sSrcRestr,sBehav+"§"))) ) {
                 //Debug("AddRestriction 2.2");
                 sSrcRestr+="§"+sBehav;
                 if (llSubStringIndex(sSrcRestr,"§")==0) sSrcRestr=llGetSubString(sSrcRestr,1,-1);
@@ -259,7 +260,7 @@ AddRestriction(key kID, string sBehav) {
     
         string sSrcRestr = llList2String(g_lRestrictions,iSource+1);
         //Debug("AddRestriction 2.1");
-        if (!(sSrcRestr==sBehav || ~llSubStringIndex(sSrcRestr,"§"+sBehav) || ~llSubStringIndex(sSrcRestr,sBehav+"§")) ) {
+        if (!(sSrcRestr==sBehav || (~llSubStringIndex(sSrcRestr,"§"+sBehav)) || (~llSubStringIndex(sSrcRestr,sBehav+"§"))) ) {
             //Debug("AddRestriction 2.2");
             sSrcRestr+="§"+sBehav;
             if (llSubStringIndex(sSrcRestr,"§")==0) sSrcRestr=llGetSubString(sSrcRestr,1,-1);
@@ -292,7 +293,7 @@ RemRestriction(key kID, string sBehav) {
         //Debug("RemRestriction [rlvex] "+sBehav);
         list lParams = llParseString2List(sBehav, [":"], []);
         key kAv = (key)llList2String(lParams, 1);
-        string sBehav = llList2String(lParams, 0);
+        sBehav = llList2String(lParams, 0);
         
         integer iSource=llGetListLength(g_lExceptions);
         while (iSource){
@@ -324,7 +325,7 @@ RemRestriction(key kID, string sBehav) {
         if (~iSource) { //if this source set any restrictions
             list lSrcRestr = llParseString2List(llList2String(g_lRestrictions,iSource+1),["§"],[]); //get a list of this source's restrictions
             integer iRestr=llListFindList(lSrcRestr,[sBehav]);  //get index of this restriction from that list
-            if (~iRestr || sBehav=="ALL") {   //if the restriction is in the list
+            if ((~iRestr) || sBehav=="ALL") {   //if the restriction is in the list
                 if (llGetListLength(lSrcRestr)==1) {  //if it is the only restriction in the list
                     g_lRestrictions=llDeleteSubList(g_lRestrictions,iSource, iSource+1);  //remove the restrictions list
                     if ((key)kID) llMessageLinked(LINK_SET, CMD_REMSRC,"",kID);    //tell the relay the source has no restrictions
@@ -635,7 +636,7 @@ default {
                     } else {         //perform other command
                         //Debug("Got other command:\nkey: "+(string)kID+"\ncommand: "+sCommand);
                         if (llSubStringIndex(sCom,"tpto")==0) {  //looks like a tpto command, lets check to see if we should honour it or not, and message back if we can if it fails
-                            if ( ~llListFindList(g_lBaked,["tploc"])  || ~llListFindList(g_lBaked,["unsit"]) ) {
+                            if ( (~llListFindList(g_lBaked,["tploc"]))  || (~llListFindList(g_lBaked,["unsit"])) ) {
                                 if ((key)kID) Notify(kID,"Can't teleport due to RLV restrictions",TRUE);
                                 return;
                             }
@@ -678,10 +679,9 @@ default {
                 if ((key)kSource) llShout(RELAY_CHANNEL,"ping,"+(string)kSource+",ping,ping");
                 else rebakeSourceRestrictions(kSource);  //reapply collar's restrictions here
             }            
-        } else {   
-        if (g_iCheckCount++ <= g_iMaxViewerChecks) {   //no response in timeout period, try again
-            llOwnerSay("@versionnew=293847");
-            if (g_iCheckCount>1) llMessageLinked(LINK_SET, POPUP_HELP, "\n\nIf your viewer doesn't support RLV, you can stop the \"@versionnew\" message by switching RLV off in your "+CTYPE+"'s RLV menu or by typing: _PREFIX_rlvoff\n", g_kWearer);
+        } else if (g_iCheckCount++ <= g_iMaxViewerChecks) {   //no response in timeout period, try again
+                llOwnerSay("@versionnew=293847");
+                if (g_iCheckCount>1) llMessageLinked(LINK_SET, POPUP_HELP, "\n\nIf your viewer doesn't support RLV, you can stop the \"@versionnew\" message by switching RLV off in your "+CTYPE+"'s RLV menu or by typing: _PREFIX_rlvoff\n", g_kWearer);
         } else {    //we've waited long enough, and are out of retries
             llSetTimerEvent(0.0);
             llListenRemove(g_iListener);  
@@ -739,3 +739,4 @@ default {
         }
 */        
 }
+

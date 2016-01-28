@@ -80,6 +80,7 @@ list g_lAvBlackListNames=[];
 
 integer g_iRLV=FALSE;
 list g_lQueue=[];
+integer g_iQApproxSize;
 integer QSTRIDES=3;
 integer g_iListener=0;
 integer g_iAuthPending = FALSE;
@@ -142,7 +143,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
     if (kID == g_kWearer) llOwnerSay(sMsg);
     else
     {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
@@ -195,9 +196,9 @@ SaveSettings()
         + 16 * g_iPlayMode + 8 * g_iLandMode + 4 * g_iSafeMode + g_iBaseMode);
 //    if ( g_lObjWhiteList != [] ) sNewSettings+=",objwhitelist:"+llDumpList2String(g_lObjWhiteList,"/");
 //    if ( g_lObjBlackList != [] ) sNewSettings+=",objblacklist:"+llDumpList2String(g_lObjBlackList,"/");
-    if ( g_lAvWhiteList != [] ) sNewSettings+=",avwhitelist:"+llDumpList2String(g_lAvWhiteList,"/")
+    if ( llGetListLength(g_lAvWhiteList) > 0 ) sNewSettings+=",avwhitelist:"+llDumpList2String(g_lAvWhiteList,"/")
         +",avwhitelistnames:"+llDumpList2String(g_lAvWhiteListNames,"/");
-    if ( g_lAvBlackList != [] ) sNewSettings+=",avblacklist:"+llDumpList2String(g_lAvBlackList,"/")
+    if ( llGetListLength(g_lAvBlackList) > 0 ) sNewSettings+=",avblacklist:"+llDumpList2String(g_lAvBlackList,"/")
         +",avblacklistnames:"+llDumpList2String(g_lAvBlackListNames,"/");
     llMessageLinked(LINK_SET, LM_SETTING_SAVE, sNewSettings, "");
 }
@@ -206,7 +207,7 @@ UpdateSettings(string sSettings)
 {
     list lArgs = llParseString2List(sSettings,[","],[]);
     integer i;
-    for (i=0;i<(lArgs!=[]);++i)
+    for (i=0;i<llGetListLength(lArgs);++i)
     {
         list setting=llParseString2List(llList2String(lArgs,i),[":"],[]);
         string var=llList2String(setting,0);
@@ -285,9 +286,10 @@ Dequeue()
     key kCurID;
     while (sCommand=="")
     {
-        if (g_lQueue==[])
+        if (llGetListLength(g_lQueue)==0)
         {
             llSetTimerEvent(g_iGarbageRate);
+            g_iQApproxSize = 0;
             return;
         }
         sCurIdent=llList2String(g_lQueue,0);
@@ -318,7 +320,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed)
     integer iGotWho = FALSE; // has the user been specified up to now?
     key kWho;
     integer i;
-    for (i=0;i<(lCommands!=[]);++i)
+    for (i=0;i<llGetListLength(lCommands);++i)
     {
         sCom = llList2String(lCommands,i);
         list lSubArgs = llParseString2List(sCom,["="],[]);
@@ -350,7 +352,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed)
             if (iGotWho) return "!x-who/"+(string)kWho+"|"+llDumpList2String(llList2List(lCommands,i,-1),"|");
             else return llDumpList2String(llList2List(lCommands,i,-1),"|");
         }
-        else if ((lSubArgs!=[])==2)
+        else if (llGetListLength(lSubArgs)==2)
         {
             string sBehav=llGetSubString(llList2String(lSubArgs,0),1,-1);
             if (sVal=="force"||sVal=="n"||sVal=="add"||sVal=="y"||sVal=="rem"||sBehav=="clear")
@@ -374,7 +376,8 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed)
 
 sendrlvr(string sIdent, key kID, string sCom, string sAck)
 {
-    llRegionSayTo(kID, RELAY_CHANNEL, sIdent+","+(string)kID+","+sCom+","+sAck);
+//    llRegionSayTo(kID, RELAY_CHANNEL, sIdent+","+(string)kID+","+sCom+","+sAck);
+    llRegionSay(RELAY_CHANNEL, sIdent+","+(string)kID+","+sCom+","+sAck);
     if (g_kDebugRcpt == g_kWearer) llOwnerSay("From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
     else if (g_kDebugRcpt) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
 }
@@ -390,7 +393,7 @@ SafeWord()
         g_lTempUserBlackList=[];
         g_lTempUserWhiteList=[];
         integer i;
-        for (i=0;i<(g_lSources!=[]);++i)
+        for (i=0;i<llGetListLength(g_lSources);++i)
         {
             sendrlvr("release", llList2Key(g_lSources, i), "!release", "ok");
         }
@@ -410,14 +413,14 @@ Menu(key kID, integer iAuth)
 {
     string sPrompt = "\nwww.opencollar.at/relay\n\nCurrent mode is: " + Mode2String(FALSE);
     list lButtons = llDeleteSubList(["Off", "Restricted", "Ask", "Auto"],g_iBaseMode,g_iBaseMode);
-    if (g_lSources != []) lButtons = llDeleteSubList(lButtons,0,0);
+    if (llGetListLength(g_lSources) > 0) lButtons = llDeleteSubList(lButtons,0,0);
     if (g_iPlayMode) lButtons+=["☒ Playful"];
     else lButtons+=["☐ Playful"];
     if (g_iLandMode) lButtons+=["☒ Land"];
     else lButtons+=["☐ Land"];
-    if (g_lSources!=[])
+    if (llGetListLength(g_lSources) > 0)
     {
-        sPrompt+="\n\nCurrently grabbed by "+(string)(g_lSources!=[])+" object";
+        sPrompt+="\n\nCurrently grabbed by "+(string)llGetListLength(g_lSources)+" object";
         if (g_lSources==[1]) sPrompt+="."; // Note: only list LENGTH is compared here
         else sPrompt+="s.";
         lButtons+=["Grabbed by"];
@@ -428,7 +431,7 @@ Menu(key kID, integer iAuth)
         if (g_iSafeMode) lButtons+=["☒ Safeword"];
         else lButtons+=["☐ Safeword"];
     }
-    if (g_lQueue!=[])
+    if (llGetListLength(g_lQueue) > 0)
     {
         sPrompt+="\n\nYou have pending requests.";
         lButtons+=["Pending"];
@@ -477,7 +480,7 @@ PListsMenu(key kID, string sMsg, integer iAuth)
         lOList=g_lObjWhiteList;
         lOListNames=g_lObjWhiteListNames;
         sPrompt="\n\nWhat object do you want to stop trusting?";
-        if (lOListNames == []) sPrompt+="\n\nNo object in list.";
+        if (llGetListLength(lOListNames) == 0) sPrompt+="\n\nNo object in list.";
         else  sPrompt+="\n\nObserve chat for the list.";
     }
     else if (sMsg=="Banned Object")
@@ -485,7 +488,7 @@ PListsMenu(key kID, string sMsg, integer iAuth)
         lOList=g_lObjBlackList;
         lOListNames=g_lObjBlackListNames;
         sPrompt="\n\nWhat object do you want not to ban anymore?";
-        if ( lOListNames == []) sPrompt+="\n\nNo object in list.";
+        if ( llGetListLength(lOListNames) == 0) sPrompt+="\n\nNo object in list.";
         else sPrompt+="\n\nObserve chat for the list.";
     }
     else if (sMsg=="Trusted Avatar")
@@ -493,7 +496,7 @@ PListsMenu(key kID, string sMsg, integer iAuth)
         lOList=g_lAvWhiteList;
         lOListNames=g_lAvWhiteListNames;
         sPrompt="\n\nWhat avatar do you want to stop trusting?";
-        if (lOListNames == []) sPrompt+="\n\nNo avatar in list.";
+        if ( llGetListLength(lOListNames) == 0) sPrompt+="\n\nNo avatar in list.";
         else sPrompt+="\n\nObserve chat for the list.";
     }
     else if (sMsg=="Banned Avatar")
@@ -501,7 +504,7 @@ PListsMenu(key kID, string sMsg, integer iAuth)
         lOList=g_lAvBlackList;
         lOListNames=g_lAvBlackListNames;
         sPrompt="\n\nWhat avatar do you want not to ban anymore?";
-        if (lOListNames == []) sPrompt+="\n\nNo avatar in list.";
+        if ( llGetListLength(lOListNames) == 0) sPrompt+="\n\nNo avatar in list.";
         else sPrompt+="\n\nObserve chat for the list.";
     }
     else return;
@@ -510,7 +513,7 @@ PListsMenu(key kID, string sMsg, integer iAuth)
     list lButtons=[ALL];
     
     integer i;
-    for (i=0;i<(lOList!=[]);++i)
+    for (i=0;i<llGetListLength(lOList);++i)
     {
         lButtons+=(string)(i+1);
         //Notify(kID, (string)(i+1)+": "+llList2String(lOListNames,i)+", "+llList2String(lOList,i), FALSE );
@@ -527,7 +530,7 @@ RemListItem(string sMsg, integer iAuth)
     if (g_sListType=="Banned Avatar")
     {
         if (sMsg==ALL) {g_lAvBlackList=[];g_lAvBlackListNames=[];return;}
-        if  (i<(g_lAvBlackList!=[]))
+        if  (i<llGetListLength(g_lAvBlackList))
         {
             g_lAvBlackList=llDeleteSubList(g_lAvBlackList,i,i);
             g_lAvBlackListNames=llDeleteSubList(g_lAvBlackListNames,i,i);
@@ -536,7 +539,7 @@ RemListItem(string sMsg, integer iAuth)
     else if (g_sListType=="Banned Object")
     {
         if (sMsg==ALL) {g_lObjBlackList=[];g_lObjBlackListNames=[];return;}
-        if  (i<(g_lObjBlackList!=[]))
+        if  (i<llGetListLength(g_lObjBlackList))
         {
             g_lObjBlackList=llDeleteSubList(g_lObjBlackList,i,i);
             g_lObjBlackListNames=llDeleteSubList(g_lObjBlackListNames,i,i);
@@ -549,7 +552,7 @@ RemListItem(string sMsg, integer iAuth)
     else if (g_sListType=="Trusted Object")
     {
         if (sMsg==ALL) {g_lObjWhiteList=[];g_lObjWhiteListNames=[];return;}
-        if  (i<(g_lObjWhiteList!=[]))
+        if  (i<llGetListLength(g_lObjWhiteList))
         {
             g_lObjWhiteList=llDeleteSubList(g_lObjWhiteList,i,i);
             g_lObjWhiteListNames=llDeleteSubList(g_lObjWhiteListNames,i,i);
@@ -558,7 +561,7 @@ RemListItem(string sMsg, integer iAuth)
     else if (g_sListType=="Trusted Avatar")
     {
         if (sMsg==ALL) {g_lAvWhiteList=[];g_lAvWhiteListNames=[];return;}
-        if  (i<(g_lAvWhiteList!=[]))
+        if  (i<llGetListLength(g_lAvWhiteList))
         {
             g_lAvWhiteList=llDeleteSubList(g_lAvWhiteList,i,i);
             g_lAvWhiteListNames=llDeleteSubList(g_lAvWhiteListNames,i,i);
@@ -580,10 +583,10 @@ CleanQueue()
     //clean newly iNumed events, while preserving the order of arrival for every device
     list lOnHold=[];
     integer i=0;
-    while (i<(g_lQueue!=[])/QSTRIDES)  //GetQLength()
+    while (i<llGetListLength(g_lQueue)/QSTRIDES)  //GetQLength()
     {
         string sIdent = llList2String(g_lQueue,0); //GetQident(0)
-        key kObj = llList2String(g_lQueue,1); //GetQObj(0);
+        key kObj = llList2Key(g_lQueue,1); //GetQObj(0);
         string sCommand = llList2String(g_lQueue,2); //GetQCom(0);
         key kUser = NULL_KEY;
         integer iGotWho = llGetSubString(sCommand,0,6)=="!x-who/";
@@ -600,7 +603,7 @@ CleanQueue()
             g_lQueue = llDeleteSubList(g_lQueue,i,i+QSTRIDES-1); //DeleteQItem(i);
             list lCommands = llParseString2List(sCommand,["|"],[]);
             integer j;
-            for (j=0;j<(lCommands!=[]);++j)
+            for (j=0;j<llGetListLength(lCommands);++j)
                 sendrlvr(sIdent,kObj,llList2String(lCommands,j),"ko");
         }
         else
@@ -648,7 +651,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
     }
     else if (sStr=="pending")
     {
-        if (g_lQueue != []) Dequeue();
+        if (llGetListLength(g_lQueue) > 0) Dequeue();
         else llOwnerSay("No pending relay request for now.");
     }
     else if (sStr=="access") ListsMenu(kID, iNum);
@@ -716,7 +719,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
             if (sChangevalue == "on")
             {
                 if (g_iMinSafeMode == FALSE) iWSuccess = 1;
-                else if (g_lSources!=[]) iWSuccess = 2;
+                else if (llGetListLength(g_lSources) > 0) iWSuccess = 2;
                 else g_iSafeMode = TRUE;
             }
             else if (sChangevalue == "off") g_iSafeMode = FALSE;
@@ -898,7 +901,7 @@ default {
                 {
                     llSetTimerEvent(g_iGarbageRate);
                     g_iAuthPending = FALSE;
-                    key kCurID=llList2String(g_lQueue,1); //GetQObj(0);
+                    key kCurID=llList2Key(g_lQueue,1); //GetQObj(0);
                     string sCom = llList2String(g_lQueue,2);  //GetQCom(0));
                     key kUser = NULL_KEY;
                     key kOwner = llGetOwnerKey(kCurID);
@@ -906,6 +909,7 @@ default {
                     if (llGetSubString(sCom,0,6)=="!x-who/") kUser = SanitizeKey(llGetSubString(sCom,7,42));
                     if (sMsg=="Yes")
                     {
+                        llOwnerSay("909: i'm here");
                         g_lTempWhiteList+=[kCurID];
                         if (kUser) g_lTempUserWhiteList+=[(string)kUser];
                         iSave=FALSE;
@@ -999,7 +1003,7 @@ default {
 //        { //in other cases we analyze the command here
         list lArgs=llParseString2List(sMsg,[","],[]);
         sMsg = "";  // free up memory in case of large messages
-        if ((lArgs!=[])!=3) return;
+        if (llGetListLength(lArgs)!=3) return;
         if (llList2Key(lArgs,1)!=g_kWearer && llList2String(lArgs,1)!="ffffffff-ffff-ffff-ffff-ffffffffffff") return; // allow FFF...F wildcard
         string sIdent=llList2String(lArgs,0);
         sMsg=llToLower(llList2String(lArgs,2));
@@ -1019,31 +1023,24 @@ default {
         else if (iAuth==1) {HandleCommand(sIdent,kID,sMsg,TRUE); llSetTimerEvent(g_iGarbageRate);}
         else if (g_iBaseMode == 2)
         {
-//            llOwnerSay("Free memory before queueing: "+(string)(llGetMemoryLimit() - llGetUsedMemory()));
-//            if (llGetMemoryLimit() - llGetUsedMemory()> 5000) //keeps margin for this event + next arriving chat message
-//            {
-            g_lQueue += [sIdent, kID, sMsg];
-            sMsg = ""; sIdent="";
-//            llOwnerSay("Used memory after queueing: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
-//            }
-//            else
-            if (llGetMemoryLimit() - llGetUsedMemory()< 3927) //keeps margin for this event + next arriving chat message
+            if (g_iQApproxSize < 2500)
             {
-                sMsg = ""; sIdent="";
-                key kOldestId = llList2Key(g_lQueue, 1);  // It's actually more likely we want to drop the old request we completely forgot about rather than the newest one that will be forgotten because of some obscure memory limit.
-//                key kOldUser = NULL_KEY;
-//                if (llGetSubString(sMsg,0,6)=="!x-who/") kOldUser=SanitizeKey(llGetSubString(llList2String(g_lQueue, 2),7,42));
-                llOwnerSay("Relay queue saturated. Dropping all requests from oldest source ("+ llKey2Name(kOldestId) +").");
-                g_lTempBlackList+=[kOldestId];
-//                if (kUser) g_lTempUserBlackList+=[kUser];
-                CleanQueue();
-//                llOwnerSay("Used memory after cleaning queue: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
-//                g_iRecentSafeword = TRUE;
-//                refreshRlvListener();
-//                llSetTimerEvent(30.);
-// SA: maybe some of the above should be re-added to "punish" spammers more aggressively.
+                g_iQApproxSize += llStringLength(sIdent+sMsg);
+                g_lQueue += [sIdent, kID, sMsg];
+                sMsg=""; sIdent="";
+                if (!g_iAuthPending) Dequeue();
             }
-            if (!g_iAuthPending) Dequeue();
+            else
+            {
+                llOwnerSay("Relay queue saturated. Dropping all requests from "+ llKey2Name(kID) +". Relay frozen for the next 20s.");
+                sMsg=""; sIdent="";
+                g_lTempBlackList+=[kID];
+                if (kUser) g_lTempUserBlackList+=[kUser];
+                CleanQueue();
+                g_iRecentSafeword = TRUE;
+                refreshRlvListener();
+                llSetTimerEvent(30);
+            }
         }
         else if (g_iPlayMode) {HandleCommand(sIdent,kID,sMsg,FALSE); llSetTimerEvent(g_iGarbageRate);}
     }
@@ -1058,7 +1055,7 @@ default {
         //garbage collection
         vector vMyPos = llGetRootPosition();
         integer i;
-        for (i=0;i<(g_lSources!=[]);++i)
+        for (i=0;i<llGetListLength(g_lSources);++i)
         {
             key kID = llList2Key(g_lSources,i);
             vector vObjPos = llList2Vector(llGetObjectDetails(kID, [OBJECT_POS]),0);
@@ -1068,7 +1065,7 @@ default {
         llSetTimerEvent(g_iGarbageRate);
         g_lTempBlackList=[];
         g_lTempWhiteList=[];
-        if (g_lSources == [])
+        if (llGetListLength(g_lSources) == 0)
         { //dont clear already authorized users before done with current session
             g_lTempUserBlackList=[];
             g_lTempUserWhiteList=[];

@@ -148,7 +148,8 @@ FetchAvi(integer iAuth, string type, string name, key kAv) {
     }
     if (llGetListLength(exclude))
         out += "|" + llDumpList2String(exclude, ",");
-    llMessageLinked(LINK_THIS, FIND_AGENT, out, REQUEST_KEY = llGenerateKey());
+    REQUEST_KEY = llGenerateKey();
+    llMessageLinked(LINK_THIS, FIND_AGENT, out, REQUEST_KEY);
 }
 
 AuthMenu(key kAv, integer iAuth) {
@@ -213,7 +214,7 @@ RemovePerson(string sName, string sToken, key kCmdr) {
     else if (sToken=="blacklist") lPeople=g_lBlackList;
     else return;
     
-    if (~llListFindList(g_lTempOwners,[(string)kCmdr]) && ! ~llListFindList(g_lOwners,[(string)kCmdr]) && sToken != "tempowner"){
+    if ((~llListFindList(g_lTempOwners,[(string)kCmdr])) && ! (~llListFindList(g_lOwners,[(string)kCmdr])) && sToken != "tempowner"){
         Notify(kCmdr,"Temporary owners can only change the temporary owners list",FALSE);
         return;
     }
@@ -261,7 +262,7 @@ RemovePerson(string sName, string sToken, key kCmdr) {
 AddUniquePerson(key kPerson, string sName, string sToken, key kAv) {
     list lPeople;
     //Debug(llKey2Name(kAv)+" is adding "+llKey2Name(kPerson)+" to list "+sToken);
-    if (~llListFindList(g_lTempOwners,[(string)kAv]) && ! ~llListFindList(g_lOwners,[(string)kAv]) && sToken != "tempowner"){
+    if ((~llListFindList(g_lTempOwners,[(string)kAv])) && ! (~llListFindList(g_lOwners,[(string)kAv])) && sToken != "tempowner"){
         Notify(kAv,"Temporary owners can only change the temporary owners list",FALSE);
     } else {
         if (sToken=="owner") {
@@ -373,19 +374,19 @@ integer Auth(string kObjID, integer attachment) {
         iNum = COMMAND_SECOWNER;
     else if (kID == (string)g_kWearer)
         iNum = COMMAND_WEARER;
-    else if (g_iOpenAccess)
+    else if (g_iOpenAccess) {
         if (in_range((key)kID))
             iNum = COMMAND_GROUP;
         else
             iNum = COMMAND_EVERYONE;
-    else if (g_iGroupEnabled && (string)llGetObjectDetails((key)kObjID, [OBJECT_GROUP]) == (string)g_kGroup && (key)kID != g_kWearer)  //meaning that the command came from an object set to our control group, and is not owned by the wearer
+    } else if (g_iGroupEnabled && (string)llGetObjectDetails((key)kObjID, [OBJECT_GROUP]) == (string)g_kGroup && (key)kID != g_kWearer)  //meaning that the command came from an object set to our control group, and is not owned by the wearer
         iNum = COMMAND_GROUP;
-    else if (llSameGroup(kID) && g_iGroupEnabled && kID != (string)g_kWearer)
+    else if (llSameGroup(kID) && g_iGroupEnabled && kID != (string)g_kWearer) {
         if (in_range((key)kID))
             iNum = COMMAND_GROUP;
         else
             iNum = COMMAND_EVERYONE;
-    else
+    } else
         iNum = COMMAND_EVERYONE;
     //Debug("Authed as "+(string)iNum);
     return iNum;
@@ -806,7 +807,7 @@ default {
                     } else  if (sMessage == "Runaway!") {
                         llMessageLinked(LINK_SET, COMMAND_NOAUTH, "runaway", kAv);
                     } else if (sMessage == "Enable") {
-                        if (~llListFindList(g_lTempOwners,[(string)kAv]) && ! ~llListFindList(g_lOwners,[(string)kAv]) ){
+                        if ((~llListFindList(g_lTempOwners,[(string)kAv])) && ! (~llListFindList(g_lOwners,[(string)kAv])) ){
                             Notify(kAv,"Temporary owners can't enable runaway.",FALSE);
                         } else {
                             g_iRunawayDisable=FALSE;

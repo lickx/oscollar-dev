@@ -43,7 +43,7 @@ integer DIALOG_RESPONSE = -9001;
 //integer DIALOG_TIMEOUT = -9002;
 
 
-integer g_iLastRank = COMMAND_EVERYONE ;
+integer g_iLastRank = 504;  //COMMAND_EVERYONE
 integer g_iOn = FALSE;
 string g_sText;
 vector g_vColor = <1.0,1.0,1.0>; // default white 

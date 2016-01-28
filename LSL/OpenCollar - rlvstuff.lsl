@@ -532,7 +532,7 @@ default {
                                 }
                             }
                             UserCommand(iAuth, sOut, kAv, sMenu);
-                        } else if (~iIndex && llList2String(g_lRLVcmds,iIndex-2)==sMenu) {
+                        } else if ((~iIndex) && llList2String(g_lRLVcmds,iIndex-2)==sMenu) {
                             string sOut = llList2String(g_lRLVcmds, iIndex-1);
                             sOut += "=";
                             if (sSwitch == TURNON) sOut += "y";

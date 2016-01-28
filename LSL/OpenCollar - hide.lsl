@@ -115,7 +115,7 @@ string Float2String(float in)
 {
     string out = (string)in;
     integer i = llSubStringIndex(out, ".");
-    while (~i && llStringLength(llGetSubString(out, i + 2, -1)) && llGetSubString(out, -1, -1) == "0")
+    while ((~i) && llStringLength(llGetSubString(out, i + 2, -1)) && llGetSubString(out, -1, -1) == "0")
     {
         out = llGetSubString(out, 0, -2);
     }
@@ -170,7 +170,7 @@ SetAllElementsAlpha(integer iAlpha)
         integer iIndex = llListFindList(g_lAlphaSettings, [sElement]);
         if(iIndex !=-1)
         {
-            integer iAlpha = llList2Integer(g_lAlphaSettings, iIndex+1);
+            iAlpha = llList2Integer(g_lAlphaSettings, iIndex+1);
             UpdateElementAlpha(sElement,iAlpha);
         }
     }

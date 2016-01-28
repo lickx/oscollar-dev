@@ -805,7 +805,6 @@ default {
                 {
                     g_lFolderLocks = llParseString2List(sValue, [","], []);
                     integer iN = llGetListLength(g_lFolderLocks);
-                    integer i;
                     for (i = 0; i < iN; i += 2) doLockFolder(i);
                 }
                 else if (sToken == "Unshared")

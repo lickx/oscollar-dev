@@ -248,7 +248,8 @@ ExMenu(key kID, string sWho, integer iAuth)
     {
         iExSettings = g_iSecOwnerDefault;
     }
-    if (~iInd = llListFindList(g_lSettings, [sWho])) // replace deefault with custom
+    iInd = llListFindList(g_lSettings, [sWho]); // replace deefault with custom
+    if (~iInd) 
     {
         iExSettings = llList2Integer(g_lSettings, iInd + 1);
     }
@@ -373,7 +374,8 @@ FetchAvi(integer auth, string type, string name, key user)
     if (llGetListLength(exclude))
         out += "|" + llDumpList2String(exclude, ",");
     g_iAuth=auth;
-    llMessageLinked(LINK_THIS, FIND_AGENT, out, REQUEST_KEY = llGenerateKey());
+    REQUEST_KEY = llGenerateKey();
+    llMessageLinked(LINK_THIS, FIND_AGENT, out, REQUEST_KEY);
 }
 
 AddName(string sKey)
@@ -390,14 +392,16 @@ AddName(string sKey)
     {
         g_lNames += [sKey, llList2String(g_lOwners, iInd + 1)];
     }
-    else if (~iInd = llListFindList(g_lSecOwners, [sKey]))
+    else if (~llListFindList(g_lSecOwners, [sKey]))
     {
+        iInd = llListFindList(g_lSecOwners, [sKey]);
         g_lNames += [sKey, llList2String(g_lSecOwners, iInd + 1)];
     }
     else if((key)sKey)
     {
         //lookup and put the uuid for the request in for now
-        g_lNames += [sKey, g_kTestKey = llRequestAgentData(sKey, DATA_NAME)];
+        g_kTestKey = llRequestAgentData(sKey, DATA_NAME);
+        g_lNames += [sKey, g_kTestKey];
         // llSleep(1); --- unnecessary, as llRequestAgentData will induce a 0.1 second sleep
         llSetTimerEvent(4); // if not a valid avi uuid, we'll revert the names list
         return; // timer event will need (& reset) the Tmp values, & resend usercommands for this person
@@ -658,7 +662,8 @@ integer UserCommand(integer iNum, string sStr, key kID)
                 // do we want anything here this is for excpetions
                 jump nextcom;
             }
-            if (~iNames = llSubStringIndex(sCom, "="))
+            iNames = llSubStringIndex(sCom, "=");
+            if (~iNames)
             {
                 sVal = llGetSubString(sCom, iNames + 1, -1);
                 sCom = llGetSubString(sCom, 0, iNames -1);
@@ -689,7 +694,8 @@ integer UserCommand(integer iNum, string sStr, key kID)
             if (sCom == "defaults")
             {
                 if (~iNames) g_lSettings = llDeleteSubList(g_lSettings, iNames, iNames + 1);
-                if (~iNames = llListFindList(g_lNames, [sWho])) g_lNames = llDeleteSubList(g_lNames, iNames, iNames + 1);
+                iNames = llListFindList(g_lNames, [sWho]);
+                if (~iNames) g_lNames = llDeleteSubList(g_lNames, iNames, iNames + 1);
                 bChange = bChange | 2;
                 jump nextcom;
             }

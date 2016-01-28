@@ -172,7 +172,7 @@ integer compareVersions(string v1, string v2){ //compares two symantic version s
     integer v2a=(integer)llGetSubString(v2,0,v2Index);
     
     if (v1a == v2a) {
-        if (~v1Index || ~v2Index){
+        if ((~v1Index) || (~v2Index)){
             string v1b;
             if (v1Index == -1 || v1Index==llStringLength(v1)) {
                 v1b="0";
