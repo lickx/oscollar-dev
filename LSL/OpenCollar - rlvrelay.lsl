@@ -909,7 +909,6 @@ default {
                     if (llGetSubString(sCom,0,6)=="!x-who/") kUser = SanitizeKey(llGetSubString(sCom,7,42));
                     if (sMsg=="Yes")
                     {
-                        llOwnerSay("909: i'm here");
                         g_lTempWhiteList+=[kCurID];
                         if (kUser) g_lTempUserWhiteList+=[(string)kUser];
                         iSave=FALSE;
