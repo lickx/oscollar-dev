@@ -180,7 +180,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
     if (kID == g_kWearer) llOwnerSay(sMsg);
     else
     {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
@@ -378,11 +378,11 @@ SetTexture(string sIn, key kIn)
 {
     g_sParticleTexture = sIn;
     if (sIn=="chain"){
-        g_sParticleTextureID="4cde01ac-4279-2742-71e1-47ff81cc3529";
+        g_sParticleTextureID="796ef797-1726-4409-a70f-cd64304ada22";
     } else if (sIn=="rope"){
-        g_sParticleTextureID="9a342cda-d62a-ae1f-fc32-a77a24a85d73";
+        g_sParticleTextureID="36b304cc-6209-4f47-9e4a-a68901e98e6e";
     } else if (sIn=="totallytransparent"){
-        g_sParticleTextureID="bd7d7770-39c2-d4c8-e371-0342ecf20921";
+        g_sParticleTextureID="8dcd4a48-2d37-4909-9f78-f7a9eb4ef903";
     } else {
         if (llToLower(g_sParticleTexture) == "noleash")
         {

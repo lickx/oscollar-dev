@@ -88,10 +88,10 @@ string g_sClosedLockPrimName="ClosedLock"; // Prim description of elements that 
 list g_lClosedLockElements; //to store the locks prim to hide or show //EB
 list g_lOpenLockElements; //to store the locks prim to hide or show //EB
 
-string g_sDefaultLockSound="caa78697-8493-ead3-4737-76dcc926df30";
-string g_sDefaultUnlockSound="ff09cab4-3358-326e-6426-ec8d3cd3b98e";
-string g_sLockSound="caa78697-8493-ead3-4737-76dcc926df30";
-string g_sUnlockSound="ff09cab4-3358-326e-6426-ec8d3cd3b98e";
+string g_sDefaultLockSound="73f3f84b-0447-487d-8246-4ab3e5fdbf40";
+string g_sDefaultUnlockSound="d64c3566-cf76-44b5-ae76-9aabf60efab8";
+string g_sLockSound="73f3f84b-0447-487d-8246-4ab3e5fdbf40";
+string g_sUnlockSound="d64c3566-cf76-44b5-ae76-9aabf60efab8";
 
 integer g_iAppLock = FALSE;  //appearance lock flag
 
@@ -152,7 +152,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     if (kID == g_kWearer) llOwnerSay(sMsg);
     else {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
