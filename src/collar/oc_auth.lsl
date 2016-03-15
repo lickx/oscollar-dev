@@ -220,7 +220,7 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
     else if (sToken=="block") lPeople=g_lBlock;
     else return;
 // ~ is bitwise NOT which is used for the llListFindList function to simply turn the result "-1" for "not found" into a 0 (FALSE)
-    if (~llListFindList(g_lTempOwner,[(string)kCmdr]) && ! ~llListFindList(g_lOwner,[(string)kCmdr]) && sToken != "tempowner"){
+    if ((~llListFindList(g_lTempOwner,[(string)kCmdr])) && ! (~llListFindList(g_lOwner,[(string)kCmdr])) && sToken != "tempowner"){
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kCmdr);
         return;
     }
@@ -261,7 +261,7 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
 AddUniquePerson(string sPersonID, string sToken, key kID) {
     list lPeople;
     //Debug(llKey2Name(kAv)+" is adding "+llKey2Name(kPerson)+" to list "+sToken);
-    if (~llListFindList(g_lTempOwner,[(string)kID]) && ! ~llListFindList(g_lOwner,[(string)kID]) && sToken != "tempowner")
+    if ((~llListFindList(g_lTempOwner,[(string)kID])) && ! (~llListFindList(g_lOwner,[(string)kID])) && sToken != "tempowner")
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     else {
         if (sToken=="owner") {
@@ -398,12 +398,12 @@ integer Auth(string sObjID, integer iAttachment) {
         iNum = CMD_TRUSTED;
     else if (sID == g_sWearerID)
         iNum = CMD_WEARER;
-    else if (g_iOpenAccess)
+    else if (g_iOpenAccess) {
         if (in_range((key)sID))
             iNum = CMD_GROUP;
         else
             iNum = CMD_EVERYONE;
-    else if (g_iGroupEnabled && (string)llGetObjectDetails((key)sObjID, [OBJECT_GROUP]) == (string)g_kGroup && (key)sID != g_sWearerID)  //meaning that the command came from an object set to our control group, and is not owned by the wearer
+    } else if (g_iGroupEnabled && (string)llGetObjectDetails((key)sObjID, [OBJECT_GROUP]) == (string)g_kGroup && (key)sID != g_sWearerID)  //meaning that the command came from an object set to our control group, and is not owned by the wearer
         iNum = CMD_GROUP;
     else if (llSameGroup(sID) && g_iGroupEnabled && sID != g_sWearerID) {
         if (in_range((key)sID))

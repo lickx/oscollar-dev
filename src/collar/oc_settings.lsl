@@ -409,11 +409,11 @@ default {
     http_response(key kID, integer iStatus, list lMeta, string sBody) {
         if (kID ==  g_kLoadFromWeb) {
             if (iStatus == 200) {
-                if (lMeta)
+                if (llGetListLength(lMeta) > 0)
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid URL. You need to provide a raw text file like this: "+g_sSampleURL,g_kURLLoadRequest);
                 else {
                     list lLoadSettings = llParseString2List(sBody,["\n"],[]);
-                    if (lLoadSettings) {
+                    if (llGetListLength(lLoadSettings) > 0) {
                         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Settings fetched.",g_kURLLoadRequest);
                         integer i;
                         string sSetting;

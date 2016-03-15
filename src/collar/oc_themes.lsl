@@ -196,7 +196,7 @@ TextureMenu(key kID, integer iPage, integer iAuth, string sElement) {
                     lElementTextures=[];
                     iNumTextures=llGetListLength(g_lTextures);
                 }
-            } else if (~llSubStringIndex(sTextureName,"~") && ! iCustomTextureFound) {  //a texture with no ~ in it is a general texture.  Add it unless we have custom textures
+            } else if ((~llSubStringIndex(sTextureName,"~")) && ! iCustomTextureFound) {  //a texture with no ~ in it is a general texture.  Add it unless we have custom textures
                 lElementTextures+=llList2String(g_lTextureShortNames,iNumTextures);
             }
         }
@@ -298,7 +298,7 @@ BuildElementsList(){
     integer iLinkNum = llGetNumberOfPrims()+1;
     while (iLinkNum-- > 2) {  //root prim is 1, so stop at 2
         string sElement = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
-        if (~llSubStringIndex(llToLower(sElement),"floattext") || ~llSubStringIndex(llToLower(sElement),"leashpoint")) {
+        if ((~llSubStringIndex(llToLower(sElement),"floattext")) || (~llSubStringIndex(llToLower(sElement),"leashpoint"))) {
              } //do nothing, these are alwasys no-anything
         else if (sElement != "" && sElement != "(No Description)") {  //element has a description, so parse it
             //prim desc will be elementtype~notexture(maybe)
@@ -495,7 +495,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
                             integer iSides = llGetLinkNumberOfSides(iLinkCount);
                             integer iFace ;
                             for (iFace = 0; iFace < iSides; iFace++) {
-                                list lParams = llGetLinkPrimitiveParams(iLinkCount, [PRIM_TEXTURE, iFace ]);
+                                lParams = llGetLinkPrimitiveParams(iLinkCount, [PRIM_TEXTURE, iFace ]);
                                 lParams = llDeleteSubList(lParams,0,0); // get texture params
                                 llSetLinkPrimitiveParamsFast(iLinkCount, [PRIM_TEXTURE, iFace, sTextureKey]+lParams);
                             }
@@ -719,7 +719,7 @@ default {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
             if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
-            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID == "";
+            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = "";
             if (llGetInventoryType(g_sStylesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sStylesCard)!=g_kStylesCardUUID) BuildStylesList();
             else if (!llGetInventoryType(g_sStylesCard)==INVENTORY_NOTECARD) g_kStylesCardUUID = "";
         }

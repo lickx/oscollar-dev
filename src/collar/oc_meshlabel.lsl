@@ -211,7 +211,7 @@ integer LabelsCount() {
         }
     }
     if (!ok) {
-        if (~llSubStringIndex(llGetObjectName(),"Installer") && ~llSubStringIndex(llGetObjectName(),"Updater")) 
+        if ((~llSubStringIndex(llGetObjectName(),"Installer")) && (~llSubStringIndex(llGetObjectName(),"Updater"))) 
             return 1;
     }
     return ok;
@@ -231,7 +231,7 @@ SetLabel() {
         llSetTimerEvent(0);
         //inlined single use CenterJustify function
         while(llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
-        string sText = sPadding + sText;
+        sText = sPadding + sText;
         integer iCharPosition;
         for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
             RenderString(iCharPosition, llGetSubString(sText, iCharPosition, iCharPosition));

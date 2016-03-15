@@ -112,9 +112,10 @@ string L_RIBBON_TEX = "Silk"; //texture name when using the ribbon_mask particle
 string L_COSTUM_TEX_ID;
 // Defalut leash particle, can read from defaultsettings:
 // leashParticle=Shine~1~ParticleMode~Ribbon~R_Texture~Silk~C_Texture~Chain~Color~<1,1,1>~Size~<0.07,0.07,1.0>~Gravity~-0.7~C_TextureID~keyID~R_TextureID~keyID
-list g_lDefaultSettings = [L_GLOW,"1",L_TURN,"0",L_STRICT,"0","ParticleMode","Ribbon","R_Texture","Silk","C_Texture","Chain",L_COLOR,"<1.0,1.0,1.0>",L_SIZE,"<0.04,0.04,1.0>",L_GRAVITY,"-1.0"];
+list g_lDefaultSettings = ["Shine","1","Turn","0","Strict","0","ParticleMode","Ribbon","R_Texture","Silk","C_Texture","Chain","Color","<1.0,1.0,1.0>","Size","<0.04,0.04,1.0>","Gravity","-1.0"];
 
-list g_lSettings=g_lDefaultSettings;
+//list g_lSettings=g_lDefaultSettings;
+list g_lSettings = ["Shine","1","Turn","0","Strict","0","ParticleMode","Ribbon","R_Texture","Silk","C_Texture","Chain","Color","<1.0,1.0,1.0>","Size","<0.04,0.04,1.0>","Gravity","-1.0"];
 
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
@@ -265,7 +266,7 @@ string Vec2String(vector vVec) {
     for (g_iLoop = 0; g_iLoop < 3; g_iLoop++) {
         string sStr = llList2String(lParts, g_iLoop);
         //remove any trailing 0's or .'s from sStr
-        while (~llSubStringIndex(sStr, ".") && (llGetSubString(sStr, -1, -1) == "0" || llGetSubString(sStr, -1, -1) == ".")) {
+        while ((~llSubStringIndex(sStr, ".")) && (llGetSubString(sStr, -1, -1) == "0" || llGetSubString(sStr, -1, -1) == ".")) {
             sStr = llGetSubString(sStr, 0, -2);
         }
         lParts = llListReplaceList(lParts, [sStr], g_iLoop, g_iLoop);
@@ -276,7 +277,7 @@ string Vec2String(vector vVec) {
 string Float2String(float in) {
     string out = (string)in;
     integer i = llSubStringIndex(out, ".");
-    while (~i && llStringLength(llGetSubString(out, i + 2, -1)) && llGetSubString(out, -1, -1) == "0") {
+    while ((~i) && llStringLength(llGetSubString(out, i + 2, -1)) && llGetSubString(out, -1, -1) == "0") {
         out = llGetSubString(out, 0, -2);
     }
     return out;

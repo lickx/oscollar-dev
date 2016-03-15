@@ -230,7 +230,8 @@ ExMenu(key kID, string sWho, integer iAuth) {
         iExSettings = g_iOwnerDefault;
     else if (sWho == "trusted" || ~llListFindList(g_lSecOwners, [sWho]))
         iExSettings = g_iTrustedDefault;
-    if (~iInd = llListFindList(g_lSettings, [sWho])) // replace deefault with custom
+    iInd = llListFindList(g_lSettings, [sWho]);  // replace deefault with custom
+    if (~iInd)
         iExSettings = llList2Integer(g_lSettings, iInd + 1);
 
     string sPrompt = "\nCurrent Settings for "+sWho+": "+"\n";
@@ -400,7 +401,8 @@ UserCommand(integer iNum, string sStr, key kID) {
         for (iC = 0; iC < llGetListLength(lCom); iC++) {// cycle through strided entries
             sCom = llList2String(lCom, iC);
             if (sCom == "clear") jump nextcom; // do we want anything here this is for excpetions
-            if (~iNames = llSubStringIndex(sCom, "=")) {
+            iNames = llSubStringIndex(sCom, "=");
+            if (~iNames) {
                 sVal = llGetSubString(sCom, iNames + 1, -1);
                 sCom = llGetSubString(sCom, 0, iNames -1);
             } else sVal = "";
