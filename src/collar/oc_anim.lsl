@@ -265,8 +265,7 @@ MessageAOs(string sONOFF, string sWhat){ //send string as "ON"  / "OFF" saves 2 
 RefreshAnim() {  //g_lAnims can get lost on TP, so re-play g_lAnims[0] here, and call this function in "changed" event on TP
     if (llGetListLength(g_lAnims)) {
         if (g_iPosture) llStartAnimation("~stiff");
-        if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
-            llResetAnimationOverride("ALL");
+        if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
             string sAnim = llList2String(g_lAnims, 0);
             if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) StartAnim(sAnim);  //get and stop currently playing anim
         } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Permission to animate lost. Try taking me off and re-attaching me.",g_kWearer);
@@ -274,45 +273,29 @@ RefreshAnim() {  //g_lAnims can get lost on TP, so re-play g_lAnims[0] here, and
 }
 
 StartAnim(string sAnim) {  //adds anim to queue, calls PlayAnim to play it, and calls AO as necessary
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
-            if (llGetListLength(g_lAnims)) UnPlayAnim(llList2String(g_lAnims, 0));
+            if (llGetListLength(g_lAnims)) llStopAnimation(llList2String(g_lAnims, 0));
             g_lAnims = [sAnim] + g_lAnims;  //this way, g_lAnims[0] is always the currently playing anim
-            PlayAnim(sAnim);
+            llStartAnimation(sAnim);
             MessageAOs("OFF","STAND");
         }
     } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
 }
 
-PlayAnim(string sAnim){  //plays anim and heightfix, depending on methods configured for each
-    if (g_iTweakPoseAO) {
-        llSetAnimationOverride( "Standing", sAnim);
-        if (g_sPoseMoveWalk) llSetAnimationOverride( "Walking", g_sPoseMoveWalk);
-        if (g_sPoseMoveRun) {
-            if (llGetInventoryKey(g_sPoseMoveRun)) llSetAnimationOverride( "Running", g_sPoseMoveRun);
-            else if (llGetInventoryKey("~run")) llSetAnimationOverride( "Running", "~run");
-        }
-    } else llStartAnimation(sAnim);
-}
-
 StopAnim(string sAnim) {  //deals with removing anim from queue, calls UnPlayAnim to stop it, calls AO as nexessary
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             while(~llListFindList(g_lAnims,[sAnim])){
                 integer n=llListFindList(g_lAnims,[sAnim]);
                 g_lAnims=llDeleteSubList(g_lAnims, n, n);
             }
-            UnPlayAnim(sAnim);
+            llStopAnimation(sAnim);
             //play the new g_lAnims[0].  If anim list is empty, turn AO back on
-            if (llGetListLength(g_lAnims)) PlayAnim(llList2String(g_lAnims, 0));
+            if (llGetListLength(g_lAnims)) llStartAnimation(llList2String(g_lAnims, 0));
             else MessageAOs("ON","STAND");
         }
     } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
-}
-
-UnPlayAnim(string sAnim){  //stops anim and heightfix, depending on methods configured for each
-    if (g_iTweakPoseAO) llResetAnimationOverride("ALL");
-    else llStopAnimation(sAnim);
 }
 
 CreateAnimList() {
@@ -466,7 +449,7 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
        // llSetMemoryLimit(49152);  //2015-05-06 (5490 bytes free)
         g_kWearer = llGetOwner();
-        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS );
+        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
         if (llGetInventoryKey("~heightscalars")) g_kDataID = llGetNotecardLine("~heightscalars", g_iLine);
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
@@ -494,7 +477,7 @@ default {
             MessageAOs("ON","STAND");
             g_lAnims = [];
         }
-        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS);
+        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -572,7 +555,7 @@ default {
                 } else if (sMenuType == "Pose") {
                     if (sMessage == "BACK") AnimMenu(kAv, iAuth);
                     else if (sMessage == "↑") {
-                        if (~llListFindList(g_lHeightAdjustments,[llGetSubString(g_sCurrentPose,-2,-1)]) || llGetInventoryType(g_sCurrentPose+"+1") == INVENTORY_ANIMATION && g_sCurrentPose != "") {
+                        if ((~llListFindList(g_lHeightAdjustments,[llGetSubString(g_sCurrentPose,-2,-1)])) || llGetInventoryType(g_sCurrentPose+"+1") == INVENTORY_ANIMATION && g_sCurrentPose != "") {
                             if (g_sHeightAdjustment == "+2") 
                                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This is the maximum up.", kAv);
                             else {//if (g_sCurrentPose != "") {
@@ -586,7 +569,7 @@ default {
                             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There are no height adjustment poses for "+g_sCurrentPose+" in this %DEVICETYPE%.",kAv);
                         PoseMenu(kAv, iPage, iAuth);
                     } else if (sMessage == "↓") {
-                        if (~llListFindList(g_lHeightAdjustments,[llGetSubString(g_sCurrentPose,-2,-1)]) || llGetInventoryType(g_sCurrentPose+"+1") == INVENTORY_ANIMATION && g_sCurrentPose != "") {
+                        if ((~llListFindList(g_lHeightAdjustments,[llGetSubString(g_sCurrentPose,-2,-1)])) || llGetInventoryType(g_sCurrentPose+"+1") == INVENTORY_ANIMATION && g_sCurrentPose != "") {
                             if (g_sHeightAdjustment == "-2") 
                                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This is the maximum down.", kAv);
                             else {//if (g_sCurrentPose != "") {

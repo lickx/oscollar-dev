@@ -169,7 +169,7 @@ Debug(string sStr) {
 */
 
 string NameURI(key kID){
-    if (llGetAgentSize(kID))
+    if (llGetAgentSize(kID)!=ZERO_VECTOR)
         return "secondlife:///app/agent/"+(string)kID+"/about";
     else
         return "secondlife:///app/objectim/"+(string)kID+"/?name="+llEscapeURL(llKey2Name(kID))+"&owner="+(string)llGetOwnerKey(kID);
@@ -624,7 +624,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
                 //if (bFromMenu) UserCommand(iAuth, "findpost", kMessageID ,bFromMenu);
-                if (llGetAgentSize((key)sVal)) g_iPassConfirmed = FALSE;
+                if (llGetAgentSize((key)sVal)!=ZERO_VECTOR) g_iPassConfirmed = FALSE;
                 else g_iPassConfirmed = TRUE;
                 LeashTo((key)sVal, kMessageID, iAuth, lPoints, FALSE);
             } else 

@@ -168,7 +168,7 @@ Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer i
     key kMenuID = llGenerateKey();
     string sSearch;
     if (sMenuID == "sensor") {
-        if (lButtons) sSearch = "`"+llList2String(lButtons,0)+"`1";
+        if (llGetListLength(lButtons) > 0) sSearch = "`"+llList2String(lButtons,0)+"`1";
         llMessageLinked(LINK_DIALOG, SENSORDIALOG, (string)kRCPT +"|"+sPrompt+"|0|``"+(string)AGENT+"`"+(string)g_fRange+"`"+(string)PI+sSearch+"|"+llDumpList2String(lUtilityButtons, "`")+"|" + (string)iAuth, kMenuID);
     } else
         llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lButtons, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
