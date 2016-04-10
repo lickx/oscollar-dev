@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 160301.2                          //
+//                         Communicator - 160320.1                          //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
@@ -569,6 +569,7 @@ default {
                 sMessage = "Optimal conditions!";
                 sSaveIntegrity += "professionally made";
             }
+            llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,sSaveIntegrity,"");
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,sSaveIntegrity,"");
             lTemp = [];
             g_lFoundCore5Scripts = [];
@@ -581,7 +582,7 @@ default {
         g_lFoundCore5Scripts = [];
         if (g_iVerify) {
             g_iVerify = FALSE;
-            llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,sSaveIntegrity,"");
+            //llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,sSaveIntegrity,"");
             llOwnerSay(sMessage);
         }
     }
