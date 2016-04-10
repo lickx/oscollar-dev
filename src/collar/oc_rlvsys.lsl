@@ -171,7 +171,7 @@ DoMenu(key kID, integer iAuth){
         lButtons = llListSort(g_lMenu, 1, TRUE);
         integer iRelay = llListFindList(lButtons,["Relais"]);
         integer iTerminal = llListFindList(lButtons,["Terminal"]);
-        if (~iRelay && ~iTerminal) { //check if there is a Relay registered and replace the Terminal button with it
+        if ((~iRelay) && (~iTerminal)) { //check if there is a Relay registered and replace the Terminal button with it
             lButtons = llListReplaceList(lButtons,["Relais"],iTerminal,iTerminal);
             lButtons = llDeleteSubList(lButtons,iRelay,iRelay);
         }

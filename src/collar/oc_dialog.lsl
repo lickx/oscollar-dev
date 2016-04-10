@@ -179,6 +179,7 @@ string NameURI(key kID){
 
 string SubstitudeVars(string sMsg) {
         if (sMsg == "%NOACCESS%") return "Access denied.";
+        // Opensim warning: Multiple assignments to 'sMsg': results may differ between LSL and OSSL:
         if (~llSubStringIndex(sMsg, "%PREFIX%"))
             sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%PREFIX%"], []), g_sPrefix);
         if (~llSubStringIndex(sMsg, "%CHANNEL%"))

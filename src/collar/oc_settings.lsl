@@ -384,7 +384,7 @@ default {
             if (llGetInventoryKey(g_sCard)) {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
              g_kCardID = llGetInventoryKey(g_sCard);
-            } else if (g_lSettings) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
+            } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
     }
 
