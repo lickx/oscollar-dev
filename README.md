@@ -40,3 +40,13 @@ OpenCollar source code and creative resource are covered and protected by strong
 * Everything else that is shared within the metaverse and where no explicit license was applied is covered by the [License Terms for the OpenCollar Role Play Device](https://raw.githubusercontent.com/OpenCollar/opencollar/master/LICENSE).
 
 **NOTE:** Please make sure that you have read and understood the full legal text of each license if your interest in OpenCollar goes beyond personal use (i.e. commercial redistribution). For human-readable summaries of various licenses, check out [tl;drLegal](https://tldrlegal.com/)
+
+#### OpenSim Compatibility
+
+The development target is the STABLE version of OpenSim, at the moment this is 0.8.*
+
+A reference collar to load scripts in can be aquired here at the town square:
+
+(http://opensimworld.com/hop/76133-Seven-Oaks)
+
+Some functionality might be broken or just not ported yet. I recommend the 3.92-like collars for general use in OpenSim instead until we have a feature complete version 6.
