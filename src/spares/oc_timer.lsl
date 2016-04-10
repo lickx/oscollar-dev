@@ -21,11 +21,11 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                            Timer - 160117.1                              //
+//                            Timer - 160324.1                              //
 // ------------------------------------------------------------------------ //
-//  Copyright (c) 2008 - 2015 Satomi Ahn, Nandana Singh, Joy Stipe,         //
+//  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Joy Stipe,         //
 //  Wendy Starfall, Master Starship, Medea Destiny, littlemousy,            //
-//  Romka Swallowtail, Sumi Perl, Keiyra Aeon et al.                        //
+//  Romka Swallowtail, Sumi Perl, Keiyra Aeon, Garvin Twine et al.          //
 // ------------------------------------------------------------------------ //
 //  This script is free software: you can redistribute it and/or modify     //
 //  it under the terms of the GNU General Public License as published       //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⁶⁰¹¹⁷⋅¹";
+string g_sAppVersion = "¹⋅¹";
 
 string g_sSubMenu = "Timer";
 string g_sParentMenu = "Apps";
@@ -173,7 +173,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtility, integer iPage, int
 
 DoMenu(key keyID, integer iAuth) {
     //Debug("timeremaning:"+(string)(g_iOnTimeUpAt-g_iOnTime));
-    string sPrompt = "\n[http://www.opencollar.at/timer.html Timer (unsupported)]\t"+g_sAppVersion+"\n\nA frozen pizza takes ~12 min to bake.\n";
+    string sPrompt = "\n[http://www.opencollar.at/timer.html Legacy Timer]\t"+g_sAppVersion+"\n\nA frozen pizza takes ~12 min to bake.\n";
     list lMyButtons = ["Real Timer","Online Timer"];
 
     sPrompt += "\n Online Timer: "+Int2Time(g_iOnSetTime);
@@ -282,7 +282,8 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
             return;
         }
     }
-
+    if (llToLower(sStr) == "rm timer" && (iAuth == CMD_OWNER || kID ==  g_kWearer)) 
+        Dialog(kID, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth,"rmtimer");
     if (llToLower(sStr) == "timer" || sStr == "menu "+g_sSubMenu) DoMenu(kID, iAuth);
     else if (llGetSubString(sStr, 0, 5) == "timer ") {
         //Debug(sStr);
@@ -526,6 +527,12 @@ default {
             } else if (sMenu == "online") {
                 if (sMsg == UPMENU) DoMenu(kAv, iAuth);
                 else UserCommand(iAuth, "timer online"+sMsg, kAv, TRUE);
+            } else if (sMenu == "rmtimer") {
+                if (sMsg == "Yes") {
+                    llMessageLinked(LINK_ROOT, MENUNAME_REMOVE, g_sParentMenu+"|"+g_sSubMenu, "");
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
+                    if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
