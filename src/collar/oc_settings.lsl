@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Settings - 160320.1                             //
+//                          Settings - 160407.1                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Cleo Collins, Master Starship, //
 //  Satomi Ahn, Garvin Twine, Joy Stipe, Alex Carpenter, Xenhat Liamano,    //
@@ -60,7 +60,7 @@ string g_sSplitLine; // to parse lines that were split due to lsl constraints
 integer g_iLineNr = 0;
 key g_kLineID;
 key g_kCardID = NULL_KEY; //needed for change event check if no .settings card is in the inventory
-list g_lThemes = ["texture","glow","shininess","color"];
+list g_lExceptionTokens = ["texture","glow","shininess","color","intern"];
 key g_kLoadFromWeb;
 key g_kURLLoadRequest;
 key g_kWearer;
@@ -177,7 +177,7 @@ DelSetting(string sToken) { // we'll only ever delete user settings
 }
 
 // run delimiters & add escape-characters for settings print
-list Add2OutList(list lIn) {
+list Add2OutList(list lIn, string sDebug) {
     if (!llGetListLength(lIn)) return [];
     list lOut;// = ["#---My Settings---#"];
     string sBuffer;
@@ -194,7 +194,7 @@ list Add2OutList(list lIn) {
         sValue = llList2String(lIn, i + 1);
         //sGroup = SplitToken(sToken, 0);
         sGroup = llToUpper(SplitToken(sToken, 0));
-        if (~llListFindList(g_lThemes,[llToLower(sGroup)])) jump next;
+        if (sDebug == "print" && ~llListFindList(g_lExceptionTokens,[llToLower(sGroup)])) jump next;
         sToken = SplitToken(sToken, 1);
         integer bIsSplit = FALSE ;
         integer iAddedLength = llStringLength(sBuffer) + llStringLength(sValue)
@@ -229,11 +229,14 @@ list Add2OutList(list lIn) {
     return lOut;
 }
 
-PrintSettings(key kID) {
+PrintSettings(key kID, string sDebug) {
     // compile everything into one list, so we can tell the user everything seamlessly
     list lOut;
-    list lSay = ["\n\nEverything below this line can be copied & pasted into a notecard called \".settings\" for backup:\n"];
-    lSay += Add2OutList(g_lSettings);
+    //list lSay = ["\n\nEverything below this line can be copied & pasted into a notecard called \".settings\" for backup:\n"];
+    list lSay = ["\n\n"];
+    if (sDebug == "debug") 
+        lSay = ["\n\nSettings Debug:\n"];
+    lSay += Add2OutList(g_lSettings, sDebug);
     string sOld;
     string sNew;
     integer i;
@@ -281,7 +284,7 @@ LoadSetting(string sData, integer iLine) {
         sID = llGetSubString(sData, 0, i - 1);
         sData = llGetSubString(sData, i + 1, -1);
         if (~llSubStringIndex(llToLower(sID), "_")) return;
-        else if (~llListFindList(g_lThemes,[sID])) return; 
+        else if (~llListFindList(g_lExceptionTokens,[sID])) return; 
         sID = llToLower(sID)+"_";
         list lData = llParseString2List(sData, ["~"], []);
         for (i = 0; i < llGetListLength(lData); i += 2) {
@@ -334,13 +337,13 @@ SendValues() {
 
 UserCommand(integer iAuth, string sStr, key kID) {
     string sStrLower = llToLower(sStr);
-    if (sStrLower == "print settings") PrintSettings(kID);
+    if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower,0,4));
     else if (!llSubStringIndex(sStrLower,"load")) {
         if (iAuth == CMD_OWNER) {
             if (llSubStringIndex(sStrLower,"load url") == 0 && iAuth == CMD_OWNER) {
                 string sURL = llList2String(llParseString2List(sStr,[" "],[]),2);
                 if (!llSubStringIndex(sURL,"http")) {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Fetching settings from "+sURL,kID);
+                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Fetching settings from "+sURL,kID);
                     g_kURLLoadRequest = kID;
                     g_kLoadFromWeb = llHTTPRequest(sURL,[HTTP_METHOD, "GET"],"");
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Please enter a valid URL like: "+g_sSampleURL,kID);
@@ -370,15 +373,18 @@ UserCommand(integer iAuth, string sStr, key kID) {
 }
 
 default {
-    state_entry() {
+    state_entry() { 
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
+        if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
         // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
-        if (llGetInventoryKey(g_sCard)) {
-            g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-            g_kCardID = llGetInventoryKey(g_sCard);
+        if (!llGetStartParameter()) {
+            if (llGetInventoryKey(g_sCard)) {
+                g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
+             g_kCardID = llGetInventoryKey(g_sCard);
+            } else if (g_lSettings) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
     }
 
@@ -412,8 +418,8 @@ default {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid URL. You need to provide a raw text file like this: "+g_sSampleURL,g_kURLLoadRequest);
                 else {
                     list lLoadSettings = llParseString2List(sBody,["\n"],[]);
-                    if (llGetListLength(lLoadSettings) > 0) {
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Settings fetched.",g_kURLLoadRequest);
+                    if (llGetListLength(lLoadSettings)) {
+                        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Settings fetched.",g_kURLLoadRequest);
                         integer i;
                         string sSetting;
                         do {
