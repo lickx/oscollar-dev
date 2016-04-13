@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Authorizer - 160409.1                           //
+//                          Authorizer - 160413.2                           //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Master Starship, Sei Lisa, Joy Stipe, Wendy Starfall,       //
@@ -170,10 +170,10 @@ AuthMenu(key kAv, integer iAuth) {
     list lButtons = ["+ Owner", "+ Trust", "+ Block", "− Owner", "− Trust", "− Block"];
 
     if (g_kGroup=="") lButtons += ["Group ☐"];    //set group
-    else lButtons += ["Group ☒"];    //unset group
-    if (g_iOpenAccess) lButtons += ["Public ☒"];    //set open access
+    else lButtons += ["Group ☑"];    //unset group
+    if (g_iOpenAccess) lButtons += ["Public ☑"];    //set open access
     else lButtons += ["Public ☐"];    //unset open access
-    if (g_iVanilla) lButtons += g_sFlavor+" ☒";    //add wearer as owner
+    if (g_iVanilla) lButtons += g_sFlavor+" ☑";    //add wearer as owner
     else lButtons += g_sFlavor+" ☐";    //remove wearer as owner
 
     lButtons += ["Runaway","Access List"];
@@ -278,7 +278,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nOops!\n\n"+NameURI(sPersonID)+" is already Owner! You should really trust them.\n",kID);
                 return;
             } else if (sPersonID==g_sWearerID) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nOops!\n\n"+NameURI(sPersonID)+" doesn't belong on this list as the wearer of the %DEVICETYPE%. Instead try: /%CHANNEL%%PREFIX% vanilla on\n",kID);
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nOops!\n\n"+NameURI(sPersonID)+" doesn't belong on this list as the wearer of the %DEVICETYPE%. Instead try: /%CHANNEL% %PREFIX% vanilla on\n",kID);
                 return;
             }
         } else if (sToken=="tempowner") {
@@ -571,7 +571,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nYour new flavor is \""+g_sFlavor+"\".\n",kID);
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"flavor="+g_sFlavor,"");
         } else 
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nYour current flavor is \""+g_sFlavor+"\".\n\nTo set a new flavor type \"/%CHANNEL%%PREFIX% flavor MyFlavor\". Flavors must be single names and can only be a maximum of 9 characters.\n",kID);
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nYour current flavor is \""+g_sFlavor+"\".\n\nTo set a new flavor type \"/%CHANNEL% %PREFIX% flavor MyFlavor\". Flavors must be single names and can only be a maximum of 9 characters.\n",kID);
     }
 }
 
@@ -688,11 +688,11 @@ default {
                             "− Trust","rm trust",
                             "− Block","rm block",
                             "Group ☐","group on",
-                            "Group ☒","group off",
+                            "Group ☑","group off",
                             "Public ☐","public on",
-                            "Public ☒","public off",
+                            "Public ☑","public off",
                             g_sFlavor+" ☐","vanilla on",
-                            g_sFlavor+" ☒","vanilla off",
+                            g_sFlavor+" ☑","vanilla off",
                             "Access List","list",
                             "Runaway","runaway"
                           ];
