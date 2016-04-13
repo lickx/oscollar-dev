@@ -786,6 +786,17 @@ default {
                     g_kLeashCmderID = "";
                 }
             }
+            else
+            // In opensim, g_lMenuIDs is empty when coming from the main menu, thus a negative iMenuIndex
+            {
+                list lMenuParams = llParseString2List(sMessage, ["|"], []);
+                key kAV = (key)llList2String(lMenuParams, 0);
+                string sButton = llList2String(lMenuParams, 1);
+                integer iAuth = (integer)llList2String(lMenuParams, 3);
+
+                if (sButton == BUTTON_SUBMENU) 
+                    UserCommand(iAuth, llToLower(sButton), kAV, TRUE);
+            }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kMessageID]);
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
