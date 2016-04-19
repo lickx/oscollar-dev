@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           System - 160324.1                              //
+//                           System - 160413.3                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy, Romka Swallowtail,  //
@@ -58,10 +58,10 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="6.1.4";
-string g_sFancyVersion="⁶⋅¹⋅⁴";
+string g_sCollarVersion="6.1.5";
+string g_sFancyVersion="⁶⋅¹⋅⁵";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 160409.2;
+float g_fBuildVersion = 160412.1;
 
 key g_kWearer;
 
@@ -129,7 +129,8 @@ string g_sOpenLockPrimName="OpenLock"; // Prim description of elements that shou
 string g_sClosedLockPrimName="ClosedLock"; // Prim description of elements that should be shown when locked
 list g_lClosedLockElements; //to store the locks prim to hide or show //EB
 list g_lOpenLockElements; //to store the locks prim to hide or show //EB
-
+list g_lClosedLockGlows;
+list g_lOpenLockGlows;
 string g_sDefaultLockSound="dec9fb53-0fef-29ae-a21d-b3047525d312";
 string g_sDefaultUnlockSound="82fa6d06-b494-f97c-2908-84009380c8d1";
 string g_sLockSound="dec9fb53-0fef-29ae-a21d-b3047525d312";
@@ -138,6 +139,7 @@ string g_sUnlockSound="82fa6d06-b494-f97c-2908-84009380c8d1";
 integer g_iAnimsMenu=FALSE;
 integer g_iRlvMenu=FALSE;
 integer g_iCaptureMenu=FALSE;
+integer g_iLooks;
 
 integer g_iUpdateChan = -7483213;
 integer g_iUpdateHandle;
@@ -166,7 +168,7 @@ string g_sSafeWord="RED";
 //Option Menu variables
 string DUMPSETTINGS = "Print";
 string STEALTH_OFF = "☐ Stealth"; // show the whole device
-string STEALTH_ON = "☒ Stealth"; // hide the whole device
+string STEALTH_ON = "☑ Stealth"; // hide the whole device
 string LOADCARD="Load";
 string REFRESH_MENU = "Fix";
 
@@ -225,20 +227,24 @@ string NameGroupURI(string sStr){
 }
 
 SettingsMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/settings.html Settings]\n\n\"" + DUMPSETTINGS + "\" current settings to chat.";
+    string sPrompt = "\n[http://www.opencollar.at/settings.html Settings]";
+    /*sPrompt += "\n\n\"" + DUMPSETTINGS + "\" current settings to chat.";
     sPrompt += "\n\"" +LOADCARD+"\" settings from backup card.";
     sPrompt += "\n\"Fix\" menus if buttons went missing.\n";
-    sPrompt += "\nSelect Themes to customize looks.";
+    if (g_iLooks) sPrompt += "\nSelect Looks to customize looks.";
+    else sPrompt += "\nSelect Themes to customize looks.";*/ 
     list lButtons = [DUMPSETTINGS,LOADCARD,REFRESH_MENU];
     lButtons += g_lResizeButtons;
     if (STEALTH) {
-        sPrompt +="\nUncheck " + STEALTH_ON + " to reveal your %DEVICETYPE%.";
+        //sPrompt +="\nUncheck " + STEALTH_ON + " to reveal your %DEVICETYPE%.";
         lButtons += [STEALTH_ON];
     } else {
-        sPrompt +="\nCheck " + STEALTH_OFF + " to hide your %DEVICETYPE%.";
+        //sPrompt +="\nCheck " + STEALTH_OFF + " to hide your %DEVICETYPE%.";
         lButtons += [STEALTH_OFF];
     }
-    Dialog(kID, sPrompt, lButtons, [UPMENU, "Themes"], 0, iAuth, "Settings");
+    if (g_iLooks) lButtons += "Looks";
+    else lButtons += "Themes";
+    Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Settings");
 }
 
 AppsMenu(key kID, integer iAuth) {
@@ -262,7 +268,7 @@ HelpMenu(key kID, integer iAuth) {
     //Debug("max memory used: "+(string)llGetSPMaxMemory());
     list lUtility = [UPMENU];
     string sNewsButton="☐ News";
-    if (g_iNews) sNewsButton="☒ News";
+    if (g_iNews) sNewsButton="☑ News";
     list lStaticButtons=[GIVECARD,CONTACT,LICENSE,sNewsButton,"Update"];
     Dialog(kID, sPrompt, lStaticButtons, lUtility, 0, iAuth, "Help/About");
 }
@@ -273,13 +279,12 @@ MainMenu(key kID, integer iAuth) {
     //Debug("max memory used: "+(string)llGetSPMaxMemory());
     list lStaticButtons=["Apps"];
     if (g_iAnimsMenu) lStaticButtons+="Animations";
-    else lStaticButtons+=" ";
+    else lStaticButtons+="-";
     if (g_iCaptureMenu) lStaticButtons+="Capture";
-    else lStaticButtons+="Looks";
-   // else lStaticButtons+=" ";
+    else lStaticButtons+="-";
     lStaticButtons+=["Leash"];
     if (g_iRlvMenu) lStaticButtons+="RLV";
-    else lStaticButtons+=" ";
+    else lStaticButtons+="-";
     lStaticButtons+=["Access","Settings","Help/About"];
     if (g_iLocked) Dialog(kID, sPrompt, "UNLOCK"+lStaticButtons, [], 0, iAuth, "Main");
     else Dialog(kID, sPrompt, "LOCK"+lStaticButtons, [], 0, iAuth, "Main");
@@ -503,11 +508,41 @@ SetLockElementAlpha() { //EB
     //loop through stored links, setting alpha if element type is lock
     integer n;
     integer iLinkElements = llGetListLength(g_lOpenLockElements);
-    for (; n < iLinkElements; n++)
+    for (; n < iLinkElements; n++) {
         llSetLinkAlpha(llList2Integer(g_lOpenLockElements,n), !g_iLocked, ALL_SIDES);
+        UpdateGlow(llList2Integer(g_lOpenLockElements,n), !g_iLocked);
+    }
     iLinkElements = llGetListLength(g_lClosedLockElements);
-    for (n=0; n < iLinkElements; n++)
+    for (n=0; n < iLinkElements; n++) {
         llSetLinkAlpha(llList2Integer(g_lClosedLockElements,n), g_iLocked, ALL_SIDES);
+        UpdateGlow(llList2Integer(g_lClosedLockElements,n), g_iLocked);
+    }
+}
+
+UpdateGlow(integer iLink, integer iAlpha) {
+    if (iAlpha == 0) {
+        SavePrimGlow(iLink);
+        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);  // set no glow;
+    } else RestorePrimGlow(iLink);
+}
+
+SavePrimGlow(integer iLink) {
+    float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+    list lGlows = g_lClosedLockGlows;
+    if (g_iLocked) lGlows = g_lOpenLockGlows;
+    integer i = llListFindList(lGlows,[iLink]);
+    if (i !=-1 && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],i+1,i+1);
+    if (i !=-1 && fGlow == 0) lGlows = llDeleteSubList(lGlows,i,i+1);
+    if (i == -1 && fGlow > 0) lGlows += [iLink, fGlow];
+    if (g_iLocked) g_lOpenLockGlows = lGlows;
+    else g_lClosedLockGlows = lGlows;
+}
+
+RestorePrimGlow(integer iLink) {
+    list lGlows = g_lOpenLockGlows;
+    if (g_iLocked) lGlows = g_lClosedLockGlows;    
+    integer i = llListFindList(lGlows,[iLink]);
+    if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(lGlows, i+1)]);
 }
 
 RebuildMenu() {
@@ -605,12 +640,11 @@ default
                 } else if (sMenu=="Help/About") {
                     //Debug("Help menu response");
                     if (sMessage == UPMENU) MainMenu(kAv, iAuth);
-                    else if (sMessage == "Looks") llMessageLinked(LINK_ROOT, iAuth, "looks",kAv);
                     else if (sMessage == GIVECARD) UserCommand(iAuth,"help",kAv, TRUE);
                     else if (sMessage == LICENSE) UserCommand(iAuth,"license",kAv, TRUE);
                     else if (sMessage == CONTACT) UserCommand(iAuth,"contact",kAv, TRUE);
                     else if (sMessage=="☐ News") UserCommand(iAuth, "news on", kAv, TRUE);
-                    else if (sMessage=="☒ News")   UserCommand(iAuth, "news off", kAv, TRUE);
+                    else if (sMessage=="☑ News")   UserCommand(iAuth, "news off", kAv, TRUE);
                     else if (sMessage == "Update") UserCommand(iAuth,"update",kAv,TRUE);
                 } else if (sMenu == "UpdateConfirmMenu"){
                     if (sMessage=="Yes") StartUpdate();
@@ -632,6 +666,9 @@ default
                         STEALTH = FALSE;
                     } else if (sMessage == "Themes") {
                         llMessageLinked(LINK_ROOT, iAuth, "menu Themes", kAv);
+                        return;
+                    } else if (sMessage == "Looks") {
+                        llMessageLinked(LINK_ROOT, iAuth, "looks",kAv);
                         return;
                     } else if (sMessage == UPMENU) {
                         MainMenu(kAv, iAuth);
@@ -662,8 +699,8 @@ default
                 g_iLocked = (integer)sValue;
                 if (g_iLocked) llOwnerSay("@detach=n");
                 SetLockElementAlpha();
-            } else if (sToken == "intern_integrity") 
-                g_sIntegrity = sValue;
+            } else if (sToken == "intern_integrity") g_sIntegrity = sValue;
+            else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
             else if(sToken =="lock_locksound") {
                 if(sValue=="default") g_sLockSound=g_sDefaultLockSound;
                 else if((key)sValue!=NULL_KEY || llGetInventoryType(sValue)==INVENTORY_SOUND) g_sLockSound=sValue;
