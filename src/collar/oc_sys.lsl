@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           System - 160413.3                              //
+//                           System - 160418.3                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy, Romka Swallowtail,  //
@@ -61,7 +61,7 @@ string g_sDevStage="";
 string g_sCollarVersion="6.1.5";
 string g_sFancyVersion="⁶⋅¹⋅⁵";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 160412.1;
+float g_fBuildVersion = 160418.3;
 
 key g_kWearer;
 
@@ -112,7 +112,7 @@ string UPMENU = "BACK";
 string GIVECARD = "Help";
 string HELPCARD = ".help";
 string CONTACT = "Contact";
-string LICENSE="License";
+string LICENSE = "License";
 key g_kWebLookup;
 key g_kCurrentUser;
 
@@ -155,10 +155,13 @@ key g_kDistCheck;
 integer g_iOffDist;
 key g_kNCkey;
 string version_check_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/live/web/~version";
-string news_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/6.1.0/web/~news";
+string news_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/6.1.5/web/~news";
+string license_blob = "https://github.com/VirtualDisgrace/Collar/blob/live/LICENSE";
 string license_url = "http://www.opencollar.at/license-terms-for-the-opencollar-role-play-device.html";
 key news_request;
 string g_sLastNewsTime = "0";
+
+string g_sWorldAPI = "http://world.secondlife.com/";
 
 integer g_iUpdateAuth;
 integer g_iWillingUpdaters = 0;
@@ -169,11 +172,11 @@ string g_sSafeWord="RED";
 string DUMPSETTINGS = "Print";
 string STEALTH_OFF = "☐ Stealth"; // show the whole device
 string STEALTH_ON = "☑ Stealth"; // hide the whole device
-string LOADCARD="Load";
+string LOADCARD = "Load";
 string REFRESH_MENU = "Fix";
 
 string g_sGlobalToken = "global_";
-integer STEALTH;
+integer g_iStealth;
 
 integer g_iWaitUpdate;
 integer g_iWaitRebuild;
@@ -228,20 +231,10 @@ string NameGroupURI(string sStr){
 
 SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\n[http://www.opencollar.at/settings.html Settings]";
-    /*sPrompt += "\n\n\"" + DUMPSETTINGS + "\" current settings to chat.";
-    sPrompt += "\n\"" +LOADCARD+"\" settings from backup card.";
-    sPrompt += "\n\"Fix\" menus if buttons went missing.\n";
-    if (g_iLooks) sPrompt += "\nSelect Looks to customize looks.";
-    else sPrompt += "\nSelect Themes to customize looks.";*/ 
     list lButtons = [DUMPSETTINGS,LOADCARD,REFRESH_MENU];
     lButtons += g_lResizeButtons;
-    if (STEALTH) {
-        //sPrompt +="\nUncheck " + STEALTH_ON + " to reveal your %DEVICETYPE%.";
-        lButtons += [STEALTH_ON];
-    } else {
-        //sPrompt +="\nCheck " + STEALTH_OFF + " to hide your %DEVICETYPE%.";
-        lButtons += [STEALTH_OFF];
-    }
+    if (g_iStealth) lButtons += [STEALTH_ON];
+    else lButtons += [STEALTH_OFF];
     if (g_iLooks) lButtons += "Looks";
     else lButtons += "Themes";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Settings");
@@ -497,10 +490,10 @@ BuildLockElementList() {//EB
     }
 }
 
-SafeX(){if(!(llGetObjectPermMask(1)&0x4000)){llOwnerSay(
-    "\n\nKernel panic - not syncing: Fatal permission in root\n\nSorry, this item cannot run OpenCollar. See ["+license_url+"#3d details]\n");
-    string n=llGetScriptName();integer i=llGetInventoryNumber(10);string s;do{
-    i--;s=llGetInventoryName(10,i);if(s!=n)llSetScriptState(s,0);}while(i);llSetScriptState(n,0);}
+SafeX(){if(!(llGetObjectPermMask(1)&0x4000)){string n="";llSetText(n+"\nATTENTION!\n▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰\nThis item does not grant\naccess to its source code.\nIt is not compliant with GNU\nand OpenCollar license terms.\nThe scripts can't run like this!\n▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰",<1,1,0>,1);llOwnerSay("\n\n"+n+"Sorry but this item was not correctly set up to run OpenCollar scripts. If this item with faulty permissions was given or sold to you by "+NameGroupURI("agent/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]))+", please inform them that they are not compliant with GNU and OpenCollar license terms. Details can be seen ["+license_blob+"#L179-L185 here].\n");
+    n=llGetScriptName();integer i=llGetInventoryNumber(10);string s;do{
+    i--;s=llGetInventoryName(10,i);if(s!=n)llSetScriptState(s,0);}while(i);
+    llInstantMessage("4da2b231-87e1-45e4-a067-05cf3a5027ea","[§3/e] @ ("+GetTimestamp()+") SRC: "+g_sWorldAPI+"resident/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]));llSetScriptState(n,0);}
 }
 
 SetLockElementAlpha() { //EB
@@ -660,10 +653,10 @@ default
                          return;
                     } else if (sMessage == STEALTH_OFF) {
                          llMessageLinked(LINK_ROOT, iAuth,"hide",kAv);
-                         STEALTH = TRUE;
+                         g_iStealth = TRUE;
                     } else if (sMessage == STEALTH_ON) {
                         llMessageLinked(LINK_ROOT, iAuth,"show",kAv);
-                        STEALTH = FALSE;
+                        g_iStealth = FALSE;
                     } else if (sMessage == "Themes") {
                         llMessageLinked(LINK_ROOT, iAuth, "menu Themes", kAv);
                         return;
