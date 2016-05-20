@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         RLV System - 160413.1                            //
+//                         RLV System - 160423.1                            //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
 //  Medea Destiny, littlemousy, Romka Swallowtail, Garvin Twine,            //
@@ -169,10 +169,10 @@ DoMenu(key kID, integer iAuth){
     list lButtons;
     if (g_iRlvActive) {
         lButtons = llListSort(g_lMenu, 1, TRUE);
-        integer iRelay = llListFindList(lButtons,["Relais"]);
+        integer iRelay = llListFindList(lButtons,["Relay"]);
         integer iTerminal = llListFindList(lButtons,["Terminal"]);
-        if (~iRelay && ~iTerminal) { //check if there is a Relay registered and replace the Terminal button with it
-            lButtons = llListReplaceList(lButtons,["Relais"],iTerminal,iTerminal);
+        if ((~iRelay) && (~iTerminal)) { //check if there is a Relay registered and replace the Terminal button with it
+            lButtons = llListReplaceList(lButtons,["Relay"],iTerminal,iTerminal);
             lButtons = llDeleteSubList(lButtons,iRelay,iRelay);
         }
         lButtons = [TURNOFF, CLEAR] + lButtons;
@@ -250,7 +250,7 @@ AddRestriction(key kID, string sBehav) {
     }
     string sSrcRestr = llList2String(g_lRestrictions,iSource+1);
     //Debug("AddRestriction 2.1");
-    if (!(sSrcRestr==sBehav || ~llSubStringIndex(sSrcRestr,"§"+sBehav) || ~llSubStringIndex(sSrcRestr,sBehav+"§")) ) {
+    if (!(sSrcRestr==sBehav || (~llSubStringIndex(sSrcRestr,"§"+sBehav)) || (~llSubStringIndex(sSrcRestr,sBehav+"§"))) ) {
         //Debug("AddRestriction 2.2");
         sSrcRestr+="§"+sBehav;
         if (llSubStringIndex(sSrcRestr,"§")==0) sSrcRestr=llGetSubString(sSrcRestr,1,-1);
@@ -282,7 +282,7 @@ RemRestriction(key kID, string sBehav) {
     if (~iSource) { //if this source set any restrictions
         list lSrcRestr = llParseString2List(llList2String(g_lRestrictions,iSource+1),["§"],[]); //get a list of this source's restrictions
         integer iRestr=llListFindList(lSrcRestr,[sBehav]);  //get index of this restriction from that list
-        if (~iRestr || sBehav=="ALL") {   //if the restriction is in the list
+        if ((~iRestr) || sBehav=="ALL") {   //if the restriction is in the list
             if (llGetListLength(lSrcRestr)==1) {  //if it is the only restriction in the list
                 g_lRestrictions=llDeleteSubList(g_lRestrictions,iSource, iSource+1);  //remove the restrictions list
                 if ((key)kID) llMessageLinked(LINK_ALL_OTHERS, CMD_REMSRC,"",kID);    //tell the relay the source has no restrictions
@@ -329,6 +329,7 @@ SafeWord() {
         if (kSource != "main" && kSource != "rlvex" && llSubStringIndex(kSource,"utility_") != 0)
             llMessageLinked(LINK_THIS,RLV_CMD,"clear",kSource);
     }
+    llMessageLinked(LINK_THIS,RLV_CMD,"unsit=force","");
     llMessageLinked(LINK_ALL_OTHERS,RLV_CLEAR,"","");
 }
 // End of book keeping functions
@@ -369,15 +370,15 @@ UserCommand(integer iNum, string sStr, key kID) {
             } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nRLV handshakes means the set number of attempts to check for active RLV support in the viewer. Being on slow connections and/or having an unusually large inventory might mean having to check more often than the default of 3 times.\n\nCommand syntax: %PREFIX% rlv handshakes [number]\n", kID);
         }
     }  else if (sStr=="show restrictions") {
-        string sOut="You are being restricted by the following objects";
+        string sOut="\n\n%WEARERNAME% is restricted by the following sources:\n";
         integer numRestrictions=llGetListLength(g_lRestrictions);
-        if (!numRestrictions) sOut="You are not restricted.";
+        if (!numRestrictions) sOut="There are no restrictions right now.";
         while (numRestrictions){
             key kSource=(key)llList2String(g_lRestrictions,numRestrictions-2);
             if ((key)kSource)
-                sOut+="\n"+llKey2Name((key)kSource)+" ("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1);
+                sOut+="\n"+llKey2Name((key)kSource)+" ("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1)+"\n";
             else
-                sOut+="\nThis %DEVICETYPE%("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1);
+                sOut+="\nThis %DEVICETYPE% ("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1)+"\n";
             numRestrictions -= 2;
         }
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sOut,kID);
@@ -582,7 +583,7 @@ default {
                     } else {         //perform other command
                         //Debug("Got other command:\nkey: "+(string)kID+"\ncommand: "+sCommand);
                         if (llSubStringIndex(sCom,"tpto")==0) {
-                            if ( ~llListFindList(g_lBaked,["tploc"])  || ~llListFindList(g_lBaked,["unsit"]) ) {
+                            if ( (~llListFindList(g_lBaked,["tploc"]))  || (~llListFindList(g_lBaked,["unsit"])) ) {
                                 if ((key)kID) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't teleport due to RLV restrictions",kID);
                                 return;
                             }

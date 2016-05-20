@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 160413.1                          //
+//                         Communicator - 160418.1                          //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
@@ -450,7 +450,6 @@ default {
                     llSetTimerEvent(2);
                     g_iVerify = TRUE;
                     g_lWrongRootScripts = [];
-                    string sName;
                     integer i = llGetListLength(g_lCore5Scripts) -1;
                     do {
                         sName = llList2String(g_lCore5Scripts,i);
@@ -535,12 +534,12 @@ default {
     timer() {
         llSetTimerEvent(0);
         string sMessage;
-        if (g_lWrongRootScripts) {
+        if (llGetListLength(g_lWrongRootScripts) > 0) {
             sMessage = "\nFalse root prim placement:\n";
             do {
                 sMessage += llList2String(g_lWrongRootScripts,0);
                 g_lWrongRootScripts =  llDeleteSubList(g_lWrongRootScripts,0,0);
-            } while (g_lWrongRootScripts);
+            } while (llGetListLength(g_lWrongRootScripts) > 0);
         }
         if(sMessage) sMessage += "\n";
         integer i;

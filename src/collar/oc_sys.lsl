@@ -58,10 +58,10 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="6.1.5";
-string g_sFancyVersion="⁶⋅¹⋅⁵";
+string g_sCollarVersion="6.2.0";
+string g_sFancyVersion="⁶⋅²⋅⁰";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 160418.3;
+float g_fBuildVersion = 160507.1;
 
 key g_kWearer;
 
@@ -155,7 +155,7 @@ key g_kDistCheck;
 integer g_iOffDist;
 key g_kNCkey;
 string version_check_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/live/web/~version";
-string news_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/6.1.5/web/~news";
+string news_url = "https://raw.githubusercontent.com/VirtualDisgrace/Collar/6.2/web/~news";
 string license_blob = "https://github.com/VirtualDisgrace/Collar/blob/live/LICENSE";
 string license_url = "http://www.opencollar.at/license-terms-for-the-opencollar-role-play-device.html";
 key news_request;
@@ -201,7 +201,7 @@ integer compareVersions(string v1, string v2) { //compares two symantic version 
     integer v1a=(integer)llGetSubString(v1,0,v1Index);
     integer v2a=(integer)llGetSubString(v2,0,v2Index);
     if (v1a == v2a) {
-        if (~v1Index || ~v2Index) {
+        if ((~v1Index) || (~v2Index)) {
             string v1b;
             if (v1Index == -1 || v1Index==llStringLength(v1)) v1b="0";
             else v1b=llGetSubString(v1,v1Index+1,-1);
