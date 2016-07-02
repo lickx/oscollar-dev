@@ -437,11 +437,17 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     not_at_target() {
+        // Opensim leash fix
+        if (g_kPartner == "") return;
+        
         llTargetRemove(g_iTargetID);
         MoveToPartner();
     }
 
     at_target(integer tiNum, vector targetpos, vector ourpos) {
+        // Opensim leash fix
+        if (g_kPartner == "") return;
+
         llTargetRemove(tiNum);
         llStopMoveToTarget();
         float offset = 10.0;
@@ -544,3 +550,4 @@ default {
 */
     }
 }
+
