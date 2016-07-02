@@ -232,7 +232,7 @@ integer CheckCommandAuth(key kCmdGiver, integer iAuth) {
 SetLength(integer iIn) {
     g_iLength = iIn;
     // llTarget needs to be changed to the new length if leashed
-    if (g_kLeashedTo) {
+    if (g_kLeashedTo != NULL_KEY) {
         llTargetRemove(g_iTargetHandle);
         g_iTargetHandle = llTarget(g_vPos, g_iLength);
     }
@@ -242,7 +242,7 @@ ApplyRestrictions() {
     //Debug("Applying Restrictions");
     if (g_iLeasherInRange) {
         if (g_iStrictModeOn) {
-            if (g_kLeashedTo) {
+            if (g_kLeashedTo != NULL_KEY) {
                 if (! g_bFollowMode) {
                 //Debug("Setting restrictions");
                 llMessageLinked(LINK_RLV, RLV_CMD, "fly=n,tplm=n,tplure=n,tploc=n,tplure:" + (string) g_kLeashedTo + "=add", "realleash");     //set all restrictions
@@ -274,10 +274,15 @@ integer LeashTo(key kTarget, key kCmdGiver, integer iAuth, list lPoints, integer
     }
     if (!CheckCommandAuth(kCmdGiver, iAuth)) return FALSE;
     //if (g_kLeashedTo==kTarget) return TRUE; 
-    if (g_kLeashedTo) DoUnleash(TRUE);
+    if (g_kLeashedTo != NULL_KEY) DoUnleash(TRUE);
 
-    integer bCmdGiverIsAvi=llGetAgentSize(kCmdGiver) != ZERO_VECTOR;
-    integer bTargetIsAvi=llGetAgentSize(kTarget) != ZERO_VECTOR;
+    integer bCmdGiverIsAvi;
+    if (llGetAgentSize(kCmdGiver) != ZERO_VECTOR) bCmdGiverIsAvi=1;
+    else bCmdGiverIsAvi=0;
+    
+    integer bTargetIsAvi;
+    if (llGetAgentSize(kTarget) != ZERO_VECTOR) bTargetIsAvi=1;
+    else bTargetIsAvi=0;
 
     // Send notices to wearer, leasher, and target
     // Only send notices if Leasher is an AV, as objects normally handle their own messages for such things
@@ -377,14 +382,21 @@ DoLeash(key kTarget, integer iAuth, list lPoints) {
 // Wrapper for DoUnleash()
 Unleash(key kCmdGiver) {
     string sTarget = NameURI(g_kLeashedTo);
-    if ( (key)g_kLeashedTo ) {
+    if (g_kLeashedTo != NULL_KEY) {
         string sCmdGiver = NameURI(kCmdGiver);
         string sWearMess;
         string sCmdMess;
         string sTargetMess;
-        integer bCmdGiverIsAvi=llGetAgentSize(kCmdGiver) != ZERO_VECTOR;
+
+        integer bCmdGiverIsAvi;
+        if (llGetAgentSize(kCmdGiver) != ZERO_VECTOR) bCmdGiverIsAvi=1;
+        else bCmdGiverIsAvi=0;
+
         if (bCmdGiverIsAvi) {
-            g_bLeashedToAvi = llGetAgentSize(g_kLeashedTo) != ZERO_VECTOR; //refresh to check if the leash target is in sim, no need to spam else
+            //refresh to check if the leash target is in sim, no need to spam else
+            if (llGetAgentSize(g_kLeashedTo) != ZERO_VECTOR) g_bLeashedToAvi=1;
+            else g_bLeashedToAvi=0;
+
             if (kCmdGiver == g_kWearer) { // Wearer is Leasher
                 if (g_bFollowMode) {
                     sWearMess = "You stop following " + sTarget + ".";
@@ -478,7 +490,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             lButtons += g_lButtons;
 
             string sPrompt = "\n[http://www.opencollar.at/leash.html Leash]\n";
-            if (g_kLeashedTo) {
+            if (g_kLeashedTo != NULL_KEY) {
                 if (g_bFollowMode) sPrompt += "\nFollowing: ";
                 else sPrompt += "\nLeashed to: ";
                 sPrompt += NameURI(g_kLeashedTo);
@@ -504,7 +516,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             else if (sVal == "me") {
                 g_iPassConfirmed = TRUE;
                 LeashTo(kMessageID, kMessageID, iAuth, [], TRUE);
-            } else if ((key)sVal) {
+            } else if (osIsUUID(sVal)) {
                 g_iPassConfirmed = TRUE;
                 LeashTo((key)sVal, kMessageID, iAuth, [], TRUE);
             } else
@@ -596,7 +608,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             if (!CheckCommandAuth(kMessageID, iAuth)) return;
             if (sVal==llToLower(BUTTON_UPMENU))
                 UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
-            else if((key)sVal) {
+            else if(osIsUUID(sVal)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
@@ -626,7 +638,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                 if (bFromMenu) UserCommand(iAuth, "post", kMessageID ,bFromMenu);
             }
             if (sVal==llToLower(BUTTON_UPMENU))  UserCommand(iAuth, "menu leash", kMessageID ,bFromMenu);
-            else if((key)sVal) {
+            else if(osIsUUID(sVal)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
@@ -637,6 +649,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             } else 
                 SensorDialog(g_kCmdGiver, "\n\nWhat's going to serve us as a post? If the desired object isn't on the list, please try moving closer.\n", "",iAuth,"PostTarget", PASSIVE|ACTIVE);
         }
+
     }
 }
 
@@ -693,6 +706,7 @@ default {
         }
     }
     link_message(integer iSender, integer iNum, string sMessage, key kMessageID){
+        llOwnerSay("iNum: "+(string)iNum+" | sMessage:"+sMessage+" | key:+" +(string)kMessageID);
         if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sMessage, kMessageID, FALSE);
         else if (iNum == MENUNAME_REQUEST  && sMessage == BUTTON_PARENTMENU) {
             g_lButtons = [] ; // flush submenu buttons
@@ -745,7 +759,8 @@ default {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kMessageID]);
             if (~iMenuIndex) {
                 list lMenuParams = llParseString2List(sMessage, ["|"], []);
-                key kAV = (key)llList2String(lMenuParams, 0);
+//                key kAV = (key)llList2String(lMenuParams, 0);
+                key kAV = llList2Key(lMenuParams, 0);
                 string sButton = llList2String(lMenuParams, 1);
                 //integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
@@ -801,8 +816,11 @@ default {
                 string sButton = llList2String(lMenuParams, 1);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
 
+                llOwnerSay(llList2CSV(lMenuParams));
+
                 if (sButton == BUTTON_SUBMENU) 
-                    UserCommand(iAuth, llToLower(sButton), kAV, TRUE);
+                    UserCommand(iAuth, "leashmenu", kAV, TRUE);
+//                    UserCommand(iAuth, llToLower(sButton), kAV, TRUE);
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kMessageID]);
@@ -831,7 +849,7 @@ default {
         g_iJustMoved = 1;
         // i ran into a problem here which seems to be "speed" related, specially when using the menu to unleash this event gets triggered together or just after the CleanUp() function
         //to prevent to get stay in the target events i added a check on g_kLeashedTo is NULL_KEY
-        if(g_kLeashedTo) {
+        if(g_kLeashedTo != NULL_KEY) {
             if (g_iStrictModeOn && llGetAgentInfo(g_kWearer)&AGENT_SITTING) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=force", "");
             vector vNewPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
             //llStopMoveToTarget();
