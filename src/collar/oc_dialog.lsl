@@ -178,16 +178,30 @@ string NameURI(key kID){
 }
 
 string SubstitudeVars(string sMsg) {
+        integer iOffset;
         if (sMsg == "%NOACCESS%") return "Access denied.";
-        // Opensim warning: Multiple assignments to 'sMsg': results may differ between LSL and OSSL:
-        if (~llSubStringIndex(sMsg, "%PREFIX%"))
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%PREFIX%"], []), g_sPrefix);
-        if (~llSubStringIndex(sMsg, "%CHANNEL%"))
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%CHANNEL%"], []), (string)g_iListenChan);
-        if (~llSubStringIndex(sMsg, "%DEVICETYPE%"))
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%DEVICETYPE%"], []), g_sDeviceType);
-        if (~llSubStringIndex(sMsg, "%WEARERNAME%"))
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%WEARERNAME%"], []), g_sWearerName);
+        // Opensim string substitution fix. The following would not work and return an empty string:
+        // sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%TO_BE_SUBSTITUDED%"], []), "mystring");
+        iOffset = llSubStringIndex(sMsg, "%PREFIX");
+        if (iOffset != -1) {
+            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%PREFIX%")-1) );
+            sMsg = llInsertString(sMsg, iOffset, g_sPrefix);
+        }
+        iOffset = llSubStringIndex(sMsg, "%CHANNEL%");
+        if (iOffset != -1) {
+            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%CHANNEL%")-1) );
+            sMsg = llInsertString(sMsg, iOffset, (string)g_iListenChan);
+        }
+        iOffset = llSubStringIndex(sMsg, "%DEVICETYPE%");
+        if (iOffset != -1) {
+            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%DEVICETYPE%")-1) );
+            sMsg = llInsertString(sMsg, iOffset, g_sDeviceType);
+        }
+        iOffset = llSubStringIndex(sMsg, "%WEARERNAME%");
+        if (iOffset != -1) {
+            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%WEARERNAME%")-1) );
+            sMsg = llInsertString(sMsg, iOffset, g_sWearerName);
+        }
         return sMsg;
 }
 
