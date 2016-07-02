@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Animator - 160413.2                             //
+//                          Animator - 160528.4                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, Medea Destiny,  //
@@ -437,7 +437,7 @@ UserCommand(integer iNum, string sStr, key kID) {
                 g_iTweakPoseAO = 0;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"TweakPoseAO", "");
                 RefreshAnim();
-                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"AntiSlide is now disabled.", kID);
+                if (llList2String(lParams,2) == "") llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"AntiSlide is now disabled.", kID);
             } else if (sValue == "none") {
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"PoseMoveWalk", "");
                 g_sPoseMoveWalk = "";
@@ -553,7 +553,6 @@ default {
                 else if (sToken == "TweakPoseAO") g_iTweakPoseAO = (integer)sValue;
                 else if (sToken == "PostureRank") g_iLastPostureRank= (integer)sValue;
                 else if (sToken == "PoselockRank") g_iLastPoselockRank= (integer)sValue;
-                else if (sToken == "TweakPoseAO") g_iTweakPoseAO = (integer)sValue;
             } else if (llGetSubString(sToken,0,i) == "intern") {
                 sToken = llGetSubString(sToken,i+1,-1);
                 if (sToken == "AllowHover") {
