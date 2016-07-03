@@ -622,7 +622,7 @@ default {
                 // request to switch to parent menu
                 if (sMessage == UPMENU)
                 {
-                    llMessageLinked(LINK_THIS, iAuth, "menu "+ PARENT_MENU, kAv);
+                    llMessageLinked(LINK_ROOT, iAuth, "menu "+ PARENT_MENU, kAv);
                     return;
                 }
                 if (iAuth < COMMAND_OWNER || iAuth > COMMAND_WEARER) return;

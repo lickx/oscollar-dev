@@ -549,7 +549,7 @@ integer UserCommand(integer iAuth, string sMessage, key kMessageID)
                 {
                     Follow(kMessageID, kMessageID, iAuth);
                 }       
-                else if ((key)sVal)
+                else if (osIsUUID(sVal))
                 {
                     Follow((key)sVal, kMessageID, iAuth);
                 } 
@@ -640,7 +640,7 @@ integer UserCommand(integer iAuth, string sMessage, key kMessageID)
                 DisplayTargetMenu(kMessageID, iAuth, SENSORMODE_FIND_TARGET_FOR_LEASH_MENU);
                 g_iReturnMenu = FALSE;
             }       
-            else if((key)sVal)
+            else if(osIsUUID(sVal))
             {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
@@ -683,7 +683,7 @@ integer UserCommand(integer iAuth, string sMessage, key kMessageID)
                 DisplayTargetMenu(kMessageID, iAuth, SENSORMODE_FIND_TARGET_FOR_POST_MENU);
                 g_iReturnMenu = FALSE;
             }       
-            else if((key)sVal)
+            else if(osIsUUID(sVal))
             {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
@@ -837,7 +837,7 @@ default
             }
             else if (kMessageID == g_kLeashTargetDialogID)
             {   
-                if ((key)sButton)
+                if (osIsUUID(sButton))
                 {
                     g_kLeashedTo = (key)sButton;
                     if (CheckCommandAuth(g_kCmdGiver, g_iLastRank))
@@ -847,7 +847,7 @@ default
             }
             else if (kMessageID == g_kFollowTargetDialogID)
             {
-                if ((key)sButton)
+                if (osIsUUID(sButton))
                 {
                     g_kLeashedTo = (key)sButton;
                     Follow(g_kLeashedTo, g_kCmdGiver, g_iLastRank);
@@ -856,7 +856,7 @@ default
             }
             else if (kMessageID == g_kPostTargetDialogID)
             {
-                if ((key)sButton) UserCommand(iAuth, "post " + sButton, kAV);
+                if (osIsUUID(sButton)) UserCommand(iAuth, "post " + sButton, kAV);
                 if (g_iReturnMenu) return;
             }
             else if (kMessageID == g_kSetLengthDialogID)
