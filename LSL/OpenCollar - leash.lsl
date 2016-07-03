@@ -1018,5 +1018,13 @@ default
                 CONTROL_UP + CONTROL_DOWN, FALSE, FALSE);
         }
     }
+    
+    changed(integer what)
+    {
+        if (what & CHANGED_OWNER)
+        {
+            llResetScript();
+        }
+    }
 }
 
