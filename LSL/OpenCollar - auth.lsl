@@ -460,7 +460,7 @@ integer UserCommand(integer iNum, string sStr, key kID, integer remenu) { // her
         if (iNum!=COMMAND_OWNER) {
             Notify(kID, sOwnerError, FALSE);
             if (remenu) AuthMenu(kID, Auth(kID,FALSE));
-        } else if ((key)sTmpName){
+        } else if (osIsUUID(sTmpName)){
             g_lQueryId+=[llRequestAgentData( sTmpName, DATA_NAME ),sTmpName,sCommand, kID, remenu];
             if (remenu) FetchAvi(Auth(kID,FALSE), sCommand, sTmpName, kID);
         } else
@@ -484,7 +484,7 @@ integer UserCommand(integer iNum, string sStr, key kID, integer remenu) { // her
     } else if (sCommand == "setgroup") {
         if (iNum==COMMAND_OWNER){
             //if key provided use that, else read current group
-            if ((key)(llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1);
+            if (osIsUUID(llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1);
             else g_kGroup = (key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0); //record current group key
 
             if (g_kGroup != "") {
@@ -845,7 +845,7 @@ default {
                     key kAv = llList2Key(params, 2);
                     integer iAuth= llList2Integer(params, 3);
                     key kNewOwner=(key)llList2String(params, 5);
-                    if ((key)kNewOwner){
+                    if (kNewOwner!=NULL_KEY){
                         AddUniquePerson(kNewOwner, llKey2Name(kNewOwner), sRequestType, kAv); //should be safe to uase key2name here, as we added from sensor dialog
                         //FetchAvi(llList2Integer(params, 3), sRequestType, "", kAv);   //remenu
                         integer iNewAuth=Auth(kAv,FALSE);
