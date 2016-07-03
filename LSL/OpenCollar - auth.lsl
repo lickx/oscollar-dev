@@ -844,9 +844,9 @@ default {
                     string sRequestType = llList2String(params, 4);
                     key kAv = llList2Key(params, 2);
                     integer iAuth= llList2Integer(params, 3);
-                    key kNewOwner=(key)llList2String(params, 5);
-                    if (kNewOwner!=NULL_KEY){
-                        AddUniquePerson(kNewOwner, llKey2Name(kNewOwner), sRequestType, kAv); //should be safe to uase key2name here, as we added from sensor dialog
+                    string sNewOwner=llList2String(params, 5);
+                    if (osIsUUID(sNewOwner)){
+                        AddUniquePerson((key)sNewOwner, llKey2Name((key)sNewOwner), sRequestType, kAv); //should be safe to uase key2name here, as we added from sensor dialog
                         //FetchAvi(llList2Integer(params, 3), sRequestType, "", kAv);   //remenu
                         integer iNewAuth=Auth(kAv,FALSE);
                         if (iNewAuth == COMMAND_OWNER){
@@ -855,7 +855,7 @@ default {
                         } else {
                             AuthMenu(kAv,iNewAuth);
                         }
-                    } else if (llList2String(params, 5)=="BACK"){
+                    } else {
                         AuthMenu(kAv,iAuth);
                     }
                 }
