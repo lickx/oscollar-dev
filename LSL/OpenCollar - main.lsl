@@ -107,10 +107,10 @@ integer g_iUpdateHandle;
 key g_kUpdaterOrb;
 integer g_iUpdateFromMenu;
 
-string version_check_url = "https://raw.githubusercontent.com/OpenCollar/OpenCollarUpdater/main/LSL/~version";
+string version_check_url = "https://raw.githubusercontent.com/lickx/opencollar-os/oscollar3/LSL/~version";
 key github_version_request;
 
-string news_url = "https://raw.githubusercontent.com/OpenCollar/OpenCollarUpdater/main/LSL/~news";
+string news_url = "https://raw.githubusercontent.com/lickx/opencollar-os/oscollar3/LSL/~news";
 key news_request;
 string g_sLastNewsTime = "0";
 
@@ -245,7 +245,7 @@ MainMenu(key kID, integer iAuth) {
     } else {
         lStaticButtons+=" ";
     }
-    lStaticButtons+=["Leash"];
+    lStaticButtons+="Leash";
     if (g_iRlvMenu){
         lStaticButtons+="RLV";
     } else {
