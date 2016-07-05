@@ -1,15 +1,14 @@
 
+OsCollar is an unofficial port of OpenCollar to OpenSim.
+As such, please do not contact the OpenCollar project
+with (OpenSim) issues with this port.
 
-Find us at (OsCollar hypergrid HQ, TBD)
-Talk to us on secondlife:///app/group/261b2da7-d1c0-478f-9451-e018fd6b28c7/about
+Talk to us on OpenCollar friends (Osgrid group): secondlife:///app/group/1fe0f858-5055-46ea-b016-8bf7c7f6f3a9/about
 
-Report bugs at our issue tracker at
+Report bugs at our issue tracker at:
 
    https://github.com/lickx/opencollar-os/issues
 
-Help make OsCollar better by contributing on GitHub.
-Any help is welcome, from hacking to end user documentation.
+Help make OsCollar better by contributing. Any help is
+welcome, from hacking to end user documentation.
 
-Although OsCollar is a fork of OpenCollar and strives to be compatible,
-please refrain from asking OpenSim specific support from OpenCollar as
-OsCollar differs in some respects to work around OpenSim quirks/limitations.
