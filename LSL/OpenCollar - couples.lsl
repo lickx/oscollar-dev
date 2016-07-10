@@ -445,7 +445,7 @@ default {
             string sName = llGetObjectName();
             string sObjectName;
             text = osReplaceString(text, "_PARTNER_", g_sPartnerName, -1, 0);
-            text = osReplaceString(text, "_SELF_", g_sPartnerName, -1, 0);
+            text = osReplaceString(text, "_SELF_", WEARERNAME, -1, 0);
             llSetObjectName("");
             llSay(0, "/me " + text);
             llSetObjectName(sName);           
