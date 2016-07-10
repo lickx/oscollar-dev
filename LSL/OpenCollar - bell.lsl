@@ -633,13 +633,14 @@ default {
             }
         }
         if (change & CHANGED_OWNER) llResetScript();
-/*        
+        
         if (change & CHANGED_REGION) {
-            if (g_iProfiled){
+            if (g_iBellOn) g_fNextRing=llGetTime()+g_fSpeed;
+/*            if (g_iProfiled){
                 llScriptProfiler(1);
                 Debug("profiling restarted");
-            }
+            }*/
         }
-*/        
+        
     }
 }
