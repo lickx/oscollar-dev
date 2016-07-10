@@ -544,7 +544,7 @@ default {
                 if (!numAgents){
                     string findNotify;
                     if (find != "") findNotify = "starting with \"" + find + "\" ";
-                    llInstantMessage(kRCPT, "Could not find any avatars "+ findNotify + "in this region.");
+                    llInstantMessage(kRCPT, "No (other) avatars "+ findNotify + "in this region.");
                 } else {
                     //Debug("Found avatars:"+llDumpList2String(agentList,","));
                     ClearUser(kRCPT);
