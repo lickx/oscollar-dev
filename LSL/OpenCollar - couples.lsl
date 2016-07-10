@@ -171,29 +171,6 @@ CoupleAnimMenu(key kID, integer iAuth)
     g_kAnimmenu=Dialog(kID, sPrompt, lButtons, [UPMENU],0, iAuth);
 }
 
-string StrReplace(string sSrc, string from, string to)
-{//replaces all occurrences of 'from' with 'to' in 'sSrc'.
-    integer len = (~-(llStringLength(from)));
-    if(~len)
-    {
-        string  buffer = sSrc;
-        integer b_pos = -1;
-        integer to_len = (~-(llStringLength(to)));
-        @loop;//instead of a while loop, saves 5 bytes (and run faster).
-        integer to_pos = ~llSubStringIndex(buffer, from);
-        if(to_pos)
-        {
-            b_pos -= to_pos;
-            sSrc = llInsertString(llDeleteSubString(sSrc, b_pos, b_pos + len), b_pos, to);
-            b_pos += to_len;
-            buffer = llGetSubString(sSrc, (-~(b_pos)), 0x8000);
-            //buffer = llGetSubString(sSrc = llInsertString(llDeleteSubString(sSrc, b_pos -= to_pos, b_pos + len), b_pos, to), (-~(b_pos += to_len)), 0x8000);
-            jump loop;
-        }
-    }
-    return sSrc;
-}
-
 //added to stop eventual still going animations
 StopAnims()
 {
@@ -467,8 +444,8 @@ default {
         {    
             string sName = llGetObjectName();
             string sObjectName;
-            text = StrReplace(text,"_PARTNER_",g_sPartnerName);
-            text = StrReplace(text,"_SELF_",WEARERNAME);
+            text = osReplaceString(text, "_PARTNER_", g_sPartnerName, -1, 0);
+            text = osReplaceString(text, "_SELF_", g_sPartnerName, -1, 0);
             llSetObjectName("");
             llSay(0, "/me " + text);
             llSetObjectName(sName);           
