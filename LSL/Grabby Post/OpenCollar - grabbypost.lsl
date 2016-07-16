@@ -142,7 +142,7 @@ default
         scanning=FALSE;
 
         // check if anyone was picked up at all
-        if(victimNames==[])
+        if(llGetListLength(victimNames)==0)
         {
             notFound(menuUser);
             resetDialog();
@@ -211,7 +211,7 @@ default
         if(message==((string) wearer+":pong"))
         {
             // get the collar wearer's name
-            string name=llKey2Name(wearer);
+            name=llKey2Name(wearer);
 
             // cut to max. 24 characters and add to the list of names
             victimNames+=[llGetSubString(name,0,23)];
