@@ -111,7 +111,7 @@ SetStyle(string sStyle, integer iAuth, key kAv)
     while (index++ >= 0)
     {
         string setting = llList2String(g_lStyleSettings,index);
-        if (~llListFindList(g_lStyles,[setting]) || setting == "") index = -1;
+        if ((~llListFindList(g_lStyles,[setting])) || setting == "") index = -1;
         else
         {
             list lParams = llParseString2List(setting,["~"],[]);
@@ -189,7 +189,7 @@ string ElementType(integer iLinkNum, string sType)
 {
     string sDesc = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
     list lParams = llParseString2List(llStringTrim(sDesc,STRING_TRIM), ["~"], []);
-    if (~llListFindList(lParams,[sType]) || sDesc == "" || sDesc == "(No Description)") return sType;
+    if ((~llListFindList(lParams,[sType])) || sDesc == "" || sDesc == "(No Description)") return sType;
     else return llList2String(lParams, 0);
 }
 
