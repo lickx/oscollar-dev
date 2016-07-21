@@ -580,8 +580,8 @@ default {
         else if (iNum == POPUP_HELP)
         {
             //replace _PREFIX_ with prefix, and _CHANNEL_ with (strin) channel
-            sStr = llDumpList2String(llParseStringKeepNulls((sStr = "") + sStr, ["_PREFIX_"], []), g_sPrefix);
-            sStr = llDumpList2String(llParseStringKeepNulls((sStr = "") + sStr, ["_CHANNEL_"], []), (string)g_iListenChan);
+            osReplaceString(sStr, "_PREFIX_", g_sPrefix, -1, 0);
+            osReplaceString(sStr, "_CHANNEL_", (string)g_iListenChan, -1, 0);
             Notify(kID, sStr, FALSE);
         }
         //added for attachment auth (garvin)
