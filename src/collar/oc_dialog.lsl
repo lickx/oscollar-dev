@@ -172,41 +172,25 @@ Debug(string sStr) {
     llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
 }*/
 
-
 string NameURI(key kID){
     return "secondlife:///app/agent/"+(string)kID+"/about";
 }
 
 string SubstitudeVars(string sMsg) {
-        integer iOffset;
         if (sMsg == "%NOACCESS%") return "Access denied.";
-        // Opensim string substitution fix. The following would not work and return an empty string:
-        // sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%TO_BE_SUBSTITUDED%"], []), "mystring");
-        iOffset = llSubStringIndex(sMsg, "%PREFIX");
-        if (iOffset != -1) {
-            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%PREFIX%")-1) );
-            sMsg = llInsertString(sMsg, iOffset, g_sPrefix);
-        }
-        iOffset = llSubStringIndex(sMsg, "%CHANNEL%");
-        if (iOffset != -1) {
-            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%CHANNEL%")-1) );
-            sMsg = llInsertString(sMsg, iOffset, (string)g_iListenChan);
-        }
-        iOffset = llSubStringIndex(sMsg, "%DEVICETYPE%");
-        if (iOffset != -1) {
-            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%DEVICETYPE%")-1) );
-            sMsg = llInsertString(sMsg, iOffset, g_sDeviceType);
-        }
-        iOffset = llSubStringIndex(sMsg, "%WEARERNAME%");
-        if (iOffset != -1) {
-            sMsg = llDeleteSubString( sMsg, iOffset, (iOffset+llStringLength("%WEARERNAME%")-1) );
-            sMsg = llInsertString(sMsg, iOffset, g_sWearerName);
-        }
+        if (~llSubStringIndex(sMsg, "%PREFIX%"))
+            sMsg = osReplaceString(sMsg, "%PREFIX%", g_sPrefix, -1, 0);
+        if (~llSubStringIndex(sMsg, "%CHANNEL%"))
+            sMsg = osReplaceString(sMsg, "%CHANNEL%", (string)g_iListenChan, -1, 0);
+        if (~llSubStringIndex(sMsg, "%DEVICETYPE%"))
+            sMsg = osReplaceString(sMsg, "%DEVICETYPE%", g_sDeviceType, -1, 0);
+        if (llSubStringIndex(sMsg, "%WEARERNAME%") != -1)
+            sMsg = osReplaceString(sMsg, "%WEARERNAME%", g_sWearerName, -1, 0);
         return sMsg;
 }
 
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
-    if ((key)kID){
+    if (kID != NULL_KEY){
         sMsg = SubstitudeVars(sMsg);
         string sObjectName = llGetObjectName();
         if (g_sDeviceName != sObjectName) llSetObjectName(g_sDeviceName);
@@ -305,7 +289,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
         sNumberedButtons="\n"; //let's make this a linebreak instead
         for (iCur = iStart; iCur <= iEnd; iCur++) {
             string sButton = llList2String(lMenuItems, iCur);
-            if ((key)sButton) {
+            if (osIsUUID(sButton)) {
                 //fixme: inlined single use key2name function
                 if (g_iSelectAviMenu) sButton = NameURI((key)sButton);
                 else if (llGetDisplayName((key)sButton)) sButton=llGetDisplayName((key)sButton);
@@ -503,7 +487,7 @@ dequeueSensor() {
     list lParams = llParseStringKeepNulls(llList2String(g_lSensorDetails,2), ["|"], []);
     //sensor information is encoded in the first 5 fields of the lButtons list, ready to feed to the sensor command,
     list lSensorInfo = llParseStringKeepNulls(llList2String(lParams, 3), ["`"], []);
-  /*  Debug("Running sensor with\n"+
+    /*Debug("Running sensor with\n"+
         llList2String(lSensorInfo,0)+"\n"+
         llList2String(lSensorInfo,1)+"\n"+
         (string)llList2Integer(lSensorInfo,2)+"\n"+
@@ -721,7 +705,7 @@ default {
                 g_iSelectAviMenu = FALSE;
                 string sAnswer;
                 integer iIndex = llListFindList(ubuttons, [sMessage]);
-                if (iDigits && !~iIndex) {
+                if (iDigits && !(~iIndex)) {
                     integer iBIndex = (integer) llGetSubString(sMessage, 0, iDigits);
                     sAnswer = llList2String(items, iBIndex);
                 } else if (g_iColorMenu) {
