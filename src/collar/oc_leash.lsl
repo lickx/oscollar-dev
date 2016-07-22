@@ -641,7 +641,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             else if(osIsUUID(sVal)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
-                //debug("leash target is key");//could be a post, or could be we specified an av key
+                //Debug("leash target is key");//could be a post, or could be we specified an av key
                 //if (bFromMenu) UserCommand(iAuth, "findpost", kMessageID ,bFromMenu);
                 if (llGetAgentSize((key)sVal)!=ZERO_VECTOR) g_iPassConfirmed = FALSE;
                 else g_iPassConfirmed = TRUE;
@@ -706,7 +706,7 @@ default {
         }
     }
     link_message(integer iSender, integer iNum, string sMessage, key kMessageID){
-        llOwnerSay("iNum: "+(string)iNum+" | sMessage:"+sMessage+" | key:+" +(string)kMessageID);
+        //Debug("iNum: "+(string)iNum+" | sMessage:"+sMessage+" | key:+" +(string)kMessageID);
         if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sMessage, kMessageID, FALSE);
         else if (iNum == MENUNAME_REQUEST  && sMessage == BUTTON_PARENTMENU) {
             g_lButtons = [] ; // flush submenu buttons
