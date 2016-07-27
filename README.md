@@ -21,3 +21,5 @@ Refer to the [[Wiki|https://github.com/lickx/opencollar-os/wiki]] for
 more information on this porting effort and how to help
 
 Visit the [[Issue tracker|https://github.com/lickx/opencollar-os/issues]] to
+report any bugs you find. Be sure to include the branch in your issue title
+that the bug occurs in (OsCollar3 or OsCollar6, or both).
