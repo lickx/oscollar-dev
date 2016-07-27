@@ -1,13 +1,13 @@
-#OpenCollar-OS
+OpenCollar-OS
 =============
 
 This repository contains the code of the OpenSim port of OpenCollar
 
-##The stable branch is OsCollar3 - a hybrid mainly based on OpenCollar 3.99x
+###The stable branch is OsCollar3 - a hybrid mainly based on OpenCollar 3.99x
 This is a hybrid code base and uses the best working parts of several
 branches. This branch is recommended for normal use.
 
-##The unstable branch is OsCollar6 - based on OpenCollar master
+###The unstable branch is OsCollar6 - based on OpenCollar master
 Ideally we like to get this 100% working in OpenSim as many improvements
 have been made by the OpenCollar developers.
 
