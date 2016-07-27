@@ -79,7 +79,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     if (kID == g_kWearer) llOwnerSay(sMsg);
     else {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
@@ -232,7 +232,7 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) { // here iNum: 
                 Notify(kID, WordPrompt(),TRUE);
                 if (remenu) MenuBadwords(kID,iNum);
             } else {
-                if (g_lBadWords) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iNum, "BadwordsRemove");
+                if (llGetListLength(g_lBadWords)) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iNum, "BadwordsRemove");
                 else {
                     Notify(kID, "The list of badwords is currently empty.", FALSE);
                     MenuBadwords(kID,iNum);
@@ -388,3 +388,4 @@ default {
 */
 
 }
+

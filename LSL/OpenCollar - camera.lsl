@@ -2,6 +2,7 @@
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - camera                               //
 //                                 version 3.996                                  //
+//                  Only compatible with OpenSim 0.9 or higher                    //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
