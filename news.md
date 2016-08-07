@@ -1,3 +1,18 @@
-20160727.1
+Final Release 3.998 - Built 160730.1
 
-TBD
+Hello, a release is finally ready!
+
+OsGrid local teleport:
+secondlife://Oaks Woods/8/134/28
+
+Hop teleport:
+hop://hg.osgrid.org:80/Oaks%20Woods/8/134/28
+
+Hypergrid teleport:
+secondlife://hg.osgrid.org:80/Oaks Woods/8/134/28
+
+V3 Hypergrid teleport:
+secondlife://http|!!hg.osgrid.org|80+Oaks+Woods
+
+Manual (World Map):
+hg.osgrid.org:80:Oaks Woods

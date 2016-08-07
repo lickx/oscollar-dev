@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - main                                //
-//                                 version 3.997                                  //
+//                                 version 3.998                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
 // ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
 // ------------------------------------------------------------------------------ //
-//                    github.com/OpenCollar/OpenCollarUpdater                     //
+//            https://github.com/lickx/opencollar-os/tree/oscollar3               //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="3.997";
+string g_sCollarVersion="3.998";
 integer g_iLatestVersion=TRUE;
 
 list g_lOwners;
