@@ -574,7 +574,7 @@ integer UserCommand(integer iAuth, string sMessage, key kMessageID)
         }
         else if (sMesL == "rezpost")
         {
-            llRezObject("Grabby Post", llGetPos() + (<1.0, 0, -0.3> * llGetRot()), ZERO_VECTOR, llEuler2Rot(<0, 90, 0> * DEG_TO_RAD), 0);
+            llRezObject("Grabby Post", llGetPos() + (<1.0, 0, 0.5> * llGetRot()), ZERO_VECTOR, llEuler2Rot(<-90, 0, 0> * DEG_TO_RAD), 0);
         }
         else if (sMesL == "yank" && kMessageID == g_kLeashedTo)
         {
