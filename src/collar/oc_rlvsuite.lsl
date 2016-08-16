@@ -596,7 +596,7 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     } else if (llSubStringIndex(sLowerStr,"sit ") == 0) {
         if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
             sLowerStr = llDeleteSubString(sStr,0,llStringLength("sit ")-1);
-            if ((key)sLowerStr) {
+            if (osIsUUID(sLowerStr)) {
                 llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y,unsit=force","vdRestrict");
                 llSleep(0.5);
                 g_kLastForcedSeat=(key)sLowerStr;

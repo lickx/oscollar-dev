@@ -200,7 +200,7 @@ rebakeSourceRestrictions(key kSource){
 DoLock(){
     integer numSources=llGetListLength(llList2ListStrided(g_lRestrictions,0,-2,2));
     while (numSources--){
-        if ((key)llList2Key(llList2ListStrided(g_lRestrictions,0,-2,2),numSources)){
+        if (llList2Key(llList2ListStrided(g_lRestrictions,0,-2,2),numSources) != NULL_KEY) {
             ApplyAdd("detach");
             return;
         }
@@ -246,7 +246,7 @@ AddRestriction(key kID, string sBehav) {
     if (! ~iSource ) {  //if this is a restriction from a new source
         g_lRestrictions += [kID,""];
         iSource=-2;
-        if ((key)kID) llMessageLinked(LINK_ALL_OTHERS, CMD_ADDSRC,"",kID);  //tell relay script we have a new restriction source
+        if (kID!=NULL_KEY) llMessageLinked(LINK_ALL_OTHERS, CMD_ADDSRC,"",kID);  //tell relay script we have a new restriction source
     }
     string sSrcRestr = llList2String(g_lRestrictions,iSource+1);
     //Debug("AddRestriction 2.1");
@@ -285,7 +285,7 @@ RemRestriction(key kID, string sBehav) {
         if ((~iRestr) || sBehav=="ALL") {   //if the restriction is in the list
             if (llGetListLength(lSrcRestr)==1) {  //if it is the only restriction in the list
                 g_lRestrictions=llDeleteSubList(g_lRestrictions,iSource, iSource+1);  //remove the restrictions list
-                if ((key)kID) llMessageLinked(LINK_ALL_OTHERS, CMD_REMSRC,"",kID);    //tell the relay the source has no restrictions
+                if (kID!=NULL_KEY) llMessageLinked(LINK_ALL_OTHERS, CMD_REMSRC,"",kID);    //tell the relay the source has no restrictions
             } else {                              //else, the source has other restrictions
                 lSrcRestr=llDeleteSubList(lSrcRestr,iRestr,iRestr);                 //delete the restriction from the list
                 g_lRestrictions=llListReplaceList(g_lRestrictions,[llDumpList2String(lSrcRestr,"§")] ,iSource+1,iSource+1);//store the list in the sources restrictions list
@@ -376,7 +376,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         if (!numRestrictions) sOut="There are no restrictions right now.";
         while (numRestrictions){
             key kSource=(key)llList2String(g_lRestrictions,numRestrictions-2);
-            if ((key)kSource)
+            if (kSource!=NULL_KEY)
                 sOut+="\n"+llKey2Name((key)kSource)+" ("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1)+"\n";
             else
                 sOut+="\nThis %DEVICETYPE% ("+(string)kSource+"): "+llList2String(g_lRestrictions,numRestrictions-1)+"\n";
@@ -585,12 +585,12 @@ default {
                         //Debug("Got other command:\nkey: "+(string)kID+"\ncommand: "+sCommand);
                         if (llSubStringIndex(sCom,"tpto")==0) {
                             if ( (~llListFindList(g_lBaked,["tploc"]))  || (~llListFindList(g_lBaked,["unsit"])) ) {
-                                if ((key)kID) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't teleport due to RLV restrictions",kID);
+                                if (kID!=NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't teleport due to RLV restrictions",kID);
                                 return;
                             }
                         } else if (sStr=="unsit=force") {
                             if (~llListFindList(g_lBaked,["unsit"]) ) {
-                                if ((key)kID) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't force stand due to RLV restrictions",kID);
+                                if (kID!=NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't force stand due to RLV restrictions",kID);
                                 return;
                             }
                         }
@@ -637,7 +637,7 @@ default {
                 integer i;
                 for (i=0;i<llGetListLength(g_lRestrictions)/2;i++) {
                     key kSource=(key)llList2String(llList2ListStrided(g_lRestrictions,0,-1,2),i);
-                    if ((key)kSource) llShout(RELAY_CHANNEL,"ping,"+(string)kSource+",ping,ping");
+                    if (kSource!=NULL_KEY) llShout(RELAY_CHANNEL,"ping,"+(string)kSource+",ping,ping");
                     else rebakeSourceRestrictions(kSource);  //reapply collar's restrictions here
                 }
                 if (!llGetStartParameter()) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"RLV ready!",g_kWearer);

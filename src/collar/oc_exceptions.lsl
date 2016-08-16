@@ -377,7 +377,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         // Let's get a uuid to work with, if who is an avatar. This enables users to type in names OR keys for chat commands.
         sWho = llList2String(lParts, iL);
         string sWhoName;
-        if ((key)sWho) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
+        if (osIsUUID(sWho)) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
         else sWhoName = sWho;
         sLower = llToLower(sWho);
         // preventing from getting owners and trusted messed up in the "other" list

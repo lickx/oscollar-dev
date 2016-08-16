@@ -477,7 +477,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
                 }
                 //get long name from short name
                 integer iTextureIndex=llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);  //first try to get index of custom texture
-                if ((key)sTextureShortName) iTextureIndex=0;  //we have been given a key, so pretend we found it in the list
+                if (osIsUUID(sTextureShortName)) iTextureIndex=0;  //we have been given a key, so pretend we found it in the list
                 else if (! ~iTextureIndex) {
                     iTextureIndex=llListFindList(g_lTextures,[sTextureShortName]);  //else get index of regular texture
                 }
@@ -491,7 +491,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
                     //get key from long name
                     //Debug("Texture command is good:"+sStr);
                     string sTextureKey;
-                    if ((key)sTextureShortName) sTextureKey=sTextureShortName;
+                    if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
                     else sTextureKey=llList2String(g_lTextureKeys,iTextureIndex);
                     //Debug("Key for "+sTextureShortName+" is "+sTextureKey);
                     //loop through prims and apply texture key
@@ -643,7 +643,7 @@ default {
                     string sTextureName=llStringTrim(llList2String(lThisLine,0),STRING_TRIM);
                     string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
                     if ( ~llListFindList(g_lTextures,[sTextureName])) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" is in the %DEVICETYPE% AND the notecard.  %DEVICETYPE% texture takes priority.",g_kWearer);
-                    else if((key)kTextureKey) {  //if the notecard has valid key, and texture is not already in collar
+                    else if(kTextureKey!=NULL_KEY) {  //if the notecard has valid key, and texture is not already in collar
                         if(llStringLength(sShortName)>23) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" in textures notecard too long, dropping.",g_kWearer);
                         else {
                             g_lTextures+=sTextureName;
