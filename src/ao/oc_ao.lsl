@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//     OpenCollar AO - 160529.1          .*' /  .*' ; .*`- +'  `*'          //
+//     OpenCollar AO - 160706.1          .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Jessenia Mocha, Alexei Maven,  //
@@ -46,12 +46,12 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//           github.com/OpenCollar/opencollar/tree/master/src/ao            //
+//         github.com/VirtualDisgrace/opencollar/tree/master/src/ao         //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sFancyVersion = "⁶⋅¹⋅²";
-float g_fBuildVersion = 160529.1;
+string g_sFancyVersion = "⁶⋅¹⋅³";
+float g_fBuildVersion = 160706.1;
 integer g_iUpdateAvailable;
 key g_kWebLookup;
 
@@ -485,7 +485,7 @@ default {
         if (g_kWearer != llGetOwner()) llResetScript();
         if (g_iLocked) llOwnerSay("@detach=n");
         g_iReady = FALSE;
-        g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/Collar/live/web/~ao", [HTTP_METHOD, "GET"],"");
+        g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~ao", [HTTP_METHOD, "GET"],"");
         llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
     }
 
@@ -510,7 +510,7 @@ default {
             if (sButton == "Menu") 
                 MenuAO(g_kWearer);
             else if (sButton == "SitAny") {
-                if (!g_iLocked) ToggleSitAnywhere();
+                ToggleSitAnywhere();
             } else if (llSubStringIndex(llToLower(sButton),"ao")>=0) {
                 g_iHidden = !g_iHidden;
                 DefinePosition();

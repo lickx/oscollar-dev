@@ -48,11 +48,11 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//         github.com/OpenCollar/opencollar/tree/master/src/spares          //
+//       github.com/VirtualDisgrace/opencollar/tree/master/src/spares       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅¹";
+string g_sAppVersion = "¹⋅²";
 
 //MESSAGE MAP
 //integer CMD_ZERO = 0;

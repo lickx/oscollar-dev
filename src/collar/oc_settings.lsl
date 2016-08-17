@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Settings - 160413.1                             //
+//                          Settings - 160808.1                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Cleo Collins, Master Starship, //
 //  Satomi Ahn, Garvin Twine, Joy Stipe, Alex Carpenter, Xenhat Liamano,    //
@@ -49,7 +49,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//         github.com/OpenCollar/opencollar/tree/master/src/collar          //
+//       github.com/VirtualDisgrace/opencollar/tree/master/src/collar       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ integer REBOOT = -1000;
 integer LOADPIN = -1904;
 integer g_iRebootConfirmed;
 key g_kConfirmDialogID;
-string g_sSampleURL = "https://goo.gl/uXuN6b";
+string g_sSampleURL = "https://goo.gl/adCn8Y";
 
 //string WIKI_URL = "http://www.opencollar.at/user-guide.html";
 list g_lSettings;
