@@ -432,6 +432,7 @@ default {
             //Debug("Bing");
             llTakeControls( CONTROL_DOWN|CONTROL_UP|CONTROL_FWD|CONTROL_BACK|CONTROL_LEFT|CONTROL_RIGHT|CONTROL_ROT_LEFT|CONTROL_ROT_RIGHT, TRUE, TRUE);
             g_iHasControl=TRUE;
+            g_fNextRing=llGetTime()+1.0;
         }
     }
 
@@ -458,6 +459,7 @@ default {
                 SetBellElementAlpha(); // update hide elements
             }
         }
+        if (iChange & CHANGED_REGION) g_fNextRing=llGetTime()+1.0;
         if (iChange & CHANGED_OWNER) llResetScript();
 /*
         if (iChange & CHANGED_REGION) {

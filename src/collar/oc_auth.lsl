@@ -475,7 +475,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
         if (iNum!=CMD_OWNER && !( sAction == "trust" && kID==g_sWearerID )) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
             if (iRemenu) AuthMenu(kID, Auth(kID,FALSE));
-        } else if (osIUUID(sTmpID)){
+        } else if (osIsUUID(sTmpID)){
             AddUniquePerson(sTmpID, sAction, kID);
             if (iRemenu) Dialog(kID, "\nChoose who to add to the "+sAction+" list:\n",[sTmpID],[UPMENU],0,Auth(kID,FALSE),"AddAvi"+sAction, TRUE);
         } else
@@ -497,13 +497,14 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
          if (iNum==CMD_OWNER){
              if (sAction == "on") {
                 //if key provided use that, else read current group
-                if (osIsUUID((llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1));
+                if (osIsUUID(llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1);
                 else g_kGroup = (key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0); //record current group key
     
                 if (g_kGroup != "") {
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "group=" + (string)g_kGroup, "");
                     g_iGroupEnabled = TRUE;
                     //get group name from world api
+                    //TODO: rework this for opensim
                     key kGroupHTTPID = llHTTPRequest("http://world.secondlife.com/group/" + (string)g_kGroup, [], "");
                     g_lQueryId+=[kGroupHTTPID,"","group", kID, FALSE];
                     llMessageLinked(LINK_RLV, RLV_CMD, "setgroup=n", "auth");
@@ -642,7 +643,7 @@ default {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly
                     if (g_kGroup != "") {
-                        if (osIsUUID(llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0) == g_kGroup)) g_iGroupEnabled = TRUE;
+                        if (osIsUUID(llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0)) == g_kGroup) g_iGroupEnabled = TRUE;
                         else g_iGroupEnabled = FALSE;
                     } else g_iGroupEnabled = FALSE;
                 }
