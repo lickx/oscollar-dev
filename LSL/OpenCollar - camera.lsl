@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - camera                               //
-//                                 version 3.996                                  //
+//                                version 3.996.1                                 //
 //                  Only compatible with OpenSim 0.9 or higher                    //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
@@ -88,52 +88,33 @@ Debug(string sStr) {
 //the vector as last entry (if there shall be a mode which contains 2 vectors, 
 //this needs to be addressed and handles as excetion in the list lJsonModes function
 string JsonModes() {
-    // Opensim bug: The original constants can't be used in llList2Json so we manually
-    // define them as constants
-    // As defined here: http://wiki.secondlife.com/wiki/LlSetCameraParams
-    // Opensim bug report: http://opensimulator.org/mantis/view.php?id=7957
-    integer _CAMERA_PITCH = 0;
-    integer _CAMERA_FOCUS_OFFSET = 1;
-    integer _CAMERA_POSITION_LAG = 5;
-    integer _CAMERA_FOCUS_LAG = 6;
-    integer _CAMERA_DISTANCE = 7;
-    integer _CAMERA_BEHINDNESS_ANGLE = 8;
-    integer _CAMERA_BEHINDNESS_LAG = 9;
-    integer _CAMERA_POSITION_THRESHOLD = 10;
-    integer _CAMERA_FOCUS_THRESHOLD = 11;
-    integer _CAMERA_ACTIVE = 12;
-    integer _CAMERA_POSITION = 13;
-    integer _CAMERA_FOCUS = 17;
-    integer _CAMERA_POSITION_LOCKED = 21;
-    integer _CAMERA_FOCUS_LOCKED = 22;
-
-    string sDefault =   llList2Json(JSON_ARRAY, [_CAMERA_ACTIVE,FALSE]);
-    string sHuman =     llList2Json(JSON_ARRAY, [_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_BEHINDNESS_ANGLE,0.0,
-                                                _CAMERA_BEHINDNESS_LAG,0.0,
-                                                _CAMERA_DISTANCE,2.5,
-                                                _CAMERA_FOCUS_LAG,0.05,
-                                                _CAMERA_POSITION_LOCKED,FALSE,
-                                                _CAMERA_FOCUS_THRESHOLD,0.0,
-                                                _CAMERA_PITCH,20.0,
-                                                _CAMERA_POSITION_LAG,0.0,
-                                                _CAMERA_POSITION_THRESHOLD,0.0,
-                                                _CAMERA_FOCUS_OFFSET,<0.0, 0.0, 0.35>]);
-    string s1stperson = llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_DISTANCE, 0.5,
-                                                _CAMERA_FOCUS_OFFSET, <2.5,0,1.0>]);
-    string sAss =       llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_DISTANCE,0.5]);
-    string sFar =       llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_DISTANCE,10.0]);
-    string sGod =       llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_DISTANCE,10.0,
-                                                _CAMERA_PITCH,80.0]);
-    string sGround =    llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_PITCH,-15.0]);
-    string sWorm =      llList2Json(JSON_ARRAY,[_CAMERA_ACTIVE,TRUE,
-                                                _CAMERA_PITCH,-15.0,
-                                                _CAMERA_FOCUS_OFFSET, <0.0,0.0,-0.75>]);
+    string sDefault =   llList2Json(JSON_ARRAY, [CAMERA_ACTIVE,FALSE]);
+    string sHuman =     llList2Json(JSON_ARRAY, [CAMERA_ACTIVE,TRUE,
+                                                CAMERA_BEHINDNESS_ANGLE,0.0,
+                                                CAMERA_BEHINDNESS_LAG,0.0,
+                                                CAMERA_DISTANCE,2.5,
+                                                CAMERA_FOCUS_LAG,0.05,
+                                                CAMERA_POSITION_LOCKED,FALSE,
+                                                CAMERA_FOCUS_THRESHOLD,0.0,
+                                                CAMERA_PITCH,20.0,
+                                                CAMERA_POSITION_LAG,0.0,
+                                                CAMERA_POSITION_THRESHOLD,0.0,
+                                                CAMERA_FOCUS_OFFSET,<0.0, 0.0, 0.35>]);
+    string s1stperson = llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_DISTANCE, 0.5,
+                                                CAMERA_FOCUS_OFFSET, <2.5,0,1.0>]);
+    string sAss =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_DISTANCE,0.5]);
+    string sFar =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_DISTANCE,10.0]);
+    string sGod =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_DISTANCE,10.0,
+                                                CAMERA_PITCH,80.0]);
+    string sGround =    llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_PITCH,-15.0]);
+    string sWorm =      llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
+                                                CAMERA_PITCH,-15.0,
+                                                CAMERA_FOCUS_OFFSET, <0.0,0.0,-0.75>]);
 
     return llList2Json(JSON_OBJECT,["default",sDefault,"human", sHuman, "1stperson",s1stperson,"ass",sAss,"far",sFar,"god",sGod,"ground",sGround,"worm",sWorm]);
 
@@ -243,7 +224,8 @@ LockCam()
 
 CamMenu(key kID, integer iAuth)
 {
-    string sPrompt = "\nCurrent camera mode is " + g_sCurrentMode + ".\n\nwww.opencollar.at/camera\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
+    string sPrompt = "\n[http://www.example.com Camera]\n\nCurrent camera mode is " + g_sCurrentMode +
+                        "\nThis app requires OpenSim 0.9 and RLV v2.9+";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
     integer stop = llGetListLength(llJson2List(g_sJsonModes));
@@ -490,3 +472,4 @@ default {
 */
     }
 }
+
