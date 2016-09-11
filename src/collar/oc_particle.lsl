@@ -332,10 +332,10 @@ GetSettings(integer iStartParticles) {
 // Added bSave as a boolean, to make this a more versatile wrapper
 SetTexture(string sIn, key kIn) {
     g_sParticleTexture = sIn;
-    if (sIn=="Silk") g_sParticleTextureID="cdb7025a-9283-17d9-8d20-cee010f36e90";
-    else if (sIn=="Chain") g_sParticleTextureID="4cde01ac-4279-2742-71e1-47ff81cc3529";
-    else if (sIn=="Leather") g_sParticleTextureID="8f4c3616-46a4-1ed6-37dc-9705b754b7f1";
-    else if (sIn=="Rope") g_sParticleTextureID="9a342cda-d62a-ae1f-fc32-a77a24a85d73";
+    if (sIn=="Silk") g_sParticleTextureID="d403a4ca-56f3-48e3-9ce5-6240415a4ebf";
+    else if (sIn=="Chain") g_sParticleTextureID="796ef797-1726-4409-a70f-cd64304ada22";
+    else if (sIn=="Leather") g_sParticleTextureID="c0f5e21a-af58-4ee3-a0d0-1fbb7f28c47f";
+    else if (sIn=="Rope") g_sParticleTextureID="36b304cc-6209-4f47-9e4a-a68901e98e6e";
     else if (sIn=="totallytransparent") g_sParticleTextureID=TEXTURE_TRANSPARENT;
     else {
         if (llToLower(g_sParticleTexture) == "noleash") g_sParticleMode = "noParticle";
