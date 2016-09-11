@@ -276,13 +276,8 @@ integer LeashTo(key kTarget, key kCmdGiver, integer iAuth, list lPoints, integer
     //if (g_kLeashedTo==kTarget) return TRUE; 
     if (g_kLeashedTo != NULL_KEY) DoUnleash(TRUE);
 
-    integer bCmdGiverIsAvi;
-    if (llGetAgentSize(kCmdGiver) != ZERO_VECTOR) bCmdGiverIsAvi=1;
-    else bCmdGiverIsAvi=0;
-    
-    integer bTargetIsAvi;
-    if (llGetAgentSize(kTarget) != ZERO_VECTOR) bTargetIsAvi=1;
-    else bTargetIsAvi=0;
+    integer bCmdGiverIsAvi=llGetAgentSize(kCmdGiver) != ZERO_VECTOR;
+    integer bTargetIsAvi=llGetAgentSize(kTarget) != ZERO_VECTOR;
 
     // Send notices to wearer, leasher, and target
     // Only send notices if Leasher is an AV, as objects normally handle their own messages for such things
@@ -387,16 +382,9 @@ Unleash(key kCmdGiver) {
         string sWearMess;
         string sCmdMess;
         string sTargetMess;
-
-        integer bCmdGiverIsAvi;
-        if (llGetAgentSize(kCmdGiver) != ZERO_VECTOR) bCmdGiverIsAvi=1;
-        else bCmdGiverIsAvi=0;
-
+        integer bCmdGiverIsAvi=llGetAgentSize(kCmdGiver) != ZERO_VECTOR;
         if (bCmdGiverIsAvi) {
-            //refresh to check if the leash target is in sim, no need to spam else
-            if (llGetAgentSize(g_kLeashedTo) != ZERO_VECTOR) g_bLeashedToAvi=1;
-            else g_bLeashedToAvi=0;
-
+            g_bLeashedToAvi = llGetAgentSize(g_kLeashedTo) != ZERO_VECTOR; //refresh to check if the leash target is in sim, no need to spam else
             if (kCmdGiver == g_kWearer) { // Wearer is Leasher
                 if (g_bFollowMode) {
                     sWearMess = "You stop following " + sTarget + ".";
@@ -649,7 +637,6 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             } else 
                 SensorDialog(g_kCmdGiver, "\n\nWhat's going to serve us as a post? If the desired object isn't on the list, please try moving closer.\n", "",iAuth,"PostTarget", PASSIVE|ACTIVE);
         }
-
     }
 }
 
@@ -660,7 +647,7 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        llMinEventDelay(0.44);
+//        llMinEventDelay(0.44);
         DoUnleash(FALSE);
         //Debug("Starting");
     }
@@ -706,7 +693,6 @@ default {
         }
     }
     link_message(integer iSender, integer iNum, string sMessage, key kMessageID){
-        //Debug("iNum: "+(string)iNum+" | sMessage:"+sMessage+" | key:+" +(string)kMessageID);
         if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sMessage, kMessageID, FALSE);
         else if (iNum == MENUNAME_REQUEST  && sMessage == BUTTON_PARENTMENU) {
             g_lButtons = [] ; // flush submenu buttons
@@ -759,8 +745,7 @@ default {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kMessageID]);
             if (~iMenuIndex) {
                 list lMenuParams = llParseString2List(sMessage, ["|"], []);
-//                key kAV = (key)llList2String(lMenuParams, 0);
-                key kAV = llList2Key(lMenuParams, 0);
+                key kAV = (key)llList2String(lMenuParams, 0);
                 string sButton = llList2String(lMenuParams, 1);
                 //integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
@@ -807,20 +792,6 @@ default {
                     }
                     g_kLeashCmderID = "";
                 }
-            }
-            else
-            // In opensim, g_lMenuIDs is empty when coming from the main menu, thus a negative iMenuIndex
-            {
-                list lMenuParams = llParseString2List(sMessage, ["|"], []);
-                key kAV = (key)llList2String(lMenuParams, 0);
-                string sButton = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
-
-                llOwnerSay(llList2CSV(lMenuParams));
-
-                if (sButton == BUTTON_SUBMENU) 
-                    UserCommand(iAuth, "leashmenu", kAV, TRUE);
-//                    UserCommand(iAuth, llToLower(sButton), kAV, TRUE);
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kMessageID]);
@@ -889,3 +860,4 @@ default {
 */
     }
 }
+
