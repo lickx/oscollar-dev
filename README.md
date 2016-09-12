@@ -43,10 +43,6 @@ OpenCollar source code and creative resource are covered and protected by strong
 
 #### OpenSim Compatibility
 
-The development target is the STABLE version of OpenSim, at the moment this is 0.8.*
+For now we target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
 
-A reference collar to load scripts in can be aquired here at the town square:
-
-(http://opensimworld.com/hop/76133-Seven-Oaks)
-
-Some functionality might be broken or just not ported yet. I recommend the 3.92-like collars for general use in OpenSim instead until we have a feature complete version 6.
+A ready built snapshot of OsCollar6 to wear and develop with can be aquired at the OsGrid Sim 'Oaks Woods' in the store IXstatic. To visit from another grid (called a 'hypergrid' teleport), enter 'hg.osgrid.org:80:Oaks Woods' in the World Map of the grid you're currently logged into, press 'Search' and finally press 'Teleport'. Obviously this won't work from (corporate) grids that deny you this freedom (like Second Life or InWorldz).
