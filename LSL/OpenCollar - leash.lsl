@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - leash                                //
-//                                version 3.995.1                                 //
+//                                version 3.995.2                                 //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -759,6 +759,7 @@ default {
     }
 
     at_target(integer iNum, vector vTarget, vector vMe){
+        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
         llStopMoveToTarget();
         llTargetRemove(g_iTargetHandle);
         g_vPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
@@ -772,6 +773,7 @@ default {
     }
     
     not_at_target() {
+        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
         g_iJustMoved = 1;
         // i ran into a problem here which seems to be "speed" related, specially when using the menu to unleash this event gets triggered together or just after the CleanUp() function
         //to prevent to get stay in the target events i added a check on g_kLeashedTo is NULL_KEY

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - couples                               //
-//                                 version 3.990                                  //
+//                               version 3.990.1                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -401,7 +401,7 @@ default {
     not_at_target()
     {
         // Opensim leash fix
-        if (g_kPartner == "") return;
+        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
         //this might make us chase the partner.  we'll see.  that might not be bad
         llTargetRemove(g_iTargetID);
         MoveToPartner();
@@ -409,7 +409,7 @@ default {
     at_target(integer tiNum, vector targetpos, vector ourpos)
     {
         // Opensim leash fix
-        if (g_kPartner == "") return;
+        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
         llTargetRemove(tiNum);
         llStopMoveToTarget();
         
@@ -547,4 +547,5 @@ default {
 */
     }
 }
+
 
