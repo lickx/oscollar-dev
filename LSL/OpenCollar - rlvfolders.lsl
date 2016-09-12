@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - rlvfolders                             //
-//                                 version 3.989                                  //
+//                                version 3.989.1                                 //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -390,7 +390,7 @@ FolderBrowseMenu(string sStr)
         iWorn=llList2Integer(lItem,1);
         if (iWorn != 0)
         {
-            lFolders += [folderIcon(iWorn) + sFolder];
+            lFolders += [llGetSubString(folderIcon(iWorn)+sFolder, 0, 12)];
         }
     }
     sPrompt += "\n- Click "+ACTIONS_CURRENT+" to manage this folder content.\n- Click one of the subfolders to browse it.\n";
