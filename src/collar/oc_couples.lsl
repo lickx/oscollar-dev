@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Couples - 160507.1                              //
+//                          Couples - 160507.2                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2004 - 2016 Francis Chung, Ilse Mannonen, Nandana Singh,  //
 //  Cleo Collins, Satomi Ahn, Joy Stipe, Wendy Starfall, Garvin Twine,      //
@@ -438,7 +438,7 @@ default {
     }
     not_at_target() {
         // Opensim leash fix
-        if (g_kPartner == "") return;
+        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
         
         llTargetRemove(g_iTargetID);
         MoveToPartner();
@@ -446,7 +446,7 @@ default {
 
     at_target(integer tiNum, vector targetpos, vector ourpos) {
         // Opensim leash fix
-        if (g_kPartner == "") return;
+        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
 
         llTargetRemove(tiNum);
         llStopMoveToTarget();
@@ -550,4 +550,5 @@ default {
 */
     }
 }
+
 

@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Leash - 160625.1                               //
+//                           Leash - 160625.2                               //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,       //
 //  Joy Stipe, Cleo Collins, Satomi Ahn, Master Starship, Toy Wylie,        //
@@ -804,6 +804,7 @@ default {
     }
 
     at_target(integer iNum, vector vTarget, vector vMe) {
+        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
         llStopMoveToTarget();
         llTargetRemove(g_iTargetHandle);
         g_vPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
@@ -817,6 +818,7 @@ default {
     }
 
     not_at_target() {
+        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
         g_iJustMoved = 1;
         // i ran into a problem here which seems to be "speed" related, specially when using the menu to unleash this event gets triggered together or just after the CleanUp() function
         //to prevent to get stay in the target events i added a check on g_kLeashedTo is NULL_KEY
