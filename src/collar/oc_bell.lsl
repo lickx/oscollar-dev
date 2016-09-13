@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Bell - 150201.1                                //
+//                           Bell - 160629.1                                //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2009 - 2016 Cleo Collins, Nandana Singh, Satomi Ahn,      //
 //  Joy Stipe, Wendy Starfall, Medea Destiny, littlemousy,                  //
@@ -48,13 +48,15 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//         github.com/OpenCollar/opencollar/tree/master/src/collar          //
+//       github.com/VirtualDisgrace/opencollar/tree/master/src/collar       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
 //scans for sounds starting with: bell_
 //show/hide for elements named: Bell
 //2009-01-30 Cleo Collins - 1. draft
+
+string g_sAppVersion = "¹⋅¹";
 
 string g_sSubMenu = "Bell";
 string g_sParentMenu = "Apps";
@@ -128,6 +130,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 string UPMENU = "BACK";
 string g_sSettingToken = "bell_";
+integer g_iHasBellPrims;
 //string g_sGlobalToken = "global_";
 /*
 integer g_iProfiled=1;
@@ -151,7 +154,7 @@ Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer i
 }
 
 BellMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/bell.html Bell]\n\n";
+    string sPrompt = "\n[http://www.opencollar.at/bell.html Bell]\t"+g_sAppVersion+"\n\n";
     list lMyButtons;
     if (g_iBellOn>0) {
         lMyButtons+= g_sBellOff;
@@ -218,10 +221,11 @@ BuildBellElementList() {
             // Debug("added " + (string)n + " to elements");
         }
     } //Remove my menu and myself if no bell elements are found
-    if (llGetListLength(g_lBellElements)==0) {
-        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE,g_sSettingToken+"all","");
+    if (llGetListLength(g_lBellElements)) {
+        g_iHasBellPrims = TRUE;
+     /*  llMessageLinked(LINK_SAVE, LM_SETTING_DELETE,g_sSettingToken+"all","");
         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE, g_sParentMenu + "|" + g_sSubMenu, "");
-        llRemoveInventory(llGetScriptName());
+        llRemoveInventory(llGetScriptName());*/
     }
 }
 
@@ -356,9 +360,11 @@ default {
                 } else if (sMessage == g_sBellOff || sMessage == g_sBellOn)
                     UserCommand(iAuth,"bell "+llToLower(sMessage),kAV);
                 else if (sMessage == g_sBellShow || sMessage == g_sBellHide) {
-                    g_iBellShow = !g_iBellShow;
-                    SetBellElementAlpha();
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "show=" + (string)g_iBellShow, "");
+                    if (g_iHasBellPrims) {
+                        g_iBellShow = !g_iBellShow;
+                        SetBellElementAlpha();
+                        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "show=" + (string)g_iBellShow, "");
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"This %DEVICETYPE% has no visual bell element.", kAV);
                 } else if (sMenuType == "rmbell") {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");

@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//       RLV Suite - 160429.1            .*' /  .*' ; .*`- +'  `*'          //
+//       RLV Suite - 160621.1            .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2014 - 2016 Wendy Starfall, littlemousy, Sumi Perl,       //
@@ -46,7 +46,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//         github.com/OpenCollar/opencollar/tree/master/src/collar          //
+//       github.com/VirtualDisgrace/opencollar/tree/master/src/collar       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -448,7 +448,7 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
             g_iHearRestricted=iNum;
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_hear="+(string)iNum,"");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Hear IMs is restricted",kID);
+            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Hear is restricted",kID);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
     } else if (sLowerStr == "restrictions ☐ touch" || sLowerStr == "allow touch"){
         if (iNum <= g_iTouchRestricted || !g_iTouchRestricted) {
