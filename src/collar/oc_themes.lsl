@@ -412,10 +412,8 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
                     while (iLinkCount-- > 2) {
                         string sLinkType=LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
-                            if (iShiny < 4 )
-                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)NULL_KEY, <1,1,0>,<0,0,0>,0.0,<1,1,1>,0,0,PRIM_BUMP_SHINY,ALL_SIDES,iShiny,0]);
-                            else
-                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)TEXTURE_BLANK, <1,1,0>,<0,0,0>,0.0,<1,1,1>,80,2]);
+                            // OpenSim doesn't support PRIM_SPECULAR (yet) so we only support traditional shiny
+                            if (iShiny < 4 ) llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_BUMP_SHINY,ALL_SIDES,iShiny,0]);
                         }
                     }
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "shininess_" + sElement + "=" + (string)iShiny, "");
