@@ -41,8 +41,15 @@ OpenCollar source code and creative resource are covered and protected by strong
 
 **NOTE:** Please make sure that you have read and understood the full legal text of each license if your interest in OpenCollar goes beyond personal use (i.e. commercial redistribution). For human-readable summaries of various licenses, check out [tl;drLegal](https://tldrlegal.com/)
 
-#### OpenSim Compatibility
+#### OpenSim Porting Information
 
-For now we target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
+We target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
 
-A ready built snapshot of OsCollar6 to wear and develop with can be aquired at the OsGrid Sim 'Oaks Woods' in the store IXstatic. To visit from another grid (called a 'hypergrid' teleport), enter 'hg.osgrid.org:80:Oaks Woods' in the World Map of the grid you're currently logged into, press 'Search' and finally press 'Teleport'. Obviously this won't work from (corporate) grids that deny you this freedom (like Second Life or InWorldz).
+This is the oscollar6 branch, which is a port of OpenCollar [six]  
+Check out the oscollar3 branch for a port based on OpenCollar 3.99x
+
+There are some differences between v3 and v6 collars, for instance v6 is much more optimized thanks to certain scripts being in seperate links (which can be optionally invisible, but you do need them seperate).
+
+If you are looking to directly convert or upgrade existing v3 collars for OpenSim, you can use the oscollar3 branch which should be 100% compatible with the last v3 version in Second Life. We haven't made a transmuter tool yet to convert a v3 collar to v6.
+
+A ready made standard OpenCollar for both branches can be be aquired at the OsGrid Sim 'Oaks Woods' in the store IXstatic (hypergrid: hg.osgrid.org:80:Oaks Woods). Creators can use this standard collar as a technical reference for making new products.
