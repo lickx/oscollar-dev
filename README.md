@@ -1,7 +1,7 @@
 OpenCollar-OS - oscollar3
 =========================
 
-This branch contains an OpenSim port of OpenCollar 3.99x 
+This branch contains an OpenSim port of OpenCollar 3.99x  
 For OpenCollar six check out the oscollar6 branch
 
 A reference Collar is available inworld at the sim called 'Oaks Woods' in OsGrid  
