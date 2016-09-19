@@ -851,7 +851,7 @@ default {
 
     changed (integer iChange){
         if (iChange & CHANGED_OWNER){
-            g_kWearer = llGetOwner();
+            llResetScript();
         }
 /*        if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
@@ -862,4 +862,5 @@ default {
 */
     }
 }
+
 
