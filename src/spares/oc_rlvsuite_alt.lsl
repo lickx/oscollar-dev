@@ -209,7 +209,7 @@ SitMenu(key kID, integer iAuth) {
 
 
 RestrictionsMenu(key keyID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/rlv.html Restrictions]";
+    string sPrompt = "\nRestrictions";
     list lMyButtons;
 
     if (g_iSendRestricted) lMyButtons += "☐ Send IMs";
@@ -256,7 +256,7 @@ OutfitsMenu(key kID, integer iAuth) {
 }
 
 FolderMenu(key keyID, integer iAuth,string sFolders) {
-    string sPrompt = "\n[http://www.opencollar.at/outfits.html Outfits]\n";
+    string sPrompt = "\nOutfits\n";
     list lMyButtons;
     // and dispay the menu
     list lStaticButtons;
@@ -272,7 +272,7 @@ FolderMenu(key keyID, integer iAuth,string sFolders) {
 }
 
 RemAttached(key keyID, integer iAuth,string sFolders) {
-    string sPrompt = "\n[http://www.opencollar.at/outfits.html Outfits]";
+    string sPrompt = "\nOutfits";
     sPrompt += "\n\nRemove Attachment by Name";
     list lMyButtons = llParseString2List(sFolders,[","],[""]);
     Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "remattached");

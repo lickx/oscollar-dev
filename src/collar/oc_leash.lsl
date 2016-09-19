@@ -477,7 +477,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             lButtons += ["Length"];
             lButtons += g_lButtons;
 
-            string sPrompt = "\n[http://www.opencollar.at/leash.html Leash]\n";
+            string sPrompt = "\nLeash\n";
             if (g_kLeashedTo != NULL_KEY) {
                 if (g_bFollowMode) sPrompt += "\nFollowing: ";
                 else sPrompt += "\nLeashed to: ";

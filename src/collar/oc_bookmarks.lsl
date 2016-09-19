@@ -138,7 +138,7 @@ Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer i
 }
 
 DoMenu(key keyID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/bookmarks.html Bookmarks]\t"+g_sAppVersion+"\n\nTake me away, gumby!";
+    string sPrompt = "\nBookmarks\t"+g_sAppVersion+"\n\nTake me away, gumby!";
     list lMyButtons = PLUGIN_BUTTONS + g_lDestinations + g_lVolatile_Destinations;
     Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "bookmarks");
 }

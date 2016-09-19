@@ -154,7 +154,7 @@ Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer i
 }
 
 BellMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/bell.html Bell]\t"+g_sAppVersion+"\n\n";
+    string sPrompt = "\nBell\t"+g_sAppVersion+"\n\n";
     list lMyButtons;
     if (g_iBellOn>0) {
         lMyButtons+= g_sBellOff;

@@ -228,7 +228,7 @@ HistoryMenu(key kAv, integer iAuth) {
 
 RootActionsMenu(key kAv, integer iAuth) {
     list lActions = [lockUnsharedButton(0, iAuth), lockUnsharedButton(1, iAuth), "Save", "Restore"];
-    string sPrompt = "\n[http://www.opencollar.at/folders.html RLV Folders]\n\nYou are at the #RLV shared root.\n\nFrom here, you can restrict wearing or removing not shared items, you can also save the list of worn shared folders or make the currently saved list be worn again.\n\nWhat do you want to do?";
+    string sPrompt = "\nRLV Folders\n\nYou are at the #RLV shared root.\n\nFrom here, you can restrict wearing or removing not shared items, you can also save the list of worn shared folders or make the currently saved list be worn again.\n\nWhat do you want to do?";
     Dialog(kAv, sPrompt, lActions, [UPMENU], 0, iAuth, "RootActions");
 }
 
@@ -255,7 +255,7 @@ FolderActionsMenu(integer iState, key kAv, integer iAuth) {
         if ( iStateSub == 2 || iStateSub == 3) // there are items that can be removed from descendant folders
             lActions += [DETACH_ALL,  lockFolderButton(iLock, 3, iAuth)];
     }
-    string sPrompt = "\n[http://www.opencollar.at/folders.html RLV Folders]\n\nCurrent folder is ";
+    string sPrompt = "\nRLV Folders\n\nCurrent folder is ";
     if (g_sCurrentFolder == "") sPrompt += "root";
     else sPrompt += g_sCurrentFolder;
     sPrompt += ".\n";
@@ -366,7 +366,7 @@ doLockUnshared() { // sends command to the viewer to update all locks concerning
 FolderBrowseMenu(string sStr) {
     g_iAsyncMenuRequested = FALSE;
     list lUtilityButtons = [UPMENU];
-    string sPrompt = "\n[http://www.opencollar.at/folders.html RLV Folders]\n\nCurrent folder is ";
+    string sPrompt = "\nRLV Folders\n\nCurrent folder is ";
     if (g_sCurrentFolder == "") sPrompt += "root";
     else sPrompt += g_sCurrentFolder;
     sPrompt += ".\n";

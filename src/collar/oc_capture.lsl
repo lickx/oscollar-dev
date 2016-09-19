@@ -125,7 +125,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 }
 
 CaptureMenu(key kId, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/capture.html Capture]\n";
+    string sPrompt = "\nCapture\n";
     list lMyButtons;
     if (g_sTempOwnerID) lMyButtons += "Release";
     else {

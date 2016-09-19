@@ -378,7 +378,7 @@ SafeWord() {
 
 //----Menu functions section---//
 Menu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/relay.html Relay]";
+    string sPrompt = "\nRelay";
     list lButtons = ["☐ Trusted","☐ Ask","☐ Auto"];
     if (g_iBaseMode == 1){
         lButtons = ["☒ Trusted","☐ Ask","☐ Auto"];

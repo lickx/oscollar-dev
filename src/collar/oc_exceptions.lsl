@@ -213,7 +213,7 @@ Menu(key kID, string sWho, integer iAuth) {
         return;
     }
     list lButtons = ["Owner", "Trusted"];
-    string sPrompt = "\n[http://www.opencollar.at/rlv.html Exceptions]\n\nSet execptions to the restrictions for RLV commands.\n\n(\"Force Teleports\" are already defaulted for Owners.)";
+    string sPrompt = "\nExceptions\n\nSet execptions to the restrictions for RLV commands.\n\n(\"Force Teleports\" are already defaulted for Owners.)";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "main");
 }
 

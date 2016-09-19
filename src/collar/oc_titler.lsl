@@ -158,10 +158,10 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         string ON_OFF ;
         string sPrompt;
         if (g_iTextPrim == -1) {
-            sPrompt = "\n[http://www.opencollar.at/titler.html Titler]\t"+g_sAppVersion+"\n\nThis design is missing a FloatText box. Titler disabled.";
+            sPrompt = "\nTitler\t"+g_sAppVersion+"\n\nThis design is missing a FloatText box. Titler disabled.";
             Dialog(kAv, sPrompt, [], [UPMENU],0, iAuth,"main");
         } else {
-            sPrompt = "\n[http://www.opencollar.at/titler.html Titler]\t"+g_sAppVersion+"\n\nCurrent Title: " + g_sText ;
+            sPrompt = "\nTitler\t"+g_sAppVersion+"\n\nCurrent Title: " + g_sText ;
             if(g_iOn == TRUE) ON_OFF = ON ;
             else ON_OFF = OFF ;
             Dialog(kAv, sPrompt, [SET,UP,DN,ON_OFF,"Color"], [UPMENU],0, iAuth,"main");
