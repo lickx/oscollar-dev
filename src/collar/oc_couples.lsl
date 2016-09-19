@@ -196,7 +196,7 @@ refreshTimer(){
 }
 
 CoupleAnimMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/animations.html Couples]\n\nChoose an animation to play.\n\nAnimations will play ";
+    string sPrompt = "\nCouples\n\nChoose an animation to play.\n\nAnimations will play ";
     if(g_fTimeOut == 0) sPrompt += "ENDLESS.\n\nNOTE: The non-looped \"pet\" sequence is an exception to this rule and can only play for 20 seconds at a time." ;
     else sPrompt += "for "+(string)llCeil(g_fTimeOut)+" seconds.";
     list lButtons = g_lAnimCmds;

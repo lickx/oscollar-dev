@@ -166,7 +166,7 @@ Dialog(string sID, string sPrompt, list lChoices, list lUtilityButtons, integer 
 }
 
 AuthMenu(key kAv, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/access.html Access & Authorization]";
+    string sPrompt = "\nAccess & Authorization";
     list lButtons = ["+ Owner", "+ Trust", "+ Block", "− Owner", "− Trust", "− Block"];
 
     if (g_kGroup=="") lButtons += ["Group ☐"];    //set group

@@ -162,7 +162,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 }
 
 AnimMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/animations.html Animations]\n\n%WEARERNAME%";
+    string sPrompt = "\nAnimations\n\n%WEARERNAME%";
     list lButtons;
 
     if (g_iAnimLock) {
@@ -190,7 +190,7 @@ AnimMenu(key kID, integer iAuth) {
 }
 
 PoseMenu(key kID, integer iPage, integer iAuth) {  //create a list
-    string sPrompt = "\n[http://www.opencollar.at/animations.html Pose]\n\nCurrently playing: ";
+    string sPrompt = "\nPose\n\nCurrently playing: ";
     if (g_sCurrentPose == "")sPrompt += "-\n";
     else {
         string sActivePose = g_sCurrentPose;

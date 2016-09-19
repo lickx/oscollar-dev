@@ -156,7 +156,7 @@ Debug(string sStr) {
 
 DoMenu(key kID, integer iAuth){
     key kMenuID = llGenerateKey();
-    string sPrompt = "\n[http://www.opencollar.at/rlv.html Remote Scripted Viewer Controls]\n";
+    string sPrompt = "\nRemote Scripted Viewer Controls\n";
     if (g_iRlvActive) {
         if (g_iRlvVersion) sPrompt += "\nRestrainedLove API: RLV v"+g_sRlvVersionString;
         if (g_iRlvaVersion) sPrompt += " / RLVa v"+g_sRlvaVersionString;
