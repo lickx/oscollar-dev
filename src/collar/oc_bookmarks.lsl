@@ -401,6 +401,7 @@ PrintDestinations(key kID) {  // On inventory change, re-read our ~destinations 
 
 default {
     on_rez(integer iStart) {
+        if (llGetOwner()!=g_kWearer) llResetScript();
         ReadDestinations();
     }
     
@@ -570,3 +571,4 @@ default {
 */
     }
 }
+

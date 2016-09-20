@@ -394,6 +394,7 @@ default {
             Debug("profiling restarted");
         }
 */
+        if (llGetOwner() != g_kWearer) llResetScript();
         g_iRlvActive=FALSE;
         g_iViewerCheck=FALSE;
         g_iRLVOn=FALSE;

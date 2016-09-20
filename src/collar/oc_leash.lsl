@@ -642,6 +642,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
 
 default {
     on_rez(integer start_param) {
+        if (llGetOwner()!=g_kWearer) llResetScript();
         DoUnleash(FALSE);
     }
 
@@ -850,9 +851,7 @@ default {
     }
 
     changed (integer iChange){
-        if (iChange & CHANGED_OWNER){
-            llResetScript();
-        }
+        if (iChange & CHANGED_OWNER) llResetScript();
 /*        if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);

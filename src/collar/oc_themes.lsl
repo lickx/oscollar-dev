@@ -526,6 +526,10 @@ default {
         //Debug("Starting");
     }
 
+    on_rez(integer iStart) {
+        if (llGetOwner() != g_kWearer) llResetScript();
+    }
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == LM_SETTING_RESPONSE) {

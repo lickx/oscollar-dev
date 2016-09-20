@@ -716,6 +716,7 @@ default
     }
 
     on_rez(integer iParam) {
+        if (llGetOwner()!=g_kWearer) llResetScript();
         init();
     }
 
@@ -827,3 +828,4 @@ default
         if (!g_iWaitUpdate && !g_iWaitRebuild) llSetTimerEvent(0.0);
     }
 }
+
