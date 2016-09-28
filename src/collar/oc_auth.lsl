@@ -67,7 +67,7 @@ string g_sParentMenu = "Main";
 string g_sSubMenu = "Access";
 integer g_iRunawayDisable=0;
 
-string g_sDrop = "f364b699-fb35-1640-d40b-ba59bdd5f7b7";
+string g_sDrop = "0d4b3f9c-dd6a-4b07-ad58-2f2e26fc6e51";
 
 list g_lQueryId; //5 strided list of dataserver/http request: key, uuid, requestType, kAv, remenu.  For AV name/group name  lookups
 integer g_iQueryStride=5;
