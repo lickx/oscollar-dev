@@ -278,10 +278,12 @@ integer waterTreadIndex = 24;
 integer typingIndex     = 25;
 
 // list of animations that have a different value when underwater
-list underwaterAnim = [ hoverIndex, flyingIndex, flyingslowIndex, hoverupIndex, hoverdownIndex ];
+//list underwaterAnim = [ hoverIndex, flyingIndex, flyingslowIndex, hoverupIndex, hoverdownIndex ];
+list underwaterAnim = [ 12, 11, 10, 9, 8 ];
 
 // corresponding list of animations that we override the overrider with when underwater
-list underwaterOverride = [ waterTreadIndex, swimmingIndex, swimmingIndex, swimupIndex, swimdownIndex];
+//list underwaterOverride = [ waterTreadIndex, swimmingIndex, swimmingIndex, swimupIndex, swimdownIndex];
+list underwaterOverride = [ 24, 23, 23, 22, 21];
 
 // This is an ugly hack, because the standing up animation doesn't work quite right
 // (SL is borked, this has been bug reported)
@@ -337,7 +339,7 @@ string  lastAnimSet = "";                   // last set of animations we ever pl
 integer lastAnimIndex = 0;                  // index of the last animation we ever played
 string  lastAnimState = "";                 // last thing llGetAnimation() returned
 
-integer standTime = standTimeDefault;       // How long before flipping stand animations
+integer standTime = 30;                     // How long before flipping stand animations
 integer animOverrideOn = TRUE;              // Is the animation override on?
 
 // Added for OCCuffs
@@ -733,7 +735,7 @@ loadNoteCard() {
         Notify(whoid, "Loading notecard '" + notecardName + "'...", FALSE );
     }
     // Faster events while processing our notecard
-    llMinEventDelay( 0 );
+    //llMinEventDelay( 0 );
 
     // Clear out saved override information, since we now allow sparse notecards
     overrides = [];
@@ -761,7 +763,7 @@ endNotecardLoad()
     notecardName = EMPTY;
 
     // Restore the minimum event delay
-    llMinEventDelay( minEventDelay );
+    //llMinEventDelay( minEventDelay );
 }
 
 // Initialize listeners, and reset some status variables
@@ -1160,7 +1162,7 @@ default {
             } 
             
             else if ( llGetSubString(_message, 0, 9) == "ZHAO_LOAD|" ) {
-                   
+
                     // Can't load while we're in the middle of a load
                     if ( loadInProgress == TRUE ) {
                         Notify(whoid, "Cannot load new notecard, still reading notecard '" + notecardName + "'", FALSE );

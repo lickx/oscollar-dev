@@ -112,8 +112,8 @@ integer g_iAOPower = TRUE; // -- Power will always be on when scripts are reset 
 integer g_iAOSit = FALSE;
 vector g_vAOoffcolor = <0.5,0.5,0.5>;
 vector g_vAOoncolor = <1,1,1>;
-string g_sDarkLock = "e633ced3-2327-4288-8d4f-7cc530be0faa";
-string g_sLightLock = "8aadf1ed-63d1-2bc5-174b-7c074f676b88";
+string g_sDarkLock = "389370f3-8ab3-4340-85c5-f3325e40efa9";
+string g_sLightLock = "bdb35892-906e-4504-9650-aba8ee907d0d";
 
 list g_lStyles;
 string g_sTexture; // current style
@@ -154,15 +154,15 @@ DoTextures(string style) {
 
     list lTextures = [
     "[ Dark ]",
-    "Minimize~e1482c7e-8609-fcb0-56d8-18c3c94d21c0",
-    "Power~e630e9e0-799e-6acc-e066-196cca7b37d4",
-    "SitAny~251b2661-235e-b4d8-0c75-248b6bdf6675",
-    "Menu~f3ec1052-6ec4-04ba-d752-937a4d837bf8",
+    "Minimize~557eec85-a851-4469-b827-e29a22a4aa1a",
+    "Power~3ff1f3dd-abcf-413d-9e19-6c1a9dc50209",
+    "SitAny~b90745b1-3d4e-4ee3-8a8d-5bf8014c8be3",
+    "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
     "[ Light ]",
-    "Minimize~b59f9932-5de4-fc23-b5aa-2ab46d22c9a6",
-    "Power~42d4d624-ca72-1c74-0045-f782d7409061",
-    "SitAny~349340c5-0045-c32d-540e-52b6fb77af55",
-    "Menu~52c3f4cf-e87e-dbdd-cf18-b2c4f6002a96"
+    "Minimize~e23ed66d-a331-4b6e-83c8-60608289f0a2",
+    "Power~0b504c91-efb1-4a69-b833-42b780897b59",
+    "SitAny~2dc164d8-9f85-4247-951b-1c9e124e7f00",
+    "Menu~83779c3b-5028-4a43-87d4-60b924afaebb"
     ];
 
     integer i;
@@ -380,7 +380,7 @@ default {
                     integer i;
                     for (i=2;i<llGetListLength(g_lPrimOrder);++i) {
                         if (g_iOldPos != i) {
-                            integer iTemp = llList2Integer(g_lPrimOrder,i);
+                            iTemp = llList2Integer(g_lPrimOrder,i);
                             lButtons +=[llList2String(g_lButtons,iTemp)+":"+(string)i];
                         }
                     }

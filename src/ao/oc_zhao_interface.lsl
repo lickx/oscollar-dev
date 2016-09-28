@@ -490,7 +490,7 @@ default {
                 message = "ZHAO_AOON";
             if (isLocked) {
                 if (message == "")
-                    message == "SitAny";
+                    message = "SitAny";
                 llMessageLinked(LINK_THIS, COMMAND_NOAUTH, message, g_kWearer);
             } else if (message != "")
                 llMessageLinked(LINK_THIS, COMMAND_OWNER, message, g_kWearer);

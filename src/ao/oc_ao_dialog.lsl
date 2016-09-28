@@ -112,7 +112,7 @@ key g_keyWearer;
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     if (kID == g_keyWearer) llOwnerSay(sMsg);
     else {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
