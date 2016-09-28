@@ -704,23 +704,8 @@ default {
                     g_kMenuClicker = kAv;
                     if (sMessage == UPMENU)
                         llMessageLinked(LINK_RLV, iAuth, "menu "+COLLAR_PARENT_MENU, kAv);
-                    else if (sMessage == BACKMENU) {
-                        list lTempSplit = llParseString2List(g_sCurrentPath,["/"],[]);
-                        lTempSplit = llList2List(lTempSplit,0,llGetListLength(lTempSplit) -2);
-                        g_sCurrentPath = llDumpList2String(lTempSplit,"/") + "/";
-                        llSetTimerEvent(g_iTimeOut);
-                        g_iAuth = iAuth;
-                        g_iListener = llListen(g_iFolderRLV, "", g_kWearer, "");
-                        llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
-                    } else if (sMessage == "WEAR") WearFolder(g_sCurrentPath);
-                    else if (sMessage != "") {
-                        g_sCurrentPath += sMessage + "/";
-                        if (sMenu == "multimatch") g_sCurrentPath = sMessage + "/";
-                        llSetTimerEvent(g_iTimeOut);
-                        g_iAuth = iAuth;
-                        g_iListener = llListen(g_iFolderRLV, "", llGetOwner(), "");
-                        llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
-                    }
+                    else if (sMessage != "")
+                        WearFolder(g_sCurrentPath+sMessage);
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
