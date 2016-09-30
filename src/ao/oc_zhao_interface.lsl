@@ -193,7 +193,7 @@ integer g_iMenuStride = 3;
 // Use any variable name you desire
 string MENU = "DoMenu";
 string QUICKMENU = "FirstMenu";
-integer g_iUpdateAvailable;
+integer g_iUpdateAvailable = FALSE;
 key g_kWebLookup;
 key g_kCollarID;
 
@@ -308,7 +308,7 @@ default {
     on_rez( integer iStart ) {
         if (g_kWearer != llGetOwner()) llResetScript();
         if (isLocked) llOwnerSay("@detach=n");
-        g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/Collar/live/web/~ao", [HTTP_METHOD, "GET"],"");
+        //g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/Collar/live/web/~ao", [HTTP_METHOD, "GET"],"");
     }
 
     link_message(integer sender, integer num, string str, key id) {
@@ -535,12 +535,14 @@ default {
             }
         }
     }
+    /*
     http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
         if (kRequestID == g_kWebLookup && iStatus == 200)  {
             if ((float)sBody > g_fBuildVersion) g_iUpdateAvailable = TRUE;
             else g_iUpdateAvailable = FALSE;
         }
     }
+    */
     attach( key _k ) {
         if ( _k != NULL_KEY ) {
             if( isAttachedToHUD() )
