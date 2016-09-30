@@ -154,12 +154,12 @@ DoTextures(string style) {
 
     list lTextures = [
     "[ Dark ]",
-    "Minimize~557eec85-a851-4469-b827-e29a22a4aa1a",
+    "Minimize~857cda3b-5a50-463f-9e3e-3d289b85c5df",
     "Power~3ff1f3dd-abcf-413d-9e19-6c1a9dc50209",
     "SitAny~b90745b1-3d4e-4ee3-8a8d-5bf8014c8be3",
     "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
     "[ Light ]",
-    "Minimize~e23ed66d-a331-4b6e-83c8-60608289f0a2",
+    "Minimize~a9d26a81-e5b6-4eff-aa4f-625e03e04f15",
     "Power~0b504c91-efb1-4a69-b833-42b780897b59",
     "SitAny~2dc164d8-9f85-4247-951b-1c9e124e7f00",
     "Menu~83779c3b-5028-4a43-87d4-60b924afaebb"
