@@ -92,9 +92,9 @@ integer g_iFolderRLV = 98745923;
 integer g_iFolderRLVSearch = 98745925;
 integer g_iTimeOut = 30; //timeout on viewer response commands
 integer g_iRlvOn = FALSE;
-integer g_iRlvaOn = FALSE;
+//integer g_iRlvaOn = FALSE;
 string g_sCurrentPath;
-string g_sPathPrefix = ".outfits"; //we look for outfits in here
+string g_sPathPrefix = "outfits"; //we look for outfits in here
 
 
 key     g_kWearer;
@@ -273,14 +273,16 @@ RemAttached(key keyID, integer iAuth,string sFolders) {
     Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "remattached");
 }
 
-WearFolder (string sStr) { //function grabs g_sCurrentPath, and splits out the final directory path, attaching .core directories and passes RLV commands
-    string sAttach ="@attachallover:"+sStr+"=force,attachallover:"+g_sPathPrefix+"/.core/=force";
+WearFolder (string sStr) { //function grabs g_sCurrentPath, and splits out the final directory path, attaching core directories and passes RLV commands
+    string sAttach ="@attachallover:"+sStr+"=force,attachallover:core/=force";
+    /*
     string sPrePath;
     list lTempSplit = llParseString2List(sStr,["/"],[]);
     lTempSplit = llList2List(lTempSplit,0,llGetListLength(lTempSplit) -2);
     sPrePath = llDumpList2String(lTempSplit,"/");
     if (g_sPathPrefix + "/" != sPrePath)
-        sAttach += ",attachallover:"+sPrePath+"/.core/=force";
+        sAttach += ",attachallover:"+sPrePath+"/core/=force";
+    */
    // Debug("rlv:"+sOutput);
     llOwnerSay("@remoutfit=force,detach=force");
     llSleep(1.5); // delay for SSA
@@ -355,18 +357,10 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     //Debug(sStr);
     //outfits command handling
     if (sLowerStr == "outfits" || sLowerStr == "menu outfits") {
-        if (g_iRlvaOn) OutfitsMenu(kID, iNum);
-        else {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nSorry! This feature can't work on RLV and will require a RLVa enabled viewer. The regular \"# Folders\" feature is a good alternative.\n" ,kID);
-            llMessageLinked(LINK_RLV, iNum, "menu " + COLLAR_PARENT_MENU, kID);
-        }
+        OutfitsMenu(kID, iNum);
         return;
     } else if (llSubStringIndex(sStr,"wear ") == 0) {
-        if (!g_iRlvaOn) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nSorry! This feature can't work on RLV and will require a RLVa enabled viewer. The regular \"# Folders\" feature is a good alternative.\n" ,kID);
-            if (bFromMenu) llMessageLinked(LINK_RLV, iNum, "menu " + COLLAR_PARENT_MENU, kID);
-            return;
-        } else if (g_iDressRestricted)
+        if (g_iDressRestricted)
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Oops! Outfits can't be worn while the ability to dress is restricted.",kID);
         else {
             sLowerStr = llDeleteSubString(sStr,0,llStringLength("wear ")-1);
@@ -374,12 +368,7 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
                 llSetTimerEvent(g_iTimeOut);
                 g_iListener = llListen(g_iFolderRLVSearch, "", g_kWearer, "");
                 g_kMenuClicker = kID;
-                if (g_iRlvaOn) {
-                    llOwnerSay("@findfolders:"+sLowerStr+"="+(string)g_iFolderRLVSearch);
-                }
-                else {
-                    llOwnerSay("@findfolder:"+sLowerStr+"="+(string)g_iFolderRLVSearch);
-                }
+                llOwnerSay("@findfolders:"+sLowerStr+"="+(string)g_iFolderRLVSearch);
             }
         }
         if (bFromMenu) OutfitsMenu(kID, iNum);
@@ -631,7 +620,7 @@ default {
     on_rez(integer iParam) {
         if (llGetOwner()!=g_kWearer) llResetScript();
         g_iRlvOn = FALSE;
-        g_iRlvaOn = FALSE;
+        //g_iRlvaOn = FALSE;
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -682,7 +671,7 @@ default {
             g_iRlvOn = FALSE;
             releaseRestrictions();
         } else if (iNum == RLV_CLEAR) releaseRestrictions();
-        else if (iNum == RLVA_VERSION) g_iRlvaOn = TRUE;
+        //else if (iNum == RLVA_VERSION) g_iRlvaOn = TRUE;
         else if (iNum == CMD_SAFEWORD || iNum == CMD_RELAY_SAFEWORD) releaseRestrictions();
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -715,23 +704,8 @@ default {
                     g_kMenuClicker = kAv;
                     if (sMessage == UPMENU)
                         llMessageLinked(LINK_RLV, iAuth, "menu "+COLLAR_PARENT_MENU, kAv);
-                    else if (sMessage == BACKMENU) {
-                        list lTempSplit = llParseString2List(g_sCurrentPath,["/"],[]);
-                        lTempSplit = llList2List(lTempSplit,0,llGetListLength(lTempSplit) -2);
-                        g_sCurrentPath = llDumpList2String(lTempSplit,"/") + "/";
-                        llSetTimerEvent(g_iTimeOut);
-                        g_iAuth = iAuth;
-                        g_iListener = llListen(g_iFolderRLV, "", g_kWearer, "");
-                        llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
-                    } else if (sMessage == "WEAR") WearFolder(g_sCurrentPath);
-                    else if (sMessage != "") {
-                        g_sCurrentPath += sMessage + "/";
-                        if (sMenu == "multimatch") g_sCurrentPath = sMessage + "/";
-                        llSetTimerEvent(g_iTimeOut);
-                        g_iAuth = iAuth;
-                        g_iListener = llListen(g_iFolderRLV, "", llGetOwner(), "");
-                        llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
-                    }
+                    else if (sMessage != "")
+                        WearFolder(g_sCurrentPath+sMessage);
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
@@ -759,7 +733,7 @@ default {
                 if (llSubStringIndex(sMsg,",") < 0) {
                     g_sCurrentPath = sMsg;
                     WearFolder(g_sCurrentPath);
-                    //llOwnerSay("@attachallover:"+g_sPathPrefix+"/.core/=force");
+                    //llOwnerSay("@attachallover:core/=force");
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Loading outfit #RLV/"+sMsg,kID);
                 } else {
                     string sPrompt = "\nPick one!";
