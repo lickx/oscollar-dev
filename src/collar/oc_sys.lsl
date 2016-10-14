@@ -173,6 +173,7 @@ string DUMPSETTINGS = "Print";
 string STEALTH_OFF = "☐ Stealth"; // show the whole device
 string STEALTH_ON = "☑ Stealth"; // hide the whole device
 string LOADCARD = "Load";
+string SAVECARD = "Save";
 string REFRESH_MENU = "Fix";
 
 string g_sGlobalToken = "global_";
@@ -231,7 +232,7 @@ string NameGroupURI(string sStr){
 
 SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\nSettings";
-    list lButtons = [DUMPSETTINGS,LOADCARD,REFRESH_MENU];
+    list lButtons = [DUMPSETTINGS,LOADCARD,SAVECARD,REFRESH_MENU];
     lButtons += g_lResizeButtons;
     if (g_iStealth) lButtons += [STEALTH_ON];
     else lButtons += [STEALTH_OFF];
@@ -648,6 +649,7 @@ default
                 } else if (sMenu == "Settings") {
                      if (sMessage == DUMPSETTINGS) llMessageLinked(LINK_SAVE, iAuth,"print settings",kAv);
                      else if (sMessage == LOADCARD) llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
+                     else if (sMessage == SAVECARD) llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
                      else if (sMessage == REFRESH_MENU) {
                          UserCommand(iAuth, sMessage, kAv, TRUE);
                          return;

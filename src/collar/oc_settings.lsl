@@ -258,6 +258,12 @@ PrintSettings(key kID, string sDebug) {
     }
 }
 
+SaveSettings(key kID) {
+    list lOut = Add2OutList(g_lSettings, "print");
+    if (llGetInventoryKey(g_sCard)) llRemoveInventory(g_sCard);
+    osMakeNotecard(g_sCard, lOut);
+}
+
 LoadSetting(string sData, integer iLine) {
     string sID;
     string sToken;
@@ -354,6 +360,11 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
             }
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (!llSubStringIndex(sStrLower,"save")) {
+        if (iAuth == CMD_OWNER) {
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nSaving settings to "+g_sCard+" card. On a default OpenSim configuration, this will only work if you are the region owner or a region manager. Read [https://github.com/lickx/opencollar-os/wiki/Save-Settings the wiki] on how to enable this for all users on your region.\n",kID);
+            SaveSettings(kID);
+        }
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
