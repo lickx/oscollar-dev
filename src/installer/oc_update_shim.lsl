@@ -47,7 +47,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//      github.com/VirtualDisgrace/opencollar/tree/master/src/installer     //
+//        github.com/lickx/opencollar-os/tree/oscollar6/src/installer       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ default {
         list lParts = llParseString2List(sMsg, ["|"], []);
         if (llGetListLength(lParts) == 4) {
             string sType = llList2String(lParts, 0);
-            string sName = llList2String(lParts, 1);
+            sName = llList2String(lParts, 1);
             key kUUID = (key)llList2String(lParts, 2);
             string sMode = llList2String(lParts, 3);
             string sCmd;
@@ -255,3 +255,4 @@ default {
         }
     }
 }
+

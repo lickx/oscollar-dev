@@ -47,7 +47,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//      github.com/VirtualDisgrace/opencollar/tree/master/src/installer     //
+//        github.com/lickx/opencollar-os/tree/oscollar6/src/installer       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -217,8 +217,8 @@ default {
                 }
             }
         } while (i);
-        if (~llListFindList(lBundleNumbers,["23"]) || ~llListFindList(lBundleNumbers,["42"])
-            || ~llListFindList(lBundleNumbers,["00"])) g_iIsUpdate = TRUE;
+        if ((~llListFindList(lBundleNumbers,["23"])) || (~llListFindList(lBundleNumbers,["42"]))
+            || (~llListFindList(lBundleNumbers,["00"]))) g_iIsUpdate = TRUE;
         g_lBundles = llListSort(g_lBundles,2,TRUE);
         SetFloatText();
         llParticleSystem([]);
@@ -343,3 +343,4 @@ default {
                     
     }
 }
+

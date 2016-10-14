@@ -47,7 +47,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//      github.com/VirtualDisgrace/opencollar/tree/master/src/installer     //
+//        github.com/lickx/opencollar-os/tree/oscollar6/src/installer       //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -214,3 +214,4 @@ default
         }
     }
 }
+
