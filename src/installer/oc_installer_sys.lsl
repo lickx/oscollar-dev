@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                       Installer System - 160203.1                        //
+//                       Installer System - 161013.4                        //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2011 - 2016 Nandana Singh, Satomi Ahn, DrakeSystem,       //
 //  Wendy Starfall, littlemousy, Romka Swallowtail, Garvin Twine et al.     //
@@ -112,6 +112,8 @@ integer g_iLine;
 
 string g_sName;
 string g_sObjectType;
+string g_sObjectName;
+
 // A wrapper around llSetScriptState to avoid the problem where it says it can't
 // find scripts that are already not running.
 DisableScript(string sName) {
@@ -119,6 +121,12 @@ DisableScript(string sName) {
         if (llGetScriptState(sName))
             llSetScriptState(sName, FALSE);
     }
+}
+
+Say(string sStr) {
+    llSetObjectName("Installer");
+    llOwnerSay(sStr);
+    llSetObjectName(g_sObjectName);
 }
 
 DoBundle() {
@@ -182,7 +190,7 @@ InitiateInstallation() {
     llPlaySound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f",1.0);
     //llPlaySound("3409e593-20ab-fd34-82b3-6ecfdefc0207",1.0); //ao
     //llPlaySound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b",1.0); //remote hud
-    Debug("PLaying sound");
+    Debug("Playing sound");
     llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
     //llWhisper(iChan,"-.. --- / .- ---"); AO command
     //llWhisper(iChan,"-.. --- / .... ..- -.."); Remote HUD command
@@ -196,6 +204,7 @@ default {
        // llPreloadSound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b"); //remote hud
         llSetTimerEvent(300.0);
         ReadName();
+        g_sObjectName = llGetObjectName();
         llListen(g_initChannel, "", "", "");
         // set all scripts except self to not running
         // also build list of all bundles
@@ -291,7 +300,7 @@ default {
                 llMessageLinked(LINK_SET,INSTALLION_DONE,"","");
                 llSleep(1);
                 llLoadURL(llGetOwner(),"\nVisit our website for manual pages and release notes!\n",g_sInfoURL);
-                llOwnerSay(g_sInfoText);
+                Say(g_sInfoText);
                 llSetTimerEvent(15.0);
             }
         }
@@ -326,6 +335,7 @@ default {
             }
             sData = llStringTrim(llGetSubString(sData,0, index-1),STRING_TRIM);
             list lNameParts = llParseString2List(sData, [" - "], []);
+            g_sObjectName = sData;
             llSetObjectName(sData);
             g_sName = llList2String(lNameParts,1);
             g_sObjectType = llList2String(lNameParts,0);

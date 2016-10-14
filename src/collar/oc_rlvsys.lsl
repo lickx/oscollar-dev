@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         RLV System - 160526.1                            //
+//                         RLV System - 161002.1                            //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
 //  Medea Destiny, littlemousy, Romka Swallowtail, Garvin Twine,            //
@@ -250,7 +250,8 @@ AddRestriction(key kID, string sBehav) {
     }
     string sSrcRestr = llList2String(g_lRestrictions,iSource+1);
     //Debug("AddRestriction 2.1");
-    if (!(sSrcRestr==sBehav || (~llSubStringIndex(sSrcRestr,"§"+sBehav)) || (~llSubStringIndex(sSrcRestr,sBehav+"§"))) ) {
+    //if (!(sSrcRestr==sBehav || ~llSubStringIndex(sSrcRestr,"§"+sBehav) || ~llSubStringIndex(sSrcRestr,sBehav+"§")) ) {
+    if (!(~llSubStringIndex("§"+sSrcRestr+"§","§"+sBehav+"§"))) {
         //Debug("AddRestriction 2.2");
         sSrcRestr+="§"+sBehav;
         if (llSubStringIndex(sSrcRestr,"§")==0) sSrcRestr=llGetSubString(sSrcRestr,1,-1);
