@@ -302,7 +302,7 @@ DoMenu(key kAv, integer iAuth) {
     list lMyButtons ;
     string sPrompt;
     sPrompt = "\nChange the position, rotation and size of your %DEVICETYPE%.\n\nwww.opencollar.at/appearance";
-    lMyButtons = [POSMENU, ROTMENU, SIZEMENU];
+    lMyButtons = [POSMENU, ROTMENU]; // , SIZEMENU
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth,g_sSubMenu);
 }
 
@@ -367,7 +367,7 @@ default {
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == POSMENU) PosMenu(kAv, iAuth);
                     else if (sMessage == ROTMENU) RotMenu(kAv, iAuth);
-                    else if (sMessage == SIZEMENU) SizeMenu(kAv, iAuth);
+                    //else if (sMessage == SIZEMENU) SizeMenu(kAv, iAuth);
                 } else if (sMenuType == POSMENU) {
                     if (sMessage == UPMENU) {
                         llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
@@ -397,7 +397,9 @@ default {
                         else if (sMessage == "tilt down ↺") AdjustRot(<0, -g_fRotNudge, 0>);
                     } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Sorry, position can only be adjusted while worn",kID);
                     RotMenu(kAv, iAuth);
-                } else if (sMenuType == SIZEMENU) {
+                }
+                /*
+                else if (sMenuType == SIZEMENU) {
                     if (sMessage == UPMENU) {
                         llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                         return;
@@ -414,7 +416,9 @@ default {
                         }
                         SizeMenu(kAv, iAuth);
                     }
-                } else if (sMenuType == "rmresizer") {
+                }
+                */
+                else if (sMenuType == "rmresizer") {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"Resizer has been removed.", kAv);
