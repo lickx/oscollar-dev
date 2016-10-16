@@ -250,7 +250,7 @@ LockCam() {
 }
 
 CamMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/camera.html Legacy Camera]\t"+g_sAppVersion+"\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
+    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion+"\nhttp://www.opencollar.at/camera.html\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
     integer stop = llGetListLength(llJson2List(g_sJsonModes)); 
@@ -261,27 +261,6 @@ CamMenu(key kID, integer iAuth) {
 
 string Capitalize(string sIn) {
     return llToUpper(llGetSubString(sIn, 0, 0)) + llGetSubString(sIn, 1, -1);
-}
-
-string StrReplace(string sSrc, string sFrom, string sTo) {
-//replaces all occurrences of 'sFrom' with 'sTo' in 'sSrc'.
-    integer iLen = (~-(llStringLength(sFrom)));
-    if(~iLen) {
-        string  sBuffer = sSrc;
-        integer iBufPos = -1;
-        integer iToLen = (~-(llStringLength(sTo)));
-        @loop;//instead of a while loop, saves 5 bytes (and run faster).
-        integer iToPos = ~llSubStringIndex(sBuffer, sFrom);
-        if(iToPos) {
-//            iBufPos -= iToPos;
-//            sSrc = llInsertString(llDeleteSubString(sSrc, iBufPos, iBufPos + iLen), iBufPos, sTo);
-//            iBufPos += iToLen;
-//            sBuffer = llGetSubString(sSrc, (-~(iBufPos)), 0x8000);
-            sBuffer = llGetSubString(sSrc = llInsertString(llDeleteSubString(sSrc, iBufPos -= iToPos, iBufPos + iLen), iBufPos, sTo), (-~(iBufPos += iToLen)), 0x8000);
-            jump loop;
-        }
-    }
-    return sSrc;
 }
 
 SaveSetting(string sToken) {
@@ -296,7 +275,7 @@ SaveSetting(string sToken) {
 ChatCamParams(integer iChannel, key kID) {
     g_vCamPos = llGetCameraPos();
     g_rCamRot = llGetCameraRot();
-    string sPosLine = StrReplace((string)g_vCamPos, " ", "") + " " + StrReplace((string)g_rCamRot, " ", ""); 
+    string sPosLine = osReplaceString((string)g_vCamPos, " ", "", -1, 0) + " " + osReplaceString((string)g_rCamRot, " ", "", -1, 0); 
     //if not channel 0, say to whole region.  else just say locally   
     if (iChannel)
         llRegionSayTo(kID, iChannel, sPosLine);                    

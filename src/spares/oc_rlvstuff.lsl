@@ -185,7 +185,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
 }
 
 StuffMenu(key kID, integer iAuth) {
-    Dialog(kID, "\n[http://www.opencollar.at/legacy-rlv.html Legacy RLV Stuff]\t"+g_sAppVersion, ["Misc","Touch","Talk","Travel","View"], [UPMENU], 0, iAuth, "rlvstuff");
+    Dialog(kID, "\nLegacy RLV Stuff\t"+g_sAppVersion+"\nhttp://www.opencollar.at/legacy-rlv.html", ["Misc","Touch","Talk","Travel","View"], [UPMENU], 0, iAuth, "rlvstuff");
 }
 
 Menu(key kID, integer iAuth, string sMenuName) {
@@ -453,7 +453,7 @@ default {
                             }
                         }
                         UserCommand(iAuth, sOut, kAv, sMenu);
-                    } else if (~iIndex && llList2String(g_lRLVcmds,iIndex-2)==sMenu) {
+                    } else if ((~iIndex) && llList2String(g_lRLVcmds,iIndex-2)==sMenu) {
                         string sOut = llList2String(g_lRLVcmds, iIndex-1);
                         sOut += "=";
                         if (sSwitch == TURNON) sOut += "y";
