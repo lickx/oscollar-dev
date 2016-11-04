@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Bell - 160629.1                                //
+//                           Bell - 161030.1                                //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2009 - 2016 Cleo Collins, Nandana Singh, Satomi Ahn,      //
 //  Joy Stipe, Wendy Starfall, Medea Destiny, littlemousy,                  //
@@ -244,6 +244,17 @@ PrepareSounds() {
     g_kCurrentBellSound=llList2Key(g_listBellSounds,g_iCurrentBellSound);
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_bell")
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr: user command, kID: avatar id
    // Debug("command: "+sStr);
     sStr = llToLower(sStr);
@@ -317,6 +328,7 @@ default {
     state_entry() {
        // llSetMemoryLimit(36864);
         g_kWearer=llGetOwner();
+        FailSafe();
         llResetTime();  // reset script time used for ringing the bell in intervalls
         BuildBellElementList();
         PrepareSounds();
@@ -454,7 +466,10 @@ default {
 
     changed(integer iChange) {
         if(iChange & CHANGED_LINK) BuildBellElementList();
-        else if (iChange & CHANGED_INVENTORY) PrepareSounds();
+        else if (iChange & CHANGED_INVENTORY) {
+            FailSafe();
+            PrepareSounds();
+        }
         if (iChange & CHANGED_COLOR) {
             integer iNewHide=!(integer)llGetAlpha(ALL_SIDES) ; //check alpha
             if (g_iHide != iNewHide){   //check there's a difference to avoid infinite loop

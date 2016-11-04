@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Dialog - 160320.1                              //
+//                           Dialog - 161030.1                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2007 - 2016 Schmobag Hogfather, Nandana Singh,            //
 //  Cleo Collins, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,       //
@@ -461,6 +461,17 @@ ClearUser(key kRCPT) {
     //Debug(llDumpList2String(g_lMenus, ","));
 }
 
+FailSafe(integer iSec) {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000) 
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
+    || sName != "oc_dialog" || iSec)
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iNum, string sStr, key kID) {
     if (iNum == CMD_GROUP) return;
     list lParams = llParseString2List(llToLower(sStr), ["="], []);
@@ -510,6 +521,7 @@ default {
     state_entry() {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         g_kWearer=llGetOwner();
+        FailSafe(0);
         g_sPrefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0,1));
         g_sWearerName = NameURI(g_kWearer);
         g_sDeviceName = llList2String(llGetLinkPrimitiveParams(1,[PRIM_NAME]),0);
@@ -679,6 +691,7 @@ default {
             if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_DIALOG","");
         } else if (iNum==NOTIFY_OWNERS) NotifyOwners(sStr,(string)kID);
+        else if (iNum == 451 && kID == "sec") FailSafe(1);
         else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
@@ -732,6 +745,7 @@ default {
 
     changed(integer iChange){
         if (iChange & CHANGED_OWNER) llResetScript();
+        if (iChange & CHANGED_INVENTORY) FailSafe(0);
 /*
         if (iChange & CHANGED_REGION) {
             if (g_iProfiled){

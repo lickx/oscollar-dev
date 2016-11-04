@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Particle - 160311.1                             //
+//                          Particle - 161030.1                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Lulu Pink, Nandana Singh, Garvin Twine,       //
 //  Cleo Collins, Satomi Ahn, Joy Stipe, Wendy Starfall, Romka Swallowtail, //
@@ -368,6 +368,17 @@ integer KeyIsAv(key id) {
     return llGetAgentSize(id) != ZERO_VECTOR;
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_particle")
+        llRemoveInventory(sName);
+}
+
 //Menus
 
 ConfigureMenu(key kIn, integer iAuth) {
@@ -412,6 +423,7 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
+        FailSafe();
         FindLinkedPrims();
         StopParticles(TRUE);
         GetSettings(FALSE);
@@ -672,6 +684,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_INVENTORY) {
+            FailSafe();
             integer iNumberOfTextures = llGetInventoryNumber(INVENTORY_TEXTURE);
             integer iLeashTexture;
             if (iNumberOfTextures) {

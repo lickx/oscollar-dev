@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           System - 161013.2                              //
+//                           System - 161031.3                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy, Romka Swallowtail,  //
@@ -58,10 +58,10 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="6.3.3";
-string g_sFancyVersion="⁶⋅³⋅³";
+string g_sCollarVersion="6.4.0";
+string g_sFancyVersion="⁶⋅⁴⋅⁰";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 161013.4;
+float g_fBuildVersion = 161031.1;
 
 key g_kWearer;
 
@@ -114,6 +114,7 @@ string GIVECARD = "Help";
 string HELPCARD = ".help";
 string CONTACT = "Contact";
 string LICENSE = "License";
+string HTTP_TYPE = ".txt"; // can be raw, text/plain or text/*
 key g_kWebLookup;
 key g_kCurrentUser;
 
@@ -151,17 +152,13 @@ key github_version_request;
 string g_sDistributor;
 string g_sOtherDist;
 string g_sDistCard = ".distributor";
-string url_check = "https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~distributor";
 key g_kDistCheck;
 integer g_iOffDist;
 key g_kNCkey;
-string version_check_url = "https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~version";
-string news_url = "https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~news";
-string license_blob = "https://github.com/VirtualDisgrace/opencollar/blob/master/LICENSE";
-string license_url = "http://www.opencollar.at/license-terms-for-the-opencollar-role-play-device.html";
 key news_request;
 string g_sLastNewsTime = "0";
 
+string g_sWeb = "http://virtualdisgrace.com/oc/";
 string g_sWorldAPI = "http://world.secondlife.com/";
 
 integer g_iUpdateAuth;
@@ -269,7 +266,7 @@ HelpMenu(key kID, integer iAuth) {
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\nO   P   E   N   C   O   L   L   A   R™\nw w w  .  o p e n c o l l a r  .  a t\t\t"+g_sFancyVersion;
+    string sPrompt = "\nO  p  e  n  C  o  l  l  a  r    S  i  x™\nhttp://www.opencollar.at\t\t"+g_sFancyVersion;
     if(!g_iLatestVersion) sPrompt+="\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates";
     //Debug("max memory used: "+(string)llGetSPMaxMemory());
     list lStaticButtons=["Apps"];
@@ -311,7 +308,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
     } else if (sStr == "license") {
         if(llGetInventoryType(".license")==INVENTORY_NOTECARD) llGiveInventory(kID,".license");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The license card has been removed from this %DEVICETYPE%. Please find the recent revision at this address: "+license_url,kID);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The license card has been removed from this %DEVICETYPE%. Please find the recent revision [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE here].",kID);
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sStr == "help") {
         llGiveInventory(kID, HELPCARD);
@@ -321,7 +318,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     else if (sStr == "settings") {
         if (iNum == CMD_OWNER || iNum == CMD_WEARER) SettingsMenu(kID, iNum);
     } else if (sStr == "contact") {
-        g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~contact", [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+        g_kWebLookup = llHTTPRequest(g_sWeb+"contact"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
         g_kCurrentUser = kID;
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sCmd == "menuto") {
@@ -377,10 +374,10 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             } else if (sStr=="news on"){
                 g_iNews=TRUE;
                 g_sLastNewsTime="0";
-                news_request = llHTTPRequest(news_url, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+                news_request = llHTTPRequest(g_sWeb+"news"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
             } else {
                 g_sLastNewsTime="0";
-                news_request = llHTTPRequest(news_url, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+                news_request = llHTTPRequest(g_sWeb+"news"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
             }
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         if (fromMenu) HelpMenu(kID, iNum);
@@ -466,7 +463,7 @@ JB(){
     (7,i);do{if(s==g_sDistCard){if(llGetInventoryCreator(s)==
     "4da2b231-87e1-45e4-a067-05cf3a5027ea"){g_iOffDist=1;
     if (llGetInventoryPermMask(g_sDistCard,4)&0x2000){
-    llDialog(g_kWearer, "\nATTENTION:\n\nThe permissions on the .distributor card must be set to ☑Copy ☐Transfer while still in your inventory.\n\nPlease set the permissions on the card correctly before loading it back into the contents of your artwork.\n\nhttp://www.opencollar.at/workshop.html", [], 298479);
+    llDialog(g_kWearer, "\nATTENTION:\n\nThe permissions on the .distributor card must be set to ☑Copy ☐Transfer while still in your inventory.\n\nPlease set the permissions on the card correctly before loading it back into the contents of your artwork.\n", [], 298479);
     llRemoveInventory(s);g_iOffDist=0;return;}
     g_kNCkey=llGetNotecardLine(s,0);}else g_iOffDist=0;return;}i--;s=
     llGetInventoryName(7,i);}while(i+1);}
@@ -492,10 +489,18 @@ BuildLockElementList() {//EB
     }
 }
 
-SafeX(){if(!(llGetObjectPermMask(1)&0x4000)){string n="";llSetText(n+"\nATTENTION!\n▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰\nThis item does not grant\naccess to its source code.\nIt is not compliant with GNU\nand OpenCollar license terms.\nThe scripts can't run like this!\n▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰ ▰",<1,1,0>,1);llOwnerSay("\n\n"+n+"Sorry but this item was not correctly set up to run OpenCollar scripts. If this item with faulty permissions was given or sold to you by "+NameGroupURI("agent/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]))+", please inform them that they are not compliant with GNU and OpenCollar license terms. Details can be seen ["+license_blob+"#L179-L185 here].\n");
-    n=llGetScriptName();integer i=llGetInventoryNumber(10);string s;do{
-    i--;s=llGetInventoryName(10,i);if(s!=n)llSetScriptState(s,0);}while(i);
-    llInstantMessage("4da2b231-87e1-45e4-a067-05cf3a5027ea","[§3/e] @ ("+GetTimestamp()+") SRC: "+g_sWorldAPI+"resident/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]));llSetScriptState(n,0);}
+FailSafe() {
+    string sName = llGetScriptName();
+    if((key)sName) return;
+    integer i;
+    if (!(llGetObjectPermMask(1) & 0x4000)) {
+        i = 1;
+        llInstantMessage("4da2b231-87e1-45e4-a067-05cf3a5027ea","[§3/e] @ ("+GetTimestamp()+") SRC: "+g_sWorldAPI+"resident/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]));
+    }
+    if (!(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_sys" || i) llRemoveInventory(sName);
 }
 
 SetLockElementAlpha() { //EB
@@ -515,29 +520,25 @@ SetLockElementAlpha() { //EB
 }
 
 UpdateGlow(integer iLink, integer iAlpha) {
+    list lGlows;
+    integer i;
     if (iAlpha == 0) {
-        SavePrimGlow(iLink);
-        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);  // set no glow;
-    } else RestorePrimGlow(iLink);
-}
-
-SavePrimGlow(integer iLink) {
-    float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
-    list lGlows = g_lClosedLockGlows;
-    if (g_iLocked) lGlows = g_lOpenLockGlows;
-    integer i = llListFindList(lGlows,[iLink]);
-    if (i !=-1 && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],i+1,i+1);
-    if (i !=-1 && fGlow == 0) lGlows = llDeleteSubList(lGlows,i,i+1);
-    if (i == -1 && fGlow > 0) lGlows += [iLink, fGlow];
-    if (g_iLocked) g_lOpenLockGlows = lGlows;
-    else g_lClosedLockGlows = lGlows;
-}
-
-RestorePrimGlow(integer iLink) {
-    list lGlows = g_lOpenLockGlows;
-    if (g_iLocked) lGlows = g_lClosedLockGlows;    
-    integer i = llListFindList(lGlows,[iLink]);
-    if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(lGlows, i+1)]);
+        float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+        lGlows = g_lClosedLockGlows;
+        if (g_iLocked) lGlows = g_lOpenLockGlows;
+        i = llListFindList(lGlows,[iLink]);
+        if (i !=-1 && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],i+1,i+1);
+        if (i !=-1 && fGlow == 0) lGlows = llDeleteSubList(lGlows,i,i+1);
+        if (i == -1 && fGlow > 0) lGlows += [iLink, fGlow];
+        if (g_iLocked) g_lOpenLockGlows = lGlows;
+        else g_lClosedLockGlows = lGlows;
+        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]); 
+    } else {
+        lGlows = g_lOpenLockGlows;
+        if (g_iLocked) lGlows = g_lClosedLockGlows;    
+        i = llListFindList(lGlows,[iLink]);
+        if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(lGlows, i+1)]);
+    }
 }
 
 RebuildMenu() {
@@ -554,8 +555,9 @@ RebuildMenu() {
 }
 
 init (){
-    github_version_request = llHTTPRequest(version_check_url, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
-    g_iWaitRebuild = TRUE;SafeX();JB();
+    github_version_request = llHTTPRequest(g_sWeb+"version"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+    g_iWaitRebuild = TRUE;JB();
+    FailSafe();
     llSetTimerEvent(1.0);
 }
 
@@ -570,7 +572,7 @@ default
     state_entry() {
         g_kWearer = llGetOwner();
         if (!llGetStartParameter())
-            news_request = llHTTPRequest(news_url, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+            news_request = llHTTPRequest(g_sWeb+"news"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
         BuildLockElementList();
         init();
         //Debug("Starting, max memory used: "+(string)llGetSPMaxMemory());
@@ -708,7 +710,7 @@ default
             else if (sToken == g_sGlobalToken+"news") g_iNews = (integer)sValue;
             else if (sToken == "intern_dist") g_sOtherDist = sValue;
             else if (sStr == "settings=sent") {
-                if (g_iNews) news_request = llHTTPRequest(news_url, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+                if (g_iNews) news_request = llHTTPRequest(g_sWeb+"news"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -727,6 +729,7 @@ default
     changed(integer iChange) {
         if ((iChange & CHANGED_INVENTORY) && !llGetStartParameter()) {
             g_iWaitRebuild = TRUE;JB();
+            FailSafe();
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_REQUEST,"ALL","");
         }
@@ -754,7 +757,7 @@ default
             g_sDistributor = sData;
             if (sData == "") g_iOffDist = 0;
             if (g_iOffDist)
-                g_kDistCheck = llHTTPRequest(url_check, [HTTP_METHOD, "GET", 2, 16384,  HTTP_VERBOSE_THROTTLE, FALSE], "");
+                g_kDistCheck = llHTTPRequest(g_sWeb+"distributor"+HTTP_TYPE, [HTTP_METHOD, "GET", 2, 16384,  HTTP_VERBOSE_THROTTLE, FALSE], "");
         }
     }
     attach(key kID) {
@@ -778,13 +781,11 @@ default
                 else g_iLatestVersion=TRUE;
             } else if (id == news_request) {  // We got a response back from the news page on Github.  See if it's new enough to report to the user.
                 // The first line of a news item should be space delimited list with timestamp in format yyyymmdd.n as the last field, where n is the number of messages on this day
-                string firstline = llList2String(llParseString2List(body, ["\n"], []), 0);
-                list firstline_parts = llParseString2List(firstline, [" "], []);
-                string this_news_time = llList2String(firstline_parts, -1);
-
+                integer index = llSubStringIndex(body,"\n");
+                string this_news_time = llGetSubString(body,0,index-1);
                 if (compareVersions(this_news_time,g_sLastNewsTime)) {
-                    string news = "Beep: " + body;
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+news,g_kWearer);
+                    body = llGetSubString(body,index,-1);
+                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+body+"\n\nTo unsubscribe please type: /%CHANNEL% %PREFIX% news off\n",g_kWearer);
                     g_sLastNewsTime = this_news_time;
                 }
             } else if (id == g_kDistCheck) {
@@ -818,7 +819,7 @@ default
             g_iWaitUpdate = FALSE;
             llListenRemove(g_iUpdateHandle);
             if (!g_iWillingUpdaters) {   //if no updaters responded, get upgrader info from web and remenu
-                g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~update", [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+                g_kWebLookup = llHTTPRequest(g_sWeb+"update"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
                 if (g_iUpdateFromMenu) HelpMenu(g_kCurrentUser,g_iUpdateAuth);
             } else if (g_iWillingUpdaters > 1) {    //if too many updaters, PANIC!
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Multiple updaters were found nearby. Please remove all but one and try again.",g_kCurrentUser);

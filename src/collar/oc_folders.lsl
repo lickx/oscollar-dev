@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Folders - 160112.1                             //
+//                           Folders - 161030.1                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
 //  Medea Destiny, Romka Swallowtail, littlemousy, Sumi Perl,               //
@@ -483,6 +483,16 @@ SetAsyncMenu(key kAv, integer iAuth) {
     g_kAsyncMenuUser = kAv;
     g_iAsyncMenuAuth = iAuth;
 }
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_folders")
+        llRemoveInventory(sName);
+}
 
 UserCommand(integer iNum, string sStr, key kID) {
     list lParams = llParseString2List(sStr, [" "], []);
@@ -535,6 +545,7 @@ default {
     state_entry() {
         //llSetMemoryLimit(65536);
         g_kWearer = llGetOwner();
+        FailSafe();
         //Debug("Starting");
     }
 
@@ -791,9 +802,10 @@ integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
         llSetTimerEvent(0.0);
     }
 
-/*
     changed(integer iChange) {
-        if (iChange & CHANGED_REGION) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
+    }
+    /*    if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);
                 Debug("profiling restarted");

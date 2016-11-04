@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                       Installer System - 161013.4                        //
+//                       Installer System - 161029.1                        //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2011 - 2016 Nandana Singh, Satomi Ahn, DrakeSystem,       //
 //  Wendy Starfall, littlemousy, Romka Swallowtail, Garvin Twine et al.     //
@@ -84,7 +84,7 @@ integer g_iPin;
 // the collar's key
 key g_kCollarKey;
 
-// strided list of bundles in the prim and whether they are supposed to be 
+// strided list of bundles in the prim and whether they are supposed to be
 // installed.
 list g_lBundles;
 
@@ -134,7 +134,7 @@ DoBundle() {
     string card = llList2String(g_lBundles, g_iBundleIndex);
     string mode = llList2String(g_lBundles, g_iBundleIndex + 1);
     string bundlemsg = llDumpList2String([g_iSecureChannel, g_kCollarKey, card, g_iPin, mode], "|");
-    llMessageLinked(LINK_SET, DO_BUNDLE, bundlemsg, "");    
+    llMessageLinked(LINK_SET, DO_BUNDLE, bundlemsg, "");
 }
 
 Debug(string str) {
@@ -161,8 +161,8 @@ Particles(key kTarget) {
             i = 1;
         }
     } while (--i > 1);
-    llParticleSystem([ 
-        PSYS_PART_FLAGS, 
+    llParticleSystem([
+        PSYS_PART_FLAGS,
             PSYS_PART_INTERP_COLOR_MASK |
             PSYS_PART_INTERP_SCALE_MASK |
             PSYS_PART_TARGET_POS_MASK |
@@ -196,6 +196,17 @@ InitiateInstallation() {
     //llWhisper(iChan,"-.. --- / .... ..- -.."); Remote HUD command
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_installer_sys")
+        llRemoveInventory(sName);
+}
+
 default {
     state_entry() {
        // llPreloadSound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f");
@@ -203,6 +214,7 @@ default {
         //llPreloadSound("3409e593-20ab-fd34-82b3-6ecfdefc0207"); // ao
        // llPreloadSound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b"); //remote hud
         llSetTimerEvent(300.0);
+        FailSafe();
         ReadName();
         g_sObjectName = llGetObjectName();
         llListen(g_initChannel, "", "", "");
@@ -234,7 +246,7 @@ default {
         if (llGetInventoryType(g_sInfoCard) == INVENTORY_NOTECARD)
             g_kInfoID = llGetNotecardLine(g_sInfoCard,0);
     }
-    
+
     touch_start(integer iNumber) {
         if (llDetectedKey(0) != llGetOwner()) return;
         if (g_iDone) {
@@ -243,7 +255,7 @@ default {
         }
         InitiateInstallation();
     }
-    
+
     listen(integer iChannel, string sName, key kID, string sMsg) {
         if (llGetOwnerKey(kID) != llGetOwner()) return;
         Debug(llDumpList2String([sName, sMsg], ", "));
@@ -262,23 +274,23 @@ default {
                 }
                 Debug("sound");
                 llPlaySound("d023339f-9a9d-75cf-4232-93957c6f620c",1.0);
-                llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin 
+                llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin
             } else if (sCmd == "ready") {
                 // person clicked "Yes I want to update" on the collar menu.
                 // the script pin will be in the param
-                g_iPin = (integer)sParam;     
+                g_iPin = (integer)sParam;
                 g_kCollarKey = kID;
                 g_iSecureChannel = (integer)llFrand(-2000000000 + 1);
                 if(g_iSecureChannel == 0) g_iSecureChannel = -1234567;
                 if (!g_iIsUpdate) g_iSecureChannel = -g_iSecureChannel;
                 llListen(g_iSecureChannel, "", g_kCollarKey, "");
-                llRemoteLoadScriptPin(g_kCollarKey, g_sShim, g_iPin, TRUE, g_iSecureChannel);  
-            }                
+                llRemoteLoadScriptPin(g_kCollarKey, g_sShim, g_iPin, TRUE, g_iSecureChannel);
+            }
         } else if (iChannel == g_iSecureChannel) {
             if (sMsg == "reallyready") {
                 Particles(kID);
                 g_iBundleIndex = 0;
-                DoBundle();       
+                DoBundle();
             }
         }
     }
@@ -290,7 +302,7 @@ default {
             g_iBundleIndex += 2;
             if (g_iBundleIndex < iCount) DoBundle();
             else {
-                // tell the shim to restore settings, set name, 
+                // tell the shim to restore settings, set name,
                 // remove the script pin, and delete himself.
                 string sMyName = llList2String(llParseString2List(llGetObjectName(), [" - "], []), 1);
                 llRegionSayTo(g_kCollarKey, g_iSecureChannel, "DONE|" + sMyName);
@@ -313,7 +325,7 @@ default {
         llSetTimerEvent(300);
         if (llVecDist(llGetPos(),llList2Vector(llGetObjectDetails(llGetOwner(),[OBJECT_POS]),0)) > 30) llDie();
     }
-    
+
     on_rez(integer iStartParam) {
         llResetScript();
     }
@@ -321,7 +333,7 @@ default {
     changed(integer iChange) {
     // Resetting on inventory change ensures that the bundle list is
     // kept current, and that the .name card is re-read if it changes.
-        if (iChange & CHANGED_INVENTORY)  llResetScript();
+        if (iChange & CHANGED_INVENTORY) llResetScript();
     }
 
     dataserver(key kID, string sData) {
@@ -350,7 +362,7 @@ default {
                 g_kInfoID = llGetNotecardLine(g_sInfoCard,g_iLine);
             } else g_iLine = 0;
         }
-                    
+
     }
 }
 

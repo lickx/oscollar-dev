@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Badwords - 160621.1                             //
+//                          Badwords - 161029.1                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Lulu Pink, Nandana Singh, Garvin Twine,       //
 //  Cleo Collins, Satomi Ahn, Joy Stipe, Wendy Starfall, Romka Swallowtail, //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅²";
+string g_sAppVersion = "¹⋅³";
 
 //MESSAGE MAP
 //integer CMD_ZERO = 0;
@@ -184,6 +184,17 @@ ParseAnimList(string sStr) {
             if (sTest == "~shock") g_iDefaultAnim = TRUE;
         }
     } while (i>0);
+}
+
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_badwords")
+        llRemoveInventory(sName);
 }
 
 UserCommand(integer iNum, string sStr, key kID, integer remenu) { // here iNum: auth value, sStr: user command, kID: avatar id
@@ -363,6 +374,7 @@ default {
     state_entry() {
         //llSetMemoryLimit(40960);
         g_kWearer = llGetOwner();
+        FailSafe();
         g_sBadWordAnim = "~shock";
         g_sBadWordSound = "Default" ;
         //Debug("Starting");
@@ -474,14 +486,14 @@ default {
             }
         }
     }
-/*
+
     changed(integer iChange) {
-        if (iChange & CHANGED_REGION) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
+        /*if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);
                 Debug("profiling restarted");
             }
-        }
+        }*/
     }
-*/
 }

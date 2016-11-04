@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                            Timer - 160704.3                              //
+//                            Timer - 161029.1                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Joy Stipe,         //
 //  Wendy Starfall, Master Starship, Medea Destiny, littlemousy,            //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅²";
+string g_sAppVersion = "¹⋅³";
 
 string g_sSubMenu = "Timer";
 string g_sParentMenu = "Apps";
@@ -279,6 +279,17 @@ TimerStart(integer perm) {
     } else g_iOnRunning=3;
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_timer")
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
     if ((g_iOnRunning || g_iRealRunning) && kID == g_kWearer) {
         if (!llSubStringIndex(llToLower(sStr),"timer")) {
@@ -286,7 +297,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
             return;
         }
     }
-    if (llToLower(sStr) == "rm timer" && (iAuth == CMD_OWNER || kID ==  g_kWearer)) 
+    if (llToLower(sStr) == "rm timer" && (iAuth == CMD_OWNER || kID ==  g_kWearer))
         Dialog(kID, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth,"rmtimer");
     if (llToLower(sStr) == "timer" || sStr == "menu "+g_sSubMenu) DoMenu(kID, iAuth);
     else if (llGetSubString(sStr, 0, 5) == "timer ") {
@@ -431,6 +442,7 @@ default {
 
     state_entry() {
         //llSetMemoryLimit(40960);  //2015-05-06 (4238 bytes free)
+        FailSafe();
         g_iLastTime=llGetUnixTime();
         llSetTimerEvent(1);
         g_kWearer = llGetOwner();
@@ -603,14 +615,13 @@ default {
         g_iLastTime=g_iCurrentTime;
     }
 
-/*
     changed(integer iChange) {
-        if (iChange & CHANGED_REGION) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
+        /*if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);
                 Debug("profiling restarted");
             }
-        }
+        }*/
     }
-*/
 }

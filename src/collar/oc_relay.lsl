@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//             Relay - 160529.1          .*' /  .*' ; .*`- +'  `*'          //
+//             Relay - 161030.1          .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Joy Stipe,         //
@@ -485,7 +485,7 @@ refreshRlvListener() {
     if (g_iRLV && g_iBaseMode && !g_iRecentSafeword) {
         g_iRlvListener = llListen(RELAY_CHANNEL, "", NULL_KEY, "");
         g_iSafetyListener = llListen(SAFETY_CHANNEL, "","","Safety!");
-        llRegionSayTo(g_kWearer,SAFETY_CHANNEL,"SafetyDenied!"); 
+        llRegionSayTo(g_kWearer,SAFETY_CHANNEL,"SafetyDenied!");
     }
 }
 
@@ -518,6 +518,17 @@ CleanQueue() {
     }
     //end of cleaning, now check if there is still events in queue and act accordingly
     Dequeue();
+}
+
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_relay")
+        llRemoveInventory(sName);
 }
 
 UserCommand(integer iNum, string sStr, key kID) {
@@ -636,6 +647,7 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
+        FailSafe();
         g_lSources=[];
         llSetTimerEvent(g_iGarbageRate); //start garbage collection timer
         //Debug("Starting");
@@ -643,7 +655,7 @@ default {
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID);
-        else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu) 
+        else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         else if (iNum==CMD_ADDSRC)
             g_lSources+=[kID];
@@ -693,14 +705,14 @@ default {
                         Menu(kAv, iAuth);
                     } else {
                         sMsg = llToLower(sMsg);
-                        if (llSubStringIndex(sMsg,"☐ ")==0) 
+                        if (llSubStringIndex(sMsg,"☐ ")==0)
                             sMsg = llDeleteSubString(sMsg,0,1)+" on";
-                        else if (llSubStringIndex(sMsg,"☒ ")==0||llSubStringIndex(sMsg,"☑ ")==0) 
+                        else if (llSubStringIndex(sMsg,"☒ ")==0||llSubStringIndex(sMsg,"☑ ")==0)
                             sMsg = llDeleteSubString(sMsg,0,1)+" off";
                         sMsg ="relay "+sMsg;
                         UserCommand(iAuth, sMsg, kAv);
                         Menu(kAv, iAuth);
-                    }                    
+                    }
                 } else if (sMenu=="Access~List") {
                     if (sMsg==UPMENU) Menu(kAv, iAuth);
                     else ListsMenu(kAv,sMsg, iAuth);
@@ -788,7 +800,7 @@ default {
             llRegionSayTo(g_kWearer,SAFETY_CHANNEL,"SafetyDenied!");
         }
 /*
-        if (llGetSubString(sMsg,-43,-1)==","+(string)g_kWearer+",!pong") 
+        if (llGetSubString(sMsg,-43,-1)==","+(string)g_kWearer+",!pong")
         {   //sloppy matching; the protocol document is stricter, but some in-world devices do not respect it
             llOwnerSay("Forwarding "+sMsg+" to rlvmain");
             llMessageLinked(LINK_SET, CMD_RLV_RELAY, sMsg, kID);
@@ -878,8 +890,10 @@ default {
         }
     }
 
-/*    changed(integer iChange) {
-        if (iChange & CHANGED_REGION) {
+    changed(integer iChange) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
+    }
+    /*    if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);
                 Debug("profiling restarted");
