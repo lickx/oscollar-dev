@@ -491,7 +491,7 @@ BuildLockElementList() {//EB
 
 FailSafe() {
     string sName = llGetScriptName();
-    if((key)sName) return;
+    if(osIsUUID(sName)) return;
     integer i;
     if (!(llGetObjectPermMask(1) & 0x4000)) {
         i = 1;
