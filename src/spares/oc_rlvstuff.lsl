@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          RLV Stuff - 160503.3                            //
+//                          RLV Stuff - 161029.1                            //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Joy Stipe,         //
 //  Wendy Starfall, Master Starship, littlemousy, Romka Swallowtail,        //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅⁰";
+string g_sAppVersion = "¹⋅¹";
 
 string g_sParentMenu = "RLV";
 
@@ -125,7 +125,7 @@ integer LINK_RLV    = 4;
 integer LINK_SAVE   = 5;
 integer LINK_UPDATE = -10;
 
-integer LM_SETTING_SAVE = 2000;//scripts send messages on this channel to have settings saved 
+integer LM_SETTING_SAVE = 2000;//scripts send messages on this channel to have settings saved
 //str must be in form of "token=value"
 integer LM_SETTING_REQUEST = 2001;//when startup, scripts send requests for settings on this channel
 integer LM_SETTING_RESPONSE = 2002;//the httpdb script will send responses on this channel
@@ -304,6 +304,17 @@ ClearSettings(string _category) { //clear settings list
     //main RLV script will take care of sending @clear to viewer
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_rlvstuff")
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
     if (iNum > CMD_WEARER) return;  //nothing for lower than wearer here
     sStr=llStringTrim(sStr,STRING_TRIM);
@@ -363,6 +374,7 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
+        FailSafe();
         //Debug("Starting");
     }
 
@@ -475,15 +487,13 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-/*
-    changed(integer iChange)
-    {
-        if (iChange & CHANGED_REGION) {
+    changed(integer iChange) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
+        /*if (iChange & CHANGED_REGION) {
             if (g_iProfiled){
                 llScriptProfiler(1);
                 Debug("profiling restarted");
             }
-        }
+        }*/
     }
-*/
 }

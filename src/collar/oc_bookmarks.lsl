@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Bookmarks - 160716.1                            //
+//                          Bookmarks - 161031.2                            //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
 //  Sumi Perl, Master Starship, littlemousy, mewtwo064, ml132,              //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅⁰";
+string g_sAppVersion = "¹⋅¹";
 
 string  g_sSubMenu              = "Bookmarks"; // Name of the submenu
 string  g_sParentMenu          = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
@@ -60,7 +60,10 @@ string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat com
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
 integer IN_DEBUG_MODE               = FALSE;    // set to TRUE to enable Debug messages
 string  g_sCard                     = ".bookmarks"; //Name of the notecards to store destinations.
+string HTTP_TYPE = ".txt"; // can be raw, text/plain or text/*
+
 key webLookup;
+string g_sWeb = "http://virtualdisgrace.com/oc/";
 
 list   g_lDestinations                = []; //Destination list direct from static notecard
 list   g_lDestinations_Slurls         = []; //Destination list direct from static notecard
@@ -141,6 +144,17 @@ DoMenu(key keyID, integer iAuth) {
     string sPrompt = "\nBookmarks\t"+g_sAppVersion+"\n\nTake me away, gumby!";
     list lMyButtons = PLUGIN_BUTTONS + g_lDestinations + g_lVolatile_Destinations;
     Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "bookmarks");
+}
+
+FailSafe() {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_bookmarks")
+        llRemoveInventory(sName);
 }
 
 UserCommand(integer iNum, string sStr, key kID) {
@@ -353,7 +367,7 @@ below.\n- Submit a blank field to cancel and return.", [], [], 0, iAuth,"TextBox
 
 ReadDestinations() {  // On inventory change, re-read our ~destinations notecard and pull from web
     key kAv;
-    webLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~bookmarks",[HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
+    webLookup = llHTTPRequest(g_sWeb+"bookmarks"+HTTP_TYPE,[HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
     g_lDestinations = [];
     g_lDestinations_Slurls = [];
     //start re-reading the notecards
@@ -404,9 +418,10 @@ default {
         if (llGetOwner()!=g_kWearer) llResetScript();
         ReadDestinations();
     }
-    
+
     state_entry() {
         g_kWearer = llGetOwner();  // store key of wearer
+        FailSafe();
         ReadDestinations(); //Grab our presets
         //Debug("Starting");
     }
@@ -559,7 +574,10 @@ default {
     }
 
     changed(integer iChange) {
-        if(iChange & CHANGED_INVENTORY) ReadDestinations();
+        if(iChange & CHANGED_INVENTORY) {
+            FailSafe();
+            ReadDestinations();
+        }
         if(iChange & CHANGED_OWNER)  llResetScript();
 /*
         if (iChange & CHANGED_REGION) {

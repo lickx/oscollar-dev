@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Leash - 161010.1                               //
+//                           Leash - 161030.1                               //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,       //
 //  Joy Stipe, Cleo Collins, Satomi Ahn, Master Starship, Toy Wylie,        //
@@ -273,7 +273,7 @@ integer LeashTo(key kTarget, key kCmdGiver, integer iAuth, list lPoints, integer
         return FALSE;
     }
     if (!CheckCommandAuth(kCmdGiver, iAuth)) return FALSE;
-    //if (g_kLeashedTo==kTarget) return TRUE; 
+    //if (g_kLeashedTo==kTarget) return TRUE;
     if (g_kLeashedTo != NULL_KEY) DoUnleash(TRUE);
 
     integer bCmdGiverIsAvi=llGetAgentSize(kCmdGiver) != ZERO_VECTOR;
@@ -443,6 +443,17 @@ YankTo(key kIn){
     llStopMoveToTarget();
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_leash")
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
     //Debug("Got user comand:\niAuth: "+(string)iAuth+"\nsMessage: "+sMessage+"\nkMessageID: "+(string)kMessageID+"\nbFromMenu: "+(string)bFromMenu);
     if (iAuth == CMD_EVERYONE) {
@@ -484,6 +495,8 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             } else if (!g_iStay) sPrompt += "\n%WEARERNAME% can move freely.";
             if (g_iStay) sPrompt += "\n%WEARERNAME% can't move on their own.";
             Dialog(kMessageID, sPrompt, lButtons, [BUTTON_UPMENU], 0, iAuth, "MainDialog");
+        } else  if (sComm == "post") {
+            if (sVal==llToLower(BUTTON_UPMENU)) UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
         } else  if (sMessage == "grab" || sMessage == "leash" || (sMessage == "toggleleash" && NULL_KEY == g_kLeashedTo)) {
             g_iPassConfirmed = TRUE;
             LeashTo(kMessageID, kMessageID, iAuth, ["handle"], FALSE);
@@ -566,6 +579,17 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "turn", "");
             llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sSettingToken + "turn=0,"+ (string)iAuth,kMessageID);
             llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Turning towards leasher disabled.",kMessageID);
+        } else if (sComm == "pass") {
+            if (!CheckCommandAuth(kMessageID, iAuth)) return;
+            if (sVal==llToLower(BUTTON_UPMENU))
+                UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
+            else if(osIsUUID(sVal)) {
+                list lPoints;
+                if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
+                //debug("leash target is key");//could be a post, or could be we specified an av key
+                LeashTo((key)sVal, kMessageID, iAuth, lPoints, FALSE);
+            } else
+                SensorDialog(g_kCmdGiver, "\nWho shall we pass the leash?\n", sVal,iAuth,"LeashTarget", AGENT);
         } else if (sComm == "length") {
             integer iNewLength = (integer)sVal;
             if (sVal==llToLower(BUTTON_UPMENU)){
@@ -583,20 +607,20 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Oops! The leash can only reach 20 meters at most.",kMessageID);
                 Dialog(kMessageID, "\nCurrently the leash reaches " + (string)g_iLength + "m.", ["1", "2", "3", "4", "5", "6", "8", "10", "12", "15", "20"], [BUTTON_UPMENU], 0, iAuth,"SetLength");
             }
-        } else if (sComm == "anchor" || sComm == "pass") {
-            if (!CheckCommandAuth(kMessageID, iAuth) || sVal == llToLower(BUTTON_UPMENU)) {
-                if (bFromMenu) UserCommand(iAuth, "menu leash", kMessageID ,bFromMenu);
-            } else if(osIsUUID(sVal)) {
+        } else if (sComm == "anchor") {
+            if (!CheckCommandAuth(kMessageID, iAuth)) {
+                if (bFromMenu) UserCommand(iAuth, "post", kMessageID ,bFromMenu);
+            }
+            if (sVal==llToLower(BUTTON_UPMENU))  UserCommand(iAuth, "menu leash", kMessageID ,bFromMenu);
+            else if(osIsUUID(sVal)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
                 if (llGetAgentSize((key)sVal)!=ZERO_VECTOR) g_iPassConfirmed = FALSE;
                 else g_iPassConfirmed = TRUE;
                 LeashTo((key)sVal, kMessageID, iAuth, lPoints, FALSE);
-            } else if (sComm == "anchor")
+            } else
                 SensorDialog(g_kCmdGiver, "\n\nWhat's going to serve us as a post? If the desired object isn't on the list, please try moving closer.\n", "",iAuth,"PostTarget", PASSIVE|ACTIVE);
-            else if (sComm == "pass")
-                SensorDialog(g_kCmdGiver, "\nWho shall we pass the leash?\n", sVal,iAuth,"LeashTarget", AGENT);
         }
     }
 }
@@ -609,7 +633,8 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-//        llMinEventDelay(0.44);
+        FailSafe();
+        //llMinEventDelay(0.44);
         DoUnleash(FALSE);
         //Debug("Starting");
     }
@@ -696,7 +721,7 @@ default {
                     g_iStrictRank = (integer)llList2String(lParam, 1);
                     ApplyRestrictions();
                 } else if (sToken == "turn") g_iTurnModeOn = (integer)sValue;
-            } 
+            }
         } else if (iNum == RLV_ON) {
             g_iRLVOn = TRUE;
             ApplyRestrictions();
@@ -809,7 +834,10 @@ default {
     }
 
     changed (integer iChange){
-        if (iChange & CHANGED_OWNER) llResetScript();
+        if (iChange & CHANGED_OWNER){
+            g_kWearer = llGetOwner();
+        }
+        if (iChange & CHANGED_INVENTORY) FailSafe();
 /*        if (iChange & CHANGED_REGION) {
             if (g_iProfiled) {
                 llScriptProfiler(1);

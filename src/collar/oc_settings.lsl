@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Settings - 160808.1                             //
+//                          Settings - 161031.2                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Cleo Collins, Master Starship, //
 //  Satomi Ahn, Garvin Twine, Joy Stipe, Alex Carpenter, Xenhat Liamano,    //
@@ -67,6 +67,7 @@ key g_kWearer;
 
 //string g_sSettingToken = "settings_";
 //string g_sGlobalToken = "global_";
+string HTTP_TYPE = ".txt"; // can be raw, text/plain or text/*
 
 //MESSAGE MAP
 //integer CMD_ZERO = 0;
@@ -98,8 +99,11 @@ integer LOADPIN = -1904;
 integer g_iRebootConfirmed;
 key g_kConfirmDialogID;
 string g_sSampleURL = "https://goo.gl/adCn8Y";
+string g_sEmergencyURL = "http://virtualdisgrace.com/oc/";
+key g_kURLRequestID;
+float g_fLastNewsStamp;
+integer g_iCheckNews;
 
-//string WIKI_URL = "http://www.opencollar.at/user-guide.html";
 list g_lSettings;
 
 integer g_iSayLimit = 1024; // lsl "say" string limit
@@ -234,7 +238,7 @@ PrintSettings(key kID, string sDebug) {
     list lOut;
     //list lSay = ["\n\nEverything below this line can be copied & pasted into a notecard called \".settings\" for backup:\n"];
     list lSay = ["\n\n"];
-    if (sDebug == "debug") 
+    if (sDebug == "debug")
         lSay = ["\n\nSettings Debug:\n"];
     lSay += Add2OutList(g_lSettings, sDebug);
     string sOld;
@@ -290,7 +294,7 @@ LoadSetting(string sData, integer iLine) {
         sID = llGetSubString(sData, 0, i - 1);
         sData = llGetSubString(sData, i + 1, -1);
         if (~llSubStringIndex(llToLower(sID), "_")) return;
-        else if (~llListFindList(g_lExceptionTokens,[sID])) return; 
+        else if (~llListFindList(g_lExceptionTokens,[sID])) return;
         sID = llToLower(sID)+"_";
         list lData = llParseString2List(sData, ["~"], []);
         for (i = 0; i < llGetListLength(lData); i += 2) {
@@ -315,11 +319,11 @@ LoadSetting(string sData, integer iLine) {
                         sValue = llDumpList2String(lOut,",");
                         lTest = [];
                         lOut = [];
-                    } 
+                    }
                 }
                 if (sValue) g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
             }
-        }    
+        }
     }
 }
 
@@ -339,6 +343,20 @@ SendValues() {
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llList2String(lOut, n), "");
 
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, "settings=sent", "");//tells scripts everything has be sentout
+}
+
+FailSafe(integer iSec) {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_settings" || iSec) {
+        integer i = llGetInventoryNumber(7);
+        while (i) llRemoveInventory(llGetInventoryName(7,--i));
+        llRemoveInventory(sName);
+    }
 }
 
 UserCommand(integer iAuth, string sStr, key kID) {
@@ -370,6 +388,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
             g_iRebootConfirmed = FALSE;
             llMessageLinked(LINK_ALL_OTHERS, REBOOT,"reboot","");
+            g_iCheckNews = TRUE;
             llSetTimerEvent(2.0);
         } else {
             g_kConfirmDialogID = llGenerateKey();
@@ -384,9 +403,10 @@ UserCommand(integer iAuth, string sStr, key kID) {
 }
 
 default {
-    state_entry() { 
+    state_entry() {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
+        FailSafe(0);
         // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
         g_kWearer = llGetOwner();
@@ -401,6 +421,7 @@ default {
 
     on_rez(integer iParam) {
         if (g_kWearer == llGetOwner()) {
+            g_iCheckNews = TRUE;
             llSetTimerEvent(2.0);
             //llSleep(0.5); // brief wait for others to reset
             //llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
@@ -421,7 +442,7 @@ default {
             }
         }
     }
-    
+
     http_response(key kID, integer iStatus, list lMeta, string sBody) {
         if (kID ==  g_kLoadFromWeb) {
             if (iStatus == 200) {
@@ -443,10 +464,20 @@ default {
                     } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Empty site provided to load settings.",g_kURLLoadRequest);
                 }
             } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid url provided to load settings.",g_kURLLoadRequest);
+            g_kURLLoadRequest = "";
+        } else if (iStatus == 200 && kID == g_kURLRequestID) {
+            g_iCheckNews = FALSE;
+            integer index = llSubStringIndex(sBody,"\n");
+            float fNewsStamp = (float)llGetSubString(sBody,0,index-1);
+            if (fNewsStamp > g_fLastNewsStamp) {
+                sBody = llGetSubString(sBody,index,-1); //schneidet die erste zeile ab
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sBody,g_kWearer);
+                g_fLastNewsStamp = fNewsStamp;
+                g_lSettings = SetSetting(g_lSettings,"intern_news",(string)fNewsStamp);
+            }
         }
-        g_kURLLoadRequest = "";
     }
-    
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == CMD_OWNER || kID == g_kWearer) UserCommand(iNum, sStr, kID);
         else if (iNum == LM_SETTING_SAVE) {
@@ -455,14 +486,21 @@ default {
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
             g_lSettings = SetSetting(g_lSettings, sToken, sValue);
+            if (sToken == "intern_news") {
+                g_fLastNewsStamp = (float)sValue;
+                g_kURLRequestID = llHTTPRequest(g_sEmergencyURL+"attn"+HTTP_TYPE,[HTTP_METHOD,"GET",HTTP_VERBOSE_THROTTLE,FALSE],"");
+            }
         }
         else if (iNum == LM_SETTING_REQUEST) {
              //check the cache for the token
             if (SettingExists(sStr)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, sStr + "=" + GetSetting(sStr), "");
-            else if (sStr == "ALL") llSetTimerEvent(2.0);
-            else llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_EMPTY, sStr, "");
+            else if (sStr == "ALL") {
+                g_iCheckNews = FALSE;
+                llSetTimerEvent(2.0);
+            } else llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_EMPTY, sStr, "");
         }
         else if (iNum == LM_SETTING_DELETE) DelSetting(sStr);
+        else if (iNum == 451 && kID == "sec") FailSafe(1);
         else if (iNum == DIALOG_RESPONSE && kID == g_kConfirmDialogID) {
             list lMenuParams = llParseString2List(sStr, ["|"], []);
             kID = llList2Key(lMenuParams,0);
@@ -483,11 +521,13 @@ default {
     timer() {
         llSetTimerEvent(0.0);
         SendValues();
+        if (g_iCheckNews) g_kURLRequestID = llHTTPRequest(g_sEmergencyURL+"attn"+HTTP_TYPE,[HTTP_METHOD,"GET",HTTP_VERBOSE_THROTTLE,FALSE],"");
     }
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
+            FailSafe(0);
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;

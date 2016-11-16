@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 161002.1                          //
+//                         Communicator - 161030.1                          //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
@@ -85,6 +85,7 @@ integer NOTIFY_OWNERS=1003;
 integer LINK_AUTH = 2;
 integer LINK_DIALOG = 3;
 integer LINK_SAVE = 5;
+integer LINK_ANIM = 6;
 integer LINK_UPDATE = -10;
 integer REBOOT = -1000;
 integer LM_SETTING_SAVE = 2000;
@@ -95,7 +96,7 @@ integer LM_SETTING_DELETE = 2003;
 
 //integer MENUNAME_REQUEST = 3000;
 //integer MENUNAME_RESPONSE = 3001;
-
+integer ANIM_LIST_REQUEST = 7002;
 integer TOUCH_REQUEST = -9500;
 integer TOUCH_CANCEL = -9501;
 integer TOUCH_RESPONSE = -9502;
@@ -202,6 +203,38 @@ sendCommandFromLink(integer iLinkNumber, string sType, key kToucher) {
         if (g_iTouchNotify && kToucher!=g_kWearer)
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nsecondlife:///app/agent/"+(string)kToucher+"/about touched your %DEVICETYPE%.\n",g_kWearer);
     }
+}
+
+FailSafe() {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (!(llGetObjectPermMask(1) & 0x4000) 
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
+    || sName != "oc_com") {
+        integer i = llGetInventoryNumber(7);
+        while (i) llRemoveInventory(llGetInventoryName(7,--i));
+        llRemoveInventory(sName);
+    }
+}
+
+MoveAnims(integer i) {
+    key kAnimator = llGetLinkKey(LINK_ANIM);
+    string sAnim;
+    list lAnims;
+    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nFetching "+(string)i+" animations from the %DEVICETYPE%'s root...\n",g_kWearer);
+    while (i) {
+        sAnim = llGetInventoryName(INVENTORY_ANIMATION,--i);
+        llGiveInventory(kAnimator,sAnim);
+        lAnims += sAnim;
+        if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
+            if (llGetInventoryPermMask(sAnim,MASK_OWNER) & PERM_COPY)
+                llRemoveInventory(sAnim);
+        }
+    }
+    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThe following animations have been moved to the %DEVICETYPE%'s animator module and are now ready to use:\n\n"+llList2CSV(lAnims)+"\n",g_kWearer);
+    llMessageLinked(LINK_ANIM,ANIM_LIST_REQUEST,"","");
 }
 
 UserCommand(key kID, integer iAuth, string sStr) {
@@ -314,8 +347,11 @@ UserCommand(key kID, integer iAuth, string sStr) {
                     llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sGlobalToken + "safeword=" + g_sSafeWord, "");
                 } else
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Your safeword is: " + g_sSafeWord,g_kWearer);
-            }
-            else if (sCommand == "busted") {
+            } else if (sStr == "mv anims") {
+                integer i = llGetInventoryNumber(INVENTORY_ANIMATION);
+                if (i) MoveAnims(i);
+                else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThere are currently no animations in the %DEVICETYPE%'s root.\n",g_kWearer);
+            } else if (sCommand == "busted") {
                 if (sValue == "on") {
                     llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"touchNotify=1","");
                     g_iTouchNotify=TRUE;
@@ -348,6 +384,7 @@ default {
     state_entry() {
        // llSetMemoryLimit(49152);  //2015-05-06 (6180 bytes free)
         g_kWearer = llGetOwner();
+        FailSafe();
         g_sWearerName = NameURI(g_kWearer);
         g_sDeviceName = llGetObjectDesc();
         if (g_sDeviceName == "" || g_sDeviceName =="(No Description)") g_sDeviceName = llGetObjectName();
@@ -503,6 +540,7 @@ default {
             if (sStr == "LINK_AUTH") LINK_AUTH = iSender;
             else if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
+            else if (sStr == "LINK_ANIM") LINK_ANIM = iSender;
             if (sStr != "LINK_REQUEST") {
                 if (!~llListFindList(g_lFoundCore5Scripts,[sStr,iSender]))
                     g_lFoundCore5Scripts += [sStr,iSender];
@@ -516,7 +554,15 @@ default {
             }
         } //needed to be the same ID that send earlier pings or pongs
         else if (iNum == AUTH_REPLY) llRegionSayTo(kID, g_iInterfaceChannel, sStr);
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        else if (iNum == REBOOT && sStr == "reboot") {
+            if (llGetInventoryType("oc_relay") == INVENTORY_SCRIPT) {
+                if (!llGetScriptState("oc_relay")) {
+                    llSetScriptState("oc_relay",TRUE);
+                    llResetOtherScript("oc_relay");
+                }
+            }
+            llResetScript();
+        }
     }
 
     touch_start(integer iNum) {
@@ -587,6 +633,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
+        if (iChange & CHANGED_INVENTORY) FailSafe();
 /*
         if (iChange & CHANGED_REGION) {
             if (g_iProfiled){

@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//     Remote Bookmarks - 160121.2       .*' /  .*' ; .*`- +'  `*'          //
+//     Remote Bookmarks - 161031.1       .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2015 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
@@ -51,13 +51,15 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⁶⁰¹²⁰⋅²";
+string g_sAppVersion = "¹⋅¹";
 
 string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
 integer IN_DEBUG_MODE               = FALSE;    // set to TRUE to enable Debug messages
 string  g_sCard                     = ".bookmarks"; //Name of the notecards to store destinations.
+string HTTP_TYPE = ".txt"; // can be raw, text/plain or text/*
 key webLookup;
+string g_sWeb = "http://virtualdisgrace.com/oc/";
 
 list   g_lDestinations                = []; //Destination list direct from static notecard
 list   g_lDestinations_Slurls         = []; //Destination list direct from static notecard
@@ -115,6 +117,17 @@ DoMenu() {
     Dialog(sPrompt, lMyButtons, [sCancel], 0, "bookmarks");
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_remote_bookmarks")
+        llRemoveInventory(sName);
+}
+
 UserCommand(string sStr) {
     list lParams = llParseString2List(sStr, [" "], []);
     // So commands can accept a value
@@ -122,7 +135,7 @@ UserCommand(string sStr) {
          llResetScript();
     } else if(sStr == PLUGIN_CHAT_CMD || llToLower(sStr) == "menu " + PLUGIN_CHAT_CMD_ALT || llToLower(sStr) == PLUGIN_CHAT_CMD_ALT)
         DoMenu();
-    else if(llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " save") - 1) == PLUGIN_CHAT_CMD + " save") {           
+    else if(llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " save") - 1) == PLUGIN_CHAT_CMD + " save") {
 //grab partial string match to capture destination name
         if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " save")) {
             string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " save") + 1, -1), STRING_TRIM);
@@ -302,10 +315,10 @@ below.\n- Submit a blank field to cancel and return.", [], [], 0, "TextBoxIdLoca
     return 0;
 }
 
-ReadDestinations() {     
+ReadDestinations() {
     g_lDestinations = [];
     g_lDestinations_Slurls = [];
-    webLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~bookmarks",[HTTP_METHOD, "GET"], "");
+    webLookup = llHTTPRequest(g_sWeb+"bookmarks"+HTTP_TYPE,[HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
     //start re-reading the notecards
     if(llGetInventoryKey(g_sCard))
         g_kDataID = llGetNotecardLine(g_sCard, 0);
@@ -349,9 +362,10 @@ default {
     on_rez(integer iStart) {
         ReadDestinations();
     }
-    
+
     state_entry() {
         g_kOwner = llGetOwner();  // store key of wearer
+        FailSafe();
         ReadDestinations(); //Grab our presets
         //Debug("Starting");
     }
@@ -475,7 +489,10 @@ default {
     }
 
     changed(integer iChange) {
-        if(iChange & CHANGED_INVENTORY) ReadDestinations();
+        if(iChange & CHANGED_INVENTORY) {
+            FailSafe();
+            ReadDestinations();
+        }
         if(iChange & CHANGED_OWNER)  llResetScript();
 /*
         if (iChange & CHANGED_REGION) {

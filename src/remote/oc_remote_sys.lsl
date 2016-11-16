@@ -19,10 +19,10 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//       Remote System - 160307.1        .*' /  .*' ; .*`- +'  `*'          //
+//       Remote System - 161029.1        .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
-//  Copyright (c) 2014 - 2015 Nandana Singh, Jessenia Mocha, Alexei Maven,  //
+//  Copyright (c) 2014 - 2016 Nandana Singh, Jessenia Mocha, Alexei Maven,  //
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl, //
 //  Kire Faulkes, Zinn Ixtar, Builder's Brewery, Romka Swallowtail et al.   //
 // ------------------------------------------------------------------------ //
@@ -53,14 +53,14 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "160307.1";
-string g_sFancyVersion = "⁶⋅⁰⋅¹";
+string g_sVersion = "161031.1";
+string g_sFancyVersion = "⁶⋅⁴⋅⁰";
 integer g_iUpdateAvailable;
 key g_kWebLookup;
 
 list g_lPartners;
 list g_lNewPartnerIDs;
-list g_lPartnersInSim; 
+list g_lPartnersInSim;
 string g_sActivePartnerID = "ALL"; //either an UUID or "ALL"
 
 //  list of hud channel handles we are listening for, for building lists
@@ -94,7 +94,7 @@ integer CMD_TOUCH            = 100;
 integer MENUNAME_REQUEST     = 3000;
 integer MENUNAME_RESPONSE    = 3001;
 integer SUBMENU              = 3002;
-
+integer ACC_CMD              = 7000;
 integer DIALOG               = -9000;
 integer DIALOG_RESPONSE      = -9001;
 integer DIALOG_TIMEOUT       = -9002;
@@ -107,7 +107,7 @@ string g_sAllPartners = "ALL";
 string g_sAddPartners = "Add";
 
 list g_lMainMenuButtons = [" ◄ ",g_sAllPartners," ► ",g_sAddPartners, g_sListPartners, g_sRemovePartner, "Collar Menu", "Rez"];
-list g_lMenus;
+list g_lMenus = ["HUD Style"];
 key    g_kMenuID;
 string g_sMenuType;
 
@@ -160,13 +160,19 @@ SendCollarCommand(string sCmd) {
     g_lPartnersInSim = PartnersInSim();
     integer i = llGetListLength(g_lPartnersInSim);
     if (i > 1) {
-        if ((key)g_sActivePartnerID)
-            llRegionSayTo(g_sActivePartnerID,PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
-        else if (g_sActivePartnerID == g_sAllPartners) {
+        if ((key)g_sActivePartnerID) {
+            if (!llSubStringIndex(sCmd,"acc-"))
+                llMessageLinked(LINK_THIS,ACC_CMD,sCmd,g_sActivePartnerID);
+            else
+                llRegionSayTo(g_sActivePartnerID,PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
+        } else if (g_sActivePartnerID == g_sAllPartners) {
             integer i = llGetListLength(g_lPartnersInSim);
              while (i > 1) { // g_lPartnersInSim has always one entry ["ALL"] do whom we dont want to send anything
                 string sPartnerID = llList2String(g_lPartnersInSim,--i);
-                llRegionSayTo(sPartnerID,PersonalChannel(sPartnerID,0),sPartnerID+":"+sCmd);
+                if (!llSubStringIndex(sCmd,"acc-"))
+                    llMessageLinked(LINK_THIS,ACC_CMD,sCmd,sPartnerID);
+                else
+                    llRegionSayTo(sPartnerID,PersonalChannel(sPartnerID,0),sPartnerID+":"+sCmd);
             }
         }
     } else llOwnerSay("None of your partners are in range.");
@@ -259,9 +265,21 @@ integer PicturePrim() {
     return 0;
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_remote_sys")
+        llRemoveInventory(sName);
+}
+
 default {
     state_entry() {
         g_kOwner = llGetOwner();
+        FailSafe();
         g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~remote", [HTTP_METHOD, "GET"],"");
         llSleep(1.0);//giving time for others to reset before populating menu
         if (llGetInventoryKey(g_sCard)) {
@@ -273,12 +291,14 @@ default {
         llMessageLinked(LINK_SET,MENUNAME_REQUEST, g_sMainMenu,"");
         g_iPicturePrim = PicturePrim();
         NextPartner(0,0);
+        MainMenu();
+        llOwnerSay("\n\nYou are wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");
     }
-    
+
     on_rez(integer iStart) {
         g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~remote", [HTTP_METHOD, "GET"],"");
     }
-    
+
     touch_start(integer iNum) {
         if (llGetAttached() && (llDetectedKey(0)==g_kOwner)) {// Dont do anything if not attached to the HUD
 //          I made the root prim the "menu" prim, and the button action default to "menu."
@@ -320,7 +340,7 @@ default {
         } else if (llGetSubString(sMessage, 36, 40)==":pong") {
             if (!~llListFindList(g_lNewPartnerIDs, [llGetOwnerKey(kID)]) && !~llListFindList(g_lPartners, [(string)llGetOwnerKey(kID)]))
                 g_lNewPartnerIDs += [llGetOwnerKey(kID)];
-        } 
+        }
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -336,7 +356,7 @@ default {
         else if (iNum == CMD_REMOTE) SendCollarCommand(sStr);
         else if (iNum == 111) {
             g_sTextureALL = sStr;
-            if (g_sActivePartnerID == g_sAllPartners) 
+            if (g_sActivePartnerID == g_sAllPartners)
                 llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         } else if (iNum == DIALOG_RESPONSE && kID == g_kMenuID) {
             list lParams = llParseString2List(sStr, ["|"], []);
@@ -391,7 +411,7 @@ default {
                 } else if (sMessage == g_sAllPartners) {
                     g_sActivePartnerID = g_sAllPartners;
                     NextPartner(0,FALSE);
-                    MainMenu(); 
+                    MainMenu();
                 } else if (~llListFindList(g_lMenus,[sMessage])) llMessageLinked(LINK_SET,SUBMENU,sMessage,kID);
             } else if (g_sMenuType == "RemovePartnerMenu") {
                 integer index = llListFindList(g_lPartners, [sMessage]);
@@ -412,7 +432,7 @@ default {
                 }
             } else if (g_sMenuType == "RezzerMenu") {
                     if (sMessage == UPMENU) MainMenu();
-                    else { 
+                    else {
                         g_sRezObject = sMessage;
                         if (llGetInventoryType(g_sRezObject) == INVENTORY_OBJECT)
                             llRezObject(g_sRezObject,llGetPos() + <2, 2, 0>, ZERO_VECTOR, llGetRot(), 0);
@@ -429,7 +449,7 @@ default {
                     AddPartner(sMessage);
                 g_lNewPartnerIDs = [];
                 MainMenu();
-            } 
+            }
         }
     }
 
@@ -449,11 +469,11 @@ default {
                 //llOwnerSay(g_sCard+" card loaded.");
                 return;
             } else if ((key)sData) // valid lines contain only a valid UUID which is a key
-                AddPartner(sData); 
+                AddPartner(sData);
             g_kLineID = llGetNotecardLine(g_sCard, ++g_iLineNr);
         }
     }
-    
+
     http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
         if (kRequestID == g_kWebLookup && iStatus == 200)  {
             if ((float)sBody > (float)g_sVersion) g_iUpdateAvailable = TRUE;
@@ -465,15 +485,15 @@ default {
             if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         }
     }
-    
+
     object_rez(key kID) {
         llSleep(0.5); // make sure object is rezzed and listens
-        if (g_sActivePartnerID == g_sAllPartners) 
+        if (g_sActivePartnerID == g_sAllPartners)
             llRegionSayTo(kID,PersonalChannel(g_kOwner,1234),llDumpList2String(llDeleteSubList(PartnersInSim(),0,0),","));
-        else 
+        else
             llRegionSayTo(kID,PersonalChannel(g_kOwner,1234),g_sActivePartnerID);
     }
-    
+
     changed(integer iChange) {
         if (iChange & CHANGED_INVENTORY) {
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
@@ -486,5 +506,6 @@ default {
             }
         }
         if (iChange & CHANGED_OWNER) llResetScript();
+        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }

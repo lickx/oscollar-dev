@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Couples - 160507.2                              //
+//                          Couples - 161030.1                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2004 - 2016 Francis Chung, Ilse Mannonen, Nandana Singh,  //
 //  Cleo Collins, Satomi Ahn, Joy Stipe, Wendy Starfall, Garvin Twine,      //
@@ -225,6 +225,19 @@ string StrReplace(string sSrc, string sFrom, string sTo) {
     return sSrc;
 }
 
+FailSafe(integer iSec) {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (!(llGetObjectPermMask(1) & 0x4000) 
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
+    || sName != "oc_couples" || iSec) {
+        integer i = llGetInventoryNumber(7);
+        while (i)llRemoveInventory(llGetInventoryName(7,--i));
+        llRemoveInventory(sName);
+    }
+}
 //added to stop eventual still going animations
 StopAnims() {
     if (llGetInventoryType(g_sSubAnim) == INVENTORY_ANIMATION) llMessageLinked(LINK_THIS, ANIM_STOP, g_sSubAnim, "");
@@ -272,6 +285,7 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
        // llSetMemoryLimit(40960);  //2015-05-06 (5272 bytes free)
         g_kWearer = llGetOwner();
+        FailSafe(0);
         if (llGetInventoryType(CARD1) == INVENTORY_NOTECARD) {  //card is present, start reading
             g_kCardID1 = llGetInventoryKey(CARD1);
             g_iLine1 = 0;
@@ -434,7 +448,8 @@ default {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == 451 && kID == "sec") FailSafe(1);
+        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     not_at_target() {
         // Opensim leash fix
@@ -537,6 +552,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_INVENTORY) {
+            FailSafe(0);
             if (llGetInventoryKey(CARD1) != g_kCardID1) state default;
             if (llGetInventoryKey(CARD2) != g_kCardID1) state default;
         }
