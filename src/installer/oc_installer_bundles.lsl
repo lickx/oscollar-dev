@@ -189,6 +189,7 @@ default
 
     listen(integer iChannel, string sName, key kID, string sMsg) {
         debug("heard: " + sMsg);
+        if (llGetOwnerKey(kID) != llGetOwner()) return;
         // let's live on the edge and assume that we only ever listen with a uuid filter so we know it's safe
         // look for msgs in the form <type>|<name>|<cmd>
         list lParts = llParseString2List(sMsg, ["|"], []);

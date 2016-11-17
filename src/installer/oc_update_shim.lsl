@@ -197,7 +197,11 @@ default {
             Check4Core5Script();
             string sResponse = llDumpList2String([sType, sName, sCmd], "|");
             //debug("responding: " + response);
-            llRegionSayTo(kID, iChannel, sResponse);
+            // Possible OpenSim bug
+            // See: http://opensimulator.org/mantis/view.php?id=7391
+            // So we use the less optimal llRegionSay() instead
+            //llRegionSayTo(kID, iChannel, sResponse);
+            llRegionSay(iChannel, sResponse);
         } else if (sMsg == "Core5Done") Check4Core5Script();
         else if (!llSubStringIndex(sMsg, "DONE")){
             //restore settings
@@ -272,4 +276,5 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
+
 
