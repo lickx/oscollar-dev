@@ -264,7 +264,7 @@ PrintSettings(key kID, string sDebug) {
 
 SaveSettings(key kID) {
     list lOut = Add2OutList(g_lSettings, "print");
-    if (llGetInventoryKey(g_sCard)) llRemoveInventory(g_sCard);
+    if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
     osMakeNotecard(g_sCard, lOut);
 }
 
@@ -372,7 +372,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
                     g_kLoadFromWeb = llHTTPRequest(sURL,[HTTP_METHOD, "GET"],"");
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Please enter a valid URL like: "+g_sSampleURL,kID);
             } else if (sStrLower == "load card" || sStrLower == "load") {
-                if (llGetInventoryKey(g_sCard)) {
+                if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\nwww.opencollar.at/settings\n",kID);
                     g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
@@ -412,7 +412,7 @@ default {
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
         if (!llGetStartParameter()) {
-            if (llGetInventoryKey(g_sCard)) {
+            if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
              g_kCardID = llGetInventoryKey(g_sCard);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
@@ -531,7 +531,7 @@ default {
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;
-                if (llGetInventoryKey(g_sCard)) {
+                if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
                     g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
                     g_kCardID = llGetInventoryKey(g_sCard);
                 }

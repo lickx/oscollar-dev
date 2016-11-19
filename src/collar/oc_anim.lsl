@@ -227,7 +227,7 @@ PoseMoveMenu(key kID, integer iPage, integer iAuth) {
     if (g_sPoseMoveWalk != "") {
        if (g_iTweakPoseAO) {
            sPrompt += "\n\nSelected Walk: "+g_sPoseMoveWalk;
-           if (llGetInventoryKey(g_sPoseMoveRun)) sPrompt += "\nSelected Run: "+g_sPoseMoveRun;
+           if (llGetInventoryKey(g_sPoseMoveRun)!=NULL_KEY) sPrompt += "\nSelected Run: "+g_sPoseMoveRun;
            else sPrompt += "\nSelected Run: ~run";
        }
        lButtons += ["☐ none"];

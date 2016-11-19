@@ -371,7 +371,7 @@ ReadDestinations() {  // On inventory change, re-read our ~destinations notecard
     g_lDestinations = [];
     g_lDestinations_Slurls = [];
     //start re-reading the notecards
-    if(llGetInventoryKey(g_sCard))
+    if(llGetInventoryKey(g_sCard)!=NULL_KEY)
         g_kDataID = llGetNotecardLine(g_sCard, 0);
 }
 
