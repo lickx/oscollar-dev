@@ -106,9 +106,9 @@ list DETACH_CLOTH_POINTS = [
     "xx", //"eyes", those are not to be detached, so we ignore them later
     "xx", //"hair", those are not to be detached, so we ignore them later
     "xx", //"shape", those are not to be detached, so we ignore them later
-    "Alpha",
-    "Tattoo",
-    "Physics"
+    "xx", //"alpha", those are not to be detached, so we ignore them later
+    "xx", //"tattoo", those are not to be detached, so we ignore them later
+    "xx" //"physics", those are not to be detached, so we ignore them later
         ];
 
 list ATTACH_POINTS = [//these are ordered so that their indices in the list correspond to the numbers returned by llGetAttached
@@ -854,3 +854,4 @@ default {
         }*/
     }
 }
+
