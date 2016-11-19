@@ -133,10 +133,10 @@ list g_lClosedLockElements; //to store the locks prim to hide or show //EB
 list g_lOpenLockElements; //to store the locks prim to hide or show //EB
 list g_lClosedLockGlows;
 list g_lOpenLockGlows;
-string g_sDefaultLockSound="dec9fb53-0fef-29ae-a21d-b3047525d312";
-string g_sDefaultUnlockSound="82fa6d06-b494-f97c-2908-84009380c8d1";
-string g_sLockSound="dec9fb53-0fef-29ae-a21d-b3047525d312";
-string g_sUnlockSound="82fa6d06-b494-f97c-2908-84009380c8d1";
+string g_sDefaultLockSound="lock_015_01";
+string g_sDefaultUnlockSound="lock_015_02";
+string g_sLockSound="lock_015_01";
+string g_sUnlockSound="lock_015_02";
 
 integer g_iAnimsMenu=FALSE;
 integer g_iRlvMenu=FALSE;
@@ -833,4 +833,5 @@ default
         if (!g_iWaitUpdate && !g_iWaitRebuild) llSetTimerEvent(0.0);
     }
 }
+
 
