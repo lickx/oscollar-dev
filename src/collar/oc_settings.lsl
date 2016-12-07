@@ -109,6 +109,7 @@ list g_lSettings;
 integer g_iSayLimit = 1024; // lsl "say" string limit
 integer g_iCardLimit = 255; // lsl card-line string limit
 string g_sDelimiter = "\\";
+integer g_iSaveAttempted = FALSE;
 
 // Get Group or Token, 0=Group, 1=Token
 string SplitToken(string sIn, integer iSlot) {
@@ -264,8 +265,9 @@ PrintSettings(key kID, string sDebug) {
 
 SaveSettings(key kID) {
     list lOut = Add2OutList(g_lSettings, "print");
-    if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
-    osMakeNotecard(g_sCard, lOut);
+    g_iSaveAttempted = TRUE;
+    llSetTimerEvent(3.0);
+    osMakeNotecard(g_sCard+".new", lOut);
 }
 
 LoadSetting(string sData, integer iLine) {
@@ -380,7 +382,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     } else if (!llSubStringIndex(sStrLower,"save")) {
         if (iAuth == CMD_OWNER) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nSaving settings to "+g_sCard+" card. On a default OpenSim configuration, this will only work if you are the region owner or a region manager. Read [https://github.com/lickx/opencollar-os/wiki/Save-Settings the wiki] on how to enable this for all users on your region.\n",kID);
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nSaving settings to "+g_sCard+" card.\n",kID);
             SaveSettings(kID);
         }
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
@@ -522,6 +524,16 @@ default {
         llSetTimerEvent(0.0);
         SendValues();
         if (g_iCheckNews) g_kURLRequestID = llHTTPRequest(g_sEmergencyURL+"attn"+HTTP_TYPE,[HTTP_METHOD,"GET",HTTP_VERBOSE_THROTTLE,FALSE],"");
+        if (g_iSaveAttempted) {
+            g_iSaveAttempted = FALSE;
+            if (llGetInventoryKey(g_sCard+".new")!=NULL_KEY) {
+                // Move g_sCard.new notecard into g_sCard
+                if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
+                string sNewSettings = osGetNotecard(g_sCard+".new");
+                osMakeNotecard(g_sCard, sNewSettings);
+                llRemoveInventory(g_sCard+".new");
+            } else llOwnerSay("\n\nSaving settings is not supported in this region.\n\n");
+        }
     }
 
     changed(integer iChange) {
