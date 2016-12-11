@@ -712,7 +712,7 @@ default {
                     integer i;
                     for (i=2;i<llGetListLength(g_lPrimOrder);++i) {
                         if (g_iOldPos != i) {
-                            integer iTemp = llList2Integer(g_lPrimOrder,i);
+                            iTemp = llList2Integer(g_lPrimOrder,i);
                             lButtons +=[llList2String(g_lButtons,iTemp)+":"+(string)i];
                         }
                     }
@@ -829,3 +829,4 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
+
