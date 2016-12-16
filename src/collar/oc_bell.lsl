@@ -322,7 +322,7 @@ UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr
 default {
     on_rez(integer param) {
         g_kWearer=llGetOwner();
-        if (g_iBellOn) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
+        if (g_iBellOn && !g_iHasControl) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);        
     }
 
     state_entry() {
