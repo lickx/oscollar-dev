@@ -135,15 +135,15 @@ FindButtons() { // collect buttons names & links
 DoTextures(string style) {
     list lTextures = [
     "Dark",
-    "Minimize~e1482c7e-8609-fcb0-56d8-18c3c94d21c0",
-    "Power~e630e9e0-799e-6acc-e066-196cca7b37d4",
-    "SitAny~251b2661-235e-b4d8-0c75-248b6bdf6675",
-    "Menu~f3ec1052-6ec4-04ba-d752-937a4d837bf8",
+    "Minimize~857cda3b-5a50-463f-9e3e-3d289b85c5df",
+    "Power~3ff1f3dd-abcf-413d-9e19-6c1a9dc50209",
+    "SitAny~b90745b1-3d4e-4ee3-8a8d-5bf8014c8be3",
+    "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
     "Light",
-    "Minimize~b59f9932-5de4-fc23-b5aa-2ab46d22c9a6",
-    "Power~42d4d624-ca72-1c74-0045-f782d7409061",
-    "SitAny~349340c5-0045-c32d-540e-52b6fb77af55",
-    "Menu~52c3f4cf-e87e-dbdd-cf18-b2c4f6002a96"
+    "Minimize~a9d26a81-e5b6-4eff-aa4f-625e03e04f15",
+    "Power~0b504c91-efb1-4a69-b833-42b780897b59",
+    "SitAny~2dc164d8-9f85-4247-951b-1c9e124e7f00",
+    "Menu~83779c3b-5028-4a43-87d4-60b924afaebb"
     ];
     integer i = llListFindList(lTextures,[style]);
     integer iEnd = i+4;
@@ -504,7 +504,7 @@ StartUpdate(key kID) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
