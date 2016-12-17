@@ -106,7 +106,8 @@ string g_sRemovePartner = "Remove";
 string g_sAllPartners = "ALL";
 string g_sAddPartners = "Add";
 
-list g_lMainMenuButtons = [" ◄ ",g_sAllPartners," ► ",g_sAddPartners, g_sListPartners, g_sRemovePartner, "Collar Menu", "Rez"];
+//list g_lMainMenuButtons = [" ◄ ",g_sAllPartners," ► ",g_sAddPartners, g_sListPartners, g_sRemovePartner, "Collar Menu", "Rez"];
+list g_lMainMenuButtons = [" ◄ ", "ALL", " ► ", "Add", "List", "Remove", "Collar Menu", "Rez"];
 list g_lMenus = ["HUD Style"];
 key    g_kMenuID;
 string g_sMenuType;
@@ -166,7 +167,7 @@ SendCollarCommand(string sCmd) {
             else
                 llRegionSayTo(g_sActivePartnerID,PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
         } else if (g_sActivePartnerID == g_sAllPartners) {
-            integer i = llGetListLength(g_lPartnersInSim);
+             i = llGetListLength(g_lPartnersInSim);
              while (i > 1) { // g_lPartnersInSim has always one entry ["ALL"] do whom we dont want to send anything
                 string sPartnerID = llList2String(g_lPartnersInSim,--i);
                 if (!llSubStringIndex(sCmd,"acc-"))
@@ -338,7 +339,7 @@ default {
                 Dialog("\nINSTALLATION REQUEST PENDING:\n\nAn update or app installer is requesting permission to continue. Installation progress can be observed above the installer box and it will also tell you when it's done.\n\nShall we continue and start with the installation?", ["Yes","No"], ["Cancel"], 0, "UpdateConfirmMenu");
             }
         } else if (llGetSubString(sMessage, 36, 40)==":pong") {
-            if (!~llListFindList(g_lNewPartnerIDs, [llGetOwnerKey(kID)]) && !~llListFindList(g_lPartners, [(string)llGetOwnerKey(kID)]))
+            if (!(~llListFindList(g_lNewPartnerIDs, [llGetOwnerKey(kID)])) && !(~llListFindList(g_lPartners, [(string)llGetOwnerKey(kID)])))
                 g_lNewPartnerIDs += [llGetOwnerKey(kID)];
         }
     }
@@ -349,7 +350,8 @@ default {
             if (llList2String(lParams,0) == g_sMainMenu) {
                 string sChild = llList2String(lParams,1);
                 if (! ~llListFindList(g_lMenus, [sChild]))
-                    g_lMenus = llListSort(g_lMenus+=[sChild], 1, TRUE);
+                    g_lMenus+=[sChild];
+                    g_lMenus = llListSort(g_lMenus, 1, TRUE);
             }
             lParams = [];
         } else if (iNum == SUBMENU && sStr == "Main") MainMenu();
