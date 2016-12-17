@@ -204,27 +204,6 @@ CoupleAnimMenu(key kID, integer iAuth) {
     Dialog(kID, sPrompt, lButtons, [UPMENU],0, iAuth,"couples");
 }
 
-string StrReplace(string sSrc, string sFrom, string sTo) {
-//replaces all occurrences of 'from' with 'to' in 'sSrc'.
-    integer iLength = (~-(llStringLength(sFrom)));
-    if(~iLength)  {
-        string  sBuffer = sSrc;
-        integer b_pos = -1;
-        integer to_len = (~-(llStringLength(sTo)));
-        @loop;//instead of a while loop, saves 5 bytes (and run faster).
-        integer to_pos = ~llSubStringIndex(sBuffer, sFrom);
-        if(to_pos) {
-            b_pos -= to_pos;
-            sSrc = llInsertString(llDeleteSubString(sSrc, b_pos, b_pos + iLength), b_pos, sTo);
-            b_pos += to_len;
-            sBuffer = llGetSubString(sSrc, (-~(b_pos)), 0x8000);
-            //buffer = llGetSubString(sSrc = llInsertString(llDeleteSubString(sSrc, b_pos -= to_pos, b_pos + len), b_pos, to), (-~(b_pos += to_len)), 0x8000);
-            jump loop;
-        }
-    }
-    return sSrc;
-}
-
 FailSafe(integer iSec) {
     string sName = llGetScriptName();
     if (osIsUUID(sName)) return;
@@ -453,17 +432,19 @@ default {
     }
     not_at_target() {
         // Opensim leash fix
-        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
-        
+        if (g_iTargetID==0) return;
+
         llTargetRemove(g_iTargetID);
+        g_iTargetID = 0;
         MoveToPartner();
     }
 
     at_target(integer tiNum, vector targetpos, vector ourpos) {
         // Opensim leash fix
-        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
+        if (g_iTargetID==0) return;
 
         llTargetRemove(tiNum);
+        g_iTargetID = 0;
         llStopMoveToTarget();
         float offset = 10.0;
         if (g_iCmdIndex != -1) offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
@@ -488,8 +469,8 @@ default {
 
         string sText = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 3);
         if (sText != "" && g_iVerbose) {
-            sText = StrReplace(sText,"_PARTNER_",g_sPartnerName);
-            sText = StrReplace(sText,"_SELF_","%WEARERNAME%");
+            sText = osReplaceString(sText,"_PARTNER_",g_sPartnerName,-1,0);
+            sText = osReplaceString(sText,"_SELF_","%WEARERNAME%",-1,0);
             llMessageLinked(LINK_DIALOG,SAY,"0"+sText,"");
         }
         if (g_fTimeOut > 0.0) {
