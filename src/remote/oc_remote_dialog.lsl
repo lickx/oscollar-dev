@@ -164,7 +164,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
         sNumberedButtons="\n"; //let's make this a linebreak instead
         for (iCur = iStart; iCur <= iEnd; iCur++) {
             string sButton = llList2String(lMenuItems, iCur);
-            if ((key)sButton) {
+            if (osIsUUID(sButton)) {
                 //fixme: inlined single use key2name function
                 if (g_iSelectAviMenu) sButton = "secondlife:///app/agent/"+sButton+"/about";
                 else if (llGetDisplayName((key)sButton)) sButton=llGetDisplayName((key)sButton);
@@ -345,7 +345,7 @@ dequeueSensor() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

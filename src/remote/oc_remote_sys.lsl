@@ -131,7 +131,7 @@ Debug(string sStr) {
 }*/
 
 string NameURI(string sID) {
-    if ((key)sID)
+    if (osIsUUID(sID))
         return "secondlife:///app/agent/"+sID+"/about";
     else return sID; //this way we can use the function also for "ALL" and dont need a special case for that everytime
 }
@@ -161,7 +161,7 @@ SendCollarCommand(string sCmd) {
     g_lPartnersInSim = PartnersInSim();
     integer i = llGetListLength(g_lPartnersInSim);
     if (i > 1) {
-        if ((key)g_sActivePartnerID) {
+        if (osIsUUID(g_sActivePartnerID)) {
             if (!llSubStringIndex(sCmd,"acc-"))
                 llMessageLinked(LINK_THIS,ACC_CMD,sCmd,g_sActivePartnerID);
             else
@@ -247,7 +247,7 @@ NextPartner(integer iDirection, integer iTouch) {
         else if (index < 0) index = llGetListLength(g_lPartnersInSim)-1;
         g_sActivePartnerID = llList2String(g_lPartnersInSim,index);
     } else g_sActivePartnerID = g_sAllPartners;
-    if ((key)g_sActivePartnerID)
+    if (osIsUUID(g_sActivePartnerID))
         g_kPicRequest = llHTTPRequest("http://world.secondlife.com/resident/"+g_sActivePartnerID,[HTTP_METHOD,"GET"],"");
     else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
@@ -268,7 +268,7 @@ integer PicturePrim() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -447,7 +447,7 @@ default {
                         kNewPartnerID = llList2Key(g_lNewPartnerIDs,--i);
                         if (kNewPartnerID) AddPartner(kNewPartnerID);
                     } while (i);
-                } else if ((key)sMessage)
+                } else if (osIsUUID(sMessage))
                     AddPartner(sMessage);
                 g_lNewPartnerIDs = [];
                 MainMenu();
@@ -470,7 +470,7 @@ default {
             if (sData == EOF) { //  notify the owner
                 //llOwnerSay(g_sCard+" card loaded.");
                 return;
-            } else if ((key)sData) // valid lines contain only a valid UUID which is a key
+            } else if (osIsUUID(sData)) // valid lines contain only a valid UUID which is a key
                 AddPartner(sData);
             g_kLineID = llGetNotecardLine(g_sCard, ++g_iLineNr);
         }
