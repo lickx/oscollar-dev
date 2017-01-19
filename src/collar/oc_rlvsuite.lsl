@@ -712,12 +712,26 @@ default {
                 else if (sMenu == "terminal") {
                     if (llStringLength(sMessage) > 4) DoTerminalCommand(sMessage, kAv);
                     if (g_iMenuCommand) llMessageLinked(LINK_RLV, iAuth, "menu " + COLLAR_PARENT_MENU, kAv);
-                } else if (sMenu == "folder" || sMenu == "multimatch") {
+                } else if (sMenu == "folder") {
                     g_kMenuClicker = kAv;
                     if (sMessage == UPMENU)
                         llMessageLinked(LINK_RLV, iAuth, "menu "+COLLAR_PARENT_MENU, kAv);
                     else if (sMessage != "")
                         WearFolder(g_sCurrentPath+sMessage);
+                } else if (sMenu == "multimatch") {
+                    g_kMenuClicker = kAv;
+                    if (sMessage == UPMENU)
+                        llMessageLinked(LINK_RLV, iAuth, "menu "+COLLAR_PARENT_MENU, kAv);   
+                    else if (sMessage == BACKMENU) {
+                        list lTempSplit = llParseString2List(g_sCurrentPath,["/"],[]);
+                        lTempSplit = llList2List(lTempSplit,0,llGetListLength(lTempSplit) -2);
+                        g_sCurrentPath = llDumpList2String(lTempSplit,"/") + "/";
+                        llSetTimerEvent(g_iTimeOut);
+                        g_iAuth = iAuth;
+                        g_iListener = llListen(g_iFolderRLV, "", g_kWearer, "");
+                        llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
+                    } else if (sMessage != "")
+                        WearFolder(g_sCurrentPath+sMessage);                    
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
