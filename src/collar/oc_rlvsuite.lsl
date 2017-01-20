@@ -731,7 +731,7 @@ default {
                         g_iListener = llListen(g_iFolderRLV, "", g_kWearer, "");
                         llOwnerSay("@getinv:"+g_sCurrentPath+"="+(string)g_iFolderRLV);
                     } else if (sMessage != "")
-                        WearFolder(g_sCurrentPath+sMessage);                    
+                        WearFolder(sMessage);                    
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
