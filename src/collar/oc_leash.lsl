@@ -790,9 +790,10 @@ default {
     }
 
     at_target(integer iNum, vector vTarget, vector vMe) {
-        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
+        if (g_iTargetHandle==0) return;
         llStopMoveToTarget();
         llTargetRemove(g_iTargetHandle);
+        g_iTargetHandle = 0;
         g_vPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
         g_iTargetHandle = llTarget(g_vPos, (float)g_iLength);
         if(g_iJustMoved) {
@@ -804,7 +805,7 @@ default {
     }
 
     not_at_target() {
-        if (g_kLeashedTo=="" || g_kLeashedTo==NULL_KEY) return;
+        if (g_iTargetHandle==0) return;
         g_iJustMoved = 1;
         // i ran into a problem here which seems to be "speed" related, specially when using the menu to unleash this event gets triggered together or just after the CleanUp() function
         //to prevent to get stay in the target events i added a check on g_kLeashedTo is NULL_KEY
