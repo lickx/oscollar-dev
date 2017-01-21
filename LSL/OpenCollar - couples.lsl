@@ -401,7 +401,7 @@ default {
     not_at_target()
     {
         // Opensim leash fix
-        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
+        if (g_iTargetID==0) return;
         //this might make us chase the partner.  we'll see.  that might not be bad
         llTargetRemove(g_iTargetID);
         MoveToPartner();
@@ -409,8 +409,9 @@ default {
     at_target(integer tiNum, vector targetpos, vector ourpos)
     {
         // Opensim leash fix
-        if (g_kPartner == "" || g_kPartner == NULL_KEY) return;
+        if (g_iTargetID==0) return;
         llTargetRemove(tiNum);
+        g_iTargetID = 0;
         llStopMoveToTarget();
         
         //AlignWithPartner
