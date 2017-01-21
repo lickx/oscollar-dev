@@ -80,7 +80,7 @@ list g_lAppsButtons;
 integer g_iLocked = FALSE;
 integer g_bDetached = FALSE;
 integer g_iHide ; // global hide
-integer g_iNews=TRUE;
+integer g_iNews=FALSE;
 
 string g_sLockPrimName="Lock"; // Description for lock elements to recognize them //EB //SA: to be removed eventually (kept for compatibility)
 string g_sOpenLockPrimName="OpenLock"; // Prim description of elements that should be shown when unlocked

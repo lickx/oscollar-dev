@@ -1,9 +1,10 @@
-OpenCollar-OS 3.998.2 - Built Sept 12th, 2016
-* Hotfix to show correct folder names in '#Browse RLV'
-* Integrate most recent leash code (3.995)
-* Fix couple being continuously repositioned in couple hug
+OpenCollar-OS 3.998.3 - Built Jan 21st 2017
+* Backported a critical fix for the leash vs couple hug code
+* Disable by default this news bulletin you are now seeing
 
 It is strongly recommended to update if you haven't already.
+Please be aware this is a legacy collar, active development
+is focused on the newer Six collars.
 
 OsGrid local teleport:
 secondlife://Oaks Woods/8/134/28
