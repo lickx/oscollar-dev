@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//           Capture - 160413.3          .*' /  .*' ; .*`- +'  `*'          //
+//           Capture - 161030.1          .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2014 - 2016 littlemousy, Sumi Perl, Wendy Starfall,       //
@@ -155,7 +155,7 @@ doCapture(string sCaptorID, integer iIsConfirmed) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%WEARERNAME% is already captured, try another time.",sCaptorID);
         return;
     }
-    if (llVecDist(llList2Vector(llGetObjectDetails(sCaptorID,[OBJECT_POS] ),0),llGetPos()) > 10 ) { 
+    if (llVecDist(llList2Vector(llGetObjectDetails(sCaptorID,[OBJECT_POS] ),0),llGetPos()) > 10 ) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You could capture %WEARERNAME% if you get a bit closer.",sCaptorID);
         return;
     }
@@ -170,6 +170,17 @@ doCapture(string sCaptorID, integer iIsConfirmed) {
         saveTempOwners();
         llSetTimerEvent(0.0);
     }
+}
+
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_capture")
+        llRemoveInventory(sName);
 }
 
 UserCommand(integer iNum, string sStr, key kID, integer remenu) {
@@ -252,6 +263,7 @@ default{
     state_entry() {
        // llSetMemoryLimit(32768); //2016-01-24 (6034 bytes free)
         g_kWearer = llGetOwner();
+        FailSafe();
         //Debug("Starting");
     }
 
@@ -345,6 +357,7 @@ default{
                 }
             }
         }
+        if (iChange & CHANGED_INVENTORY) FailSafe();
         /*if (iChange & CHANGED_REGION) {
             if (g_iProfiled){
                 llScriptProfiler(1);

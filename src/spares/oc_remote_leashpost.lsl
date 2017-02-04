@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//    Remote Leashpost - 160123.1        .*' /  .*' ; .*`- +'  `*'          //
+//    Remote Leashpost - 161029.1        .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2016 Garvin Twine                                         //
@@ -60,13 +60,25 @@ integer RemoteChannel(string sID,integer iOffset) {
     return iChan;
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_remote_leashpost")
+        llRemoveInventory(sName);
+}
+
 default {
     on_rez(integer iStart) {
         llResetScript();
     }
-    
+
     state_entry() {
         llSetMemoryLimit(16384);
+        FailSafe();
         g_iListener = llListen(RemoteChannel(llGetOwner(),1234),"","","");
         list lTemp = llParseString2List(llGetObjectDesc(),["@"],[]);
         vector vRot = (vector)("<"+llList2String(lTemp,1)+">");
@@ -74,7 +86,7 @@ default {
         llSetRot(llEuler2Rot(vRot * DEG_TO_RAD));
         llSetPos(llGetPos()+vPos);
     }
-    
+
     listen(integer iChannel, string sName, key kID, string sMessage) {
         llListenRemove(g_iListener);
         string sObjectID = (string)llGetKey();
@@ -85,5 +97,8 @@ default {
             kID = llList2Key(lToLeash,--i);
             llRegionSayTo(kID,RemoteChannel(kID,0),"anchor "+sObjectID);
         }
+    }
+    changed(integer iChange) {
+        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }

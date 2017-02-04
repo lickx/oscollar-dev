@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//           Themes - 160808.3           .*' /  .*' ; .*`- +'  `*'          //
+//           Themes - 161030.1           .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,       //
@@ -331,6 +331,17 @@ BuildElementsList(){
     }
 }
 
+FailSafe() {
+    string sName = llGetScriptName();
+    if ((key)sName) return;
+    if (!(llGetObjectPermMask(1) & 0x4000)
+    || !(llGetObjectPermMask(4) & 0x4000)
+    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
+    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
+    || sName != "oc_themes")
+        llRemoveInventory(sName);
+}
+
 UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
     string sStrLower = llToLower(sStr);
 // This is needed as we react on touch for our "choose element on touch" feature, else we get an element on every collar touch!
@@ -342,6 +353,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
             string sElement=llList2String(lParams,1);
             //Debug("Command: "+sCommand+"\nElement: "+sElement);
             if (sCommand == "themes" || sStrLower == "menu themes") {
+                sElement = llDumpList2String(llDeleteSubList(lParams,0,0)," ");
                 integer iElementIndex = llListFindList(g_lThemes,[sElement]);
                 if (~iElementIndex) {
                     g_sThemesNotecardReadType="processing";
@@ -522,6 +534,7 @@ default {
     state_entry() {
         //llSetMemoryLimit(65536);  //cant set any lower in this script
         g_kWearer = llGetOwner();
+        FailSafe();
         BuildTexturesList();
         BuildElementsList();
         BuildThemesList();
@@ -736,6 +749,7 @@ default {
         if (iChange & CHANGED_LINK) BuildElementsList();
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
+            FailSafe();
             if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
             else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID == "";
             if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();
