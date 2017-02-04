@@ -547,7 +547,7 @@ UserCommand(integer iNum, string sStr, key kID) {
     }
     if (!g_iRLV) {
         llMessageLinked(LINK_RLV, iNum, "menu RLV", kID);
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0\n\nThe relay requires RLV to be running in the %DEVICETYPE% but it currently is not. To make things work, click \"ON\" in the RLV menu that just popped up!\n",kID);  
+        llMessageLinked(LINK_DIALOG,NOTIFY,"0\n\nThe relay requires RLV to be running in the %DEVICETYPE% but it currently is not. To make things work, click \"ON\" in the RLV menu that just popped up!\n",kID);
     } else if (sStr=="relay" || sStr == "menu "+g_sSubMenu) Menu(kID, iNum);
     else if (iNum!=CMD_OWNER && iNum!=CMD_TRUSTED && kID!=g_kWearer) RelayNotify(kID,"Access denied!",0);
     else if ((sStr=llGetSubString(sStr,6,-1))=="safeword") SafeWord(); // cut "relay " off sStr
