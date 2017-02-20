@@ -423,13 +423,11 @@ SendValues()
 integer UserCommand(integer iAuth, string sStr, key kID)
 {
     if (iAuth != COMMAND_OWNER && iAuth != COMMAND_WEARER) return FALSE;
-    /*
     if (sStr == "menu " + SUBMENU || llToLower(sStr) == llToLower(SUBMENU))
     {
         DoMenu(kID, iAuth);
         return TRUE;
     }
-    */
     if (llToLower(llGetSubString(sStr, 0, 4)) == "dump_")
     {
         sStr = llToLower(llGetSubString(sStr, 5, -1));
@@ -459,7 +457,7 @@ integer UserCommand(integer iAuth, string sStr, key kID)
     else if (C == llToLower(LOADCARD))
     {
         defaultsline = 0;
-        if (llGetInventoryKey(defaultscard)!=NULL_KEY) {
+        if (llGetInventoryKey(defaultscard)) {
             defaultslineid = llGetNotecardLine(defaultscard, defaultsline);
         }
     }
@@ -504,7 +502,7 @@ default {
         if (INTERFACE_CHANNEL > 0) INTERFACE_CHANNEL *= -1;
         if (INTERFACE_CHANNEL > -10000) INTERFACE_CHANNEL -= 30000;
         defaultsline = 0;
-        if (llGetInventoryKey(defaultscard)!=NULL_KEY) {
+        if (llGetInventoryKey(defaultscard)) {
             defaultslineid = llGetNotecardLine(defaultscard, defaultsline);
             card_key = llGetInventoryKey(defaultscard);
         }
@@ -668,7 +666,7 @@ default {
                 //    }
                 //    else Notify(kAv,"Only the collar wearer and owners may refresh menus.",FALSE);
                 //}
-
+                
                 DoMenu(kAv, iAuth);
             }
         }
@@ -703,7 +701,7 @@ default {
             {
                 // the defaultsettings card changed.  Re-read it.
                 defaultsline = 0;
-                if (llGetInventoryKey(defaultscard)!=NULL_KEY) {
+                if (llGetInventoryKey(defaultscard)) {
                     defaultslineid = llGetNotecardLine(defaultscard, defaultsline);
                     card_key = llGetInventoryKey(defaultscard);
                 }
