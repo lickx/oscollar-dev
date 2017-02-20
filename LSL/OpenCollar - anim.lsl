@@ -108,7 +108,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     if (kID == g_kWearer) llOwnerSay(sMsg);
     else {
-        if (llGetAgentSize(kID)) llRegionSayTo(kID,0,sMsg);
+        if (llGetAgentSize(kID)!=ZERO_VECTOR) llRegionSayTo(kID,0,sMsg);
         else llInstantMessage(kID, sMsg);
         if (iAlsoNotifyWearer) llOwnerSay(sMsg);
     }
@@ -222,8 +222,7 @@ integer SetPosture(integer iOn, key kCommander) {
 RefreshAnim() {  //g_lAnims can get lost on TP, so re-play g_lAnims[0] here, and call this function in "changed" event on TP
     if (llGetListLength(g_lAnims)) {
         if (g_iPosture) llStartAnimation("~stiff");
-        if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
-            llResetAnimationOverride("ALL");
+        if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
             string sAnim = llList2String(g_lAnims, 0);
             if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) StartAnim(sAnim);  //get and stop currently playing anim
         } else llOwnerSay( "Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.");
@@ -231,7 +230,7 @@ RefreshAnim() {  //g_lAnims can get lost on TP, so re-play g_lAnims[0] here, and
 }
 
 StartAnim(string sAnim) {  //adds anim to queue, calls PlayAnim to play it, and calls AO as necessary
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             //stop currently playing anim
             if (llGetListLength(g_lAnims)) UnPlayAnim(llList2String(g_lAnims, 0));
@@ -251,14 +250,7 @@ StartAnim(string sAnim) {  //adds anim to queue, calls PlayAnim to play it, and 
 
 PlayAnim(string sAnim){  //plays anim and heightfix, depending on methods configured for each
     //play anim
-    if (g_iTweakPoseAO) {
-        llSetAnimationOverride( "Standing", sAnim);
-        if (g_sPoseMoveWalk) llSetAnimationOverride( "Walking", g_sPoseMoveWalk);
-        if (g_sPoseMoveRun) {
-            if (llGetInventoryKey(g_sPoseMoveRun)) llSetAnimationOverride( "Running", g_sPoseMoveRun);
-            else if (llGetInventoryKey("~run")) llSetAnimationOverride( "Running", "~run");
-        }
-    } else llStartAnimation(sAnim);
+    llStartAnimation(sAnim);
 
     //play heightfix
     if (g_iHeightFix) {
@@ -279,7 +271,7 @@ PlayAnim(string sAnim){  //plays anim and heightfix, depending on methods config
 }
 
 StopAnim(string sAnim) {  //deals with removing anim from queue, calls UnPlayAnim to stop it, calls AO as nexessary
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             //remove all instances of stopped anim from the queue
             while(~llListFindList(g_lAnims,[sAnim])){
@@ -302,8 +294,7 @@ StopAnim(string sAnim) {  //deals with removing anim from queue, calls UnPlayAni
 
 UnPlayAnim(string sAnim){  //stops anim and heightfix, depending on methods configured for each
     //stop the pose
-    if (g_iTweakPoseAO) llResetAnimationOverride("ALL");
-    else llStopAnimation(sAnim);
+    llStopAnimation(sAnim);
 
     //stop any currently-playing height adjustment
     if (g_iAdjustment) {
@@ -521,7 +512,7 @@ default {
         g_iInterfaceChannel = (integer)("0x" + llGetSubString(g_kWearer,30,-1));
         if (g_iInterfaceChannel > 0) g_iInterfaceChannel = -g_iInterfaceChannel;
 
-        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS );
+        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
         if (llGetInventoryKey("~heightscalars")) g_kDataID = llGetNotecardLine("~heightscalars", g_iLine);  //start reading the ~heightscalars notecard
         //Debug("Starting");
@@ -549,7 +540,7 @@ default {
             llRegionSayTo(g_kWearer,g_iAOChannel, "ZHAO_STANDON");
             g_lAnims = [];
         }
-        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS);
+        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -668,3 +659,4 @@ default {
 */
     }
 }
+
