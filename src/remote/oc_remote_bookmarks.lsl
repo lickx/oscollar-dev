@@ -19,12 +19,12 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//     Remote Bookmarks - 161031.1       .*' /  .*' ; .*`- +'  `*'          //
+//     Remote Bookmarks - 170207.1       .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2015 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
 //  Sumi Perl, Master Starship, littlemousy, mewtwo064, ml132,              //
-//  Romka Swallowtail, Garvin Twine et al.                                  //
+//  Romka Swallowtail, Garvin Twine, Mace68 et al.                          //
 // ------------------------------------------------------------------------ //
 //  This script is free software: you can redistribute it and/or modify     //
 //  it under the terms of the GNU General Public License as published       //
@@ -415,7 +415,7 @@ default {
                         + "/"+(string)((integer)g_vLocalPos.y)
                         + "/"+(string)((integer)g_vLocalPos.z);
             llMessageLinked(LINK_THIS,CMD_REMOTE, "hudtpto:" + pos_str + "=force","");
-            llOwnerSay("Follow your Partner(s) right way by clicking here: secondlife:///app/teleport/"+g_sRegion+sPos);
+            llOwnerSay("Follow your Partner(s) right way by clicking here: secondlife:///app/teleport/"+llEscapeURL(g_sRegion)+sPos);
         }
         if(kID == g_kDataID) {
             list split;
