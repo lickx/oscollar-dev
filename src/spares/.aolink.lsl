@@ -3,7 +3,7 @@
    |;;|                      |;;||     Copyright (c) 2014 - 2016:
    |[]|----------------------|[]||
    |;;|       AO  Link       |;;||     Medea Destiny, XenHat Liamano,
-   |;;|       161029.2       |;;||     Wendy Starfall, Sumi Perl,
+   |;;|       170301.1       |;;||     Wendy Starfall, Sumi Perl,
    |;;|----------------------|;;||     Ansariel Hiller, Garvin Twine,
    |;;|   www.opencollar.at  |;;||     stawberri et al.
    |;;|----------------------|;;||
@@ -18,7 +18,7 @@
    \______|_______________|_____||
     ~~~~~~^^^^^^^^^^^^^^^^^^~~~~~~     www.gnu.org/licenses/gpl-2.0
 
-github.com/VirtualDisgrace/opencollar/blob/master/src/spares/.aolink.lsl
+github.com/lickx/opencollar-os/blob/master/src/spares/.aolink.lsl
 
 Right-click and edit your AO HUD, then navigate to the Contents tab of
 the Build Menu. Once the contents finish loading, drag and drop this
@@ -167,7 +167,7 @@ AOUnPause() {
         else if(g_iAOType == GAELINE) llMessageLinked(LINK_THIS, 103, "", "ocpause");
         else if (g_iAOType == HUDDLES) llMessageLinked(LINK_THIS, 4900, "AO_ON", "ocpause");
         else if(g_iAOType > 1) llMessageLinked(LINK_THIS, 0, "ZHAO_AOON", "ocpause");
-        if(llGetPermissionsKey()) llReleaseControls(); // release now if we gave perms to take control
+        if(llGetPermissionsKey()!=NULL_KEY) llReleaseControls(); // release now if we gave perms to take control
     }
     g_iOCSwitch = TRUE;
 }
@@ -201,7 +201,7 @@ default {
         string sName;
         while (i) {
             sName = llToLower(llGetInventoryName(INVENTORY_SCRIPT,--i));
-            if ((~llSubStringIndex(sName,"aolink") || ~llSubStringIndex(sName,"ao link"))
+            if ((~llSubStringIndex(sName,"aolink")) || (~llSubStringIndex(sName,"ao link"))
                 && sName != g_sMyName) llRemoveInventory(sName);
         }
     }
@@ -273,7 +273,7 @@ default {
                 if(sMsg == "ZHAO_AOON") g_iAOSwitch = TRUE;
                 else if(sMsg == "ZHAO_AOOFF")
                     g_iAOSwitch = FALSE;
-                    if(llGetPermissions()) llReleaseControls(); // no need for input controls
+                    if(llGetPermissions() & PERMISSION_TAKE_CONTROLS) llReleaseControls(); // no need for input controls
             }
             if (g_iAOSwitch) llRegionSayTo(g_kWearer,g_iHUDChannel,(string)g_kWearer+":antislide off ao");
         }
