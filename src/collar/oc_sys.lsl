@@ -58,10 +58,9 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="6.4.0";
-string g_sFancyVersion="⁶⋅⁴⋅⁰";
+string g_sCollarVersion="6.4.12";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 161103.1;
+float g_fBuildVersion = 170306.1;
 
 key g_kWearer;
 
@@ -158,7 +157,7 @@ key g_kNCkey;
 key news_request;
 string g_sLastNewsTime = "0";
 
-string g_sWeb = "http://virtualdisgrace.com/oc/";
+string g_sWeb = "https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/";
 string g_sWorldAPI = "http://world.secondlife.com/";
 
 integer g_iUpdateAuth;
@@ -250,7 +249,7 @@ UpdateConfirmMenu() {
 }
 
 HelpMenu(key kID, integer iAuth) {
-    string sPrompt="\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+"\nOrigin: ";
+    string sPrompt="\nOsCollar Version: "+g_sCollarVersion+g_sDevStage+"\nOrigin: ";
     if (g_iOffDist) sPrompt += NameGroupURI(g_sDistributor)+" [Official]";
     else if (g_sOtherDist) sPrompt += NameGroupURI("agent/"+g_sOtherDist);
     else sPrompt += "Unknown";
@@ -266,7 +265,7 @@ HelpMenu(key kID, integer iAuth) {
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\nO  p  e  n  C  o  l  l  a  r    S  i  x™\nhttp://www.opencollar.at\t\t"+g_sFancyVersion;
+    string sPrompt = "\nO  s  C  o  l  l  a  r    S  i  x™\t"+g_sCollarVersion;
     if(!g_iLatestVersion) sPrompt+="\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates";
     //Debug("max memory used: "+(string)llGetSPMaxMemory());
     list lStaticButtons=["Apps"];
