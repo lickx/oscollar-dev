@@ -391,7 +391,7 @@ SetLabel() {
         llSetTimerEvent(0);
         //inlined single use CenterJustify function
         while(llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
-        string sText = sPadding + sText;
+        sText = sPadding + sText;
         integer iCharPosition;
         for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
             RenderString(llList2Integer(g_lLabelLinks, iCharPosition), llGetSubString(sText, iCharPosition, iCharPosition));
@@ -422,7 +422,7 @@ SetOffsets(key font) {
         }
         integer o = llListFindList(g_lFonts, [(string)g_kFontTexture]);
         integer n = llListFindList(g_lFonts, [(string)font]);
-        if (~o && o != n) {// changing fonts - adjust for differences in font offsets
+        if ((~o) && o != n) {// changing fonts - adjust for differences in font offsets
             if (n < 8 && o == 9) g_vOffset.y += 0.0015;
             else if (o < 8 && n == 9) g_vOffset.y -= 0.0015;
         }
