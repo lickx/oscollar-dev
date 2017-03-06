@@ -1,4 +1,6 @@
-### Welcome to OpenCollar Six™
+### Welcome to OsCollar Six™
+
+OsCollar Six is a fork of OpenCollar Six with increased compatibility for OpenSim virtual worlds. The OpenCollar repository can be found [here](https://github.com/VirtualDisgrace/opencollar)
 
 OpenCollar Six is a set of LSL scripts and other creative content, such as animations, sounds, textures, graphics and 3D models, which can be used to create role play devices in the form of scripted accessory and/or so-called HUDs for the metaverse.
 
@@ -45,9 +47,12 @@ OpenCollar Six source code and creative resource are covered and protected by st
 
 We target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
 
-This is the oscollar6 branch, which is a port of OpenCollar Six  
-Check out the oscollar3 branch for a port based on OpenCollar 3.99x
-
+Branches: 
+ 
+master - development branch for OpenSim 0.9+ 
+oscollar6 - stable port of OpenCollar Six for OpenSim 0.8+ 
+oscollar3 - stable port of OpenCollar 3.99x for OpenSim 0.8+ 
+ 
 There are some differences between the v3 and Six collars, for instance Six is much more optimized thanks to certain scripts being in seperate links (which can be optionally invisible, but you do need them seperate).
 
 If you are looking to directly convert or upgrade existing v3 collars for OpenSim, you can use the oscollar3 branch which should be 100% compatible with the last v3 version in Second Life. We haven't made a transmuter tool yet to convert a v3 collar to Six.
