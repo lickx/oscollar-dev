@@ -49,9 +49,9 @@ We target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
 
 Branches: 
  
-master - development branch for OpenSim 0.9+ 
-oscollar6 - stable port of OpenCollar Six for OpenSim 0.8+ 
-oscollar3 - stable port of OpenCollar 3.99x for OpenSim 0.8+ 
+master - development branch for OpenSim 0.9+  
+oscollar6 - stable port of OpenCollar Six for OpenSim 0.8+  
+oscollar3 - stable port of OpenCollar 3.99x for OpenSim 0.8+  
  
 There are some differences between the v3 and Six collars, for instance Six is much more optimized thanks to certain scripts being in seperate links (which can be optionally invisible, but you do need them seperate).
 
