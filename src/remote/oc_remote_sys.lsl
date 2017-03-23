@@ -47,13 +47,13 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//       github.com/VirtualDisgrace/opencollar/tree/master/src/remote       //
+//         github.com/lickx/opencollar-os/tree/oscollar6/src/collar         //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "161031.1";
+string g_sVersion = "170321.1";
 string g_sFancyVersion = "⁶⋅⁴⋅⁰";
 integer g_iUpdateAvailable;
 key g_kWebLookup;

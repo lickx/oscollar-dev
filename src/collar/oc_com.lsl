@@ -21,9 +21,9 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 161030.1                          //
+//                         Communicator - 170323.2                          //
 // ------------------------------------------------------------------------ //
-//  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
+//  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
 //  Romka Swallowtail, Sumi Perl et al.                                     //
 // ------------------------------------------------------------------------ //
@@ -48,7 +48,7 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//       github.com/VirtualDisgrace/opencollar/tree/master/src/collar       //
+//         github.com/lickx/opencollar-os/tree/oscollar6/src/collar         //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +129,7 @@ integer g_iNeedsPose = FALSE;  // should the avatar be forced into a still pose 
 string g_sPOSE_ANIM = "turn_180";
 
 integer g_iTouchNotify = FALSE;  // for Touch Notify
-
+integer g_iHighlander = TRUE;
 list g_lCore5Scripts = ["LINK_AUTH","oc_auth","LINK_DIALOG","oc_dialog","LINK_RLV","oc_rlvsys","LINK_SAVE","oc_settings","LINK_ANIM","oc_anim","LINK_ANIM","oc_couples"];
 list g_lFoundCore5Scripts;
 list g_lWrongRootScripts;
@@ -388,7 +388,6 @@ default {
         g_sWearerName = NameURI(g_kWearer);
         g_sDeviceName = llGetObjectDesc();
         if (g_sDeviceName == "" || g_sDeviceName =="(No Description)") g_sDeviceName = llGetObjectName();
-        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"DeviceName="+g_sDeviceName, "");
         llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sGlobalToken+"DeviceName="+g_sDeviceName, "");
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer), 0,1));
         //Debug("Default prefix: " + g_sPrefix);
@@ -425,7 +424,11 @@ default {
                 llMessageLinked(LINK_AUTH, CMD_ZERO, sMsg, llGetOwnerKey(kID));
             } else if (iChan == g_iInterfaceChannel && llGetOwnerKey(kID) == g_kWearer) { //for the rare but possible case g_iHUDChan == g_iInterfaceChannel
                 if (sMsg == "OpenCollar?") llRegionSayTo(g_kWearer, g_iInterfaceChannel, "OpenCollar=Yes");
-                else if (llSubStringIndex(sMsg, "AuthRequest")==0)
+                else if (sMsg == "OpenCollar=Yes" && g_iHighlander) llRegionSayTo(kID,g_iInterfaceChannel,"There can be only one!");
+                else if (sMsg == "There can be only one!" && llGetOwnerKey(kID) == g_kWearer && g_iHighlander) {
+                    llOwnerSay("You wear already \""+sName+"\". Detaching myself.");
+                    llRequestPermissions(g_kWearer,PERMISSION_ATTACH);
+                } else if (llSubStringIndex(sMsg, "AuthRequest")==0)
                     llMessageLinked(LINK_AUTH,AUTH_REQUEST,(string)kID+(string)g_iInterfaceChannel,llGetSubString(sMsg,12,-1));
                 else llMessageLinked(LINK_AUTH, CMD_ZERO, sMsg, llGetOwnerKey(kID));
             } else
@@ -469,7 +472,13 @@ default {
             if (llGetOwnerKey(kID) != g_kWearer) return;
             //play ping pong with the Sub AO
             if (sMsg == "OpenCollar?") llRegionSayTo(g_kWearer, g_iInterfaceChannel, "OpenCollar=Yes");
-            else { // attachments can send auth request: llRegionSayTo(g_kWearer,g_InteraceChannel,"AuthRequest|UUID");
+            else if (sMsg == "OpenCollar=Yes" && g_iHighlander) {
+                llOwnerSay("Detected "+sName);
+                llRegionSayTo(kID,g_iInterfaceChannel,"There can be only one!");
+            } else if (sMsg == "There can be only one!" && llGetOwnerKey(kID) == g_kWearer && g_iHighlander) {
+                llOwnerSay("You wear already \""+sName+"\". Detaching myself.");
+                llRequestPermissions(g_kWearer,PERMISSION_ATTACH);
+            } else { // attachments can send auth request: llRegionSayTo(g_kWearer,g_InteraceChannel,"AuthRequest|UUID");
                 if (llSubStringIndex(sMsg, "AuthRequest")==0) {
                     llMessageLinked(LINK_AUTH,AUTH_REQUEST,(string)kID+(string)g_iInterfaceChannel,llGetSubString(sMsg,12,-1));
                 }
@@ -517,7 +526,7 @@ default {
             else if (sToken == g_sGlobalToken+"WearerName") {
                  if (llSubStringIndex(sValue, "secondlife:///app/agent"))
                     g_sWearerName = "["+NameURI(g_kWearer)+" " + sValue + "]";
-            }
+            } else if (sToken == "intern_Highlander") g_iHighlander = (integer)sValue;
             else if (sToken == g_sGlobalToken+"safeword") g_sSafeWord = sValue;
             else if (sToken == g_sGlobalToken+"channel") {
                 g_iPrivateListenChan = (integer)sValue;
@@ -576,6 +585,10 @@ default {
 
     run_time_permissions(integer iPerm) {
         if (iPerm & PERMISSION_TRIGGER_ANIMATION) g_iNeedsPose = TRUE;
+        if (iPerm & PERMISSION_ATTACH) {
+            llOwnerSay("@detach=yes");
+            llDetachFromAvatar();
+        }
     }
 
     timer() {

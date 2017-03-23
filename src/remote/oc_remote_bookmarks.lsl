@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//     Remote Bookmarks - 170207.1       .*' /  .*' ; .*`- +'  `*'          //
+//     Remote Bookmarks - 170222.1       .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2015 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
@@ -47,11 +47,11 @@
 //  future, then "full perms" will mean the most permissive possible set    //
 //  of permissions allowed by the platform.                                 //
 // ------------------------------------------------------------------------ //
-//       github.com/VirtualDisgrace/opencollar/tree/master/src/remote       //
+//         github.com/lickx/opencollar-os/tree/oscollar6/src/collar         //
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅¹";
+string g_sAppVersion = "¹⋅²";
 
 string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
@@ -320,6 +320,7 @@ ReadDestinations() {
     g_lDestinations_Slurls = [];
     webLookup = llHTTPRequest(g_sWeb+"bookmarks"+HTTP_TYPE,[HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
     //start re-reading the notecards
+    g_iLine = 0;
     if(llGetInventoryKey(g_sCard)!=NULL_KEY)
         g_kDataID = llGetNotecardLine(g_sCard, 0);
 }
