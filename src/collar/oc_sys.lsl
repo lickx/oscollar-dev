@@ -352,7 +352,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         if (fromMenu) MainMenu(kID, iNum);
     } else if (sCmd == "fix") {
-        if (kID == g_kWearer){
+        if (kID == g_kWearer || iNum == CMD_OWNER || iNum == CMD_TRUSTED){
             RebuildMenu();
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Menus have been fixed!",kID);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
