@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           System - 170306.1                              //
+//                           System - 170323.1                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy, Romka Swallowtail,  //
@@ -58,9 +58,9 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="6.4.12";
+string g_sCollarVersion="6.4.13";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 170306.1;
+float g_fBuildVersion = 170323.1;
 
 key g_kWearer;
 
@@ -70,7 +70,7 @@ integer g_iMenuStride = 3;
 //MESSAGE MAP
 integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
-//integer CMD_TRUSTED = 501;
+integer CMD_TRUSTED = 501;
 //integer CMD_GROUP = 502;
 integer CMD_WEARER = 503;
 integer CMD_EVERYONE = 504;
@@ -174,7 +174,6 @@ string SAVECARD = "Save";
 string REFRESH_MENU = "Fix";
 
 string g_sGlobalToken = "global_";
-integer g_iStealth;
 
 integer g_iWaitUpdate;
 integer g_iWaitRebuild;
@@ -231,7 +230,7 @@ SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\nSettings";
     list lButtons = [DUMPSETTINGS,LOADCARD,SAVECARD,REFRESH_MENU];
     lButtons += g_lResizeButtons;
-    if (g_iStealth) lButtons += [STEALTH_ON];
+    if (g_iHide) lButtons += [STEALTH_ON];
     else lButtons += [STEALTH_OFF];
     if (g_iLooks) lButtons += "Looks";
     else lButtons += "Themes";
@@ -353,7 +352,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         if (fromMenu) MainMenu(kID, iNum);
     } else if (sCmd == "fix") {
-        if (kID == g_kWearer){
+        if (kID == g_kWearer || iNum == CMD_OWNER || iNum == CMD_TRUSTED){
             RebuildMenu();
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Menus have been fixed!",kID);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
@@ -531,10 +530,10 @@ UpdateGlow(integer iLink, integer iAlpha) {
         if (i == -1 && fGlow > 0) lGlows += [iLink, fGlow];
         if (g_iLocked) g_lOpenLockGlows = lGlows;
         else g_lClosedLockGlows = lGlows;
-        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]); 
+        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);
     } else {
         lGlows = g_lOpenLockGlows;
-        if (g_iLocked) lGlows = g_lClosedLockGlows;    
+        if (g_iLocked) lGlows = g_lClosedLockGlows;
         i = llListFindList(lGlows,[iLink]);
         if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(lGlows, i+1)]);
     }
@@ -566,8 +565,7 @@ StartUpdate(){
     llRegionSayTo(g_kUpdaterOrb, g_iUpdateChan, "ready|" + (string)pin );
 }
 
-default
-{
+default {
     state_entry() {
         g_kWearer = llGetOwner();
         if (!llGetStartParameter())
@@ -593,7 +591,7 @@ default
             } else if (sStr=="Main|Animations") g_iAnimsMenu=TRUE;
             else if (sStr=="Main|RLV") g_iRlvMenu=TRUE;
             else if (sStr=="Main|Capture") g_iCaptureMenu=TRUE;
-            else if (sStr=="Settings|Size/Position") g_lResizeButtons = ["Position","Rotation"]; //,"Size"
+            else if (sStr=="Settings|Size/Position") g_lResizeButtons = ["Position","Rotation", "Size"];
         } else if (iNum == MENUNAME_REMOVE) {
             //sStr should be in form of parentmenu|childmenu
             list lParams = llParseString2List(sStr, ["|"], []);
@@ -658,10 +656,10 @@ default
                          return;
                     } else if (sMessage == STEALTH_OFF) {
                          llMessageLinked(LINK_ROOT, iAuth,"hide",kAv);
-                         g_iStealth = TRUE;
+                         g_iHide = TRUE;
                     } else if (sMessage == STEALTH_ON) {
                         llMessageLinked(LINK_ROOT, iAuth,"show",kAv);
-                        g_iStealth = FALSE;
+                        g_iHide = FALSE;
                     } else if (sMessage == "Themes") {
                         llMessageLinked(LINK_ROOT, iAuth, "menu Themes", kAv);
                         return;
@@ -721,7 +719,7 @@ default
     }
 
     on_rez(integer iParam) {
-        if (llGetOwner()!=g_kWearer) llResetScript();
+        g_iHide=!(integer)llGetAlpha(ALL_SIDES) ; //check alpha
         init();
     }
 
