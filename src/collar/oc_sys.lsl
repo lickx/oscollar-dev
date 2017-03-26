@@ -591,7 +591,7 @@ default {
             } else if (sStr=="Main|Animations") g_iAnimsMenu=TRUE;
             else if (sStr=="Main|RLV") g_iRlvMenu=TRUE;
             else if (sStr=="Main|Capture") g_iCaptureMenu=TRUE;
-            else if (sStr=="Settings|Size/Position") g_lResizeButtons = ["Position","Rotation"]; //,"Size"
+            else if (sStr=="Settings|Size/Position") g_lResizeButtons = ["Position","Rotation", "Size"];
         } else if (iNum == MENUNAME_REMOVE) {
             //sStr should be in form of parentmenu|childmenu
             list lParams = llParseString2List(sStr, ["|"], []);
