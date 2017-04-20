@@ -463,7 +463,7 @@ JB(){
     if (llGetInventoryPermMask(g_sDistCard,4)&0x2000){
     llDialog(g_kWearer, "\nATTENTION:\n\nThe permissions on the .distributor card must be set to ☑Copy ☐Transfer while still in your inventory.\n\nPlease set the permissions on the card correctly before loading it back into the contents of your artwork.\n", [], 298479);
     llRemoveInventory(s);g_iOffDist=0;return;}
-    g_kNCkey=llGetNotecardLine(s,0);}else g_iOffDist=0;return;}i--;s=
+    g_kNCkey=llGetNotecardLine(s,0);}else g_iOffDist=0;return;}i--;if(~i)s=
     llGetInventoryName(7,i);}while(i+1);}
 }
 
