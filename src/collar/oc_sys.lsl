@@ -57,10 +57,10 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sDevStage="";
-string g_sCollarVersion="6.5.0";
+string g_sDevStage="DEV";
+string g_sCollarVersion="6.5.1";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 170328.2;
+float g_fBuildVersion = 170502.1;
 
 key g_kWearer;
 
@@ -148,17 +148,10 @@ key g_kUpdaterOrb;
 integer g_iUpdateFromMenu;
 
 key github_version_request;
-string g_sDistributor;
-string g_sOtherDist;
-string g_sDistCard = ".distributor";
-key g_kDistCheck;
-integer g_iOffDist;
-key g_kNCkey;
 key news_request;
 string g_sLastNewsTime = "0";
 
 string g_sWeb = "https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/";
-string g_sWorldAPI = "http://world.secondlife.com/";
 
 integer g_iUpdateAuth;
 integer g_iWillingUpdaters = 0;
@@ -248,10 +241,7 @@ UpdateConfirmMenu() {
 }
 
 HelpMenu(key kID, integer iAuth) {
-    string sPrompt="\nOsCollar Version: "+g_sCollarVersion+g_sDevStage+"\nOrigin: ";
-    if (g_iOffDist) sPrompt += NameGroupURI(g_sDistributor)+" [Official]";
-    else if (g_sOtherDist) sPrompt += NameGroupURI("agent/"+g_sOtherDist);
-    else sPrompt += "Unknown";
+    string sPrompt="\nOsCollar Version: "+g_sCollarVersion+g_sDevStage;
     sPrompt+="\n\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     sPrompt += "\n\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.";
     if(!g_iLatestVersion) sPrompt+="\n\nUpdate available!";
@@ -296,10 +286,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         }
     } else if (sStr == "info") {
         string sMessage = "\n\nModel: "+llGetObjectName();
-        sMessage += "\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")\nOrigin: ";
-        if (g_iOffDist) sMessage += NameGroupURI(g_sDistributor)+" [Official]";
-        else if (g_sOtherDist) sMessage += NameGroupURI("agent/"+g_sOtherDist);
-        else sMessage += "Unknown";
+        sMessage += "\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
         sMessage += "\nUser: "+llGetUsername(g_kWearer);
         sMessage += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
         sMessage += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
@@ -356,14 +343,6 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             RebuildMenu();
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Menus have been fixed!",kID);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (llToLower(sStr) == "rm seal" && kID == g_kWearer) {
-        if (g_iOffDist) {
-            if (llGetAttached())
-                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Oops! For this to work, please rez your %DEVICETYPE% on the ground and then use the command to remove the seal again.",kID);
-            else
-                Dialog(kID,"\nThis process is irreversible. Do you wish to proceed?", ["Yes","No","Cancel"],[],0,iNum,"JB");
-        } else
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This %DEVICETYPE% has no official seal.",kID);
     } else if (sCmd == "news"){
         if (kID == g_kWearer || iNum==CMD_OWNER){
             if (sStr=="news off"){
@@ -405,10 +384,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             }
         }
     } else if (sCmd == "version") {
-        string sVersion = "\n\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")\nOrigin: ";
-        if (g_iOffDist) sVersion += NameGroupURI(g_sDistributor)+" [Official]\n";
-        else if (g_sOtherDist) sVersion += NameGroupURI("agent/"+g_sOtherDist);
-        else sVersion += "Unknown\n";
+        string sVersion = "\n\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
         if(!g_iLatestVersion) sVersion+="\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates\n";
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sVersion,kID);
     }/* else if (sCmd == "objectversion") {
@@ -456,17 +432,6 @@ string GetTimestamp() { // Return a string of the date and time
     return out;
 }
 
-JB(){
-    integer i=llGetInventoryNumber(7);if(i){i--;string s=llGetInventoryName
-    (7,i);do{if(s==g_sDistCard){if(llGetInventoryCreator(s)==
-    "82c97378-5859-4fbb-bea5-9c45b5653a24"){g_iOffDist=1;
-    if (llGetInventoryPermMask(g_sDistCard,4)&0x2000){
-    llDialog(g_kWearer, "\nATTENTION:\n\nThe permissions on the .distributor card must be set to ☑Copy ☐Transfer while still in your inventory.\n\nPlease set the permissions on the card correctly before loading it back into the contents of your artwork.\n", [], 298479);
-    llRemoveInventory(s);g_iOffDist=0;return;}
-    g_kNCkey=llGetNotecardLine(s,0);}else g_iOffDist=0;return;}i--;if(~i)s=
-    llGetInventoryName(7,i);}while(i+1);}
-}
-
 BuildLockElementList() {//EB
     list lParams;
     // clear list just in case
@@ -490,11 +455,7 @@ BuildLockElementList() {//EB
 FailSafe() {
     string sName = llGetScriptName();
     if(osIsUUID(sName)) return;
-    integer i;
-    if (!(llGetObjectPermMask(1) & 0x4000)) {
-        i = 1;
-        llInstantMessage("4da2b231-87e1-45e4-a067-05cf3a5027ea","[§3/e] @ ("+GetTimestamp()+") SRC: "+g_sWorldAPI+"resident/"+(string)llGetObjectDetails(llGetLinkKey(1),[27]));
-    }
+    integer i = 0;
     if (!(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
     || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
@@ -554,7 +515,7 @@ RebuildMenu() {
 
 init (){
     github_version_request = llHTTPRequest(g_sWeb+"~version"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
-    g_iWaitRebuild = TRUE;JB();
+    g_iWaitRebuild = TRUE;
     FailSafe();
     llSetTimerEvent(1.0);
 }
@@ -674,18 +635,7 @@ default {
                         return;
                     }
                     SettingsMenu(kAv,iAuth);
-                } else if (sMenu =="JB") {
-                    if (sMessage == "Yes") {
-                        if (llGetInventoryType(g_sDistCard)==7) llRemoveInventory(g_sDistCard);
-                        if (llGetInventoryType(g_sDistCard)==-1) {
-                            g_sDistributor = "";
-                            g_iOffDist = 0;
-                            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The %DEVICETYPE%'s official seal has been removed.",kAv);
-                        }
-                    } else
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The %DEVICETYPE%'s official seal remains intact.",kAv);
-                }
-            }
+                }            }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
@@ -705,7 +655,6 @@ default {
                 else if ((key)sValue!=NULL_KEY || llGetInventoryType(sValue)==INVENTORY_SOUND) g_sUnlockSound=sValue;
             } else if (sToken == g_sGlobalToken+"safeword") g_sSafeWord = sValue;
             else if (sToken == g_sGlobalToken+"news") g_iNews = (integer)sValue;
-            else if (sToken == "intern_dist") g_sOtherDist = sValue;
             else if (sStr == "settings=sent") {
                 if (g_iNews) news_request = llHTTPRequest(g_sWeb+"~news"+HTTP_TYPE, [HTTP_METHOD, "GET", HTTP_VERBOSE_THROTTLE, FALSE], "");
             }
@@ -725,7 +674,7 @@ default {
 
     changed(integer iChange) {
         if ((iChange & CHANGED_INVENTORY) && !llGetStartParameter()) {
-            g_iWaitRebuild = TRUE;JB();
+            g_iWaitRebuild = TRUE;
             FailSafe();
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_REQUEST,"ALL","");
@@ -748,14 +697,6 @@ default {
                 Debug("profiling restarted");
             }
         }*/
-    }
-    dataserver(key kRequestID, string sData) {
-        if (g_kNCkey == kRequestID) {
-            g_sDistributor = sData;
-            if (sData == "") g_iOffDist = 0;
-            if (g_iOffDist)
-                g_kDistCheck = llHTTPRequest(g_sWeb+"~distributor"+HTTP_TYPE, [HTTP_METHOD, "GET", 2, 16384,  HTTP_VERBOSE_THROTTLE, FALSE], "");
-        }
     }
     attach(key kID) {
         if (g_iLocked) {
@@ -785,9 +726,6 @@ default {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+body+"\n\nTo unsubscribe please type: /%CHANNEL% %PREFIX% news off\n",g_kWearer);
                     g_sLastNewsTime = this_news_time;
                 }
-            } else if (id == g_kDistCheck) {
-                if(~llSubStringIndex(body,llGetSubString(g_sDistributor,-36,-1))) g_iOffDist=1;
-                else {g_sDistributor="";g_iOffDist=0;}
             }
         }
     }
