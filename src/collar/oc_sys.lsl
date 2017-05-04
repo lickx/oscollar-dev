@@ -455,11 +455,10 @@ BuildLockElementList() {//EB
 FailSafe() {
     string sName = llGetScriptName();
     if(osIsUUID(sName)) return;
-    integer i = 0;
     if (!(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
     || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_sys" || i) llRemoveInventory(sName);
+    || sName != "oc_sys") llRemoveInventory(sName);
 }
 
 SetLockElementAlpha() { //EB
@@ -635,7 +634,8 @@ default {
                         return;
                     }
                     SettingsMenu(kAv,iAuth);
-                }            }
+                }
+            }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
