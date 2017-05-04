@@ -57,10 +57,10 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sDevStage="DEV";
+string g_sDevStage="";
 string g_sCollarVersion="6.5.1";
 integer g_iLatestVersion=TRUE;
-float g_fBuildVersion = 170502.1;
+float g_fBuildVersion = 170504.1;
 
 key g_kWearer;
 
@@ -286,7 +286,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         }
     } else if (sStr == "info") {
         string sMessage = "\n\nModel: "+llGetObjectName();
-        sMessage += "\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
+        sMessage += "\nOsCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
         sMessage += "\nUser: "+llGetUsername(g_kWearer);
         sMessage += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
         sMessage += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
@@ -384,8 +384,8 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             }
         }
     } else if (sCmd == "version") {
-        string sVersion = "\n\nOpenCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
-        if(!g_iLatestVersion) sVersion+="\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates\n";
+        string sVersion = "\n\nOsCollar Version: "+g_sCollarVersion+g_sDevStage+" ("+(string)g_fBuildVersion+")";
+        if(!g_iLatestVersion) sVersion+="\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nhttp://opensimworld.com/hop/77066-Kinky-Hub";
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sVersion,kID);
     }/* else if (sCmd == "objectversion") {
         // ping from an object, we answer to it on the object channel
