@@ -21,9 +21,9 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Animator - 161103.1                             //
+//                          Animator - 170523.1                             //
 // ------------------------------------------------------------------------ //
-//  Copyright (c) 2008 - 2016 Nandana Singh, Garvin Twine, Cleo Collins,    //
+//  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, Medea Destiny,  //
 //  Sumi Perl, Romka Swallowtail, littlemousy, North Glenwalker et al.      //
 // ------------------------------------------------------------------------ //
@@ -227,7 +227,7 @@ PoseMoveMenu(key kID, integer iPage, integer iAuth) {
     if (g_sPoseMoveWalk != "") {
        if (g_iTweakPoseAO) {
            sPrompt += "\n\nSelected Walk: "+g_sPoseMoveWalk;
-           if (llGetInventoryKey(g_sPoseMoveRun)!=NULL_KEY) sPrompt += "\nSelected Run: "+g_sPoseMoveRun;
+           if (llGetInventoryType(g_sPoseMoveRun) == INVENTORY_ANIMATION) sPrompt += "\nSelected Run: "+g_sPoseMoveRun;
            else sPrompt += "\nSelected Run: ~run";
        }
        lButtons += ["☐ none"];

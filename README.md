@@ -63,4 +63,4 @@ There are some differences between the v3 and Six collars, for instance Six is m
 
 If you are looking to directly convert or upgrade existing v3 collars for OpenSim, you can use the oscollar3 branch which should be 100% compatible with the last v3 version in Second Life. We haven't made a transmuter tool yet to convert a v3 collar to Six.
 
-A ready made standard OpenCollar for both branches can be be aquired at the OsGrid Sim ['Kinky Hub'](http://opensimworld.com/hop/77066-Kinky-Hub). Creators can use this standard collar as a technical reference for making new products.
+A ready made standard OpenCollar for both branches can be be aquired at the OsGrid Sim ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub). Creators can use this standard collar as a technical reference for making new products.
