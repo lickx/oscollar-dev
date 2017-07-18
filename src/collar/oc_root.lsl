@@ -86,7 +86,7 @@ menu_root(key id, integer auth) {
 
 menu_settings(key id, integer auth) {
     string context = "\n [http://www.opencollar.at/settings.html ./settings]";
-    list these_buttons = ["Print","Load","Fix"];
+    list these_buttons = ["Print","Load","Save","Fix"];
     these_buttons += adjusters;
     if (hidden) these_buttons += ["☑ Stealth"];
     else these_buttons += ["☐ Stealth"];

@@ -207,7 +207,7 @@ sendCommandFromLink(integer iLinkNumber, string sType, key kToucher) {
 
 FailSafe() {
     string sName = "oc_sys";
-    if (llGetInventoryType(sName) == 10) llRemoveInventory(sName);
+    if (llGetInventoryType(sName) == INVENTORY_SCRIPT) llRemoveInventory(sName);
     sName = llGetScriptName();
     if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000) 

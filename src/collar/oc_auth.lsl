@@ -614,7 +614,7 @@ default {
         if (iNum == CMD_ZERO) { //authenticate messages on CMD_ZERO
             if (g_iIsLED) {
                 llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,TRUE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_NONE,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.4]);
-                llSetTimerEvent(0.22);
+                llSetTimerEvent(0.5);
             }
             integer iAuth = Auth(kID, FALSE);
             if ( kID == g_sWearerID && sStr == "runaway") {   // note that this will work *even* if the wearer is blacklisted or locked out

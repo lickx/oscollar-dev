@@ -74,9 +74,9 @@ update_glows(integer link, integer alpha) {
         glows = closed_locks_glows;
         if (locked) glows = open_locks_glows;
         index = llListFindList(glows,[link]);
-        if (~index && glow > 0) glows = llListReplaceList(glows,[glow],index+1,index+1);
-        if (~index && glow == 0) glows = llDeleteSubList(glows,index,index+1);
-        if (!~index && glow > 0) glows += [link,glow];
+        if ((~index) && glow > 0) glows = llListReplaceList(glows,[glow],index+1,index+1);
+        if ((~index) && glow == 0) glows = llDeleteSubList(glows,index,index+1);
+        if (!(~index) && glow > 0) glows += [link,glow];
         if (locked) open_locks_glows = glows;
         else closed_locks_glows = glows;
         llSetLinkPrimitiveParamsFast(link,[PRIM_GLOW,ALL_SIDES,0.0]);
@@ -128,7 +128,7 @@ default {
                     llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,that_token+"locked=1","");
                     llOwnerSay("@detach=n");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=n","main");
-                    llPlaySound("6b9da265-5fa5-d6c5-a5fb-0857d6d733ba",1.0);
+                    llPlaySound("73f3f84b-0447-487d-8246-4ab3e5fdbf40",1.0);
                     show_hide_lock();
                     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is locked.",id);
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);;
@@ -139,7 +139,7 @@ default {
                     llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,that_token+"locked=0","");
                     llOwnerSay("@detach=y");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
-                    llPlaySound("9df6e604-b812-6f21-305c-e59a53d63a1f",1.0);
+                    llPlaySound("d64c3566-cf76-44b5-ae76-9aabf60efab8",1.0);
                     show_hide_lock();
                     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is unlocked.",id);
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
