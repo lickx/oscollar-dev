@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 170328.2                          //
+//                         Communicator - 170718.1                          //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
@@ -206,7 +206,9 @@ sendCommandFromLink(integer iLinkNumber, string sType, key kToucher) {
 }
 
 FailSafe() {
-    string sName = llGetScriptName();
+    string sName = "oc_sys";
+    if (llGetInventoryType(sName) == 10) llRemoveInventory(sName);
+    sName = llGetScriptName();
     if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000) 
     || !(llGetObjectPermMask(4) & 0x4000)
@@ -621,10 +623,10 @@ default {
             g_lFoundCore5Scripts = llListSort(g_lFoundCore5Scripts,2, TRUE);
             if (llListFindList(g_lFoundCore5Scripts,["LINK_ANIM",6,"LINK_AUTH",2,"LINK_DIALOG",3,"LINK_RLV",4,"LINK_SAVE",5])) {
                 sMessage = "All operational!";
-                sSaveIntegrity += "homemade";
+                sSaveIntegrity += "handmade";
             } else {
                 sMessage = "Optimal conditions!";
-                sSaveIntegrity += "professionally made";
+                sSaveIntegrity += "standard";
             }
             llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,sSaveIntegrity,"");
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,sSaveIntegrity,"");
