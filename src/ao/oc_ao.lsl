@@ -537,7 +537,7 @@ default {
         g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
         if (g_iToday % 2) {
             g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~ao",[HTTP_METHOD,"GET"],"");
+            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~ao",[HTTP_METHOD,"GET"],"");
         }
         llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
     }

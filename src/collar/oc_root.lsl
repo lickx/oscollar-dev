@@ -234,6 +234,7 @@ default {
                 } else if (menu == "Settings") {
                      if (button == "Print") llMessageLinked(LINK_SAVE,auth,"print settings",id);
                      else if (button == "Load") llMessageLinked(LINK_SAVE,auth,button,id);
+                     else if (button == "Save") llMessageLinked(LINK_SAVE,auth,button,id);
                      else if (button == "Fix") {
                          commands(auth,button,id,TRUE);
                          return;

@@ -286,7 +286,7 @@ default {
         g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
         if (g_iToday % 2) {
             g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~remote", [HTTP_METHOD, "GET"],"");
+            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~remote", [HTTP_METHOD, "GET"],"");
         }
         llSleep(1.0);//giving time for others to reset before populating menu
         if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
@@ -306,7 +306,7 @@ default {
         g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
         if (g_iToday != g_iLastDay && g_iToday % 2) {
             g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/web/~remote",[HTTP_METHOD,"GET"],"");
+            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~remote",[HTTP_METHOD,"GET"],"");
         }
     }
 
