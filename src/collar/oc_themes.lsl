@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//           Themes - 170703.1           .*' /  .*' ; .*`- +'  `*'          //
+//           Themes - 170719.2           .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Lulu Pink, Garvin Twine,       //
@@ -343,6 +343,10 @@ FailSafe() {
 
 UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
     string sStrLower = llToLower(sStr);
+    if (sStrLower == "rm themes") {
+        Dialog(kID,"\nDo you really want to uninstall the themes plugin?",["Yes","No","Cancel"],[],0,iNum,"rmThemes");
+        return;
+    }
 // This is needed as we react on touch for our "choose element on touch" feature, else we get an element on every collar touch!
     list lParams = llParseString2List(sStrLower, [" "], []);
     if ((~llListFindList(commands, [llList2String(lParams,0)])) || (llList2String(lParams,0)=="menu" && ~llListFindList(commands, [llList2String(lParams,1)])) ) {  //this is for us....
@@ -370,9 +374,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu) {
                         else llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
                     }
                 } else {
-                    if (g_iLooks) LooksMenu(kID, iNum);
-                    else llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
-                    llMessageLinked(LINK_DIALOG, NOTIFY,"0"+"This %DEVICETYPE% has no themes installed. You can type \"%PREFIX% looks\" to fine-tune your %DEVICETYPE% (NOTE: Basic building knowledge required.)",kID);
+                    Dialog(kID,"\n⚠ This %DEVICETYPE% has no dedicated themes configured for it\n\nYou can [Uninstall] the themes plugin to save resources\nor you can use the [Looks] menu to fine-tune your %DEVICETYPE%\n\nATTENTION:\n\nDevices that are properly configured for [Looks] don't show this warning. Please use [Looks] responsibly in this case as it could alter your %DEVICETYPE% permanently\n\nIn case of doubt simply [Uninstall] this plugin ❤\n\nwww.opencollar.at/themes",[],["Uninstall","Looks","BACK"],0,iNum,"NoThemesMenu");
                 }
             } else if (sCommand == "looks") LooksMenu(kID,iNum);
             else if (sCommand == "menu") ElementMenu(kID, 0, iNum, sElement);
@@ -559,8 +561,16 @@ default {
                             else g_lMenuIDs += [kID, kTouchID, sMenuType];
                         } else UserCommand(iAuth, sMenuType+" "+sMessage, kAv, TRUE);*/
                     }
-                } else if (sMenu == "LooksMenu~menu" && sMessage == "BACK") llMessageLinked(LINK_ROOT,iAuth,"menu Settings",kAv);
-                 else {
+                } else if ((sMenu == "LooksMenu~menu" || sMenu == "NoThemesMenu") && sMessage == "BACK") llMessageLinked(LINK_ROOT,iAuth,"menu Settings",kAv);
+                else if (sMenu == "NoThemesMenu") {
+                     if (sMessage == "Uninstall") UserCommand(iAuth,"rm themes",kAv,TRUE);
+                     else LooksMenu(kAv,iAuth);
+                } else if (sMenu == "rmThemes") {
+                    if (sMessage == "Yes") {
+                        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The themes plugin has been removed.",kAv);
+                        llRemoveInventory(llGetScriptName());
+                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The themes plugin remains installed.",kAv);
+                } else {
                     string sBreadcrumbs=llList2String(llParseString2List(sMenu,["~"],[]),1);
                     string sBackMenu=llList2String(llParseString2List(sBreadcrumbs,[" "],[]),0);
                     //Debug(sBreadcrumbs+" "+sMessage);
@@ -573,7 +583,7 @@ default {
                     else UserCommand(iAuth,sBreadcrumbs+" "+sMessage, kAv, TRUE);
                 }
             }
-        } else if (iNum == TOUCH_RESPONSE) {
+        }/* else if (iNum == TOUCH_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);  //we hid the touch request in the menu details... naughty!!
             if (iMenuIndex != -1) {  //got a response meant for us.  pull out values
                 list lParams = llParseString2List(sStr, ["|"], []);
@@ -593,7 +603,7 @@ default {
                     UserCommand(iAuth, sTouchType+" "+sElement, kAv, TRUE);
                 }
             }
-        } else if (iNum == DIALOG_TIMEOUT) {
+        }*/ else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
