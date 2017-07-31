@@ -241,7 +241,7 @@ default {
             // celebrate
             //llOwnerSay("Installation complete!");
             if (llGetInventoryType(".themes") != INVENTORY_NOTECARD) {
-                if (!~llListFindList(g_lSettings,["intern_looks=1"])
+                if (!(~llListFindList(g_lSettings,["intern_looks=1"]))
                 && llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
                     llRemoveInventory("oc_themes");
             }
