@@ -253,7 +253,7 @@ integer Auth(key object, key user) {
 //    else if (g_iBaseMode==1) return -1; we should not block playful in trusted mode
     else iAuth=0;
     //user auth
-    if (user) {
+    if (user!=NULL_KEY) {
 //        if (~iSource_iIndex&&user==(key)llList2String(users,iSource_iIndex)) {}
 //        else if (user==g_kLastUser) {}
 //        else
@@ -356,7 +356,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
 sendrlvr(string sIdent, key kID, string sCom, string sAck) {
     llRegionSayTo(kID, RELAY_CHANNEL, sIdent+","+(string)kID+","+sCom+","+sAck);
     if (g_kDebugRcpt == g_kWearer) llOwnerSay("From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
-    else if (g_kDebugRcpt) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
+    else if (g_kDebugRcpt != NULL_KEY) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
 }
 
 SafeWord() {
@@ -497,7 +497,7 @@ CleanQueue() {
     integer i=0;
     while (i<llGetListLength(g_lQueue)/QSTRIDES) { //GetQLength()
         string sIdent = llList2String(g_lQueue,0); //GetQident(0)
-        key kObj = llList2String(g_lQueue,1); //GetQObj(0);
+        key kObj = (key)llList2String(g_lQueue,1); //GetQObj(0);
         string sCommand = llList2String(g_lQueue,2); //GetQCom(0);
         key kUser = NULL_KEY;
         integer iGotWho = llGetSubString(sCommand,0,6)=="!x-who/";
@@ -727,7 +727,7 @@ default {
                     }
                 } else if (sMenu=="AuthMenu") {
                     g_iAuthPending = FALSE;
-                    key kCurID=llList2String(g_lQueue,1); //GetQObj(0);
+                    key kCurID=(key)llList2String(g_lQueue,1); //GetQObj(0);
                     string sCom = llList2String(g_lQueue,2);  //GetQCom(0));
                     key kUser = NULL_KEY;
                     key kOwner = llGetOwnerKey(kCurID);
@@ -827,7 +827,7 @@ default {
         string sIdent=llList2String(lArgs,0);
         sMsg=llToLower(llList2String(lArgs,2));
         if (g_kDebugRcpt == g_kWearer) llOwnerSay("To relay: "+sIdent+","+sMsg);
-        else if (g_kDebugRcpt) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "To relay: "+sIdent+","+sMsg);
+        else if (g_kDebugRcpt != NULL_KEY) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "To relay: "+sIdent+","+sMsg);
         if (sMsg == "!pong") {
         //sloppy matching; the protocol document is stricter, but some in-world devices do not respect it
             llMessageLinked(LINK_SET, CMD_RLV_RELAY, "ping,"+(string)g_kWearer+",!pong", kID);
@@ -879,10 +879,12 @@ default {
         vector vMyPos = llGetRootPosition();
         integer i;
         for (i=0;i<llGetListLength(g_lSources);++i) {
-            key kID = llList2Key(g_lSources,i);
-            vector vObjPos = llList2Vector(llGetObjectDetails(kID, [OBJECT_POS]),0);
-            if (vObjPos == <0, 0, 0> || llVecDist(vObjPos, vMyPos) > 100) // 100: max shout distance
-                llMessageLinked(LINK_RLV,RLV_CMD,"clear",kID);
+            string sID = llList2String(g_lSources,i);
+            if (osIsUUID(sID)) {
+                vector vObjPos = llList2Vector(llGetObjectDetails((key)sID, [OBJECT_POS]),0);
+                if (vObjPos == <0, 0, 0> || llVecDist(vObjPos, vMyPos) > 100) // 100: max shout distance
+                    llMessageLinked(LINK_RLV,RLV_CMD,"clear",(key)sID);
+            }
         }
         llSetTimerEvent(g_iGarbageRate);
         //g_iAuthPending = FALSE;
@@ -906,3 +908,4 @@ default {
         }
     }*/
 }
+
