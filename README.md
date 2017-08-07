@@ -1,6 +1,6 @@
-### Welcome to OsCollar Six™
+### Welcome to OsCollar Six
 
-OsCollar Six is a fork of OpenCollar Six with increased compatibility for OpenSim virtual worlds. The OpenCollar repository can be found [here](https://github.com/VirtualDisgrace/opencollar)
+OsCollar Six is a fork of OpenCollar Six, specifically optimized for OpenSim virtual worlds. The original OpenCollar project can be found [here](https://github.com/VirtualDisgrace/opencollar)
 
 OpenCollar Six is a set of LSL scripts and other creative content, such as animations, sounds, textures, graphics and 3D models, which can be used to create role play devices in the form of scripted accessory and/or so-called HUDs.
 
@@ -53,16 +53,12 @@ We chose to do that in order to save space in a already cramped screen environme
 
 #### OpenSim Porting Information
 
-We target and test for OpenSim 0.8 (stable) and OpenSim 0.9 (unstable, master)
+Since many grids are still on OpenSim 0.8.x that is our base target
 
 Branches: 
  
-master - development branch for OpenSim 0.9+  
-oscollar6 - stable port of OpenCollar Six for OpenSim 0.8+  
-oscollar3 - stable port of OpenCollar 3.99x for OpenSim 0.8+  
+master - development branch for OsCollar Six  
+oscollar6 - stable port of OsCollar Six  
+oscollar3 - stable port of OsCollar 3.99x  
  
-There are some differences between the v3 and Six collars, for instance Six is much more optimized thanks to certain scripts being in seperate links (which can be optionally invisible, but you do need them seperate).
-
-If you are looking to directly convert or upgrade existing v3 collars for OpenSim, you can use the oscollar3 branch which should be 100% compatible with the last v3 version in Second Life. We haven't made a transmuter tool yet to convert a v3 collar to Six.
-
-A ready made standard OpenCollar for both branches can be be aquired at the OsGrid Sim ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub). Creators can use this standard collar as a technical reference for making new products.
+A reference collar can be be aquired inworld at ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub).
