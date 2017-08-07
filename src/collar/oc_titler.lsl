@@ -165,7 +165,7 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     string sCommand = llToLower(llList2String(lParams, 0));
     string sAction = llToLower(llList2String(lParams, 1));
     string sLowerStr = llToLower(sStr);
-    if (~llSubStringIndex(sLowerStr,"title") && g_iTextPrim == -10) {
+    if ((~llSubStringIndex(sLowerStr,"title")) && g_iTextPrim == -10) {
         Dialog(kAv,"\n[http://www.opencollar.at/titler.html Titler]\t"+g_sAppVersion+"\n\nThis %DEVICETYPE% is missing a FloatText element which is required to display and to adjust titles. Please visit [http://www.opencollar.at/titler.html this page] to learn how to add this element to your %DEVICETYPE% or click [Uninstall] below to remove the app.",["Uninstall"], [UPMENU],0, iAuth,"main");
         return;
     }
