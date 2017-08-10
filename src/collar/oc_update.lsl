@@ -29,7 +29,7 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 
 key wearer;
-integer upstream;
+integer upstream = 1;
 key id_installer;
 
 update(){
@@ -44,7 +44,7 @@ key menu_id;
 
 failsafe() {
     string name = llGetScriptName();
-    if((key)name) return;
+    if(osIsUUID(name)) return;
     if((upstream && name != "oc_update")) llRemoveInventory(name);
 }
 
