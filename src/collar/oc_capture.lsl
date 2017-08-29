@@ -125,7 +125,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 }
 
 CaptureMenu(key kId, integer iAuth) {
-    string sPrompt = "\nCapture\n";
+    string sPrompt = "\nCapture";
     list lMyButtons;
     if (g_sTempOwnerID) lMyButtons += "Release";
     else {

@@ -41,11 +41,11 @@ integer DIALOG_TIMEOUT = -9002;
 
 key wearer;
 
-integer version;
+string version = "6.6.0 BETA";
 
 string that_token = "global_";
 string about;
-string dist;
+string dist = "b1d9b76e-c311-4ee8-a562-cfab8b58614d";
 string safeword = "RED";
 integer locked;
 integer hidden;
@@ -70,7 +70,7 @@ integer menu_rlv;
 integer menu_kidnap;
 
 menu_root(key id, integer auth) {
-    string context = "\n [http://www.opencollar.at/main-menu.html /root]";
+    string context = "\nO  s  C  o  l  l  a  r    "+version;
     list these_buttons = ["Apps"];
     if (menu_anim) these_buttons += "Animations";
     else these_buttons += "-";
@@ -86,7 +86,7 @@ menu_root(key id, integer auth) {
 }
 
 menu_settings(key id, integer auth) {
-    string context = "\n [http://www.opencollar.at/settings.html ./settings]";
+    string context = "\nSettings";
     list these_buttons = ["Print","Load","Save","Fix"];
     these_buttons += adjusters;
     if (hidden) these_buttons += ["☑ Stealth"];
@@ -97,12 +97,12 @@ menu_settings(key id, integer auth) {
 }
 
 menu_apps(key id, integer auth) {
-    string context="\n [http://www.opencollar.at/apps.html ./apps]";
+    string context="\nApps, extras and custom features";
     dialog(id,context,apps,["BACK"],0,auth,"Apps");
 }
 
 menu_about(key id) {
-    string context = "\nVersion: "+(string)version+"\nOrigin: ";
+    string context = "\nVersion: "+version+"\nOrigin: ";
     if (dist) context += uri("agent/"+dist);
     else context += "Unknown";
     context+="\n\n"+about;
@@ -126,7 +126,7 @@ commands(integer auth, string str, key id, integer clicked) {
         }
     } else if (str == "info" || str == "version") {
         string message = "\n\nModel: "+llGetObjectName();
-        message += "\nVersion: "+(string)version+"\nOrigin: ";
+        message += "\nVersion: "+version+"\nOrigin: ";
         if (dist) message += uri("agent/"+dist);
         else message += "Unknown";
         message += "\nUser: "+llGetUsername(wearer);
