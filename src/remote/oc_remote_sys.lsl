@@ -249,12 +249,15 @@ NextPartner(integer iDirection, integer iTouch) {
     } else g_sActivePartnerID = g_sAllPartners;
     if (osIsUUID(g_sActivePartnerID)) {
         // Nothing like osGetProfilePicture exists yet, so use a pic from inventory
-        // First try find a texture by partner UUID, then by avi name, else a default picture
+        // Try find a texture by partner name, else use a default picture
         //g_kPicRequest = llHTTPRequest("http://world.secondlife.com/resident/"+g_sActivePartnerID,[HTTP_METHOD,"GET"],"");
         string sTexture = "ff3c4a89-8649-2bb0-6521-624be1305d29"; // default when no pic found
-        string sActivePartnerName = llKey2Name(g_sActivePartnerID);
-        if (llGetInventoryKey(g_sActivePartnerID)!=NULL_KEY) sTexture = llGetInventoryKey(g_sActivePartnerID);
-        else if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
+        string sActivePartnerName = llKey2Name((key)g_sActivePartnerID);
+        integer iDot = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), ".");
+        integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
+        // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
+        if (iDot && iAt) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
+        if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
