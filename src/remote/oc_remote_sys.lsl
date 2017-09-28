@@ -86,8 +86,6 @@ integer g_iUpdateChan = -7483210;
 integer g_iHidden;
 integer g_iPicturePrim;
 string g_sPictureID;
-key g_kPicRequest;
-string g_sMetaFind = "<meta name=\"imageid\" content=\"";
 string g_sTextureALL ="4fb4a7fe-733b-fae7-810d-81e6784bc3c3";
 
 //  MESSAGE MAP
@@ -249,9 +247,16 @@ NextPartner(integer iDirection, integer iTouch) {
         else if (index < 0) index = llGetListLength(g_lPartnersInSim)-1;
         g_sActivePartnerID = llList2String(g_lPartnersInSim,index);
     } else g_sActivePartnerID = g_sAllPartners;
-    if (osIsUUID(g_sActivePartnerID))
-        g_kPicRequest = llHTTPRequest("http://world.secondlife.com/resident/"+g_sActivePartnerID,[HTTP_METHOD,"GET"],"");
-    else if (g_sActivePartnerID == g_sAllPartners)
+    if (osIsUUID(g_sActivePartnerID)) {
+        // Nothing like osGetProfilePicture exists yet, so use a pic from inventory
+        // First try find a texture by partner UUID, then by avi name, else a default picture
+        //g_kPicRequest = llHTTPRequest("http://world.secondlife.com/resident/"+g_sActivePartnerID,[HTTP_METHOD,"GET"],"");
+        string sTexture = "ff3c4a89-8649-2bb0-6521-624be1305d29"; // default when no pic found
+        string sActivePartnerName = llKey2Name(g_sActivePartnerID);
+        if (llGetInventoryKey(g_sActivePartnerID)!=NULL_KEY) sTexture = llGetInventoryKey(g_sActivePartnerID);
+        else if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
+        if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+    } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     if(iTouch) {
         if (llGetListLength(g_lPartnersInSim) < 2) llOwnerSay("There is nobody nearby at the moment.");
@@ -266,6 +271,17 @@ integer PicturePrim() {
             return i;
     } while (--i>1);
     return 0;
+}
+
+SaveCard()
+{
+    osMakeNotecard("test", "This notecard can be safely removed");
+    llSleep(5.0);
+    if (llGetInventoryKey("test")!=NULL_KEY) {
+        if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
+        osMakeNotecard(g_sCard, llDumpList2String(g_lPartners, "\n"));
+        llRemoveInventory("test"); // this will force CHANGED_INVENTORY to re-read the card
+    }
 }
 
 FailSafe() {
@@ -292,6 +308,8 @@ default {
         if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             g_kCardID = llGetInventoryKey(g_sCard);
+        } else {
+            llOwnerSay("\n\nYou are probably wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");    
         }
         g_iListener=llListen(PersonalChannel(g_kOwner,0),"","",""); //lets listen here
         g_iCmdListener = llListen(g_iChannel,"",g_kOwner,"");
@@ -299,7 +317,6 @@ default {
         g_iPicturePrim = PicturePrim();
         NextPartner(0,0);
         MainMenu();
-        llOwnerSay("\n\nYou are wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");
     }
 
     on_rez(integer iStart) {
@@ -430,6 +447,7 @@ default {
                 if (sMessage == UPMENU) MainMenu();
                 else if (sMessage == "Yes") {
                     RemovePartner(g_kRemovedPartnerID);
+                    SaveCard();
                     MainMenu();
                 } else if (sMessage == "No") MainMenu();
                 else if (~index) {
@@ -455,11 +473,12 @@ default {
                     key kNewPartnerID;
                     do {
                         kNewPartnerID = llList2Key(g_lNewPartnerIDs,--i);
-                        if (kNewPartnerID) AddPartner(kNewPartnerID);
+                        if (kNewPartnerID!=NULL_KEY) AddPartner(kNewPartnerID);
                     } while (i);
                 } else if (osIsUUID(sMessage))
                     AddPartner(sMessage);
                 g_lNewPartnerIDs = [];
+                SaveCard();
                 MainMenu();
             }
         }
@@ -491,11 +510,6 @@ default {
         if (kRequestID == g_kWebLookup) {
             if ((float)sBody > (float)g_sVersion) g_iUpdateAvailable = TRUE;
             else g_iUpdateAvailable = FALSE;
-        } else if (kRequestID == g_kPicRequest) {
-            integer iMetaPos =  llSubStringIndex(sBody, g_sMetaFind) + llStringLength(g_sMetaFind);
-            string sTexture  = llGetSubString(sBody, iMetaPos, iMetaPos + 35);
-            if ((key)sTexture == NULL_KEY) sTexture = "ff3c4a89-8649-2bb0-6521-624be1305d29";
-            if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         }
     }
 
@@ -509,7 +523,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_INVENTORY) {
-            if (llGetInventoryKey(g_sCard) != g_kCardID) {
+            if (llGetInventoryKey("test")==NULL_KEY && llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .partners card changed.  Re-read it.
                 g_iLineNr = 0;
                 if (llGetInventoryKey(g_sCard)) {
