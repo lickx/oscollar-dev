@@ -271,7 +271,7 @@ default {
             string value = llList2String(params,1);
             if (this_token == that_token+"locked") locked = (integer)value;
             else if (this_token == that_token+"safeword") safeword = value;
-            else if (this_token == "intern_dist") dist = value;
+            //else if (this_token == "intern_dist") dist = value;
             else if (this_token == "intern_looks") looks = (integer)value;
         } else if (num == DIALOG_TIMEOUT) {
             integer menuindex = llListFindList(these_menus,[id]);
