@@ -45,7 +45,7 @@ string version = "6.6.0 BETA";
 
 string that_token = "global_";
 string about;
-string dist = "b1d9b76e-c311-4ee8-a562-cfab8b58614d";
+string dist;
 string safeword = "RED";
 integer locked;
 integer hidden;
@@ -103,7 +103,10 @@ menu_apps(key id, integer auth) {
 
 menu_about(key id) {
     string context = "\nVersion: "+version+"\nOrigin: ";
-    if (dist) context += uri("agent/"+dist);
+    if (osIsUUID(dist)) {
+        if (llKey2Name(dist)!="") context += uri("agent/"+dist);
+        else context += "Hypergrid";
+    }
     else context += "Unknown";
     context+="\n\n"+about;
     context+="\n\nThe OpenCollar Six™ scripts were used in this product to an unknown extent. The OpenCollar project can't support this product. Relevant [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE license terms] still apply.";
@@ -127,17 +130,20 @@ commands(integer auth, string str, key id, integer clicked) {
     } else if (str == "info" || str == "version") {
         string message = "\n\nModel: "+llGetObjectName();
         message += "\nVersion: "+version+"\nOrigin: ";
-        if (dist) message += uri("agent/"+dist);
+        if (osIsUUID(dist)) {
+            if (llKey2Name(dist)!="") message += uri("agent/"+dist);
+            else message += "Hypergrid";
+        }
         else message += "Unknown";
         message += "\nUser: "+llGetUsername(wearer);
         message += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+safeword+"\n";
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+message,id);
     } else if (str == "license") {
         if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(id,".license");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from "+uri("agent/"+dist)+"!",id);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from your distributor!",id);
     } else if (str == "help") {
         if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(id,".help");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from "+uri("agent/"+dist)+"!",id);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from your distributor!",id);
     } else if (str == "about") menu_about(id);
     else if (str == "apps") menu_apps(id,auth);
     else if (str == "settings") {
