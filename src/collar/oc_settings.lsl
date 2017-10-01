@@ -400,7 +400,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 default {
     state_entry() {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
-        //if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
+        if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(llGetNumberOfPrims()),[OBJECT_CREATOR])];
         FailSafe(0);
         // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
