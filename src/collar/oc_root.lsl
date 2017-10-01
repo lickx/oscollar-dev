@@ -47,6 +47,8 @@ string that_token = "global_";
 string about;
 string dist = "b1d9b76e-c311-4ee8-a562-cfab8b58614d";
 string safeword = "RED";
+integer channel = 1;
+string prefix;
 integer locked;
 integer hidden;
 integer looks;
@@ -70,7 +72,14 @@ integer menu_rlv;
 integer menu_kidnap;
 
 menu_root(key id, integer auth) {
-    string context = "\nO  s  C  o  l  l  a  r    "+version;
+    string context = "\n";
+    if (locked) context += "🔒 ";
+    else context += "🔓 ";
+    context += "O  s  C  o  l  l  a  r    "+version;
+    context += "\n\n• Prefix: "+prefix;
+    context += "\n• Channel: "+(string)channel;
+    context += "\n• Safeword: "+safeword;
+    
     list these_buttons = ["Apps"];
     if (menu_anim) these_buttons += "Animations";
     else these_buttons += "-";
@@ -170,6 +179,7 @@ make_menus() {
 
 init() {
     hidden = !(integer)llGetAlpha(ALL_SIDES);
+    prefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0, 1));
     failsafe();
     llSetTimerEvent(1.0);
 }
@@ -271,6 +281,8 @@ default {
             else if (this_token == that_token+"safeword") safeword = value;
             else if (this_token == "intern_dist") dist = value;
             else if (this_token == "intern_looks") looks = (integer)value;
+            else if (this_token == "channel") channel = (integer)value;
+            else if (this_token == that_token+"prefix") prefix = value;
         } else if (num == DIALOG_TIMEOUT) {
             integer menuindex = llListFindList(these_menus,[id]);
             these_menus = llDeleteSubList(these_menus,menuindex - 1,menuindex + 1);
