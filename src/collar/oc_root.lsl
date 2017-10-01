@@ -41,7 +41,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 key wearer;
 
-string version = "6.6.0 BETA3";
+string version = "6.6.0 BETA";
 
 string that_token = "global_";
 string about;
