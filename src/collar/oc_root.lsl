@@ -140,10 +140,10 @@ commands(integer auth, string str, key id, integer clicked) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+message,id);
     } else if (str == "license") {
         if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(id,".license");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from your distributor!",id);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from the creator!",id);
     } else if (str == "help") {
         if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(id,".help");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from your distributor!",id);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from the creator!",id);
     } else if (str == "about") menu_about(id);
     else if (str == "apps") menu_apps(id,auth);
     else if (str == "settings") {
