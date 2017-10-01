@@ -117,6 +117,8 @@ key    g_kOwner;
 
 string  g_sRezObject;
 
+integer g_iAddPartnerTimer;
+integer g_iSaveCardTimer;
 
 /*integer g_iProfiled=1;
 Debug(string sStr) {
@@ -279,12 +281,8 @@ integer PicturePrim() {
 SaveCard()
 {
     osMakeNotecard("test", "This notecard can be safely removed");
-    llSleep(5.0);
-    if (llGetInventoryKey("test")!=NULL_KEY) {
-        if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
-        osMakeNotecard(g_sCard, llDumpList2String(g_lPartners, "\n"));
-        llRemoveInventory("test"); // this will force CHANGED_INVENTORY to re-read the card
-    }
+    g_iSaveCardTimer = llGetUnixTime() + 5;
+    llSetTimerEvent(0.5);
 }
 
 FailSafe() {
@@ -433,7 +431,8 @@ default {
                             } else i=0;
                         }
                     } while (i);
-                    llSetTimerEvent(2.0);
+                    g_iAddPartnerTimer = llGetUnixTime() + 2;
+                    llSetTimerEvent(0.5);
                 } else if (sMessage == " ◄ ") {
                     NextPartner(-1,FALSE);
                     MainMenu();
@@ -488,13 +487,30 @@ default {
     }
 
     timer() {
-        if (llGetListLength(g_lNewPartnerIDs)) AddPartnerMenu();
-        else llOwnerSay("\n\nYou currently don't have access to any nearby collars. Requirements to add partners are to either have them captured or their collar is set to public or they have you listed as an owner or trust role. www.opencollar.at/remote\n");
-        llSetTimerEvent(0);
-        integer n = llGetListLength(g_lListeners);
-        while (n--)
-            llListenRemove(llList2Integer(g_lListeners,n));
-        g_lListeners = [];
+        integer iTimeStamp = llGetUnixTime();
+        
+        if (g_iAddPartnerTimer && iTimeStamp >= g_iAddPartnerTimer) {
+            g_iAddPartnerTimer = 0;
+            if (llGetListLength(g_lNewPartnerIDs)) AddPartnerMenu();
+            else llOwnerSay("\n\nYou currently don't have access to any nearby collars. Requirements to add partners are to either have them captured or their collar is set to public or they have you listed as an owner or trust role. www.opencollar.at/remote\n");
+            llSetTimerEvent(0);
+            integer n = llGetListLength(g_lListeners);
+            while (n--)
+                llListenRemove(llList2Integer(g_lListeners,n));
+            g_lListeners = [];
+        }
+        
+        if (g_iSaveCardTimer) {
+            if (llGetInventoryKey("test")!=NULL_KEY) {
+                // test ok, we are allowed osMakeNotecard(), so replace the card
+                g_iSaveCardTimer = 0;
+                if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
+                osMakeNotecard(g_sCard, llDumpList2String(g_lPartners, "\n"));
+                llRemoveInventory("test"); // this will force CHANGED_INVENTORY to re-read the card
+            } else if (iTimeStamp >= g_iSaveCardTimer) g_iSaveCardTimer = 0;
+        }
+        
+        if (!g_iAddPartnerTimer && !g_iSaveCardTimer) llSetTimerEvent(0);
     }
 
     dataserver(key kRequestID, string sData) {
