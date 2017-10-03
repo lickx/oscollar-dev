@@ -86,7 +86,7 @@ integer g_iUpdateChan = -7483210;
 integer g_iHidden;
 integer g_iPicturePrim;
 string g_sPictureID;
-string g_sTextureALL ="4fb4a7fe-733b-fae7-810d-81e6784bc3c3";
+string g_sTextureALL ="57701142-dac0-49f5-9d1c-005bdf10277b";
 
 //  MESSAGE MAP
 integer CMD_TOUCH            = 100;
@@ -252,8 +252,7 @@ NextPartner(integer iDirection, integer iTouch) {
     if (osIsUUID(g_sActivePartnerID)) {
         // Nothing like osGetProfilePicture exists yet, so use a pic from inventory
         // Try find a texture by partner name, else use a default picture
-        //g_kPicRequest = llHTTPRequest("http://world.secondlife.com/resident/"+g_sActivePartnerID,[HTTP_METHOD,"GET"],"");
-        string sTexture = "ff3c4a89-8649-2bb0-6521-624be1305d29"; // default when no pic found
+        string sTexture = "244e3128-c44f-4c32-a549-430cbca5b26e"; // default_profile_picture
         string sActivePartnerName = llKey2Name((key)g_sActivePartnerID);
         integer iDot = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), ".");
         integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
