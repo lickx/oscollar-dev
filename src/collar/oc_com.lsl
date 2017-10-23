@@ -163,7 +163,7 @@ ClearUser(key kRCPT, integer iNotify) {
         g_lTouchRequests = llDeleteSubList(g_lTouchRequests, iIndex - 1, iIndex - 2 + g_iStrideLength);
         iIndex = llListFindList(g_lTouchRequests, [kRCPT]);
     }
-    if (g_iNeedsPose && [] == g_lTouchRequests) llStopAnimation(g_sPOSE_ANIM);
+    if (g_iNeedsPose && llGetListLength(g_lTouchRequests)==0) llStopAnimation(g_sPOSE_ANIM);
 }
 
 sendCommandFromLink(integer iLinkNumber, string sType, key kToucher) {
@@ -281,7 +281,7 @@ UserCommand(key kID, integer iAuth, string sStr) {
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"DeviceName="+g_sDeviceName, "");
                 llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sGlobalToken+"DeviceName="+g_sDeviceName, "");
             }
-            if (sValue) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
+            if (sValue != "") llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
         } else if (sCommand == "name") {
             if (iAuth != CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
             else {
@@ -485,7 +485,7 @@ default {
             else if ((llGetSubString(sMsg, 0, 0) == "#") && (kID != g_kWearer)) sMsg = llGetSubString(sMsg, 1, -1); //strip # (all collars but me) from command
             else return;
             sMsg = llStringTrim(sMsg,STRING_TRIM_HEAD);
-            if (sMsg) {
+            if (sMsg!="") {
                 if (kID == g_kWearer && llToLower(sMsg) == "verify") {
                     llOwnerSay("Verifying core...");
                     llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
@@ -554,7 +554,7 @@ default {
             integer iIndex = llListFindList(g_lTouchRequests, [kID]);
             if (~iIndex) {
                 g_lTouchRequests = llDeleteSubList(g_lTouchRequests, iIndex, iIndex - 1 + g_iStrideLength);
-                if (g_iNeedsPose && [] == g_lTouchRequests) llStopAnimation(g_sPOSE_ANIM);
+                if (g_iNeedsPose && llGetListLength(g_lTouchRequests)==0) llStopAnimation(g_sPOSE_ANIM);
             }
         } //needed to be the same ID that send earlier pings or pongs
         else if (iNum == AUTH_REPLY) llRegionSayTo(kID, g_iInterfaceChannel, sStr);
