@@ -52,10 +52,6 @@
 
 string g_sFancyVersion = "⁶⋅⁶⋅⁰";
 float g_fBuildVersion = 170818.1;
-integer g_iUpdateAvailable;
-key g_kWebLookup;
-integer g_iToday;
-integer g_iLastDay;
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -338,8 +334,7 @@ list SortButtons(list lButtons, list lStaticButtons) {
 }
 
 MenuAO(key kID) {
-    string sPrompt = "\n[http://www.opencollar.at/ao.html OpenCollar AO]\t"+g_sFancyVersion;
-    if (g_iUpdateAvailable) sPrompt+= "\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates";
+    string sPrompt = "\nOsCollar AO\t"+g_sFancyVersion;
     list lButtons = ["LOCK"];
     if (g_iLocked) lButtons = ["UNLOCK"];
     if (kID == g_kWearer) lButtons += "Collar Menu";
@@ -534,11 +529,6 @@ default {
         if (g_kWearer != llGetOwner()) llResetScript();
         if (g_iLocked) llOwnerSay("@detach=n");
         g_iReady = FALSE;
-        g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
-        if (g_iToday % 2) {
-            g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~ao",[HTTP_METHOD,"GET"],"");
-        }
         llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
     }
 
@@ -788,7 +778,7 @@ default {
                     } else if (sAnimationState == "Walking")
                         g_sWalkAnim = llList2String(lTemp,0);
                     else if (sAnimationState != "Standing") lTemp = llList2List(lTemp,0,0);
-                    if (lTemp) g_sJson_Anims = llJsonSetValue(g_sJson_Anims, [sAnimationState],llDumpList2String(lTemp,"|"));
+                    if (llGetListLength(lTemp)) g_sJson_Anims = llJsonSetValue(g_sJson_Anims, [sAnimationState],llDumpList2String(lTemp,"|"));
                 }
                 @next;
                 g_kCard = llGetNotecardLine(g_sCard,++g_iCardLine);
@@ -821,13 +811,6 @@ default {
         }
     }
 
-    http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
-        if (kRequestID == g_kWebLookup && iStatus == 200)  {
-            if ((float)sBody > g_fBuildVersion) g_iUpdateAvailable = TRUE;
-            else g_iUpdateAvailable = FALSE;
-        }
-    }
-
     changed(integer iChange) {
         if (iChange & CHANGED_COLOR) {
             if (llGetColor(0) != g_vAOoncolor) DetermineColors();
@@ -835,4 +818,3 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
-
