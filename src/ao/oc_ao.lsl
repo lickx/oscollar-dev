@@ -58,7 +58,7 @@ integer g_iHUDChannel = -1812221819;
 string g_sPendingCmd;
 
 key g_kWearer;
-string g_sCard = "Default";
+string g_sCard = "Girl";
 integer g_iCardLine;
 key g_kCard;
 integer g_iReady;
