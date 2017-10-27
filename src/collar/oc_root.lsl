@@ -164,10 +164,8 @@ commands(integer auth, string str, key id, integer clicked) {
     else if (str == "settings") {
         if (auth == CMD_OWNER || auth == CMD_WEARER) menu_settings(id,auth);
     } else if (cmd == "fix") {
-        if (id == wearer){
-            make_menus();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",id);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
+        make_menus();
+        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",id);
     } else if (cmd == "quote") {
         if (auth == CMD_OWNER || auth == CMD_WEARER) {
             string context = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
