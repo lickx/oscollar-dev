@@ -52,6 +52,10 @@ string prefix;
 integer locked;
 integer hidden;
 integer looks;
+string quoter;
+string quote;
+
+string TOK_QUOTE = "quote";
 
 list these_menus;
 
@@ -79,6 +83,8 @@ menu_root(key id, integer auth) {
     context += "\n\n• Prefix: "+prefix;
     context += "\n• Channel: "+(string)channel;
     context += "\n• Safeword: "+safeword;
+    if (quote!="") context += "\n\n“"+quote+"”";
+    if (quoter!="") context += "\n—"+quoter;
     
     list these_buttons = ["Apps"];
     if (menu_anim) these_buttons += "Animations";
@@ -162,6 +168,13 @@ commands(integer auth, string str, key id, integer clicked) {
             make_menus();
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",id);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
+    } else if (cmd == "quote") {
+        string context = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
+        dialog(id,context,[],[],0,auth,"Quote");
+    } else if (str == "rm quote") {
+        quote = "";
+        quoter = "";
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, that_token + TOK_QUOTE, "");  
     }
 }
 
@@ -276,6 +289,13 @@ default {
                         return;
                     }
                     menu_settings(id,auth);
+                } else if (menu == "Quote") {
+                    if (button == "") return;
+                    quoter = llKey2Name(id);
+                    quote = button;
+                    llOwnerSay("\n\n"+quoter+" cites a quote in "+llKey2Name(wearer)+
+                                "'s main menu:\n\n\""+quote+"\"\n");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, that_token + TOK_QUOTE + "=" + quoter + "," + quote, "");
                 }
             }
         } else if (num >= CMD_OWNER && num <= CMD_WEARER) commands(num,str,id,FALSE);
@@ -289,6 +309,11 @@ default {
             else if (this_token == "intern_looks") looks = (integer)value;
             else if (this_token == "channel") channel = (integer)value;
             else if (this_token == that_token+"prefix") prefix = value;
+            else if (this_token == that_token+"quote") {
+                integer idx = llSubStringIndex(value, ",");
+                quoter = llGetSubString(value, 0, idx-1);
+                quote = llGetSubString(value, idx+1, -1);
+            }
         } else if (num == DIALOG_TIMEOUT) {
             integer menuindex = llListFindList(these_menus,[id]);
             these_menus = llDeleteSubList(these_menus,menuindex - 1,menuindex + 1);
