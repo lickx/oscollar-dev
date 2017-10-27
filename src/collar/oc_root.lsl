@@ -169,12 +169,16 @@ commands(integer auth, string str, key id, integer clicked) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",id);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
     } else if (cmd == "quote") {
-        string context = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
-        dialog(id,context,[],[],0,auth,"Quote");
+        if (auth == CMD_OWNER || auth == CMD_WEARER) {
+            string context = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
+            dialog(id,context,[],[],0,auth,"Quote");
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
     } else if (str == "rm quote") {
-        quote = "";
-        quoter = "";
-        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, that_token + TOK_QUOTE, "");  
+        if (auth == CMD_OWNER || auth == CMD_WEARER) {
+            quote = "";
+            quoter = "";
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, that_token + TOK_QUOTE, "");
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
     }
 }
 
