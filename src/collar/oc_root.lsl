@@ -83,8 +83,10 @@ menu_root(key id, integer auth) {
     context += "\n\n• Prefix: "+prefix;
     context += "\n• Channel: "+(string)channel;
     context += "\n• Safeword: "+safeword;
-    if (quote!="") context += "\n\n“"+quote+"”";
-    if (quoter!="") context += "\n—"+quoter;
+    if (quote!="") {
+        context += "\n\n“"+quote+"”";
+        if (quoter!="") context += "\n—"+quoter;
+    }
     
     list these_buttons = ["Apps"];
     if (menu_anim) these_buttons += "Animations";
