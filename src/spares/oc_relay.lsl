@@ -124,6 +124,7 @@ list g_lBlockAv; // same here (this fixes issue 1253)
 
 integer g_iRLV=FALSE;
 list g_lQueue=[];
+integer g_iQApproxSize;
 integer QSTRIDES=3;
 integer g_iListener=0;
 integer g_iAuthPending = FALSE;
@@ -177,7 +178,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 // Sanitizes a key coming from the outside, so that only valid
 // keys are returned, and invalid ones are mapped to NULL_KEY
 key SanitizeKey(string uuid) {
-    if ((key)uuid) return llToLower(uuid);
+    if (osIsUUID(uuid)) return llToLower(uuid);
     return NULL_KEY;
 }
 
@@ -253,7 +254,7 @@ integer Auth(key object, key user) {
 //    else if (g_iBaseMode==1) return -1; we should not block playful in trusted mode
     else iAuth=0;
     //user auth
-    if (user) {
+    if (user!=NULL_KEY) {
 //        if (~iSource_iIndex&&user==(key)llList2String(users,iSource_iIndex)) {}
 //        else if (user==g_kLastUser) {}
 //        else
@@ -277,8 +278,9 @@ Dequeue() {
     string sCurIdent;
     key kCurID;
     while (sCommand=="") {
-        if (g_lQueue==[]) {
+        if (llGetListLength(g_lQueue)==0) {
             llSetTimerEvent(g_iGarbageRate);
+            g_iQApproxSize = 0;
             return;
         }
         sCurIdent=llList2String(g_lQueue,0);
@@ -306,7 +308,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
     integer iGotWho = FALSE; // has the user been specified up to now?
     key kWho;
     integer i;
-    for (i=0;i<(lCommands!=[]);++i) {
+    for (i=0;i<llGetListLength(lCommands);++i) {
         sCom = llList2String(lCommands,i);
         list lSubArgs = llParseString2List(sCom,["="],[]);
         string sVal = llList2String(lSubArgs,1);
@@ -332,7 +334,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
         else if (!iAuthed) {
             if (iGotWho) return "!x-who/"+(string)kWho+"|"+llDumpList2String(llList2List(lCommands,i,-1),"|");
             else return llDumpList2String(llList2List(lCommands,i,-1),"|");
-        } else if ((lSubArgs!=[])==2) {
+        } else if (llGetListLength(lSubArgs)==2) {
             string sBehav=llGetSubString(llList2String(lSubArgs,0),1,-1);
             if (g_iSmartStrip && llSubStringIndex(sBehav,"remoutfit:")==0 && sVal=="force")
                 sBehav="detachallthis:"+llDeleteSubString(sBehav,0,9);
@@ -354,7 +356,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
 sendrlvr(string sIdent, key kID, string sCom, string sAck) {
     llRegionSayTo(kID, RELAY_CHANNEL, sIdent+","+(string)kID+","+sCom+","+sAck);
     if (g_kDebugRcpt == g_kWearer) llOwnerSay("From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
-    else if (g_kDebugRcpt) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
+    else if (g_kDebugRcpt != NULL_KEY) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "From relay: "+sIdent+","+(string)kID+","+sCom+","+sAck);
 }
 
 SafeWord() {
@@ -366,7 +368,7 @@ SafeWord() {
         g_lTempBlockUser=[];
         g_lTempTrustUser=[];
         integer i;
-        for (i=0;i<(g_lSources!=[]);++i)
+        for (i=0;i<llGetListLength(g_lSources);++i)
             sendrlvr("release", llList2Key(g_lSources, i), "!release", "ok");
         g_lSources=[];
         g_iRecentSafeword = TRUE;
@@ -378,7 +380,7 @@ SafeWord() {
 
 //----Menu functions section---//
 Menu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/relay.html Relay]";
+    string sPrompt = "\nRelay";
     list lButtons = ["☐ Trusted","☐ Ask","☐ Auto"];
     if (g_iBaseMode == 1){
         lButtons = ["☒ Trusted","☐ Ask","☐ Auto"];
@@ -403,12 +405,12 @@ Menu(key kID, integer iAuth) {
     if (g_iHelpless) lButtons+=["☑ Helpless"];
     else lButtons+=["☐ Helpless"];
     if (!g_iHelpless) lButtons+=["SAFEWORD"];
-    if (g_lSources!=[]) {
-        sPrompt+="\n\nCurrently grabbed by "+(string)(g_lSources!=[])+" source";
-        if (g_lSources==[1]) sPrompt+="."; // Note: only list LENGTH is compared here
+    if (llGetListLength(g_lSources) > 0) {
+        sPrompt+="\n\nCurrently grabbed by "+(string)llGetListLength(g_lSources)+" source";
+        if (llGetListLength(g_lSources)==1) sPrompt+="."; // Note: only list LENGTH is compared here
         else sPrompt+="s.";
     }
-    if (g_lQueue!=[]) sPrompt+="\n\nYou have a pending request.";
+    if (llGetListLength(g_lQueue) > 0) sPrompt+="\n\nYou have a pending request.";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Menu~Main");
 }
 
@@ -419,7 +421,7 @@ AccessList(key kID, integer iAuth) {
     if (llGetListLength(g_lBlockObj) > 0) lButtons+=["Block Objects"];
     if (llGetListLength(g_lTrustAv) > 0) lButtons+=["Trust Avatars"];
     if (llGetListLength(g_lBlockAv) > 0) lButtons+=["Block Avatars"];
-    if (lButtons == []) sPrompt += "all empty.";
+    if (llGetListLength(lButtons) == 0) sPrompt += "all empty.";
     else sPrompt += "\nWhat list do you want to remove items from?";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Access~List");
 }
@@ -493,9 +495,9 @@ CleanQueue() {
     //clean newly iNumed events, while preserving the order of arrival for every device
     list lOnHold=[];
     integer i=0;
-    while (i<(g_lQueue!=[])/QSTRIDES) { //GetQLength()
+    while (i<llGetListLength(g_lQueue)/QSTRIDES) { //GetQLength()
         string sIdent = llList2String(g_lQueue,0); //GetQident(0)
-        key kObj = llList2String(g_lQueue,1); //GetQObj(0);
+        key kObj = (key)llList2String(g_lQueue,1); //GetQObj(0);
         string sCommand = llList2String(g_lQueue,2); //GetQCom(0);
         key kUser = NULL_KEY;
         integer iGotWho = llGetSubString(sCommand,0,6)=="!x-who/";
@@ -509,7 +511,7 @@ CleanQueue() {
             g_lQueue = llDeleteSubList(g_lQueue,i,i+QSTRIDES-1); //DeleteQItem(i);
             list lCommands = llParseString2List(sCommand,["|"],[]);
             integer j;
-            for (j=0;j<(lCommands!=[]);++j)
+            for (j=0;j<llGetListLength(lCommands);++j)
                 sendrlvr(sIdent,kObj,llList2String(lCommands,j),"ko");
         } else {
             ++i;
@@ -522,7 +524,7 @@ CleanQueue() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -545,7 +547,7 @@ UserCommand(integer iNum, string sStr, key kID) {
     }
     if (!g_iRLV) {
         llMessageLinked(LINK_RLV, iNum, "menu RLV", kID);
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0\n\n\The relay requires RLV to be running in the %DEVICETYPE% but it currently is not. To make things work, click \"ON\" in the RLV menu that just popped up!\n",kID);
+        llMessageLinked(LINK_DIALOG,NOTIFY,"0\n\nThe relay requires RLV to be running in the %DEVICETYPE% but it currently is not. To make things work, click \"ON\" in the RLV menu that just popped up!\n",kID);
     } else if (sStr=="relay" || sStr == "menu "+g_sSubMenu) Menu(kID, iNum);
     else if (iNum!=CMD_OWNER && iNum!=CMD_TRUSTED && kID!=g_kWearer) RelayNotify(kID,"Access denied!",0);
     else if ((sStr=llGetSubString(sStr,6,-1))=="safeword") SafeWord(); // cut "relay " off sStr
@@ -558,7 +560,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         RelayNotify(kID,"/me messages won't forwarded anymore.",1);
         return;
     } else if (sStr=="pending") {
-        if (g_lQueue != []) Dequeue();
+        if (llGetListLength(g_lQueue) > 0) Dequeue();
         else {
             RelayNotify(kID,"There are no pending requests.",0);
             Menu(kID, iNum);
@@ -570,7 +572,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         string sChangevalue = llList2String(llParseString2List(sStr, [" "], []),1);
         string sText;
         if (sChangetype=="helpless") {
-            if (g_lSources!=[]) iWSuccess = 2;
+            if (llGetListLength(g_lSources) > 0) iWSuccess = 2;
             else if (sChangevalue == "on") {
                 if (iNum == CMD_OWNER) g_iMinHelplessMode = TRUE;
                 sText = "Helplessness imposed.\n\nRestrictions from outside sources can't be cleard with the dedicated relay safeword command.\n";
@@ -725,17 +727,17 @@ default {
                     }
                 } else if (sMenu=="AuthMenu") {
                     g_iAuthPending = FALSE;
-                    key kCurID=llList2String(g_lQueue,1); //GetQObj(0);
+                    key kCurID = (key)llList2String(g_lQueue,1); //GetQObj(0);
                     string sCom = llList2String(g_lQueue,2);  //GetQCom(0));
                     key kUser = NULL_KEY;
                     key kOwner = llGetOwnerKey(kCurID);
                     if (llGetSubString(sCom,0,6)=="!x-who/") kUser = SanitizeKey(llGetSubString(sCom,7,42));
                     if (sMsg=="Yes") {
                         g_lTempTrustObj+=[kCurID];
-                        if (kUser) g_lTempTrustUser+=[(string)kUser];
+                        if (kUser!=NULL_KEY) g_lTempTrustUser+=[(string)kUser];
                     } else if (sMsg=="No") {
                         g_lTempBlockObj+=[kCurID];
-                        if (kUser) g_lTempBlockUser+=[(string)kUser];
+                        if (kUser!=NULL_KEY) g_lTempBlockUser+=[(string)kUser];
                     } else if (sMsg=="Trust Object") {
                         if (!~llListFindList(g_lTrustObj, [kCurID]))
                             g_lTrustObj+=[kCurID,llKey2Name(kCurID)];
@@ -769,7 +771,7 @@ default {
                 } else if (sMenu == "rmrelay") {
                     if (sMsg == "Yes") {
                         integer i;
-                        for (i=0;i<(g_lSources!=[]);++i)
+                        for (i=0;i<llGetListLength(g_lSources);++i)
                             sendrlvr("release", llList2Key(g_lSources, i), "!release", "ok");
                         UserCommand(500, "relay off", kAv);
                         llMessageLinked(LINK_RLV, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
@@ -820,12 +822,12 @@ default {
 */
         list lArgs=llParseString2List(sMsg,[","],[]);
         sMsg = "";  // free up memory in case of large messages
-        if ((lArgs!=[])!=3) return;
+        if (llGetListLength(lArgs)!=3) return;
         if (llList2Key(lArgs,1)!=g_kWearer && llList2String(lArgs,1)!="ffffffff-ffff-ffff-ffff-ffffffffffff") return; // allow FFF...F wildcard
         string sIdent=llList2String(lArgs,0);
         sMsg=llToLower(llList2String(lArgs,2));
         if (g_kDebugRcpt == g_kWearer) llOwnerSay("To relay: "+sIdent+","+sMsg);
-        else if (g_kDebugRcpt) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "To relay: "+sIdent+","+sMsg);
+        else if (g_kDebugRcpt != NULL_KEY) llRegionSayTo(g_kDebugRcpt, DEBUG_CHANNEL, "To relay: "+sIdent+","+sMsg);
         if (sMsg == "!pong") {
         //sloppy matching; the protocol document is stricter, but some in-world devices do not respect it
             llMessageLinked(LINK_SET, CMD_RLV_RELAY, "ping,"+(string)g_kWearer+",!pong", kID);
@@ -838,24 +840,23 @@ default {
         if (iAuth==-1) return;
         else if (iAuth==1) {HandleCommand(sIdent,kID,sMsg,TRUE); llSetTimerEvent(g_iGarbageRate);}
         else if (g_iBaseMode == 2) {
-//            llOwnerSay("Free memory before queueing: "+(string)(llGetMemoryLimit() - llGetUsedMemory()));
-//            if (llGetMemoryLimit() - llGetUsedMemory()> 5000) //keeps margin for this event + next arriving chat message
-//            {
-            g_lQueue += [sIdent, kID, sMsg];
-            sMsg = ""; sIdent="";
-//            llOwnerSay("Used memory after queueing: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
-//            }
-//            else
-            if (llGetMemoryLimit() - llGetUsedMemory()< 3927) {//keeps margin for this event + next arriving chat message
+            if (g_iQApproxSize < 2500)
+            {
+                g_iQApproxSize += llStringLength(sIdent+sMsg);
+                g_lQueue += [sIdent, kID, sMsg];
+                sMsg=""; sIdent="";
+                if (!g_iAuthPending) Dequeue();    
+            }
+            else
+            {
                 sMsg = ""; sIdent="";
                 key kOldestId = llList2Key(g_lQueue, 1);  // It's actually more likely we want to drop the old request we completely forgot about rather than the newest one that will be forgotten because of some obscure memory limit.
 //                key kOldUser = NULL_KEY;
 //                if (llGetSubString(sMsg,0,6)=="!x-who/") kOldUser=SanitizeKey(llGetSubString(llList2String(g_lQueue, 2),7,42));
                 RelayNotify(g_kWearer,"/me queue saturated.\n\nDropping all requests from oldest source ("+ llKey2Name(kOldestId) +").\n",0);
                 g_lTempBlockObj+=[kOldestId];
-//                if (kUser) g_lTempBlockUser+=[kUser];
+//                if (kUser != NULL_KEY) g_lTempBlockUser+=[kUser];
                 CleanQueue();
-//                llOwnerSay("Used memory after cleaning queue: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
 //                g_iRecentSafeword = TRUE;
 //                refreshRlvListener();
 //                llSetTimerEvent(30.);
@@ -873,7 +874,7 @@ default {
         //garbage collection
         vector vMyPos = llGetRootPosition();
         integer i;
-        for (i=0;i<(g_lSources!=[]);++i) {
+        for (i=0;i<llGetListLength(g_lSources);++i) {
             key kID = llList2Key(g_lSources,i);
             vector vObjPos = llList2Vector(llGetObjectDetails(kID, [OBJECT_POS]),0);
             if (vObjPos == <0, 0, 0> || llVecDist(vObjPos, vMyPos) > 100) // 100: max shout distance
@@ -883,7 +884,7 @@ default {
         //g_iAuthPending = FALSE;
         g_lTempBlockObj=[];
         g_lTempTrustObj=[];
-        if (g_lSources == []) {
+        if (llGetListLength(g_lSources) == 0) {
         //dont clear already authorized users before done with current session
             g_lTempBlockUser=[];
             g_lTempTrustUser=[];
