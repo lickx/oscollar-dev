@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                          Animator - 170523.1                             //
+//                          Animator - 171116.2                             //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, Medea Destiny,  //
@@ -180,7 +180,7 @@ AnimMenu(key kID, integer iAuth) {
     if (g_iTweakPoseAO) lButtons += ["☑ AntiSlide"];
     else lButtons += ["☐ AntiSlide"];
 
-    lButtons += ["AO Menu", "AO ON", "AO OFF", "Pose"];
+    lButtons += ["AO Menu", "AO ON", "AO OFF", "Pose", "Couples"];
 
     Dialog(kID, sPrompt, lButtons+g_lAnimButtons, ["BACK"], 0, iAuth, "Anim");
 }
@@ -269,9 +269,37 @@ integer SetPosture(integer iOn, key kCommander) {
         g_iPosture=iOn;
         return TRUE;
     } else {
-        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
+        //llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
         return FALSE;
     }
+}
+
+SetHover(string sStr) {
+    float fNewHover = g_fHoverIncrement;
+    if (sStr == "↓" || sStr == "hoverdown") fNewHover = -fNewHover;
+    if (g_sCurrentPose == "") {
+        g_fStandHover += fNewHover;
+        fNewHover = g_fStandHover;
+        if (g_fStandHover) 
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_standhover="+(string)g_fStandHover,"");
+        else
+            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
+        jump next;
+    }
+    integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
+    if (~index) {
+        fNewHover = fNewHover + llList2Float(g_lHeightAdjustments,index+1);
+        if (fNewHover)
+            g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments,[fNewHover],index+1,index+1);
+        else
+            g_lHeightAdjustments = llDeleteSubList(g_lHeightAdjustments,index,index+1);
+    } else {
+        fNewHover += g_fStandHover;
+        g_lHeightAdjustments += [g_sCurrentPose,fNewHover];
+    }
+    @next;
+    llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
+    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+llDumpList2String(g_lHeightAdjustments,","),"");
 }
 
 MessageAOs(string sONOFF, string sWhat){ //send string as "ON"  / "OFF" saves 2 llToUpper
@@ -287,7 +315,7 @@ RefreshAnim() {  //g_lAnims can get lost on TP, so re-play g_lAnims[0] here, and
             StartAnim(llList2String(g_lAnims, 0));
            // string sAnim = llList2String(g_lAnims, 0);
            // if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) StartAnim(sAnim);  //get and stop currently playing anim
-        } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Permission to animate lost. Try taking me off and re-attaching me.",g_kWearer);
+        } //else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Permission to animate lost. Try taking me off and re-attaching me.",g_kWearer);
     }
 }
 
@@ -299,7 +327,7 @@ StartAnim(string sAnim) {  //adds anim to queue, calls PlayAnim to play it, and 
             PlayAnim(sAnim);
             MessageAOs("OFF","STAND");
         }
-    } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
+    } //else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
 }
 
 PlayAnim(string sAnim){  //plays anim and heightfix, depending on methods configured for each
@@ -324,7 +352,7 @@ StopAnim(string sAnim) {  //deals with removing anim from queue, calls UnPlayAni
             if (llGetListLength(g_lAnims)) PlayAnim(llList2String(g_lAnims, 0));
             else MessageAOs("ON","STAND");
         }
-    } else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
+    } //else  llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Error: Somehow I lost permission to animate you. Try taking me off and re-attaching me.",g_kWearer);
 }
 
 UnPlayAnim(string sAnim){  //stops anim and heightfix, depending on methods configured for each
@@ -386,6 +414,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         }
     } else if (sStr == "animations") AnimMenu(kID, iNum);
     else if (sStr == "pose") PoseMenu(kID, 0, iNum);
+    else if (!llSubStringIndex(sCommand,"hover")) SetHover(sCommand);
     else if (sStr == "runaway" && (iNum == CMD_OWNER || iNum == CMD_WEARER)) {
         if (g_sCurrentPose != "") StopAnim(g_sCurrentPose);
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"currentpose", "");
@@ -594,7 +623,7 @@ default {
                         llMessageLinked(LINK_ALL_OTHERS, iAuth, "menu Main", kAv);
                     else if (sMessage == "Pose") PoseMenu(kAv, 0, iAuth);
                     else if (llGetSubString(sMessage, 2, -1) == "AntiSlide") PoseMoveMenu(kAv,iNum,iAuth);
-                    else if (~llListFindList(g_lAnimButtons, [sMessage])) llMessageLinked(LINK_SET, iAuth, "menu " + sMessage, kAv);  // SA: can be child scripts menus, not handled in UserCommand()
+                    else if (sMessage == "Couples") llMessageLinked(LINK_THIS,iAuth,"menu Couples",kAv);  // SA: can be child scripts menus, not handled in UserCommand()
                     else if (sMessage == "AO Menu") {
                         llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OpenCollar AO or an AO Link script in their AO HUD.\n\nwww.opencollar.at/ao\n", kAv);
                         AOMenu(kAv, iAuth);
@@ -609,31 +638,7 @@ default {
                 } else if (sMenuType == "Pose") {
                     if (sMessage == "BACK") AnimMenu(kAv, iAuth);
                     else if (sMessage == "↑" || sMessage == "↓") {
-                        float fNewHover = g_fHoverIncrement;
-                        if (sMessage == "↓") fNewHover = -fNewHover;
-                        if (g_sCurrentPose == "") {
-                            g_fStandHover += fNewHover;
-                            fNewHover = g_fStandHover;
-                            if (g_fStandHover) 
-                                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_standhover="+(string)g_fStandHover,"");
-                            else
-                                llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
-                            jump next;
-                        }
-                        integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
-                        if (~index) {
-                            fNewHover = fNewHover + llList2Float(g_lHeightAdjustments,index+1);
-                            if (fNewHover)
-                                g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments,[fNewHover],index+1,index+1);
-                            else
-                                g_lHeightAdjustments = llDeleteSubList(g_lHeightAdjustments,index,index+1);
-                        } else {
-                            fNewHover += g_fStandHover;
-                            g_lHeightAdjustments += [g_sCurrentPose,fNewHover];
-                        }
-                        @next;
-                        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
-                        llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+llDumpList2String(g_lHeightAdjustments,","),"");
+                        SetHover(sMessage);
                         PoseMenu(kAv, iPage, iAuth);
                     } else {
                         if (sMessage == "STOP") UserCommand(iAuth, "release", kAv);
