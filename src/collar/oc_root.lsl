@@ -84,7 +84,7 @@ menu_root(key id, integer auth) {
     context += "\n• Channel: "+(string)channel;
     context += "\n• Safeword: "+safeword;
     if (quote!="") {
-        context += "\n\n“"+quote+"”";
+        context += "\n\n“"+llDumpList2String(llParseStringKeepNulls(quote, ["\\n"], []), "\n")+"”";
         if (quoter!="") context += "\n—"+quoter;
     }
     
@@ -299,7 +299,8 @@ default {
                     quote = button;
                     llOwnerSay("\n\n"+quoter+" cites a quote in "+llKey2Name(wearer)+
                                 "'s main menu:\n\n\""+quote+"\"\n");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, that_token + TOK_QUOTE + "=" + quoter + "," + quote, "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quote=" + osReplaceString(quote, "\n", "\\n", -1, 0), "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quoter=" + quoter, "");
                 }
             }
         } else if (num >= CMD_OWNER && num <= CMD_WEARER) commands(num,str,id,FALSE);
@@ -313,11 +314,8 @@ default {
             else if (this_token == "intern_looks") looks = (integer)value;
             else if (this_token == "channel") channel = (integer)value;
             else if (this_token == that_token+"prefix") prefix = value;
-            else if (this_token == that_token+"quote") {
-                integer idx = llSubStringIndex(value, ",");
-                quoter = llGetSubString(value, 0, idx-1);
-                quote = llGetSubString(value, idx+1, -1);
-            }
+            else if (this_token == "QUOTE_quote") quote = value;
+            else if (this_token == "QUOTE_quoter") quoter = value;
         } else if (num == DIALOG_TIMEOUT) {
             integer menuindex = llListFindList(these_menus,[id]);
             these_menus = llDeleteSubList(these_menus,menuindex - 1,menuindex + 1);
@@ -340,4 +338,5 @@ default {
         llSetTimerEvent(0.0);
     }
 }
+
 
