@@ -41,7 +41,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 key wearer;
 
-string version = "6.6.1";
+string version = "6.7.0";
 
 string that_token = "global_";
 string about;
@@ -338,5 +338,6 @@ default {
         llSetTimerEvent(0.0);
     }
 }
+
 
 
