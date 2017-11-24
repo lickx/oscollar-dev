@@ -360,7 +360,7 @@ integer in_range(key kID) {
 integer Auth(string sObjID, integer iAttachment) {
     string sID = (string)llGetOwnerKey(sObjID); // if sObjID is an avatar key, then sID is the same key
     integer iNum;
-    if (~llListFindList(g_lOwner+g_lTempOwner,[sID]) || (sID == g_sWearerID && g_iVanilla))
+    if ((~llListFindList(g_lOwner+g_lTempOwner,[sID])) || (sID == g_sWearerID && g_iVanilla))
         iNum = CMD_OWNER;
     else if (llGetListLength(g_lOwner+g_lTempOwner) == 0 && sID == g_sWearerID)
         //if no owners set, then wearer's cmds have owner auth
@@ -742,3 +742,4 @@ default {
 */
     }
 }
+
