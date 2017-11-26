@@ -249,7 +249,7 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) { // here iNum: 
                     if (g_iDefaultAnim) sName = "~shock";
                     else sName = llList2String(g_lAnims,0);
                 }
-                if (~llListFindList(g_lAnims,[sName]) || g_iDefaultAnim) {
+                if ((~llListFindList(g_lAnims,[sName])) || g_iDefaultAnim) {
                     g_sBadWordAnim = sName;
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"animation=" + g_sBadWordAnim, "");
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Punishment animation for bad words is now '" + g_sBadWordAnim + "'.",kID);
@@ -329,7 +329,7 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) { // here iNum: 
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+WordPrompt() ,kID);
                 if (remenu) MenuBadwords(kID,iNum);
             } else {
-                if (g_lBadWords) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iNum, "BadwordsRemove");
+                if (llGetListLength(g_lBadWords)) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iNum, "BadwordsRemove");
                 else {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The list of badwords is currently empty.",kID);
                     MenuBadwords(kID,iNum);
