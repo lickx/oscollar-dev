@@ -106,10 +106,13 @@ menu_settings(key id, integer auth) {
     string context = "\nSettings";
     list these_buttons = ["Print","Load","Save","Fix"];
     these_buttons += adjusters;
-    if (hidden) these_buttons += ["☑ Stealth"];
-    else these_buttons += ["☐ Stealth"];
+    if (llGetInventoryType("oc_stealth") == INVENTORY_SCRIPT) {
+        if (hidden) these_buttons += ["☑ Stealth"];
+        else these_buttons += ["☐ Stealth"];
+    } else these_buttons += ["-"];
     if (looks) these_buttons += "Looks";
-    else these_buttons += "Themes";
+    else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
+        these_buttons += "Themes";
     dialog(id,context,these_buttons,["BACK"],0,auth,"Settings");
 }
 

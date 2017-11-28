@@ -19,7 +19,7 @@
 //                                          '  `+.;  ;  '      :            //
 //                                          :  '  |    ;       ;-.          //
 //                                          ; '   : :`-:     _.`* ;         //
-//             Relay - 171017.1          .*' /  .*' ; .*`- +'  `*'          //
+//             Relay - 171127.1          .*' /  .*' ; .*`- +'  `*'          //
 //                                       `*-*   `*-*  `*-*'                 //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Wendy Starfall,    //
@@ -373,7 +373,8 @@ UserCommand(integer iAuth, string sStr, key kID) {
     } else {
         integer iWSuccess = 0; //0: successful, 1: forbidden because of minmode, 2: forbidden because grabbed, 3: unrecognized commad
         integer index = llSubStringIndex(sStr," ");
-        string sChangetype = llGetSubString(sStr,0,index-1);
+        string sChangetype = sStr;
+        if (~index) sChangetype = llGetSubString(sStr,0,index-1);
         string sChangevalue = llGetSubString(sStr,index+1,-1);
         string sText;
         if (sChangetype == "helpless") {
@@ -454,7 +455,7 @@ default {
         } else if (iNum == RLV_REFRESH) {
             g_iRLV = TRUE;
             refreshRlvListener();
-        } else if (iNum == CMD_SAFEWORD && kID == g_kWearer) {
+        } else if (iNum == CMD_SAFEWORD) {
             g_iRecentSafeword = TRUE;
             refreshRlvListener();
             llSetTimerEvent(10.);
