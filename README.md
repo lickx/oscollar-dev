@@ -13,6 +13,8 @@ At the moment this repository is separated into resources, source code and web q
 ```
 ./opencollar/
 
+    > opensim-patches: Recommended patches for the OpenSim sources
+
     > res: Resource of creative content.
 
         > anims: Motions and Animations as .bvh and .avm binaries.
@@ -61,4 +63,4 @@ master - development branch for OsCollar Six
 oscollar6 - stable port of OsCollar Six  
 oscollar3 - stable port of OsCollar 3.99x  
  
-A reference collar can be be aquired inworld at ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub).
+A reference collar can be be aquired inworld at ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub) in ['OsGrid'](https://www.osgrid.org)
