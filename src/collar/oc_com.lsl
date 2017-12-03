@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                         Communicator - 171007.1                          //
+//                         Communicator - 171129.2                          //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Master Starship, Satomi Ahn, Joy Stipe, Wendy Starfall, littlemousy,    //
@@ -215,8 +215,7 @@ FailSafe() {
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
     || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
     || sName != "oc_com") {
-        integer i = llGetInventoryNumber(7);
-        while (i) llRemoveInventory(llGetInventoryName(7,--i));
+        llOwnerSay("\n\nHold on a second! Something is not right!\n\nFor this collar to work as it should, the object permissions have to be set to grant ☑ Modify rights to the next owner, and in case you already haven't, the same has to be set on the scripts themselves as well. For future updates to work the scripts also have to have the same name as they have in the git repository without the \".lsl\" file ending.\n\nPlease start over, if you are confused, try to use a sample collar as a cheat-sheet. Good luck! ♥\n");
         llRemoveInventory(sName);
     }
 }
@@ -352,7 +351,7 @@ UserCommand(key kID, integer iAuth, string sStr) {
             } else if (sStr == "mv anims") {
                 integer i = llGetInventoryNumber(INVENTORY_ANIMATION);
                 if (i) MoveAnims(i);
-                else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThere are currently no animations in the %DEVICETYPE%'s root.\n",g_kWearer);
+                //else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThere are currently no animations in the %DEVICETYPE%'s root.\n",g_kWearer);
             } else if (sCommand == "busted") {
                 if (sValue == "on") {
                     llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"touchNotify=1","");

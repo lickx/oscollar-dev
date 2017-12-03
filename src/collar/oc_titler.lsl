@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Titler - 170718.1                              //
+//                           Titler - 171130.2                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Kisamin, Joy Stipe, Wendy Starfall, littlemousy,            //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅⁵";
+string g_sAppVersion = "²⋅⁰";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
@@ -111,8 +111,10 @@ string DN = "↓ Down";
 string ON = "☑ Show";
 string OFF = "☐ Show";
 string UPMENU = "BACK";
-float min_z = 0.25 ; // min height
-float max_z = 1.0 ; // max height
+string g_sUp;
+
+//float min_z = 0.25 ; // min height
+//float max_z = 1.0 ; // max height
 vector g_vPrimScale = <0.08,0.08,0.4>; // prim size, initial value (z - text offset height)
 
 /*integer g_iProfiled;
@@ -127,6 +129,20 @@ Debug(string sStr) {
     llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
 }*/
 
+// make a silly ascii-art bargraph
+string MakeGraph(integer iPercent, string sTitle) {
+    string sResult = (string)iPercent+"% "+sTitle+"\n";
+    integer iSlots = llRound(iPercent / 10);
+    integer i;
+    for (i = 0; i < iSlots; i++) {
+        sResult = sResult + "█";
+    }
+    for (i = 0; i < (10-iSlots); i++) {
+        sResult = sResult + "▒";
+    }
+    return sResult;
+}
+
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
@@ -138,10 +154,11 @@ Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer i
 
 ShowHideText() {
     //Debug("ShowHideText");
-    if (g_iTextPrim >0){
+    //if (g_iTextPrim >0){
         if (g_sText == "") g_iOn = FALSE;
-        llSetLinkPrimitiveParamsFast(g_iTextPrim, [PRIM_TEXT,g_sText,g_vColor,(float)g_iOn, PRIM_SIZE,g_vPrimScale, PRIM_SLICE,<0.490,0.51,0.0>]);
-    }
+        llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TEXT,g_sText+g_sUp,g_vColor,(float)g_iOn]);
+        //llSetLinkPrimitiveParamsFast(g_iTextPrim, [PRIM_TEXT,g_sText,g_vColor,(float)g_iOn, PRIM_SIZE,g_vPrimScale, PRIM_SLICE,<0.490,0.51,0.0>]);
+    //}
 }
 
 ConfirmDeleteMenu(key kAv, integer iAuth) {
@@ -165,10 +182,6 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     string sCommand = llToLower(llList2String(lParams, 0));
     string sAction = llToLower(llList2String(lParams, 1));
     string sLowerStr = llToLower(sStr);
-    if ((~llSubStringIndex(sLowerStr,"title")) && g_iTextPrim == -10) {
-        Dialog(kAv,"\n[http://www.opencollar.at/titler.html Titler]\t"+g_sAppVersion+"\n\nThis %DEVICETYPE% is missing a FloatText element which is required to display and to adjust titles. Please visit [http://www.opencollar.at/titler.html this page] to learn how to add this element to your %DEVICETYPE% or click [Uninstall] below to remove the app.",["Uninstall"], [UPMENU],0, iAuth,"main");
-        return;
-    }
     if (sLowerStr == "menu titler" || sLowerStr == "titler") {
         string ON_OFF ;
         string sPrompt;
@@ -176,13 +189,13 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         if(g_iOn == TRUE) ON_OFF = ON ;
         else ON_OFF = OFF ;
         Dialog(kAv, sPrompt, [SET,UP,DN,ON_OFF,"Color"], [UPMENU],0, iAuth,"main");
-    } else if (sLowerStr == "menu titler color" || sLowerStr == "titler color") {
-        Dialog(kAv, "\n\nSelect a color from the list", ["colormenu please"], [UPMENU],0, iAuth,"color");
-    } else if ((sCommand=="titler" || sCommand == "title") && sAction == "color") {
+    } else if (sLowerStr == "menu titler color" || sLowerStr == "titler color")
+        Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],0,iAuth,"color");
+    else if ((sCommand=="titler" || sCommand == "title") && sAction == "color") {
         string sColor= llDumpList2String(llDeleteSubList(lParams,0,1)," ");
         if (sColor != ""){
             g_vColor=(vector)sColor;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"color="+(string)g_vColor, "");
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"color="+(string)g_vColor,"");
         }
         ShowHideText();
     } else if (sCommand=="titler" && sAction == "box")
@@ -193,7 +206,7 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         g_iOn = FALSE;
         ShowHideText();
         llResetScript();*/
-    } else if (sCommand == "title") {
+    } else if (sCommand == "title" || sCommand == "graph") {
         integer iIsCommand;
         if (llGetListLength(lParams) <= 2) iIsCommand = TRUE;
         if (g_iOn && iAuth > g_iLastRank) //only change text if commander has same or greater auth
@@ -209,22 +222,25 @@ UserCommand(integer iAuth, string sStr, key kAv) {
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"on", "");
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"auth", ""); // del lastrank from DB
         } else if (sAction == "up" && iIsCommand) {
-            g_vPrimScale.z += 0.05 ;
-            if(g_vPrimScale.z > max_z) g_vPrimScale.z = max_z ;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"height="+(string)g_vPrimScale.z, "");
+            g_sUp += "\n ";
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
         } else if (sAction ==  "down" && iIsCommand) {
-            g_vPrimScale.z -= 0.05 ;
-            if(g_vPrimScale.z < min_z) g_vPrimScale.z = min_z ;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"height="+(string)g_vPrimScale.z, "");
+            if (g_sUp == "") llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The titler cannot be lower than this.",kAv);
+            if (llStringLength(g_sUp) <= 2) g_sUp = "";
+            else g_sUp = llGetSubString(g_sUp,2,-1);
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE, g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
         } else {//if (sAction == "text") {
             //string sNewText= llDumpList2String(llDeleteSubList(lParams, 0, 1), " ");//pop off the "text" command
             string sNewText= llDumpList2String(llDeleteSubList(lParams, 0, 0), " ");
-            g_sText = llDumpList2String(llParseStringKeepNulls(sNewText, ["\\n"], []), "\n");// make it possible to insert line breaks in hover text
+            g_sText = llDumpList2String(llParseStringKeepNulls(sNewText, ["\n"], []), "\n");// make it possible to insert line breaks in hover text
             if (sNewText == "") {
                 g_iOn = FALSE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"title", "");
             } else {
                 g_iOn = TRUE;
+                if (sCommand == "graph") {
+                    g_sText = MakeGraph((integer) sAction, llList2String(lParams,2));
+                }
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"title="+g_sText, "");
             }
             g_iLastRank=iAuth;
@@ -242,18 +258,18 @@ default{
     state_entry(){
        // llSetMemoryLimit(36864);
         FailSafe(); 
-        g_iTextPrim = -10;
+        g_iTextPrim = LINK_ROOT;
         integer linkNumber = llGetNumberOfPrims()+1;
-        while (linkNumber-- > 2){
+        while (linkNumber-- > 2) {
             string desc = llList2String(llGetLinkPrimitiveParams(linkNumber, [PRIM_DESC]),0);
             if (llSubStringIndex(desc, g_sPrimDesc) == 0) {
-                    g_iTextPrim = linkNumber;
-                    llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TYPE,PRIM_TYPE_CYLINDER,0,<0.0,1.0,0.0>,0.0,ZERO_VECTOR,<1.0,1.0,0.0>,ZERO_VECTOR,PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1.0, 1.0, 0.0>,ZERO_VECTOR,0.0,PRIM_DESC,g_sPrimDesc+"~notexture~nocolor~nohide~noshiny~noglow"]);
-                    linkNumber = 0 ; // break while cycle
-                } else {
-                    llSetLinkPrimitiveParamsFast(linkNumber,[PRIM_TEXT,"",<0,0,0>,0]);
-                }
+                g_iTextPrim = linkNumber;
+                llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TYPE,PRIM_TYPE_CYLINDER,0,<0.0,1.0,0.0>,0.0,ZERO_VECTOR,<1.0,1.0,0.0>,ZERO_VECTOR,PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1.0, 1.0, 0.0>,ZERO_VECTOR,0.0,PRIM_DESC,g_sPrimDesc+"~notexture~nocolor~nohide~noshiny~noglow"]);
+                linkNumber = 0 ; // break while cycle
+            } else {
+                llSetLinkPrimitiveParamsFast(linkNumber,[PRIM_TEXT,"",<0,0,0>,0]);
             }
+        }
         g_kWearer = llGetOwner();
         //Debug("State Entry Event ended");
         ShowHideText();
@@ -272,7 +288,10 @@ default{
                 if(sToken == "title") g_sText = sValue;
                 if(sToken == "on") g_iOn = (integer)sValue;
                 if(sToken == "color") g_vColor = (vector)sValue;
-                if(sToken == "height") g_vPrimScale.z = (float)sValue;
+                if(sToken == "height") {
+                    integer i = 1;
+                    for(;i < (integer)sValue; ++i) g_sUp += "\n ";
+                }
                 if(sToken == "auth") g_iLastRank = (integer)sValue; // restore lastrank from DB
             } else if( sStr == "settings=sent") ShowHideText();
         } else if (iNum == DIALOG_RESPONSE) {
@@ -287,7 +306,7 @@ default{
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
                 if (sMenuType == "main") {
                     if (sMessage == SET) UserCommand(iAuth, "titler box", kAv);
-                    else if (sMessage == "Color") UserCommand(iAuth, "menu titler color", kAv);
+                    else if (sMessage == "Color") Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],iPage,iAuth,"color");
                     else if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == "Uninstall") ConfirmDeleteMenu(kAv,iAuth);
                     else {
@@ -301,7 +320,7 @@ default{
                     if (sMessage == UPMENU) UserCommand(iAuth, "menu titler", kAv);
                     else {
                         UserCommand(iAuth, "titler color "+sMessage, kAv);
-                        UserCommand(iAuth, "menu titler color", kAv);
+                        Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],iPage,iAuth,"color");
                     }
                 } else if (sMenuType == "textbox") {  //response from text box
                     if(sMessage != " ") UserCommand(iAuth, "title " + sMessage, kAv);
@@ -332,3 +351,4 @@ default{
         llResetScript();
     }
 }
+
