@@ -521,7 +521,7 @@ default {
                         list lCommands = llParseString2List(sCom,["|"],[]);
                         integer j;
                         string sCommand;
-                        for (;j < llGetListLength(lCommands)!=0; ++j) {
+                        for (;j < llGetListLength(lCommands); ++j) {
                             sCommand = llList2String(lCommands,j);
                             //only reply to denied commands, metas were already handled
                             if (!llSubStringIndex(sCommand,"@"))
@@ -672,5 +672,6 @@ default {
         }
     }*/
 }
+
 
 
