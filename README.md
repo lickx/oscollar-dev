@@ -63,4 +63,4 @@ master - development branch for OsCollar Six
 oscollar6 - stable port of OsCollar Six  
 oscollar3 - stable port of OsCollar 3.99x  
  
-A reference collar can be be aquired inworld at ['Kinky Hub'](http://opensimworld.com/hop/78323-Kinky-Hub) in ['OsGrid'](https://www.osgrid.org)
+A reference collar can be be aquired inworld at the region/sim 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any grid (except closed grids like SL), you copy/paste the address in the World Map, then press Search followed by Teleport.
