@@ -60,9 +60,8 @@ Since many grids are still on OpenSim 0.8.x that is our base target
 Branches: 
  
 master - development branch  
-oscollar6 - stable modern version
-oscollar3 - stable legacy version
+oscollar6 - stable release  
  
-A reference collar can be be aquired inworld at the region/sim 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any grid (except closed grids like SL), copy/paste the address in the World Map, then press Search followed by Teleport.
+A reference collar is available in the region 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any open grid, copy/paste the address in the World Map, then press Search followed by Teleport.
 
 UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server. When acquiring objects coming from a foreign grid, any referenced assets are seamlessly transferred to your own grid's asset server (when not existing already). That's hypergrid magic :)
