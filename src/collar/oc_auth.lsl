@@ -59,7 +59,7 @@ list g_lTrust;
 list g_lBlock;//list of blacklisted UUID
 list g_lTempOwner;//list of temp owners UUID.  Temp owner is just like normal owner, but can't add new owners.
 
-key g_kGroup = "";
+key g_kGroup = NULL_KEY;
 integer g_iGroupEnabled = FALSE;
 
 string g_sParentMenu = "Main";
@@ -169,7 +169,7 @@ AuthMenu(key kAv, integer iAuth) {
     string sPrompt = "\nAccess & Authorization";
     list lButtons = ["+ Owner", "+ Trust", "+ Block", "− Owner", "− Trust", "− Block"];
 
-    if (g_kGroup=="") lButtons += ["Group ☐"];    //set group
+    if (g_kGroup==NULL_KEY) lButtons += ["Group ☐"];    //set group
     else lButtons += ["Group ☑"];    //unset group
     if (g_iOpenAccess) lButtons += ["Public ☑"];    //set open access
     else lButtons += ["Public ☐"];    //unset open access
@@ -432,7 +432,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
                 sOutput += "\n" + NameURI(llList2String(g_lBlock, --iLength));
             if (sOutput) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Blocked: "+sOutput,kID);
             //if (g_sGroupName) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Group: "+g_sGroupName,kID);
-            if (g_kGroup) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Group: secondlife:///app/group/"+(string)g_kGroup+"/about",kID);
+            if (g_kGroup!=NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Group: secondlife:///app/group/"+(string)g_kGroup+"/about",kID);
             if (g_iVanilla) sOutput = g_sFlavor+" Mode: enabled";
             else sOutput = g_sFlavor+" Mode: disabled";
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sOutput,kID);
@@ -498,14 +498,14 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
                 if (osIsUUID(llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1);
                 else g_kGroup = (key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0); //record current group key
     
-                if (g_kGroup != "") {
+                if (g_kGroup != NULL_KEY) {
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "group=" + (string)g_kGroup, "");
                     g_iGroupEnabled = TRUE;
                     llMessageLinked(LINK_RLV, RLV_CMD, "setgroup=n", "auth");
                     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Group set to secondlife:///app/group/" + (string)g_kGroup + "/about\n\nNOTE: If RLV is enabled, the group slot has been locked and group mode has to be disabled before %WEARERNAME% can switch to another group again.\n",kID);
                 }
             } else if (sAction == "off") {
-                g_kGroup = "";
+                g_kGroup = NULL_KEY;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "group", "");
                 g_iGroupEnabled = FALSE;
                 llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Group unset.",kID);
@@ -633,7 +633,7 @@ default {
                 else if (sToken == "group") {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly
-                    if (g_kGroup != "") {
+                    if (g_kGroup != NULL_KEY) {
                         if (osIsUUID(llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0)) == g_kGroup) g_iGroupEnabled = TRUE;
                         else g_iGroupEnabled = FALSE;
                     } else g_iGroupEnabled = FALSE;
@@ -652,13 +652,13 @@ default {
             }
         } else if (iNum == AUTH_REQUEST) {//The reply is: "AuthReply|UUID|iAuth" we rerute this to com to have the same prim ID 
             llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,TRUE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_NONE,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.4]);
-            llSetTimerEvent(0.22);
+            llSetTimerEvent(0.5);
             llMessageLinked(iSender,AUTH_REPLY, "AuthReply|"+(string)kID+"|"+(string)Auth(kID, TRUE), llGetSubString(sStr,0,35));
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (~iMenuIndex) {
                 llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,TRUE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_NONE,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.4]);
-                llSetTimerEvent(0.22);
+                llSetTimerEvent(0.5);
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);

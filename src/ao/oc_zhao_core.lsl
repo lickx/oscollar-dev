@@ -299,12 +299,12 @@ integer standTimeDefault = 30;
 
 // How fast we should poll for changed anims (as fast as possible)
 // In practice, you will not poll more than 8 times a second.
-float timerEventLength = 0.25;
+float timerEventLength = 0.5;
 
 // The minimum time between events.
 // While timerEvents are scaled automatically by the server, control events are processed
 // much more aggressively, and needs to be throttled by this script
-float minEventDelay = 0.25;
+//float minEventDelay = 0.25;
 
 // The key for the typing animation // No longer needed with typing override.
 // key typingAnim = "c541c47f-e0c0-058b-ad1a-d6ae3a4584d9";
@@ -447,7 +447,7 @@ integer CheckSit()
         return FALSE;
     llSleep(0.5);
     temp = llGetAnimationList(llGetOwner());
-    if (temp==[])
+    if (llGetListLength(temp)==0)
         return FALSE;
     if (llListFindList(temp,[sit])!=-1)
         return TRUE;

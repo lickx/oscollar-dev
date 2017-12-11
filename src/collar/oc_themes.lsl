@@ -368,7 +368,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     llMessageLinked(LINK_ROOT,601,"themes "+sElement,g_kWearer);
                     g_iThemePage = iPage;
                     g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,g_iThemesNotecardLine);
-                } else if (g_kThemesCardUUID) {
+                } else if (g_kThemesCardUUID != NULL_KEY) {
                     if (g_iThemesReady) ThemeMenu(kID,iNum,iPage);
                     else {
                         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Themes still loading...",kID);
@@ -724,9 +724,9 @@ default {
         if (iChange & CHANGED_INVENTORY) {
             FailSafe();
             if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
-            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = "";
+            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = NULL_KEY;
             if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();
-            else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = "";
+            else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = NULL_KEY;
         }
 /*
         if (iChange & CHANGED_REGION) {

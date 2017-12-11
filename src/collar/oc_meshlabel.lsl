@@ -119,7 +119,7 @@ integer y = 19;
 
 integer faces = 6;
 
-float g_fScrollTime = 0.3 ;
+float g_fScrollTime = 0.5 ;
 integer g_iSctollPos ;
 string g_sScrollText;
 list g_lLabelLinks ;

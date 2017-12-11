@@ -85,7 +85,7 @@ update_glows(integer link, integer alpha) {
 
 failsafe() {
     string name = llGetScriptName();
-    if((key)name) return;
+    if (osIsUUID(name)) return;
     if(name != "oc_lock") llRemoveInventory(name);
 }
 

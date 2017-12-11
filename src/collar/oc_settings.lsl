@@ -458,7 +458,7 @@ default {
                     } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Empty site provided to load settings.",g_kURLLoadRequest);
                 }
             } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid url provided to load settings.",g_kURLLoadRequest);
-            g_kURLLoadRequest = "";
+            g_kURLLoadRequest = NULL_KEY;
         }
     }
 

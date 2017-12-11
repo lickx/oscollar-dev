@@ -219,7 +219,7 @@ default
                 llMessageLinked(LINK_THIS, iAuth, sMessage, "");
             } else {
                 list parts = llParseStringKeepNulls(sMessage, ["|"], []);
-                key kUUID = "";
+                key kUUID = NULL_KEY;
                 if (llGetListLength(parts) > 1) {
                     sCommand = llDumpList2String(llListReplaceList(parts, [], -1, -1), "|");
                     kUUID = (key)llList2String(parts, -1);

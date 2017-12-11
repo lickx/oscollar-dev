@@ -784,7 +784,7 @@ default {
                 g_kCard = llGetNotecardLine(g_sCard,++g_iCardLine);
             } else {
                 g_iCardLine = 0;
-                g_kCard = "";
+                g_kCard = NULL_KEY;
                 g_iSitAnywhereOn = FALSE;
                 integer index = llListFindList(g_lCustomCards,[g_sCard]);
                 if (~index) g_sCard = llList2String(g_lCustomCards,index+1)+" ("+g_sCard+")";

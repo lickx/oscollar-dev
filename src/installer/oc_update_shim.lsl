@@ -222,7 +222,7 @@ default {
                             integer i;
                             for (;i<llGetListLength(lTest);++i) {
                                 string sValue = llList2String(lTest,i);
-                                if ((key)sValue) {}
+                                if (osIsUUID(sValue)) {}
                                 else lTest = llDeleteSubList(lTest,i,i);
                             }
                             sSetting = sToken+"="+llDumpList2String(lTest,",");

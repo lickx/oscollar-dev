@@ -760,7 +760,7 @@ default {
                         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+NameURI(kAV)+" did not accept %WEARERNAME%'s leash.",g_kLeashCmderID);
                         g_iPassConfirmed = FALSE;
                     }
-                    g_kLeashCmderID = "";
+                    g_kLeashCmderID = NULL_KEY;
                 } else if (sMenu == "FollowTarget") {
                     if (kAV == (key)sButton) UserCommand(iAuth, "follow " + (string)kAV, kAV, TRUE);
                     else {
@@ -776,7 +776,7 @@ default {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+NameURI(kAV)+" denied %WEARERNAME% to follow them.",g_kLeashCmderID);
                     g_iPassConfirmed = FALSE;
                     }
-                    g_kLeashCmderID = "";
+                    g_kLeashCmderID = NULL_KEY;
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
@@ -809,7 +809,7 @@ default {
         g_iJustMoved = 1;
         // i ran into a problem here which seems to be "speed" related, specially when using the menu to unleash this event gets triggered together or just after the CleanUp() function
         //to prevent to get stay in the target events i added a check on g_kLeashedTo is NULL_KEY
-        if(g_kLeashedTo != NULL_KEY) {
+        if (g_kLeashedTo != NULL_KEY) {
             vector vNewPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
             if (g_vPos != vNewPos) {
                 llTargetRemove(g_iTargetHandle);

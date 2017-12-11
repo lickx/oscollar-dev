@@ -804,7 +804,7 @@ integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
                         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Now "+llGetSubString(g_sFolderType,6,11)+"ing "+sMsg,g_kAsyncMenuUser);
                     }
                 }
-                if (g_lSearchList!=[]) handleMultiSearch();
+                if (llGetListLength(g_lSearchList) > 0) handleMultiSearch();
             }
         }
     }
