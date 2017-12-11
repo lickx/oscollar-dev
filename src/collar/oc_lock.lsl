@@ -49,13 +49,13 @@ list g_lOpenLocksGlows;
 ShowHideLock() {
     if (g_iHidden) return;
     integer i;
-    integer lLinks = llGetListLength(g_lOpenLocks);
-    for (;i < lLinks; ++i) {
+    integer iLinks = llGetListLength(g_lOpenLocks);
+    for (;i < iLinks; ++i) {
         llSetLinkAlpha(llList2Integer(g_lOpenLocks,i),!g_iLocked,ALL_SIDES);
         UpdateGlows(llList2Integer(g_lOpenLocks,i),!g_iLocked);
     }
-    lLinks = llGetListLength(g_lClosedLocks);
-    for (i=0; i < lLinks; ++i) {
+    iLinks = llGetListLength(g_lClosedLocks);
+    for (i=0; i < iLinks; ++i) {
         llSetLinkAlpha(llList2Integer(g_lClosedLocks,i),g_iLocked,ALL_SIDES);
         UpdateGlows(llList2Integer(g_lClosedLocks,i),g_iLocked);
     }
