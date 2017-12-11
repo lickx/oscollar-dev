@@ -285,7 +285,7 @@ ChatCamParams(integer iChannel, key kID) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -444,7 +444,7 @@ default {
             if (vNewPos != g_vCamPos || rNewRot != g_rCamRot)
                 ChatCamParams(g_iBroadChan,g_kBroadRcpt);
         } else {
-            g_kBroadRcpt = "";
+            g_kBroadRcpt = NULL_KEY;
             llSetTimerEvent(0.0);
         }
     }

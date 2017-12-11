@@ -180,7 +180,7 @@ default
         scanning=FALSE;
 
         // check if anyone was picked up at all
-        if(victimNames==[])
+        if(llGetListLength(victimNames)==0)
         {
             notFound(menuUser);
             resetDialog();

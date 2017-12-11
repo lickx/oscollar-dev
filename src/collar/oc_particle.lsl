@@ -646,7 +646,7 @@ default {
 
     timer() {
         if (llGetOwnerKey(g_kParticleTarget) == g_kParticleTarget) {
-            if(g_kLeashedTo) {
+            if (g_kLeashedTo != NULL_KEY) {
                 g_kParticleTarget = g_kLeashedTo;
                 StartParticles(g_kParticleTarget);
                 llRegionSayTo(g_kLeashedTo,LOCKMEISTER,(string)g_kLeashedTo+"|LMV2|RequestPoint|collar");

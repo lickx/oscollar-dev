@@ -62,7 +62,7 @@ integer RemoteChannel(string sID,integer iOffset) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

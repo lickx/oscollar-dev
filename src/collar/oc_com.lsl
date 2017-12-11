@@ -547,7 +547,7 @@ default {
             if (sStr != "LINK_REQUEST") {
                 if (!~llListFindList(g_lFoundCore5Scripts,[sStr,iSender]))
                     g_lFoundCore5Scripts += [sStr,iSender];
-                if (llGetListLength(g_lFoundCore5Scripts) >= 10) llSetTimerEvent(0.1);
+                if (llGetListLength(g_lFoundCore5Scripts) >= 10) llSetTimerEvent(0.5);
             }
         } else if (iNum == TOUCH_CANCEL) {
             integer iIndex = llListFindList(g_lTouchRequests, [kID]);

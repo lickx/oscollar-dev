@@ -298,7 +298,7 @@ integer ConvertIndex(integer iIndex) {
 /////END XYTEXT FUNCTIONS
 
 // add for text scroll
-float g_fScrollTime = 0.2 ;
+float g_fScrollTime = 0.5 ;
 integer g_iSctollPos ;
 string g_sScrollText;
 list g_lLabelLinks ;
@@ -471,7 +471,7 @@ FontMenu(key kID, integer iAuth) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

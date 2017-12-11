@@ -281,7 +281,7 @@ TimerStart(integer perm) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -575,7 +575,7 @@ default {
             for(n = 0; n < g_iTimesLength; n+=2) {
                 // send notice and find the next time.
                 if (llList2Integer(g_lTimes, n)==ON_TIME) {
-                    while(llList2Integer(g_lTimes, n+1)<=g_iOnTime&&llList2Integer(g_lTimes, n)==ON_TIME&&g_lTimes!=[]) {
+                    while(llList2Integer(g_lTimes, n+1)<=g_iOnTime&&llList2Integer(g_lTimes, n)==ON_TIME&&llGetListLength(g_lTimes)>0) {
                         g_lTimes=llDeleteSubList(g_lTimes, n, n+1);
                         g_iTimesLength=llGetListLength(g_lTimes);
                     }

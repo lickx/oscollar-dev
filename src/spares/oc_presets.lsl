@@ -164,7 +164,7 @@ ForceUpdate() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if ((key)sName) return;
+    if (osIsUUID(sName)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -178,7 +178,7 @@ DoMenu(key kAv, integer iAuth) {
     string sPrompt;
     sPrompt = "\nYou can save/restore size, position and rotation of %DEVICETYPE%.";
 
-    if (g_lPresets != []) lMyButtons += [RESTORE, SAVE, DEL];
+    if (llGetListLength(g_lPresets) > 0) lMyButtons += [RESTORE, SAVE, DEL];
     else lMyButtons += ["-", SAVE, "-"];
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth, g_sSubMenu);
 }
@@ -189,7 +189,7 @@ PresetMenu(key kAv, integer iAuth, string sType) {
     list lUtils = [UPMENU];
     if (sType == RESTORE) sPrompt = "\nSelect preset to restore size/position/rotation";
     else if (sType == SAVE) {
-        if (g_lPresets == []) sType = NEW;
+        if (llGetListLength(g_lPresets) == 0) sType = NEW;
         else {
             sPrompt = "\nSelect preset or create new to save size/position/rotation";
             lMyButtons += [NEW];
@@ -235,7 +235,7 @@ Delete(string sName, key kAv) {
     integer i = llListFindList(g_lPresets,[sName]);
     if (~i) {
         g_lPresets = llDeleteSubList(g_lPresets, i, i+1);
-        if (g_lPresets != []) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"="+llDumpList2String(g_lPresets,"~"), "");
+        if (llGetListLength(g_lPresets) > 0) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"="+llDumpList2String(g_lPresets,"~"), "");
         else llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken, "");
 
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%DEVICETYPE% size/position/rotation preset "+sName+" is deleted.",kAv);

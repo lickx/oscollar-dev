@@ -388,7 +388,7 @@ MenuMain(key kID, integer iAuth) {
         else sPrompt += "no timer release";
     }
     if (g_sCageRegion) sPrompt += "\nCage location: " + Map(g_sCageRegion, g_vCagePos);
-    if (g_kCageOwnerKey) sPrompt += "\nCage owner: " + Name(g_kCageOwnerKey);
+    if (g_kCageOwnerKey != NULL_KEY) sPrompt += "\nCage owner: " + Name(g_kCageOwnerKey);
 
     Dialog(kID, sPrompt, lButtons+g_lLocalButtons, lUtility, 0, iAuth, "menu~main");
     sPrompt = "";
@@ -528,7 +528,7 @@ ReportSettings(key kAv) {
     if (g_sCageRegion) sMsg += Map(g_sCageRegion, g_vCagePos) ;
     else sMsg += " not set," ;
     sMsg += "\nCurrent state: " + llList2String(lSTATES,g_iState);
-    if (g_kCageOwnerKey) sMsg += "\nCage Owner: " + Name(g_kCageOwnerKey);
+    if (g_kCageOwnerKey != NULL_KEY) sMsg += "\nCage Owner: " + Name(g_kCageOwnerKey);
     sMsg += "\nCage Wait: ";
     if (g_iCageTime > 0) sMsg += (string)g_iCageTime + " min";
     else sMsg += "no timer release";
@@ -566,11 +566,6 @@ SendRlvCommands(list lRlvCommands) {
     for (i = 0; i < llGetListLength(lRlvCommands); i++) {
         llMessageLinked(LINK_RLV, RLV_CMD, llList2String(lRlvCommands, i), "cagehome");
     }
-}
-
-// Returns sSource with sReplace replaced for all occasions of sSearch
-string StrReplace(string sSource, string sSearch, string sReplace) {
-    return llDumpList2String(llParseStringKeepNulls((sSource = "") + sSource, [sSearch], []), sReplace);
 }
 
 string Name(key kID) {
@@ -645,7 +640,7 @@ SetState(integer iState) {
     g_iState = iState;
     if (iState <= iDISARMED) {
         g_iCageAuth = CMD_EVERYONE;
-        g_kCageOwnerKey = "";
+        g_kCageOwnerKey = NULL_KEY;
         llSetTimerEvent(0);
         llSensorRemove();
         llTargetRemove(g_iTargetHandle);
@@ -655,8 +650,8 @@ SetState(integer iState) {
         g_kOwnerRequestHandle = llRequestAgentData(g_kCageOwnerKey, DATA_ONLINE);
     } else if (iState == iWARNING) {
         if (g_iWarningTime > 1) {
-            string sMsg = StrReplace(g_sWarningMessage, "@", Name(g_kWearer));
-            sMsg = StrReplace(sMsg, "#", (string)g_iWarningTime);
+            string sMsg = osReplaceString(g_sWarningMessage, "@", Name(g_kWearer), -1, 0);
+            sMsg = osReplaceString(sMsg, "#", (string)g_iWarningTime, -1, 0);
             string sObjectName = llGetObjectName();
             llSetObjectName(g_sPluginTitle);
             llSay(0, sMsg);
