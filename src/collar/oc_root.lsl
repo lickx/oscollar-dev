@@ -39,308 +39,310 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 
-key wearer;
+key g_kWearer;
 
-string version = "6.7.0";
+string g_sVersion = "6.7.0";
 
-string that_token = "global_";
-string about;
-string dist;
-string safeword = "RED";
-integer channel = 1;
-string prefix;
-integer locked;
-integer hidden;
-integer looks;
-string quoter;
-string quote;
+string g_sThatToken = "global_";
+string g_sAbout;
+string g_sDist;
+string g_sSafeword = "RED";
+integer g_iChannel = 1;
+string g_sPrefix;
+integer g_iLocked;
+integer g_iHidden;
+integer g_iLooks;
+string g_sQuoter;
+string g_sQuotation;
 
 string TOK_QUOTE = "quote";
 
-list these_menus;
+list g_lTheseMenus;
 
-dialog(key id, string context, list buttons, list arrows, integer page, integer auth, string name) {
-    key that_menu = llGenerateKey();
-    llMessageLinked(LINK_DIALOG,DIALOG,(string)id+"|"+context+"|"+(string)page+"|"+llDumpList2String(buttons,"`")+"|"+llDumpList2String(arrows,"`")+"|"+(string)auth,that_menu);
-    integer index = llListFindList(these_menus,[id]);
+Dialog(key kID, string sContext, list lButtons, list lArrows, integer iPage, integer iAuth, string sName) {
+    key kThatMenu = llGenerateKey();
+
+llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kThatMenu);
+    integer index = llListFindList(g_lTheseMenus,[kID]);
     if (~index) 
-        these_menus = llListReplaceList(these_menus,[id,that_menu,name],index,index + 2);
+        g_lTheseMenus = llListReplaceList(g_lTheseMenus,[kID,kThatMenu,sName],index,index + 2);
     else 
-        these_menus += [id,that_menu,name];
+        g_lTheseMenus += [kID,kThatMenu,sName];
 }
 
-list apps;
-list adjusters;
-integer menu_anim;
-integer menu_rlv;
-integer menu_kidnap;
+list g_lApps;
+list g_lAdjusters;
+integer g_iMenuAnim;
+integer g_iMenuRLV;
+integer g_iMenuKidnap;
 
-menu_root(key id, integer auth) {
-    string context = "\n";
-    if (locked) context += "🔒 ";
-    else context += "🔓 ";
-    context += "O  s  C  o  l  l  a  r    "+version;
-    context += "\n\n• Prefix: "+prefix;
-    context += "\n• Channel: "+(string)channel;
-    context += "\n• Safeword: "+safeword;
-    if (quote!="") {
-        context += "\n\n“"+llDumpList2String(llParseStringKeepNulls(quote, ["\\n"], []), "\n")+"”";
-        if (quoter!="") context += "\n—"+quoter;
+MenuRoot(key kID, integer iAuth) {
+    string sContext = "\n";
+    if (g_iLocked) sContext += "🔒 ";
+    else sContext += "🔓 ";
+    sContext += "O  s  C  o  l  l  a  r    "+g_sVersion;
+    sContext += "\n\n• Prefix: "+g_sPrefix;
+    sContext += "\n• Channel: "+(string)g_iChannel;
+    sContext += "\n• Safeword: "+g_sSafeword;
+    if (g_sQuotation!="") {
+        sContext += "\n\n“"+llDumpList2String(llParseStringKeepNulls(g_sQuotation, ["\\n"], []), "\n")+"”";
+        if (g_sQuoter!="") sContext += "\n—"+g_sQuoter;
     }
     
-    list these_buttons = ["Apps"];
-    if (menu_anim) these_buttons += "Animations";
-    else these_buttons += "-";
-    if (menu_kidnap) these_buttons += "Capture";
-    else these_buttons += "-";
-    these_buttons += ["Leash"];
-    if (menu_rlv) these_buttons += "RLV";
-    else these_buttons += "-";
-    these_buttons += ["Access","Settings","About"];
-    if (locked) these_buttons = "UNLOCK" + these_buttons;
-    else these_buttons = "LOCK" + these_buttons;
-    dialog(id,context,these_buttons,[],0,auth,"Main");
+    list lButtons = ["Apps"];
+    if (g_iMenuAnim) lButtons += "Animations";
+    else lButtons += "-";
+    if (g_iMenuKidnap) lButtons += "Capture";
+    else lButtons += "-";
+    lButtons += ["Leash"];
+    if (g_iMenuRLV) lButtons += "RLV";
+    else lButtons += "-";
+    lButtons += ["Access","Settings","About"];
+    if (g_iLocked) lButtons = "UNLOCK" + lButtons;
+    else lButtons = "LOCK" + lButtons;
+    Dialog(kID,sContext,lButtons,[],0,iAuth,"Main");
 }
 
-menu_settings(key id, integer auth) {
-    string context = "\nSettings";
-    list these_buttons = ["Print","Load","Save","Fix"];
-    these_buttons += adjusters;
+MenuSettings(key kID, integer iAuth) {
+    string sContext = "\nSettings";
+    list lButtons = ["Print","Load","Save","Fix"];
+    lButtons += g_lAdjusters;
     if (llGetInventoryType("oc_stealth") == INVENTORY_SCRIPT) {
-        if (hidden) these_buttons += ["☑ Stealth"];
-        else these_buttons += ["☐ Stealth"];
-    } else these_buttons += ["-"];
-    if (looks) these_buttons += "Looks";
+        if (g_iHidden) lButtons += ["☑ Stealth"];
+        else lButtons += ["☐ Stealth"];
+    } else lButtons += ["-"];
+    if (g_iLooks) lButtons += "Looks";
     else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
-        these_buttons += "Themes";
-    dialog(id,context,these_buttons,["BACK"],0,auth,"Settings");
+        lButtons += "Themes";
+    Dialog(kID,sContext,lButtons,["BACK"],0,iAuth,"Settings");
 }
 
-menu_apps(key id, integer auth) {
-    string context="\nApps, extras and custom features";
-    dialog(id,context,apps,["BACK"],0,auth,"Apps");
+MenuApps(key kID, integer iAuth) {
+    string sContext="\nApps, extras and custom features";
+    Dialog(kID,sContext,g_lApps,["BACK"],0,iAuth,"Apps");
 }
 
-menu_about(key id) {
-    string context = "\nVersion: "+version+"\nOrigin: ";
-    if (osIsUUID(dist)) {
-        if (llKey2Name(dist)!="") context += uri("agent/"+dist);
-        else context += "Hypergrid";
+MenuAbout(key kID) {
+    string sContext = "\nVersion: "+g_sVersion+"\nOrigin: ";
+    if (osIsUUID(g_sDist)) {
+        if (llKey2Name(g_sDist)!="") sContext += uri("agent/"+g_sDist);
+        else sContext += "Hypergrid";
     }
-    else context += "Unknown";
-    context+="\n\n"+about;
-    context+="\n\nThe OpenCollar Six™ scripts were used in this product to an unknown extent. The OpenCollar project can't support this product. Relevant [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE license terms] still apply.";
-    llDialog(id,context,["OK"],-12345);
+    else sContext += "Unknown";
+    sContext+="\n\n"+g_sAbout;
+    sContext+="\n\nThe OpenCollar Six™ scripts were used in this product to an unknown extent. The OpenCollar project can't support this product. Relevant [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE license terms] still apply.";
+    llDialog(kID,sContext,["OK"],-12345);
 }
 
-commands(integer auth, string str, key id, integer clicked) {
-    list params = llParseString2List(str,[" "],[]);
-    string cmd = llToLower(llList2String(params,0));
-    str = llToLower(str);
-    if (cmd == "menu") {
-        string submenu = llToLower(llList2String(params,1));
-        if (submenu == "main" || submenu == "") menu_root(id,auth);
-        else if (submenu == "apps") menu_apps(id,auth);
-        else if (submenu == "settings") {
-            if (auth != CMD_OWNER && auth != CMD_WEARER) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
-                menu_root(id,auth);
-            } else menu_settings(id,auth);
+UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
+    list lParams = llParseString2List(sStr,[" "],[]);
+    string sCmd = llToLower(llList2String(lParams,0));
+    sStr = llToLower(sStr);
+    if (sCmd == "menu") {
+        string sSubMenu = llToLower(llList2String(lParams,1));
+        if (sSubMenu == "main" || sSubMenu == "") MenuRoot(kID,iAuth);
+        else if (sSubMenu == "apps") MenuApps(kID,iAuth);
+        else if (sSubMenu == "settings") {
+            if (iAuth != CMD_OWNER && iAuth != CMD_WEARER) {
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+                MenuRoot(kID,iAuth);
+            } else MenuSettings(kID,iAuth);
         }
-    } else if (str == "info" || str == "version") {
-        string message = "\n\nModel: "+llGetObjectName();
-        message += "\nVersion: "+version+"\nOrigin: ";
-        if (osIsUUID(dist)) {
-            if (llKey2Name(dist)!="") message += uri("agent/"+dist);
-            else message += "Hypergrid";
+    } else if (sStr == "info" || sStr == "version") {
+        string sMessage = "\n\nModel: "+llGetObjectName();
+        sMessage += "\nVersion: "+g_sVersion+"\nOrigin: ";
+        if (osIsUUID(g_sDist)) {
+            if (llKey2Name(g_sDist)!="") sMessage += uri("agent/"+g_sDist);
+            else sMessage += "Hypergrid";
         }
-        else message += "Unknown";
-        message += "\nUser: "+llGetUsername(wearer);
-        message += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+safeword+"\n";
-        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+message,id);
-    } else if (str == "license") {
-        if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(id,".license");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from the creator!",id);
-    } else if (str == "help") {
-        if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(id,".help");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from the creator!",id);
-    } else if (str == "about") menu_about(id);
-    else if (str == "apps") menu_apps(id,auth);
-    else if (str == "settings") {
-        if (auth == CMD_OWNER || auth == CMD_WEARER) menu_settings(id,auth);
-    } else if (cmd == "fix") {
-        make_menus();
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",id);
-    } else if (cmd == "quote") {
-        if (auth == CMD_OWNER || auth == CMD_WEARER) {
-            string context = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
-            dialog(id,context,[],[],0,auth,"Quote");
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
-    } else if (str == "rm quote") {
-        if (auth == CMD_OWNER || auth == CMD_WEARER) {
-            quote = "";
-            quoter = "";
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, that_token + TOK_QUOTE, "");
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
+        else sMessage += "Unknown";
+        sMessage += "\nUser: "+llGetUsername(g_kWearer);
+        sMessage += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeword+"\n";
+        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
+    } else if (sStr == "license") {
+        if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(kID,".license");
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from the creator!",kID);
+    } else if (sStr == "help") {
+        if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(kID,".help");
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from the creator!",kID);
+    } else if (sStr == "about") MenuAbout(kID);
+    else if (sStr == "apps") MenuApps(kID,iAuth);
+    else if (sStr == "settings") {
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) MenuSettings(kID,iAuth);
+    } else if (sCmd == "fix") {
+        MakeMenus();
+        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",kID);
+    } else if (sCmd == "quote") {
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
+            string sContext = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
+            Dialog(kID,sContext,[],[],0,iAuth,"Quote");
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (sStr == "rm quote") {
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
+            g_sQuotation = "";
+            g_sQuoter = "";
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sThatToken + TOK_QUOTE, "");
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     }
 }
 
-failsafe() {
-    string name = llGetScriptName();
-    if(osIsUUID(name)) return;
-    if(name != "oc_root") llRemoveInventory(name);
+Failsafe() {
+    string sName = llGetScriptName();
+    if(osIsUUID(sName)) return;
+    if(sName != "oc_root") llRemoveInventory(sName);
 }
 
-make_menus() {
-    menu_anim = FALSE;
-    menu_rlv = FALSE;
-    menu_kidnap = FALSE;
-    adjusters = [];
-    apps = [] ;
+MakeMenus() {
+    g_iMenuAnim = FALSE;
+    g_iMenuRLV = FALSE;
+    g_iMenuKidnap = FALSE;
+    g_lAdjusters = [];
+    g_lApps = [] ;
     llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Main","");
     llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Apps","");
     llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Settings","");
     llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
 }
 
-init() {
-    hidden = !(integer)llGetAlpha(ALL_SIDES);
-    prefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0, 1));
-    failsafe();
+Init() {
+    g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
+    g_sPrefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0, 1));
+    Failsafe();
     llSetTimerEvent(1.0);
 }
 
-string uri(string str){
-    return "secondlife:///app/"+str+"/inspect";
+string uri(string sStr){
+    return "secondlife:///app/"+sStr+"/inspect";
 }
 
 default {
     state_entry() {
         //llSetMemoryLimit(32768);
-        wearer = llGetOwner();
-        init();
+        g_kWearer = llGetOwner();
+        Init();
     }
     on_rez(integer iStart) {
-        init();
+        Init();
     }
-    link_message(integer sender, integer num, string str, key id) {
-        list params;
+    link_message(integer sender, integer num, string sStr, key kID) {
+        list lParams;
         if (num == MENUNAME_RESPONSE) {
-            params = llParseString2List(str,["|"],[]);
-            string parentmenu = llList2String(params,0);
-            string submenu = llList2String(params,1);
-            if (parentmenu == "Apps") {
-                if (!~llListFindList(apps, [submenu])) {
-                    apps += [submenu];
-                    apps = llListSort(apps,1,TRUE);
+            lParams = llParseString2List(sStr,["|"],[]);
+            string sParentMenu = llList2String(lParams,0);
+            string sSubMenu = llList2String(lParams,1);
+            if (sParentMenu == "Apps") {
+                if (!~llListFindList(g_lApps, [sSubMenu])) {
+                    g_lApps += [sSubMenu];
+                    g_lApps = llListSort(g_lApps,1,TRUE);
                 }
-            } else if (str == "Main|Animations") menu_anim = TRUE;
-            else if (str == "Main|RLV") menu_rlv = TRUE;
-            else if (str == "Main|Capture") menu_kidnap = TRUE;
-            else if (str == "Settings|Size/Position") adjusters = ["Position","Rotation","Size"];
+            } else if (sStr == "Main|Animations") g_iMenuAnim = TRUE;
+            else if (sStr == "Main|RLV") g_iMenuRLV = TRUE;
+            else if (sStr == "Main|Capture") g_iMenuKidnap = TRUE;
+            else if (sStr == "Settings|Size/Position") g_lAdjusters = ["Position","Rotation","Size"];
         } else if (num == MENUNAME_REMOVE) {
-            params = llParseString2List(str,["|"],[]);
-            string parentmenu = llList2String(params,0);
-            string submenu = llList2String(params,1);
-            if (parentmenu == "Apps") {
-                integer index = llListFindList(apps,[submenu]);
-                if (~index) apps = llDeleteSubList(apps,index,index);
-            } else if (submenu == "Size/Position") adjusters = [];
+            lParams = llParseString2List(sStr,["|"],[]);
+            string sParentMenu = llList2String(lParams,0);
+            string sSubMenu = llList2String(lParams,1);
+            if (sParentMenu == "Apps") {
+                integer index = llListFindList(g_lApps,[sSubMenu]);
+                if (~index) g_lApps = llDeleteSubList(g_lApps,index,index);
+            } else if (sSubMenu == "Size/Position") g_lAdjusters = [];
         } else if (num == LINK_UPDATE) {
-            if (str == "LINK_DIALOG") LINK_DIALOG = sender;
-            else if (str == "LINK_RLV") LINK_RLV = sender;
-            else if (str == "LINK_SAVE") LINK_SAVE = sender;
+            if (sStr == "LINK_DIALOG") LINK_DIALOG = sender;
+            else if (sStr == "LINK_RLV") LINK_RLV = sender;
+            else if (sStr == "LINK_SAVE") LINK_SAVE = sender;
         } else if (num == DIALOG_RESPONSE) {
-            integer menuindex = llListFindList(these_menus,[id]);
-            if (~menuindex) {
-                params = llParseString2List(str,["|"],[]);
-                id = (key)llList2String(params,0);
-                string button = llList2String(params,1);
-                integer page = (integer)llList2String(params,2);
-                integer auth = (integer)llList2String(params,3);
-                string menu = llList2String(these_menus,menuindex + 1);
-                these_menus = llDeleteSubList(these_menus,menuindex - 1,menuindex + 1);
-                if (menu == "Main"){
-                    if (button == "LOCK" || button== "UNLOCK")
-                        llMessageLinked(LINK_ROOT,auth,button,id);
-                    else if (button == "About") menu_about(id);
-                    else if (button == "Apps") menu_apps(id,auth);
-                    else llMessageLinked(LINK_SET,auth,"menu "+button,id);
-                } else if (menu == "Apps") {
-                    if (button == "BACK") menu_root(id,auth);
-                    else llMessageLinked(LINK_SET,auth,"menu "+button,id);
-                } else if (menu == "Settings") {
-                     if (button == "Print") llMessageLinked(LINK_SAVE,auth,"print settings",id);
-                     else if (button == "Load") llMessageLinked(LINK_SAVE,auth,button,id);
-                     else if (button == "Save") llMessageLinked(LINK_SAVE,auth,button,id);
-                     else if (button == "Fix") {
-                         commands(auth,button,id,TRUE);
+            integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
+            if (~iMenuIndex) {
+                lParams = llParseString2List(sStr,["|"],[]);
+                kID = (key)llList2String(lParams,0);
+                string sButton = llList2String(lParams,1);
+                integer iPage = (integer)llList2String(lParams,2);
+                integer iAuth = (integer)llList2String(lParams,3);
+                string sMenu = llList2String(g_lTheseMenus,iMenuIndex + 1);
+                g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+                if (sMenu == "Main"){
+                    if (sButton == "LOCK" || sButton== "UNLOCK")
+                        llMessageLinked(LINK_ROOT,iAuth,sButton,kID);
+                    else if (sButton == "About") MenuAbout(kID);
+                    else if (sButton == "Apps") MenuApps(kID,iAuth);
+                    else llMessageLinked(LINK_SET,iAuth,"menu "+sButton,kID);
+                } else if (sMenu == "Apps") {
+                    if (sButton == "BACK") MenuRoot(kID,iAuth);
+                    else llMessageLinked(LINK_SET,iAuth,"menu "+sButton,kID);
+                } else if (sMenu == "Settings") {
+                     if (sButton == "Print") llMessageLinked(LINK_SAVE,iAuth,"print settings",kID);
+                     else if (sButton == "Load") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
+                     else if (sButton == "Save") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
+                     else if (sButton == "Fix") {
+                         UserCommand(iAuth,sButton,kID,TRUE);
                          return;
-                    } else if (button == "☐ Stealth") {
-                         llMessageLinked(LINK_ROOT,auth,"hide",id);
-                         hidden = TRUE;
-                    } else if (button == "☑ Stealth") {
-                        llMessageLinked(LINK_ROOT,auth,"show",id);
-                        hidden = FALSE;
-                    } else if (button == "Themes") {
-                        llMessageLinked(LINK_ROOT,auth,"menu Themes",id);
+                    } else if (sButton == "☐ Stealth") {
+                         llMessageLinked(LINK_ROOT,iAuth,"hide",kID);
+                         g_iHidden = TRUE;
+                    } else if (sButton == "☑ Stealth") {
+                        llMessageLinked(LINK_ROOT,iAuth,"show",kID);
+                        g_iHidden = FALSE;
+                    } else if (sButton == "Themes") {
+                        llMessageLinked(LINK_ROOT,iAuth,"menu Themes",kID);
                         return;
-                    } else if (button == "Looks") {
-                        llMessageLinked(LINK_ROOT,auth,"looks",id);
+                    } else if (sButton == "Looks") {
+                        llMessageLinked(LINK_ROOT,iAuth,"looks",kID);
                         return;
-                    } else if (button == "BACK") {
-                        menu_root(id,auth);
+                    } else if (sButton == "BACK") {
+                        MenuRoot(kID,iAuth);
                         return;
-                    } else if (button == "Position" || button == "Rotation" || button == "Size") {
-                        llMessageLinked(LINK_ROOT,auth,llToLower(button),id);
+                    } else if (sButton == "Position" || sButton == "Rotation" || sButton == "Size") {
+                        llMessageLinked(LINK_ROOT,iAuth,llToLower(sButton),kID);
                         return;
                     }
-                    menu_settings(id,auth);
-                } else if (menu == "Quote") {
-                    if (button == "") return;
-                    quoter = llKey2Name(id);
-                    quote = button;
-                    llOwnerSay("\n\n"+quoter+" cites a quote in "+llKey2Name(wearer)+
-                                "'s main menu:\n\n\""+quote+"\"\n");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quote=" + osReplaceString(quote, "\n", "\\n", -1, 0), "");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quoter=" + quoter, "");
+                    MenuSettings(kID,iAuth);
+                } else if (sMenu == "Quote") {
+                    if (sButton == "") return;
+                    g_sQuoter = llKey2Name(kID);
+                    g_sQuotation = sButton;
+                    llOwnerSay("\n\n"+g_sQuoter+" cites a quote in "+llKey2Name(g_kWearer)+
+                                "'s main menu:\n\n\""+g_sQuotation+"\"\n");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quoter=" + g_sQuoter, "");
                 }
             }
-        } else if (num >= CMD_OWNER && num <= CMD_WEARER) commands(num,str,id,FALSE);
+        } else if (num >= CMD_OWNER && num <= CMD_WEARER) UserCommand(num,sStr,kID,FALSE);
         else if (num == LM_SETTING_RESPONSE) {
-            params = llParseString2List(str,["="],[]);
-            string this_token = llList2String(params,0);
-            string value = llList2String(params,1);
-            if (this_token == that_token+"locked") locked = (integer)value;
-            else if (this_token == that_token+"safeword") safeword = value;
-            else if (this_token == "intern_dist") dist = value;
-            else if (this_token == "intern_looks") looks = (integer)value;
-            else if (this_token == "channel") channel = (integer)value;
-            else if (this_token == that_token+"prefix") prefix = value;
-            else if (this_token == "QUOTE_quote") quote = value;
-            else if (this_token == "QUOTE_quoter") quoter = value;
+            lParams = llParseString2List(sStr,["="],[]);
+            string sThisToken = llList2String(lParams,0);
+            string sValue = llList2String(lParams,1);
+            if (sThisToken == g_sThatToken+"locked") g_iLocked = (integer)sValue;
+            else if (sThisToken == g_sThatToken+"safeword") g_sSafeword = sValue;
+            else if (sThisToken == "intern_dist") g_sDist = sValue;
+            else if (sThisToken == "intern_looks") g_iLooks = (integer)sValue;
+            else if (sThisToken == "channel") g_iChannel = (integer)sValue;
+            else if (sThisToken == g_sThatToken+"prefix") g_sPrefix = sValue;
+            else if (sThisToken == "QUOTE_quotation") g_sQuotation = sValue;
+            else if (sThisToken == "QUOTE_quoter") g_sQuoter = sValue;
         } else if (num == DIALOG_TIMEOUT) {
-            integer menuindex = llListFindList(these_menus,[id]);
-            these_menus = llDeleteSubList(these_menus,menuindex - 1,menuindex + 1);
-        } else if (num == REBOOT && str == "reboot") llResetScript();
+            integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
+            g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+        } else if (num == REBOOT && sStr == "reboot") llResetScript();
     }
-    changed(integer changes) {
-        if (changes & CHANGED_OWNER) llResetScript();
-        if ((changes & CHANGED_INVENTORY) && !llGetStartParameter()) {
-            failsafe();
+    changed(integer iChange) {
+        if (iChange & CHANGED_OWNER) llResetScript();
+        if ((iChange & CHANGED_INVENTORY) && !llGetStartParameter()) {
+            Failsafe();
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
         }
-        if (changes & CHANGED_COLOR)
-            hidden = !(integer)llGetAlpha(ALL_SIDES);
-        if (changes & CHANGED_LINK)
+        if (iChange & CHANGED_COLOR)
+            g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
+        if (iChange & CHANGED_LINK)
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
     }
     timer() {
-        make_menus();
+        MakeMenus();
         llSetTimerEvent(0.0);
     }
 }
+
 
 
 

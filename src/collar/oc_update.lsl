@@ -28,51 +28,51 @@ integer LINK_UPDATE = -10;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 
-key wearer;
-integer upstream = 1;
-key id_installer;
+key g_kWearer;
+integer g_iUpstream = 1;
+key g_kInstallerID;
 
-update(){
-    integer pin = (integer)llFrand(99999998.0) + 1;
-    llSetRemoteScriptAccessPin(pin);
-    integer chan_installer = -12345;
-    if (upstream) chan_installer = -7483213;
-    llRegionSayTo(id_installer,chan_installer,"ready|"+(string)pin);
+Update(){
+    integer iPin = (integer)llFrand(99999998.0) + 1;
+    llSetRemoteScriptAccessPin(iPin);
+    integer iChanInstaller = -12345;
+    if (g_iUpstream) iChanInstaller = -7483213;
+    llRegionSayTo(g_kInstallerID,iChanInstaller,"ready|"+(string)iPin);
 }
 
-key menu_id;
+key g_kMenuID;
 
-failsafe() {
-    string name = llGetScriptName();
-    if(osIsUUID(name)) return;
-    if((upstream && name != "oc_update")) llRemoveInventory(name);
+Failsafe() {
+    string sName = llGetScriptName();
+    if(osIsUUID(sName)) return;
+    if((g_iUpstream && sName != "oc_update")) llRemoveInventory(sName);
 }
 
 default {
     state_entry() {
         //llSetMemoryLimit(16384);
-        wearer = llGetOwner();
-        failsafe();
+        g_kWearer = llGetOwner();
+        Failsafe();
     }
-    link_message(integer sender, integer num, string str, key id) {
-        if (!llSubStringIndex(str,".- ... -.-") && id == wearer) {
-            id_installer = (key)llGetSubString(str,-36,-1);
-            menu_id = llGenerateKey();
-            llMessageLinked(LINK_DIALOG,DIALOG,(string)wearer+"|\nReady to install?|0|Yes`No|Cancel|"+(string)CMD_WEARER,menu_id);
-        } else if (num == DIALOG_RESPONSE) {
-            if (id == menu_id) {
-                list params = llParseString2List(str,["|"],[]);
-                id = (key)llList2String(params,0);
-                string button = llList2String(params,1);
-                if (button == "Yes") update();
-                else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"cancelled",id);
+    link_message(integer iSender, integer iNum, string sStr, key kID) {
+        if (!llSubStringIndex(sStr,".- ... -.-") && kID == g_kWearer) {
+            g_kInstallerID = (key)llGetSubString(sStr,-36,-1);
+            g_kMenuID = llGenerateKey();
+            llMessageLinked(LINK_DIALOG,DIALOG,(string)g_kWearer+"|\nReady to install?|0|Yes`No|Cancel|"+(string)CMD_WEARER,g_kMenuID);
+        } else if (iNum == DIALOG_RESPONSE) {
+            if (kID == g_kMenuID) {
+                list lParams = llParseString2List(sStr,["|"],[]);
+                kID = (key)llList2String(lParams,0);
+                string sButton = llList2String(lParams,1);
+                if (sButton == "Yes") Update();
+                else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"cancelled",kID);
             }
-        } else if (num == LINK_UPDATE) {
-            if (str == "LINK_DIALOG") LINK_DIALOG = sender;
-        } else if (num == REBOOT && str == "reboot") llResetScript();
+        } else if (iNum == LINK_UPDATE) {
+            if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     on_rez(integer start) {
-        if (llGetOwner() != wearer) llResetScript();
-        failsafe();
+        if (llGetOwner() != g_kWearer) llResetScript();
+        Failsafe();
     }
 }
