@@ -56,17 +56,17 @@ string g_sQuoter;
 string g_sQuotation;
 string g_sQuoteToken = "quote_";
 
-list g_lTheseMenus;
+list g_lMenus;
 
 Dialog(key kID, string sContext, list lButtons, list lArrows, integer iPage, integer iAuth, string sName) {
     key kMenuID = llGenerateKey();
 
 llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kMenuID);
-    integer index = llListFindList(g_lTheseMenus,[kID]);
+    integer index = llListFindList(g_lMenus,[kID]);
     if (~index) 
-        g_lTheseMenus = llListReplaceList(g_lTheseMenus,[kID,kMenuID,sName],index,index + 2);
+        g_lMenus = llListReplaceList(g_lMenus,[kID,kMenuID,sName],index,index + 2);
     else 
-        g_lTheseMenus += [kID,kMenuID,sName];
+        g_lMenus += [kID,kMenuID,sName];
 }
 
 list g_lApps;
@@ -124,7 +124,7 @@ MenuApps(key kID, integer iAuth) {
 MenuAbout(key kID) {
     string sContext = "\nVersion: "+g_sVersion+"\nOrigin: ";
     if (osIsUUID(g_sDist)) {
-        if (llKey2Name(g_sDist)!="") sContext += uri("agent/"+g_sDist);
+        if (llKey2Name(g_sDist)!="") sContext += NameURI("agent/"+g_sDist);
         else sContext += "Hypergrid";
     }
     else sContext += "Unknown";
@@ -151,7 +151,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
         string sMessage = "\n\nModel: "+llGetObjectName();
         sMessage += "\nVersion: "+g_sVersion+"\nOrigin: ";
         if (osIsUUID(g_sDist)) {
-            if (llKey2Name(g_sDist)!="") sMessage += uri("agent/"+g_sDist);
+            if (llKey2Name(g_sDist)!="") sMessage += NameURI("agent/"+g_sDist);
             else sMessage += "Hypergrid";
         }
         else sMessage += "Unknown";
@@ -211,8 +211,8 @@ Init() {
     llSetTimerEvent(1.0);
 }
 
-string uri(string sStr){
-    return "secondlife:///app/"+sStr+"/inspect";
+string NameURI(string sID) {
+    return "secondlife:///app/"+sID+"/inspect";
 }
 
 default {
@@ -252,15 +252,15 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == DIALOG_RESPONSE) {
-            integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
+            integer iMenuIndex = llListFindList(g_lMenus,[kID]);
             if (~iMenuIndex) {
                 lParams = llParseString2List(sStr,["|"],[]);
                 kID = (key)llList2String(lParams,0);
                 string sButton = llList2String(lParams,1);
                 integer iPage = (integer)llList2String(lParams,2);
                 integer iAuth = (integer)llList2String(lParams,3);
-                string sMenu = llList2String(g_lTheseMenus,iMenuIndex + 1);
-                g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+                string sMenu = llList2String(g_lMenus,iMenuIndex + 1);
+                g_lMenus = llDeleteSubList(g_lMenus,iMenuIndex - 1,iMenuIndex + 1);
                 if (sMenu == "Main"){
                     if (sButton == "LOCK" || sButton== "UNLOCK")
                         llMessageLinked(LINK_ROOT,iAuth,sButton,kID);
@@ -321,8 +321,8 @@ default {
             else if (sToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
             else if (sToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
         } else if (iNum == DIALOG_TIMEOUT) {
-            integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
-            g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+            integer iMenuIndex = llListFindList(g_lMenus,[kID]);
+            g_lMenus = llDeleteSubList(g_lMenus,iMenuIndex - 1,iMenuIndex + 1);
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     changed(integer iChange) {
