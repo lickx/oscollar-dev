@@ -54,8 +54,7 @@ integer g_iHidden;
 integer g_iLooks;
 string g_sQuoter;
 string g_sQuotation;
-
-string TOK_QUOTE = "quote";
+string g_sQuoteToken = "quote_";
 
 list g_lTheseMenus;
 
@@ -181,7 +180,8 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
             g_sQuotation = "";
             g_sQuoter = "";
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sGlobalToken + TOK_QUOTE, "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quotation", "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quoter", "");
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     }
 }
@@ -318,8 +318,8 @@ default {
             else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
             else if (sToken == "channel") g_iChannel = (integer)sValue;
             else if (sToken == g_sGlobalToken+"prefix") g_sPrefix = sValue;
-            else if (sToken == "QUOTE_quotation") g_sQuotation = sValue;
-            else if (sToken == "QUOTE_quoter") g_sQuoter = sValue;
+            else if (sToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
+            else if (sToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
         } else if (num == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
             g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
