@@ -19,8 +19,9 @@
  */
  
 // This plugin creates the root (or main), apps and settings menus,
-// and has the default LOCK/UNLOCK button. It can also dispense the help
-// and license files (if present in contents) and can print info/version.
+// and has the default LOCK/UNLOCK functionality. It can also dispense
+// the help and license files (if present in contents) and can print
+// info/version. It can also be used to hide and show the whole device.
 
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
@@ -40,6 +41,9 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
+integer RLV_CMD = 6000;
+integer RLV_REFRESH = 6001;
+integer RLV_CLEAR = 6002;
 
 key g_kWearer;
 
@@ -86,7 +90,7 @@ MenuRoot(key kID, integer iAuth) {
     sContext += "\n• Channel: "+(string)g_iChannel;
     sContext += "\n• Safeword: "+g_sSafeword;
     if (g_sQuotation!="") {
-        sContext += "\n\n“"+llDumpList2String(llParseStringKeepNulls(g_sQuotation, ["\\n"], []), "\n")+"”";
+        sContext += "\n\n“"+osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
         if (g_sQuoter!="") sContext += "\n—"+g_sQuoter;
     }
     
@@ -133,6 +137,86 @@ MenuAbout(key kID) {
     sContext+="\n\n"+g_sAbout;
     sContext+="\n\nThe OpenCollar Six™ scripts were used in this product to an unknown extent. The OpenCollar project can't support this product. Relevant [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE license terms] still apply.";
     llDialog(kID,sContext,["OK"],-12345);
+}
+
+list g_lClosedLocks;
+list g_lOpenLocks;
+list g_lClosedLocksGlows;
+list g_lOpenLocksGlows;
+
+ShowHideLock() {
+    if (g_iHidden) return;
+    integer i;
+    integer iLinks = llGetListLength(g_lOpenLocks);
+    for (;i < iLinks; ++i) {
+        llSetLinkAlpha(llList2Integer(g_lOpenLocks,i),!g_iLocked,ALL_SIDES);
+        UpdateGlows(llList2Integer(g_lOpenLocks,i),!g_iLocked);
+    }
+    iLinks = llGetListLength(g_lClosedLocks);
+    for (i=0; i < iLinks; ++i) {
+        llSetLinkAlpha(llList2Integer(g_lClosedLocks,i),g_iLocked,ALL_SIDES);
+        UpdateGlows(llList2Integer(g_lClosedLocks,i),g_iLocked);
+    }
+}
+
+UpdateGlows(integer iLink, integer iAlpha) {
+    list lGlows;
+    integer iIndex;
+    if (iAlpha) {
+        lGlows = g_lOpenLocksGlows;
+        if (g_iLocked) lGlows = g_lClosedLocksGlows;
+        iIndex = llListFindList(lGlows,[iLink]);
+        if (!~iIndex) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
+    } else {
+        float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+        lGlows = g_lClosedLocksGlows;
+        if (g_iLocked) lGlows = g_lOpenLocksGlows;
+        iIndex = llListFindList(lGlows,[iLink]);
+        if ((~iIndex) && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],iIndex+1,iIndex+1);
+        if ((~iIndex) && fGlow == 0) lGlows = llDeleteSubList(lGlows,iIndex,iIndex+1);
+        if (!(~iIndex) && fGlow > 0) lGlows += [iLink,fGlow];
+        if (g_iLocked) g_lOpenLocksGlows = lGlows;
+        else g_lClosedLocksGlows = lGlows;
+        llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,0.0]);
+    }
+}
+
+GetLocks() {
+    g_lOpenLocks = [];
+    g_lClosedLocks = [];
+    integer i = llGetNumberOfPrims();
+    string sPrimName;
+    for (;i > 1; --i) {
+        sPrimName = (string)llGetLinkPrimitiveParams(i,[PRIM_NAME]);
+        if (sPrimName == "Lock" || sPrimName == "ClosedLock")
+            g_lClosedLocks += i;
+        else if (sPrimName == "OpenLock")
+            g_lOpenLocks += i;
+    }
+}
+
+Stealth (string sStr) {
+    list lGlowy;
+    if (sStr == "hide") g_iHidden = TRUE;
+    else if (sStr == "show") g_iHidden = FALSE;
+    else g_iHidden = !g_iHidden;
+    llSetLinkAlpha(LINK_SET,(float)(!g_iHidden),ALL_SIDES);
+    integer iCount;
+    if (g_iHidden) {
+        iCount = llGetNumberOfPrims();
+        float fGlow;
+        for (;iCount > 0; --iCount) {
+            fGlow = llList2Float(llGetLinkPrimitiveParams(iCount,[PRIM_GLOW,0]),0);
+            if (fGlow > 0) lGlowy += [iCount,fGlow];
+        }
+        llSetLinkPrimitiveParamsFast(LINK_SET,[PRIM_GLOW,ALL_SIDES,0.0]);
+    } else {
+        integer i;
+        iCount = llGetListLength(lGlowy);
+        for (;i < iCount;i += 2)
+            llSetLinkPrimitiveParamsFast(llList2Integer(lGlowy,i),[PRIM_GLOW,ALL_SIDES,llList2Float(lGlowy,i+1)]);
+        lGlowy = [];
+    }
 }
 
 UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
@@ -185,6 +269,31 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quotation", "");
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quoter", "");
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (sStr == "lock") {
+        if (iAuth == CMD_OWNER || kID == g_kWearer ) {
+            g_iLocked = TRUE;
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"locked=1","");
+            llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=1","");
+            llOwnerSay("@detach=n");
+            llMessageLinked(LINK_RLV,RLV_CMD,"detach=n","main");
+            llPlaySound("73f3f84b-0447-487d-8246-4ab3e5fdbf40",1.0);
+            ShowHideLock();
+            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is locked.",kID);
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (sStr == "runaway" || sStr == "unlock") {
+        if (iAuth == CMD_OWNER)  {
+            g_iLocked = FALSE;
+            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sGlobalToken+"locked","");
+            llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=0","");
+            llOwnerSay("@detach=y");
+            llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
+            llPlaySound("d64c3566-cf76-44b5-ae76-9aabf60efab8",1.0);
+            ShowHideLock();
+            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is unlocked.",kID);
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (sStr == "hide" || sStr == "show" || sStr == "stealth") {
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) Stealth(sStr);
+        else if (osIsUUID(kID)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     }
 }
 
@@ -209,6 +318,7 @@ MakeMenus() {
 Init() {
     g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
     g_sPrefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0, 1));
+    GetLocks();
     Failsafe();
     llSetTimerEvent(1.0);
 }
@@ -314,8 +424,11 @@ default {
             lParams = llParseString2List(sStr,["="],[]);
             string sToken = llList2String(lParams,0);
             string sValue = llList2String(lParams,1);
-            if (sToken == g_sGlobalToken+"locked") g_iLocked = (integer)sValue;
-            else if (sToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
+            if (sToken == g_sGlobalToken+"locked") {
+                g_iLocked = (integer)sValue;
+                if (g_iLocked) llOwnerSay("@detach=n");
+                ShowHideLock();
+            } else if (sToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
             else if (sToken == "intern_dist") g_sDist = sValue;
             else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
             else if (sToken == "channel") g_iChannel = (integer)sValue;
@@ -325,6 +438,9 @@ default {
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenus,[kID]);
             g_lMenus = llDeleteSubList(g_lMenus,iMenuIndex - 1,iMenuIndex + 1);
+        } else if (iNum == RLV_REFRESH || iNum == RLV_CLEAR) {
+            if (g_iLocked) llMessageLinked(LINK_RLV, RLV_CMD,"detach=n","main");
+            else llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     changed(integer iChange) {
@@ -334,16 +450,24 @@ default {
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
         }
-        if (iChange & CHANGED_COLOR)
-            g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
-        if (iChange & CHANGED_LINK)
+        if (iChange & CHANGED_COLOR) {
+            integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
+            if (g_iHidden != iNewHide) {
+                g_iHidden = iNewHide;
+                ShowHideLock();
+            }
+        }
+        if (iChange & CHANGED_LINK) {
+            GetLocks();
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
+        }
     }
     timer() {
         MakeMenus();
         llSetTimerEvent(0.0);
     }
 }
+
 
 
 
