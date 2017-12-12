@@ -29,14 +29,12 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 
 key g_kWearer;
-integer g_iUpstream = 1;
 key g_kInstallerID;
 
 Update(){
     integer iPin = (integer)llFrand(99999998.0) + 1;
     llSetRemoteScriptAccessPin(iPin);
-    integer iChanInstaller = -12345;
-    if (g_iUpstream) iChanInstaller = -7483213;
+    integer iChanInstaller = -7483213;
     llRegionSayTo(g_kInstallerID,iChanInstaller,"ready|"+(string)iPin);
 }
 
