@@ -224,9 +224,9 @@ default {
     on_rez(integer iStart) {
         Init();
     }
-    link_message(integer sender, integer num, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID) {
         list lParams;
-        if (num == MENUNAME_RESPONSE) {
+        if (iNum == MENUNAME_RESPONSE) {
             lParams = llParseString2List(sStr,["|"],[]);
             string sParentMenu = llList2String(lParams,0);
             string sSubMenu = llList2String(lParams,1);
@@ -239,7 +239,7 @@ default {
             else if (sStr == "Main|RLV") g_iMenuRLV = TRUE;
             else if (sStr == "Main|Capture") g_iMenuKidnap = TRUE;
             else if (sStr == "Settings|Size/Position") g_lAdjusters = ["Position","Rotation","Size"];
-        } else if (num == MENUNAME_REMOVE) {
+        } else if (iNum == MENUNAME_REMOVE) {
             lParams = llParseString2List(sStr,["|"],[]);
             string sParentMenu = llList2String(lParams,0);
             string sSubMenu = llList2String(lParams,1);
@@ -247,11 +247,11 @@ default {
                 integer index = llListFindList(g_lApps,[sSubMenu]);
                 if (~index) g_lApps = llDeleteSubList(g_lApps,index,index);
             } else if (sSubMenu == "Size/Position") g_lAdjusters = [];
-        } else if (num == LINK_UPDATE) {
-            if (sStr == "LINK_DIALOG") LINK_DIALOG = sender;
-            else if (sStr == "LINK_RLV") LINK_RLV = sender;
-            else if (sStr == "LINK_SAVE") LINK_SAVE = sender;
-        } else if (num == DIALOG_RESPONSE) {
+        } else if (iNum == LINK_UPDATE) {
+            if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
+            else if (sStr == "LINK_RLV") LINK_RLV = iSender;
+            else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
+        } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
             if (~iMenuIndex) {
                 lParams = llParseString2List(sStr,["|"],[]);
@@ -307,8 +307,8 @@ default {
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
                 }
             }
-        } else if (num >= CMD_OWNER && num <= CMD_WEARER) UserCommand(num,sStr,kID,FALSE);
-        else if (num == LM_SETTING_RESPONSE) {
+        } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum,sStr,kID,FALSE);
+        else if (iNum == LM_SETTING_RESPONSE) {
             lParams = llParseString2List(sStr,["="],[]);
             string sToken = llList2String(lParams,0);
             string sValue = llList2String(lParams,1);
@@ -320,10 +320,10 @@ default {
             else if (sToken == g_sGlobalToken+"prefix") g_sPrefix = sValue;
             else if (sToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
             else if (sToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
-        } else if (num == DIALOG_TIMEOUT) {
+        } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
             g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
-        } else if (num == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
