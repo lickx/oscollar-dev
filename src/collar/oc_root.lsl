@@ -43,7 +43,7 @@ key g_kWearer;
 
 string g_sVersion = "6.7.0";
 
-string g_sThatToken = "global_";
+string g_sGlobalToken = "global_";
 string g_sAbout;
 string g_sDist;
 string g_sSafeword = "RED";
@@ -60,14 +60,14 @@ string TOK_QUOTE = "quote";
 list g_lTheseMenus;
 
 Dialog(key kID, string sContext, list lButtons, list lArrows, integer iPage, integer iAuth, string sName) {
-    key kThatMenu = llGenerateKey();
+    key kMenuID = llGenerateKey();
 
-llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kThatMenu);
+llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kMenuID);
     integer index = llListFindList(g_lTheseMenus,[kID]);
     if (~index) 
-        g_lTheseMenus = llListReplaceList(g_lTheseMenus,[kID,kThatMenu,sName],index,index + 2);
+        g_lTheseMenus = llListReplaceList(g_lTheseMenus,[kID,kMenuID,sName],index,index + 2);
     else 
-        g_lTheseMenus += [kID,kThatMenu,sName];
+        g_lTheseMenus += [kID,kMenuID,sName];
 }
 
 list g_lApps;
@@ -181,7 +181,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
             g_sQuotation = "";
             g_sQuoter = "";
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sThatToken + TOK_QUOTE, "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sGlobalToken + TOK_QUOTE, "");
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     }
 }
@@ -310,16 +310,16 @@ default {
         } else if (num >= CMD_OWNER && num <= CMD_WEARER) UserCommand(num,sStr,kID,FALSE);
         else if (num == LM_SETTING_RESPONSE) {
             lParams = llParseString2List(sStr,["="],[]);
-            string sThisToken = llList2String(lParams,0);
+            string sToken = llList2String(lParams,0);
             string sValue = llList2String(lParams,1);
-            if (sThisToken == g_sThatToken+"locked") g_iLocked = (integer)sValue;
-            else if (sThisToken == g_sThatToken+"safeword") g_sSafeword = sValue;
-            else if (sThisToken == "intern_dist") g_sDist = sValue;
-            else if (sThisToken == "intern_looks") g_iLooks = (integer)sValue;
-            else if (sThisToken == "channel") g_iChannel = (integer)sValue;
-            else if (sThisToken == g_sThatToken+"prefix") g_sPrefix = sValue;
-            else if (sThisToken == "QUOTE_quotation") g_sQuotation = sValue;
-            else if (sThisToken == "QUOTE_quoter") g_sQuoter = sValue;
+            if (sToken == g_sGlobalToken+"locked") g_iLocked = (integer)sValue;
+            else if (sToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
+            else if (sToken == "intern_dist") g_sDist = sValue;
+            else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
+            else if (sToken == "channel") g_iChannel = (integer)sValue;
+            else if (sToken == g_sGlobalToken+"prefix") g_sPrefix = sValue;
+            else if (sToken == "QUOTE_quotation") g_sQuotation = sValue;
+            else if (sToken == "QUOTE_quoter") g_sQuoter = sValue;
         } else if (num == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
             g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);

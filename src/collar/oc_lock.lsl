@@ -37,7 +37,7 @@ integer RLV_REFRESH = 6001;
 integer RLV_CLEAR = 6002;
 
 key g_kWearer;
-string g_sThatToken = "global_";
+string g_sGlobalToken = "global_";
 integer g_iLocked;
 integer g_iHidden;
 
@@ -124,8 +124,8 @@ default {
             if (sStr == "lock") {
                 if (iNum == CMD_OWNER || kID == g_kWearer ) {
                     g_iLocked = TRUE;
-                    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sThatToken+"locked=1","");
-                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sThatToken+"locked=1","");
+                    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"locked=1","");
+                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=1","");
                     llOwnerSay("@detach=n");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=n","main");
                     llPlaySound("73f3f84b-0447-487d-8246-4ab3e5fdbf40",1.0);
@@ -135,8 +135,8 @@ default {
             } else if (sStr == "runaway" || sStr == "unlock") {
                 if (iNum == CMD_OWNER)  {
                     g_iLocked = FALSE;
-                    llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sThatToken+"locked","");
-                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sThatToken+"locked=0","");
+                    llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sGlobalToken+"locked","");
+                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=0","");
                     llOwnerSay("@detach=y");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
                     llPlaySound("d64c3566-cf76-44b5-ae76-9aabf60efab8",1.0);
@@ -147,9 +147,9 @@ default {
             else if (sStr == "hide") g_iHidden = TRUE;
         } else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr,["="],[]);
-            string sThisToken = llList2String(lParams,0);
+            string sToken = llList2String(lParams,0);
             string sValue = llList2String(lParams,1);
-            if (sThisToken == g_sThatToken+"locked") {
+            if (sToken == g_sGlobalToken+"locked") {
                 g_iLocked = (integer)sValue;
                 if (g_iLocked) llOwnerSay("@detach=n");
                 ShowHideLock();
