@@ -303,8 +303,8 @@ default {
                     g_sQuotation = sButton;
                     llOwnerSay("\n\n"+g_sQuoter+" cites a quote in "+llKey2Name(g_kWearer)+
                                 "'s main menu:\n\n\""+g_sQuotation+"\"\n");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "QUOTE_" + "quoter=" + g_sQuoter, "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
                 }
             }
         } else if (num >= CMD_OWNER && num <= CMD_WEARER) UserCommand(num,sStr,kID,FALSE);
