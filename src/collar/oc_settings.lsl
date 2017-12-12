@@ -375,10 +375,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
             }
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     } else if (!llSubStringIndex(sStrLower,"save")) {
-        if (iAuth == CMD_OWNER) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nSaving settings to "+g_sCard+" card.\n",kID);
-            SaveSettings(kID);
-        }
+        if (iAuth == CMD_OWNER) SaveSettings(kID);
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
@@ -508,6 +505,7 @@ default {
                 string sNewSettings = osGetNotecard(g_sCard+".new");
                 osMakeNotecard(g_sCard, sNewSettings);
                 llRemoveInventory(g_sCard+".new");
+                llOwnerSay("\n\nSettings have been saved.\n\n");
             } else llOwnerSay("\n\nSaving settings is not supported in this region.\n\n");
         }
     }
