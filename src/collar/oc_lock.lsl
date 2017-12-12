@@ -13,6 +13,8 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
+
+ This file contains modifications by Lotek Ixtar
  
  */
 
@@ -36,138 +38,139 @@ integer RLV_CMD = 6000;
 integer RLV_REFRESH = 6001;
 integer RLV_CLEAR = 6002;
 
-key wearer;
-string that_token = "global_";
-integer locked;
-integer hidden;
+key g_kWearer;
+string g_sGlobalToken = "global_";
+integer g_iLocked;
+integer g_iHidden;
 
-list closed_locks;
-list open_locks;
-list closed_locks_glows;
-list open_locks_glows;
+list g_lClosedLocks;
+list g_lOpenLocks;
+list g_lClosedLocksGlows;
+list g_lOpenLocksGlows;
 
-show_hide_lock() {
-    if (hidden) return;
+ShowHideLock() {
+    if (g_iHidden) return;
     integer i;
-    integer links = llGetListLength(open_locks);
-    for (;i < links; ++i) {
-        llSetLinkAlpha(llList2Integer(open_locks,i),!locked,ALL_SIDES);
-        update_glows(llList2Integer(open_locks,i),!locked);
+    integer iLinks = llGetListLength(g_lOpenLocks);
+    for (;i < iLinks; ++i) {
+        llSetLinkAlpha(llList2Integer(g_lOpenLocks,i),!g_iLocked,ALL_SIDES);
+        UpdateGlows(llList2Integer(g_lOpenLocks,i),!g_iLocked);
     }
-    links = llGetListLength(closed_locks);
-    for (i=0; i < links; ++i) {
-        llSetLinkAlpha(llList2Integer(closed_locks,i),locked,ALL_SIDES);
-        update_glows(llList2Integer(closed_locks,i),locked);
+    iLinks = llGetListLength(g_lClosedLocks);
+    for (i=0; i < iLinks; ++i) {
+        llSetLinkAlpha(llList2Integer(g_lClosedLocks,i),g_iLocked,ALL_SIDES);
+        UpdateGlows(llList2Integer(g_lClosedLocks,i),g_iLocked);
     }
 }
 
-update_glows(integer link, integer alpha) {
-    list glows;
-    integer index;
-    if (alpha) {
-        glows = open_locks_glows;
-        if (locked) glows = closed_locks_glows;
-        index = llListFindList(glows,[link]);
-        if (!~index) llSetLinkPrimitiveParamsFast(link,[PRIM_GLOW,ALL_SIDES,llList2Float(glows,index+1)]);
+UpdateGlows(integer iLink, integer iAlpha) {
+    list lGlows;
+    integer iIndex;
+    if (iAlpha) {
+        lGlows = g_lOpenLocksGlows;
+        if (g_iLocked) lGlows = g_lClosedLocksGlows;
+        iIndex = llListFindList(lGlows,[iLink]);
+        if (!~iIndex) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
     } else {
-        float glow = llList2Float(llGetLinkPrimitiveParams(link,[PRIM_GLOW,0]),0);
-        glows = closed_locks_glows;
-        if (locked) glows = open_locks_glows;
-        index = llListFindList(glows,[link]);
-        if ((~index) && glow > 0) glows = llListReplaceList(glows,[glow],index+1,index+1);
-        if ((~index) && glow == 0) glows = llDeleteSubList(glows,index,index+1);
-        if (!(~index) && glow > 0) glows += [link,glow];
-        if (locked) open_locks_glows = glows;
-        else closed_locks_glows = glows;
-        llSetLinkPrimitiveParamsFast(link,[PRIM_GLOW,ALL_SIDES,0.0]);
+        float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+        lGlows = g_lClosedLocksGlows;
+        if (g_iLocked) lGlows = g_lOpenLocksGlows;
+        iIndex = llListFindList(lGlows,[iLink]);
+        if ((~iIndex) && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],iIndex+1,iIndex+1);
+        if ((~iIndex) && fGlow == 0) lGlows = llDeleteSubList(lGlows,iIndex,iIndex+1);
+        if (!(~iIndex) && fGlow > 0) lGlows += [iLink,fGlow];
+        if (g_iLocked) g_lOpenLocksGlows = lGlows;
+        else g_lClosedLocksGlows = lGlows;
+        llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,0.0]);
     }
 }
 
-failsafe() {
-    string name = llGetScriptName();
-    if (osIsUUID(name)) return;
-    if(name != "oc_lock") llRemoveInventory(name);
+Failsafe() {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if(sName != "oc_lock") llRemoveInventory(sName);
 }
 
-get_locks() {
-    open_locks = [];
-    closed_locks = [];
+GetLocks() {
+    g_lOpenLocks = [];
+    g_lClosedLocks = [];
     integer i = llGetNumberOfPrims();
-    string prim_name;
+    string sPrimName;
     for (;i > 1; --i) {
-        prim_name = (string)llGetLinkPrimitiveParams(i,[PRIM_NAME]);
-        if (prim_name == "Lock" || prim_name == "ClosedLock")
-            closed_locks += i;
-        else if (prim_name == "OpenLock")
-            open_locks += i;
+        sPrimName = (string)llGetLinkPrimitiveParams(i,[PRIM_NAME]);
+        if (sPrimName == "Lock" || sPrimName == "ClosedLock")
+            g_lClosedLocks += i;
+        else if (sPrimName == "OpenLock")
+            g_lOpenLocks += i;
     }
 }
 
 default {
     state_entry() {
         //llSetMemoryLimit(20480);
-        wearer = llGetOwner();
-        get_locks();
-        failsafe();
+        g_kWearer = llGetOwner();
+        GetLocks();
+        Failsafe();
     }
     on_rez(integer iStart) {
-        hidden = !(integer)llGetAlpha(ALL_SIDES);
-        failsafe();
+        g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
+        Failsafe();
     }
-    link_message(integer sender, integer num, string str, key id) {
-        if (num == LINK_UPDATE) {
-            if (str == "LINK_DIALOG") LINK_DIALOG = sender;
-            else if (str == "LINK_RLV") LINK_RLV = sender;
-            else if (str == "LINK_SAVE") LINK_SAVE = sender;
-        } else if (num >= CMD_OWNER && num <= CMD_WEARER) {
-            str = llToLower(str);
-            if (str == "lock") {
-                if (num == CMD_OWNER || id == wearer ) {
-                    locked = TRUE;
-                    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,that_token+"locked=1","");
-                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,that_token+"locked=1","");
+    link_message(integer iSender, integer iNum, string sStr, key kID) {
+        if (iNum == LINK_UPDATE) {
+            if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
+            else if (sStr == "LINK_RLV") LINK_RLV = iSender;
+            else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
+        } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) {
+            sStr = llToLower(sStr);
+            if (sStr == "lock") {
+                if (iNum == CMD_OWNER || kID == g_kWearer ) {
+                    g_iLocked = TRUE;
+                    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"locked=1","");
+                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=1","");
                     llOwnerSay("@detach=n");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=n","main");
                     llPlaySound("73f3f84b-0447-487d-8246-4ab3e5fdbf40",1.0);
-                    show_hide_lock();
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is locked.",id);
-                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);;
-            } else if (str == "runaway" || str == "unlock") {
-                if (num == CMD_OWNER)  {
-                    locked = FALSE;
-                    llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,that_token+"locked","");
-                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,that_token+"locked=0","");
+                    ShowHideLock();
+                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is locked.",kID);
+                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            } else if (sStr == "runaway" || sStr == "unlock") {
+                if (iNum == CMD_OWNER)  {
+                    g_iLocked = FALSE;
+                    llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sGlobalToken+"locked","");
+                    llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=0","");
                     llOwnerSay("@detach=y");
                     llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
                     llPlaySound("d64c3566-cf76-44b5-ae76-9aabf60efab8",1.0);
-                    show_hide_lock();
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is unlocked.",id);
-                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
-            } else if (str == "show") hidden = FALSE;
-            else if (str == "hide") hidden = TRUE;
-        } else if (num == LM_SETTING_RESPONSE) {
-            list params = llParseString2List(str,["="],[]);
-            string this_token = llList2String(params,0);
-            string value = llList2String(params,1);
-            if (this_token == that_token+"locked") {
-                locked = (integer)value;
-                if (locked) llOwnerSay("@detach=n");
-                show_hide_lock();
+                    ShowHideLock();
+                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is unlocked.",kID);
+                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            } else if (sStr == "show") g_iHidden = FALSE;
+            else if (sStr == "hide") g_iHidden = TRUE;
+        } else if (iNum == LM_SETTING_RESPONSE) {
+            list lParams = llParseString2List(sStr,["="],[]);
+            string sToken = llList2String(lParams,0);
+            string sValue = llList2String(lParams,1);
+            if (sToken == g_sGlobalToken+"locked") {
+                g_iLocked = (integer)sValue;
+                if (g_iLocked) llOwnerSay("@detach=n");
+                ShowHideLock();
             }
-        } else if (num == RLV_REFRESH || num == RLV_CLEAR) {
-            if (locked) llMessageLinked(LINK_RLV, RLV_CMD,"detach=n","main");
+        } else if (iNum == RLV_REFRESH || iNum == RLV_CLEAR) {
+            if (g_iLocked) llMessageLinked(LINK_RLV, RLV_CMD,"detach=n","main");
             else llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
-        } else if (num == REBOOT && str == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
-    changed(integer changes) {
-        if (changes & CHANGED_OWNER) llResetScript();
-        if (changes & CHANGED_LINK) get_locks();
-        if (changes & CHANGED_COLOR) {
-            integer new_hide = !(integer)llGetAlpha(ALL_SIDES);
-            if (hidden != new_hide) {
-                hidden = new_hide;
-                show_hide_lock();
+    changed(integer change) {
+        if (change & CHANGED_OWNER) llResetScript();
+        if (change & CHANGED_LINK) GetLocks();
+        if (change & CHANGED_COLOR) {
+            integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
+            if (g_iHidden != iNewHide) {
+                g_iHidden = iNewHide;
+                ShowHideLock();
             }
         }
     }
 }
+

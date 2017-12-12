@@ -13,6 +13,8 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
+
+ This file contains modifications by Lotek Ixtar
  
  */
 
@@ -25,62 +27,62 @@ integer REBOOT = -1000;
 integer LINK_DIALOG = 3;
 integer LINK_UPDATE = -10;
 
-integer hidden;
-list glowy;
+integer g_iHidden;
+list g_lGlowy;
 
-stealth (string str) {
-    if (str == "hide") hidden = TRUE;
-    else if (str == "show") hidden = FALSE;
-    else hidden = !hidden;
-    llSetLinkAlpha(LINK_SET,(float)(!hidden),ALL_SIDES);
-    integer count;
-    if (hidden) {
-        count = llGetNumberOfPrims();
-        float glow;
-        for (;count > 0; --count) {
-            glow = llList2Float(llGetLinkPrimitiveParams(count,[PRIM_GLOW,0]),0);
-            if (glow > 0) glowy += [count,glow];
+Stealth (string sStr) {
+    if (sStr == "hide") g_iHidden = TRUE;
+    else if (sStr == "show") g_iHidden = FALSE;
+    else g_iHidden = !g_iHidden;
+    llSetLinkAlpha(LINK_SET,(float)(!g_iHidden),ALL_SIDES);
+    integer iCount;
+    if (g_iHidden) {
+        iCount = llGetNumberOfPrims();
+        float fGlow;
+        for (;iCount > 0; --iCount) {
+            fGlow = llList2Float(llGetLinkPrimitiveParams(iCount,[PRIM_GLOW,0]),0);
+            if (fGlow > 0) g_lGlowy += [iCount,fGlow];
         }
         llSetLinkPrimitiveParamsFast(LINK_SET,[PRIM_GLOW,ALL_SIDES,0.0]);
     } else {
         integer i;
-        count = llGetListLength(glowy);
-        for (;i < count;i += 2)
-            llSetLinkPrimitiveParamsFast(llList2Integer(glowy,i),[PRIM_GLOW,ALL_SIDES,llList2Float(glowy,i+1)]);
-        glowy = [];
+        iCount = llGetListLength(g_lGlowy);
+        for (;i < iCount;i += 2)
+            llSetLinkPrimitiveParamsFast(llList2Integer(g_lGlowy,i),[PRIM_GLOW,ALL_SIDES,llList2Float(g_lGlowy,i+1)]);
+        g_lGlowy = [];
     }
 }
 
-failsafe() {
-    string name = llGetScriptName();
-    if (osIsUUID(name)) return;
-    if (name != "oc_stealth") llRemoveInventory(name);
+Failsafe() {
+    string sName = llGetScriptName();
+    if (osIsUUID(sName)) return;
+    if (sName != "oc_stealth") llRemoveInventory(sName);
 }
 
-init() {
-    hidden = !(integer)llGetAlpha(ALL_SIDES);
-    failsafe();
+Init() {
+    g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
+    Failsafe();
 }
 
 default {
     state_entry() {
-        init();
+        Init();
     }
-    on_rez(integer start) {
-        init();
+    on_rez(integer iStart) {
+        Init();
     }
-    link_message(integer sender, integer num, string str, key id) {
-        if (num == LINK_UPDATE &&  str == "LINK_DIALOG") LINK_DIALOG = sender;
+    link_message(integer iSender, integer iNum, string sStr, key kID) {
+        if (iNum == LINK_UPDATE &&  sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
         else {
-            string lowerstr = llToLower(str);
-            if (lowerstr == "hide" || lowerstr == "show" || lowerstr == "stealth") {
-                if (num == CMD_OWNER || num == CMD_WEARER) stealth(lowerstr);
-                else if (osIsUUID(id)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",id);
-            } else if (num == REBOOT && str == "reboot") llResetScript();
+            string sLowerstr = llToLower(sStr);
+            if (sLowerstr == "hide" || sLowerstr == "show" || sLowerstr == "stealth") {
+                if (iNum == CMD_OWNER || iNum == CMD_WEARER) Stealth(sLowerstr);
+                else if (osIsUUID(kID)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         }
     }
-    changed(integer changes) {
-        if (changes & CHANGED_OWNER) llResetScript();
-        if (changes & CHANGED_INVENTORY) failsafe();
+    changed(integer iChange) {
+        if (iChange & CHANGED_OWNER) llResetScript();
+        if (iChange & CHANGED_INVENTORY) Failsafe();
     }
 }
