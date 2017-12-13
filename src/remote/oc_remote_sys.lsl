@@ -422,7 +422,7 @@ default {
                      i =  llGetListLength(lAgents);
                      do {
                         kID = llList2Key(lAgents,--i);
-                        if (kID != g_kOwner && !~llListFindList(g_lPartners,[(string)kID]) && !osIsNpc(kID)) {
+                        if (kID != g_kOwner && !(~llListFindList(g_lPartners,[(string)kID])) && !osIsNpc(kID)) {
                             if (llGetListLength(g_lListeners) < 60) {//Only 65 listens can simultaneously be open in any single script (SL wiki)
                                 iChannel = PersonalChannel(kID,0);
                                 g_lListeners += [llListen(iChannel, "", "", "" )] ;
