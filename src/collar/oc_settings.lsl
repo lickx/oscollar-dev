@@ -89,10 +89,16 @@ integer LM_SETTING_RESPONSE = 2002;
 integer LM_SETTING_DELETE = 2003;
 integer LM_SETTING_EMPTY = 2004;
 
+integer LM_CUFF_SET = -551010;
+integer SETTING_CUFFS_SAVE = 2000;
+integer SETTING_CUFFS_DELETE = 2003;
+list CUFFS_GROUPS = ["auth","color","texture","shininess"];
+
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer LINK_DIALOG = 3;
 integer LINK_UPDATE = -10;
+integer LINK_CUFFS = -1;
 integer REBOOT = -1000;
 integer LOADPIN = -1904;
 integer g_iRebootConfirmed;
@@ -399,6 +405,7 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(llGetNumberOfPrims()),[OBJECT_CREATOR])];
         FailSafe(0);
+        if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
         // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
         g_kWearer = llGetOwner();
@@ -467,6 +474,10 @@ default {
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
             g_lSettings = SetSetting(g_lSettings, sToken, sValue);
+            if (LINK_CUFFS) {
+                lParams = llParseString2List(sStr, ["_"], []);
+                if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
+            }
         }
         else if (iNum == LM_SETTING_REQUEST) {
              //check the cache for the token
@@ -475,8 +486,13 @@ default {
                 llSetTimerEvent(2.0);
             } else llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_EMPTY, sStr, "");
         }
-        else if (iNum == LM_SETTING_DELETE) DelSetting(sStr);
-        else if (iNum == 451 && kID == "sec") FailSafe(1);
+        else if (iNum == LM_SETTING_DELETE) {
+            DelSetting(sStr);
+            if (LINK_CUFFS) {
+                list lParams = llParseString2List(sStr, ["_"], []);
+                if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
+            }
+        } else if (iNum == 451 && kID == "sec") FailSafe(1);
         else if (iNum == DIALOG_RESPONSE && kID == g_kConfirmDialogID) {
             list lMenuParams = llParseString2List(sStr, ["|"], []);
             kID = llList2Key(lMenuParams,0);
@@ -490,8 +506,9 @@ default {
             llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(),llGetKey());
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
+            else if (sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
-        }
+        } else if (iNum == LM_CUFF_SET && sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
     }
 
     timer() {
@@ -528,3 +545,4 @@ default {
         }
     }
 }
+
