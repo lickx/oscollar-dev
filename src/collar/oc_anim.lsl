@@ -426,7 +426,7 @@ UserCommand(integer iNum, string sStr, key kID) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The default hover was reset.",kID);
             llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
             g_fStandHover = 0.0;
-            if (g_iRLVA_ON && g_iHoverOn && g_lAnims == [])
+            if (g_iRLVA_ON && g_iHoverOn && llGetListLength(g_lAnims) == 0)
                 llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0.0=force",g_kWearer);
         } else SetHover(sCommand);
     } else if (sStr == "runaway" && (iNum == CMD_OWNER || iNum == CMD_WEARER)) {
