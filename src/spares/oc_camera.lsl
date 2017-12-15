@@ -54,7 +54,7 @@
 //allows owner to set different camera mode
 //responds to commands from modes list
 
-string g_sAppVersion = "¹⋅³";
+string g_sAppVersion = "1.3";
 
 key g_kWearer;
 integer g_iLastNum;
@@ -250,7 +250,7 @@ LockCam() {
 }
 
 CamMenu(key kID, integer iAuth) {
-    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion+"\nhttp://www.opencollar.at/camera.html\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
+    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
     integer stop = llGetListLength(llJson2List(g_sJsonModes));

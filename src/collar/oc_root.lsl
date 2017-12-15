@@ -47,7 +47,7 @@ integer RLV_CLEAR = 6002;
 
 key g_kWearer;
 
-string g_sVersion = "6.7.0";
+string g_sVersion = "6.8.0";
 
 string g_sGlobalToken = "global_";
 string g_sAbout;
@@ -112,10 +112,8 @@ MenuSettings(key kID, integer iAuth) {
     string sContext = "\nSettings";
     list lButtons = ["Print","Load","Save","Fix"];
     lButtons += g_lAdjusters;
-    if (llGetInventoryType("oc_stealth") == INVENTORY_SCRIPT) {
-        if (g_iHidden) lButtons += ["☑ Stealth"];
-        else lButtons += ["☐ Stealth"];
-    } else lButtons += ["-"];
+    if (g_iHidden) lButtons += ["☑ Stealth"];
+    else lButtons += ["☐ Stealth"];
     if (g_iLooks) lButtons += "Looks";
     else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
         lButtons += "Themes";
@@ -467,6 +465,7 @@ default {
         llSetTimerEvent(0.0);
     }
 }
+
 
 
 

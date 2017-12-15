@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅³";
+string g_sAppVersion = "1.3";
 
 string  g_sSubMenu              = "Bookmarks"; // Name of the submenu
 string  g_sParentMenu          = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
