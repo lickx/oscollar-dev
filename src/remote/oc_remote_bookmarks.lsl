@@ -107,7 +107,7 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 }
 
 DoMenu() {
-    string sPrompt = "\n[http://www.opencollar.at/bookmarks.html Remote Bookmarks]\t"+g_sAppVersion;
+    string sPrompt = "\nRemote Bookmarks\t"+g_sAppVersion;
     list lMyButtons = PLUGIN_BUTTONS + g_lDestinations + g_lVolatile_Destinations;
     string sCancel;
     if (llGetListLength(lMyButtons) % 3) sCancel = "Cancel";
@@ -479,3 +479,4 @@ default {
 */
     }
 }
+

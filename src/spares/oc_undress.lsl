@@ -54,7 +54,7 @@
 
 //gives menus for clothing and attachment, stripping and locking
 
-string g_sAppVersion = "¹⋅³";
+string g_sAppVersion = "1.3";
 
 string g_sSubMenu = "Un/Dress";
 string g_sParentMenu = "RLV";
@@ -250,7 +250,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
 
 MainMenu(key kID, integer iAuth)
 {
-    string sPrompt = "\nLegacy Un/dress\t"+g_sAppVersion+"\nhttp://www.opencollar.at/undress.html";
+    string sPrompt = "\nLegacy Un/dress\t"+g_sAppVersion;
     if (g_iAllLocked) sPrompt += "\n\nAll clothes and attachments are currently locked.";
     list lButtons;
     if (!g_iAllLocked) lButtons += ["☐ Lock All","Lock Clothing","Lock Attach."];

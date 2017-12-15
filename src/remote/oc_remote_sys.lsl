@@ -54,11 +54,7 @@
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
 string g_sVersion = "170818.1";
-string g_sFancyVersion = "⁶⋅⁶⋅⁰";
-integer g_iUpdateAvailable;
-key g_kWebLookup;
-integer g_iToday;
-integer g_iLastDay;
+string g_sFancyVersion = "6.8.0";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -206,9 +202,8 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 }
 
 MainMenu(){
-    string sPrompt = "\n[http://www.opencollar.at/remote.html OpenCollar Remote]\t"+g_sFancyVersion;
+    string sPrompt = "\nOpenCollar Remote\t"+g_sFancyVersion;
     sPrompt += "\n\nSelected Partner: "+NameURI(g_sActivePartnerID);
-    if (g_iUpdateAvailable) sPrompt += "\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates";
     list lButtons = g_lMainMenuButtons + g_lMenus;
     Dialog(sPrompt, lButtons, [], 0, g_sMainMenu);
 }
@@ -299,11 +294,6 @@ default {
     state_entry() {
         g_kOwner = llGetOwner();
         FailSafe();
-        g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
-        if (g_iToday % 2) {
-            g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~remote", [HTTP_METHOD, "GET"],"");
-        }
         llSleep(1.0);//giving time for others to reset before populating menu
         if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
@@ -317,14 +307,6 @@ default {
         g_iPicturePrim = PicturePrim();
         NextPartner(0,0);
         MainMenu();
-    }
-
-    on_rez(integer iStart) {
-        g_iToday = (integer)llGetSubString(llGetDate(),-2,-1);
-        if (g_iToday != g_iLastDay && g_iToday % 2) {
-            g_iLastDay = g_iToday;
-            g_kWebLookup = llHTTPRequest("https://raw.githubusercontent.com/lickx/opencollar-os/oscollar6/web/~remote",[HTTP_METHOD,"GET"],"");
-        }
     }
 
     touch_start(integer iNum) {
@@ -523,14 +505,6 @@ default {
         }
     }
 
-    http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
-        if (iStatus != 200) return;
-        if (kRequestID == g_kWebLookup) {
-            if ((float)sBody > (float)g_sVersion) g_iUpdateAvailable = TRUE;
-            else g_iUpdateAvailable = FALSE;
-        }
-    }
-
     object_rez(key kID) {
         llSleep(0.5); // make sure object is rezzed and listens
         if (g_sActivePartnerID == g_sAllPartners)
@@ -554,3 +528,4 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
+

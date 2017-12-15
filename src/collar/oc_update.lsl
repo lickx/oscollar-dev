@@ -45,7 +45,7 @@ key g_kMenuID;
 Failsafe() {
     string sName = llGetScriptName();
     if(osIsUUID(sName)) return;
-    if((g_iUpstream && sName != "oc_update")) llRemoveInventory(sName);
+    if(sName != "oc_update") llRemoveInventory(sName);
 }
 
 default {

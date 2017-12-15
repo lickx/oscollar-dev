@@ -193,7 +193,6 @@ integer g_iMenuStride = 3;
 // Use any variable name you desire
 string MENU = "DoMenu";
 string QUICKMENU = "FirstMenu";
-integer g_iUpdateAvailable = FALSE;
 key g_kWebLookup;
 key g_kCollarID;
 
@@ -220,8 +219,7 @@ DoMenu(key id, integer page) {
     list lButtons;
     string prompt;
     if(llGetAttached()) { // -- If we're attached... ANYWHERE, display the menu
-        prompt = "\n[http://www.opencollar.at/ao.html OpenCollar AO]\t"+fancyVersion;
-        if (g_iUpdateAvailable) prompt += "\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\nwww.opencollar.at/updates";
+        prompt = "\nOsCollar ZHAO\t"+fancyVersion;
         //new for locking feature 
         if (isLocked) lButtons += [UNLOCK];
         else lButtons += [LOCK];
@@ -535,14 +533,7 @@ default {
             }
         }
     }
-    /*
-    http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
-        if (kRequestID == g_kWebLookup && iStatus == 200)  {
-            if ((float)sBody > g_fBuildVersion) g_iUpdateAvailable = TRUE;
-            else g_iUpdateAvailable = FALSE;
-        }
-    }
-    */
+
     attach( key _k ) {
         if ( _k != NULL_KEY ) {
             if( isAttachedToHUD() )
@@ -559,3 +550,4 @@ default {
         }
     }
 }
+

@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "¹⋅¹";
+string g_sAppVersion = "1.1";
 
 string g_sParentMenu = "RLV";
 
@@ -202,7 +202,7 @@ Menu(key kID, integer iAuth, string sMenuName) {
     list lButtons;
 
     n=llListFindList(g_lMenuHelpMap,[sMenuName]);
-    if (~n) sPrompt="\n[http://www.opencollar.at/legacy-rlv.html Legacy RLV "+llList2String(g_lMenuHelpMap,n+1)+"]\n";
+    if (~n) sPrompt="\nLegacy RLV "+llList2String(g_lMenuHelpMap,n+1)+"\n";
 
     integer iStop = llGetListLength(g_lRLVcmds);
     for (n = 0; n < iStop; n+=g_lRLVcmds_stride) {
