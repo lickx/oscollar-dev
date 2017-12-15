@@ -21,7 +21,7 @@
 //                    |     .'    ~~~~       \    / :                       //
 //                     \.. /               `. `--' .'                       //
 //                        |                  ~----~                         //
-//                           Titler - 171204.1                              //
+//                           Titler - 171214.2                              //
 // ------------------------------------------------------------------------ //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,    //
 //  Satomi Ahn, Kisamin, Joy Stipe, Wendy Starfall, littlemousy,            //
@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------ //
 //////////////////////////////////////////////////////////////////////////////
 
-string g_sAppVersion = "²⋅⁰";
+string g_sAppVersion = "²⋅¹";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
@@ -133,6 +133,8 @@ Debug(string sStr) {
 string MakeGraph(integer iPercent, string sTitle) {
     string sResult = (string)iPercent+"% "+sTitle+"\n";
     integer iSlots = llRound(iPercent / 10);
+    if (iPercent <= 100) iSlots = llRound(iPercent / 10);
+    else iSlots = 11;
     integer i;
     for (i = 0; i < iSlots; i++) {
         sResult = sResult + "█";
@@ -239,7 +241,11 @@ UserCommand(integer iAuth, string sStr, key kAv) {
             } else {
                 g_iOn = TRUE;
                 if (sCommand == "graph") {
-                    g_sText = MakeGraph((integer) sAction, llList2String(lParams,2));
+                    if (sAction == "0" || (integer)sAction) {
+                        g_sText = MakeGraph((integer) sAction, llDumpList2String(llDeleteSubList(lParams, 0, 1), " "));
+                    } else {
+                        g_sText = MakeGraph(0, llDumpList2String(llDeleteSubList(lParams, 0, 0), " "));
+                    }
                 }
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"title="+g_sText, "");
             }
