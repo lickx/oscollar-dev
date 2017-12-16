@@ -56,7 +56,7 @@
 //show/hide for elements named: Bell
 //2009-01-30 Cleo Collins - 1. draft
 
-string g_sAppVersion = "¹⋅¹";
+string g_sAppVersion = "1.1";
 
 string g_sSubMenu = "Bell";
 string g_sParentMenu = "Apps";
@@ -488,3 +488,4 @@ default {
 */
     }
 }
+
