@@ -252,7 +252,7 @@ NextPartner(integer iDirection, integer iTouch) {
         integer iDot = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), ".");
         integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
         // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
-        if (iDot && iAt) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
+        if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
         if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     } else if (g_sActivePartnerID == g_sAllPartners)
@@ -299,7 +299,7 @@ default {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             g_kCardID = llGetInventoryKey(g_sCard);
         } else {
-            llOwnerSay("\n\nYou are probably wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");    
+            llOwnerSay("\n\nYou are probably wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");
         }
         g_iListener=llListen(PersonalChannel(g_kOwner,0),"","",""); //lets listen here
         g_iCmdListener = llListen(g_iChannel,"",g_kOwner,"");
@@ -469,7 +469,7 @@ default {
 
     timer() {
         integer iTimeStamp = llGetUnixTime();
-        
+
         if (g_iAddPartnerTimer && iTimeStamp >= g_iAddPartnerTimer) {
             g_iAddPartnerTimer = 0;
             if (llGetListLength(g_lNewPartnerIDs)) AddPartnerMenu();
@@ -480,7 +480,7 @@ default {
                 llListenRemove(llList2Integer(g_lListeners,n));
             g_lListeners = [];
         }
-        
+
         if (g_iSaveCardTimer) {
             if (llGetInventoryKey("test")!=NULL_KEY) {
                 // test ok, we are allowed osMakeNotecard(), so replace the card
@@ -490,7 +490,7 @@ default {
                 llRemoveInventory("test"); // this will force CHANGED_INVENTORY to re-read the card
             } else if (iTimeStamp >= g_iSaveCardTimer) g_iSaveCardTimer = 0;
         }
-        
+
         if (!g_iAddPartnerTimer && !g_iSaveCardTimer) llSetTimerEvent(0);
     }
 
@@ -528,4 +528,3 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
-
