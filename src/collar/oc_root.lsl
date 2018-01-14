@@ -47,14 +47,12 @@ integer RLV_CLEAR = 6002;
 
 key g_kWearer;
 
-string g_sVersion = "6.8.0";
+string g_sVersion = "6.8.1";
 
 string g_sGlobalToken = "global_";
 string g_sAbout;
 string g_sDist;
 string g_sSafeword = "RED";
-integer g_iChannel = 1;
-string g_sPrefix;
 integer g_iLocked;
 integer g_iHidden;
 integer g_iLooks;
@@ -86,8 +84,8 @@ MenuRoot(key kID, integer iAuth) {
     if (g_iLocked) sContext += "🔒 ";
     else sContext += "🔓 ";
     sContext += "O  s  C  o  l  l  a  r    "+g_sVersion;
-    sContext += "\n\n• Prefix: "+g_sPrefix;
-    sContext += "\n• Channel: "+(string)g_iChannel;
+    sContext += "\n\n• Prefix: %PREFIX%";
+    sContext += "\n• Channel: %CHANNEL%";
     sContext += "\n• Safeword: "+g_sSafeword;
     if (g_sQuotation!="") {
         sContext += "\n\n“"+osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
@@ -315,7 +313,6 @@ MakeMenus() {
 
 Init() {
     g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
-    g_sPrefix = llToLower(llGetSubString(llKey2Name(llGetOwner()), 0, 1));
     GetLocks();
     Failsafe();
     llSetTimerEvent(1.0);
@@ -429,8 +426,6 @@ default {
             } else if (sToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
             else if (sToken == "intern_dist") g_sDist = sValue;
             else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
-            else if (sToken == "channel") g_iChannel = (integer)sValue;
-            else if (sToken == g_sGlobalToken+"prefix") g_sPrefix = sValue;
             else if (sToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
             else if (sToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
         } else if (iNum == DIALOG_TIMEOUT) {
