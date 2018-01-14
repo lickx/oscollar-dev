@@ -59,6 +59,7 @@ integer g_iLooks;
 string g_sQuoter;
 string g_sQuotation;
 string g_sQuoteToken = "quote_";
+key g_kInstallerID;
 
 list g_lMenus;
 
@@ -215,6 +216,13 @@ Stealth (string sStr) {
     }
 }
 
+Update(){
+    integer iPin = (integer)llFrand(99999998.0) + 1;
+    llSetRemoteScriptAccessPin(iPin);
+    integer iChanInstaller = -7483213;
+    llRegionSayTo(g_kInstallerID,iChanInstaller,"ready|"+(string)iPin);
+}
+
 UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
     list lParams = llParseString2List(sStr,[" "],[]);
     string sCmd = llToLower(llList2String(lParams,0));
@@ -333,7 +341,10 @@ default {
     }
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         list lParams;
-        if (iNum == MENUNAME_RESPONSE) {
+        if (!llSubStringIndex(sStr,".- ... -.-") && kID == g_kWearer) {
+            g_kInstallerID = (key)llGetSubString(sStr,-36,-1);
+            Dialog(kID,"Ready to install?",["Yes", "No", "Cancel"],[],0,iNum,"Patch");
+        } else if (iNum == MENUNAME_RESPONSE) {
             lParams = llParseString2List(sStr,["|"],[]);
             string sParentMenu = llList2String(lParams,0);
             string sSubMenu = llList2String(lParams,1);
@@ -412,6 +423,9 @@ default {
                                 "'s main menu:\n\n\""+g_sQuotation+"\"\n");
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
+                } else if (sMenu == "Patch") {
+                    if (sButton == "Yes") Update();
+                    else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"cancelled",kID);
                 }
             }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum,sStr,kID,FALSE);
