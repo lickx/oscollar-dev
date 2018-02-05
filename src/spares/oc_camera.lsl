@@ -250,7 +250,7 @@ LockCam() {
 }
 
 CamMenu(key kID, integer iAuth) {
-    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
+    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion + "\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
     integer stop = llGetListLength(llJson2List(g_sJsonModes));
@@ -275,7 +275,7 @@ SaveSetting(string sToken) {
 ChatCamParams(integer iChannel, key kID) {
     g_vCamPos = llGetCameraPos();
     g_rCamRot = llGetCameraRot();
-    string sPosLine = osReplaceString((string)g_vCamPos, " ", "", -1, 0) + " " + osReplaceString((string)g_rCamRot, " ", "", -1, 0); 
+    string sPosLine = osReplaceString((string)g_vCamPos, " ", "", -1, 0) + " " + osReplaceString((string)g_rCamRot, " ", "", -1, 0);
     //if not channel 0, say to whole region.  else just say locally
     if (iChannel)
         llRegionSayTo(kID, iChannel, sPosLine);
