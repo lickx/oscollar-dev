@@ -1,4 +1,6 @@
 
+//  oc_update_shim.lsl
+//
 //  Copyright (c) 2011 - 2017 Nandana Singh, Satomi Ahn, Wendy Starfall,
 //  littlemousy, Sumi Perl, Garvin Twine et al.
 //

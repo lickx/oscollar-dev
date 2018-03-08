@@ -1,30 +1,92 @@
+/*------------------------------------------------------------------------------
 
-//  oc_themes.lsl
-//
-//  Copyright (c) 2008 - 2017 Nandana Singh, Lulu Pink, Garvin Twine,
-//  Cleo Collins, Master Starship, Joy Stipe, Wendy Starfall, littlemousy,
-//  Romka Swallowtail et al.
-//
-//  This script is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published
-//  by the Free Software Foundation, version 2.
-//
-//  This script is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
-//
+ Looks/Themes, Build 45
 
-// Based on a merge of all OpenCollar appearance plugins by littlemousy
-// Virtual Disgrace - Paint is derivate of Virtual Disgrace - Customize
-// OpenCollar - styles is derivative of Virtual Disgrace - Paint
+ Wendy's OpenCollar Distribution
+ https://github.com/wendystarfall/opencollar
 
-// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+--------------------------------------------------------------------------------
 
-integer g_iBuild = 43;
+ OpenCollar v1.000 - v3.600 (OpenCollar - submission set free):
+
+ Copyright © 2008, 2009, 2010 Cleo Collins, Garvin Twine, Lulu Pink,
+ Master Starship, Nandana Singh, et al.
+
+ The project in its original form concluded on October 19, 2011. Everything past
+ this date is a derivative of OpenCollar's original SVN trunk from Google Code.
+
+--------------------------------------------------------------------------------
+
+ OpenCollar v3.700 - v3.720 (nirea's ocupdater):
+
+ Copyright © 2011 nirea, Satomi Ahn
+
+ https://github.com/OpenCollarUpdates/ocupdater/commits/release
+
+--------------------------------------------------------------------------------
+
+ OpenCollar v3.750 - v3.809 (Satomi's OpenCollarUpdates):
+
+ Copyright © 2012 Satomi Ahn
+
+ https://github.com/OpenCollarUpdates/ocupdater/commits/3.8
+ https://github.com/OpenCollarUpdates/ocupdater/commits/beta
+
+--------------------------------------------------------------------------------
+
+ OpenCollar v3.809 - v3.843 (Joy's OpenCollar Evolution):
+
+ Copyright © 2013 Joy Stipe
+
+ https://github.com/JoyStipe/ocupdater/commits/Project_Evolution
+
+--------------------------------------------------------------------------------
+
+ OpenCollar v3.844 - v3.998 (Wendy's OpenCollar API 3.9):
+
+ Copyright © 2013 Wendy Starfall
+ Copyright © 2014 littlemousy, Romka Swallowtail, Wendy Starfall
+
+ https://github.com/OpenCollar/opencollar/commits/master
+ https://github.com/WendyStarfall/opencollar/commits/master
+
+--------------------------------------------------------------------------------
+
+ Virtual Disgrace Collar v1.0.0 - v2.1.1 (virtualdisgrace.com):
+
+ Copyright © 2011, 2012, 2013 Wendy Starfall
+ Copyright © 2014 littlemousy, Wendy Starfall
+
+ https://github.com/WendyStarfall/opencollar/commits/master
+ https://github.com/VirtualDisgrace/opencollar/commits/master
+
+--------------------------------------------------------------------------------
+
+ OpenCollar v4.0.0 - v6.7.5 - Peanut build 9 (virtualdisgrace.com):
+
+ Copyright © 2015, 2016, 2017, 2018 Garvin Twine, Wendy Starfall
+
+ https://github.com/VirtualDisgrace/opencollar/commits/master
+ https://github.com/WendyStarfall/opencollar/commits/master
+
+--------------------------------------------------------------------------------
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, see www.gnu.org/licenses/gpl-2.0
+
+------------------------------------------------------------------------------*/
+
+integer g_iBuild = 45;
 
 list g_lElements;
 list g_lElementFlags;
@@ -103,7 +165,7 @@ ThemeMenu(key kID, integer iAuth, integer iPage) {
         lButtons += llList2List(g_lThemes,i,i);
         i=i+2;
     }
-    Dialog(kID, "\nThemes\n\nChoose a visual theme for your %DEVICETYPE%.\n", lButtons, ["BACK"], iPage, iAuth, "ThemeMenu~themes");
+    Dialog(kID, "\n[http://www.opencollar.at/themes.html Themes]\n\nChoose a visual theme for your %DEVICETYPE%.\n", lButtons, ["BACK"], iPage, iAuth, "ThemeMenu~themes");
     lButtons=[];
 }
 
@@ -125,7 +187,7 @@ TextureMenu(key kID, integer iPage, integer iAuth, string sElement) {
     integer iNumTextures=llGetListLength(g_lTextures);
     while (iNumTextures--) {
         string sTextureName=llList2String(g_lTextures,iNumTextures);
-        if (llListFindList(lElementTextures,[sTextureName])==-1) {
+        if (llListFindList(lElementTextures,[sTextureName]) == -1) {
             if (!llSubStringIndex(sTextureName,sTexElement+"~")) {
                 lElementTextures+=llList2String(g_lTextureShortNames,iNumTextures);
                 if ((!iCustomTextureFound) && llGetListLength(lElementTextures) ) {
@@ -209,6 +271,8 @@ BuildTexturesList() {
     }
     g_sTextureCard = "!textures";
     if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard=".textures";
+    if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard="textures_custom";
+    if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard="textures";
     if(llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) {
         g_iTexturesNotecardLine=0;
         g_kTextureCardUUID=llGetInventoryKey(g_sTextureCard);
@@ -222,7 +286,7 @@ BuildElementsList(){
     integer iLinkNum = llGetNumberOfPrims()+1;
     while (iLinkNum-- > 2) {
         string sElement = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
-        if ((~llSubStringIndex(llToLower(sElement),"floattext")) || (~llSubStringIndex(llToLower(sElement),"leashpoint"))) {
+        if (~llSubStringIndex(llToLower(sElement),"floattext") || ~llSubStringIndex(llToLower(sElement),"leashpoint")) {
         } else if (sElement != "" && sElement != "(No Description)") {
             list lParams = llParseString2List(llStringTrim(sElement,STRING_TRIM), ["~"], []);
             string sElementName = llList2String(lParams,0);
@@ -258,7 +322,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
         return;
     }
     list lParams = llParseString2List(sStrLower, [" "], []);
-    if ((~llListFindList(g_lCommands, [llList2String(lParams,0)])) || (llList2String(lParams,0)=="menu" && (~llListFindList(g_lCommands, [llList2String(lParams,1)]))) ) {
+    if (~llListFindList(g_lCommands, [llList2String(lParams,0)]) || (llList2String(lParams,0)=="menu" && ~llListFindList(g_lCommands, [llList2String(lParams,1)])) ) {
         if (kID == g_kWearer || iNum == CMD_OWNER) {
             lParams = llParseString2List(sStr, [" "], []);
             string sCommand=llToLower(llList2String(lParams,0));
@@ -275,16 +339,14 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     llMessageLinked(LINK_ROOT,601,"themes "+sElement,g_kWearer);
                     g_iThemePage = iPage;
                     g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,g_iThemesNotecardLine);
-                } else if (g_kThemesCardUUID != NULL_KEY) {
+                } else if (g_kThemesCardUUID) {
                     if (g_iThemesReady) ThemeMenu(kID,iNum,iPage);
                     else {
                         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Themes still loading...",kID);
                         if (g_iLooks) LooksMenu(kID, iNum);
                         else llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
                     }
-                } else {
-                    Dialog(kID,"\n⚠ This %DEVICETYPE% has no dedicated themes configured for it\n\nYou can [Uninstall] the themes plugin to save resources\nor you can use the [Looks] menu to fine-tune your %DEVICETYPE%\n\nATTENTION:\n\nDevices that are properly configured for [Looks] don't show this warning. Please use [Looks] responsibly in this case as it could alter your %DEVICETYPE% permanently\n\nIn case of doubt simply [Uninstall] this plugin ❤\n\nwww.opencollar.at/themes",[],["Uninstall","Looks","BACK"],0,iNum,"NoThemesMenu");
-                }
+                } else LooksMenu(kID,iNum);
             } else if (sCommand == "looks") LooksMenu(kID,iNum);
             else if (sCommand == "menu") ElementMenu(kID, 0, iNum, sElement);
             else if (sCommand == "shiny") {
@@ -298,8 +360,10 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     while (iLinkCount-- > 2) {
                         string sLinkType=LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
-                            // OpenSim doesn't support PRIM_SPECULAR (yet) so we only support traditional shiny
-                            if (iShiny < 4 ) llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_BUMP_SHINY,ALL_SIDES,iShiny,0]);
+                            if (iShiny < 4 )
+                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)NULL_KEY, <1,1,0>,<0,0,0>,0.0,<1,1,1>,0,0,PRIM_BUMP_SHINY,ALL_SIDES,iShiny,0]);
+                            else
+                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)TEXTURE_BLANK, <1,1,0>,<0,0,0>,0.0,<1,1,1>,80,2]);
                         }
                     }
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "shininess_" + sElement + "=" + (string)iShiny, "");
@@ -349,17 +413,17 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     if (~iDefaultTextureIndex) sTextureShortName = llList2String(g_lTextureDefaults, iDefaultTextureIndex + 1);
                 }
                 integer iTextureIndex=llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);
-                if (osIsUUID(sTextureShortName)) iTextureIndex = 0;
-                else if (! (~iTextureIndex))
+                if ((key)sTextureShortName) iTextureIndex = 0;
+                else if (iTextureIndex == -1)
                     iTextureIndex = llListFindList(g_lTextures,[sTextureShortName]);
                 if (sTextureShortName == "") {
                     TextureMenu(kID, 0, iNum, sStr);
-                } else if (iTextureIndex==-1) {
+                } else if (iTextureIndex == -1) {
                     llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"Sorry! The \""+sTextureShortName+"\" texture doesn't fit on this particular element, please try another.",kID);
                     if (reMenu) TextureMenu(kID, 0, iNum, sCommand+" "+sElement);
                 } else {
                     string sTextureKey;
-                    if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
+                    if ((key)sTextureShortName) sTextureKey=sTextureShortName;
                     else sTextureKey= llList2String(g_lTextureKeys,iTextureIndex);
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {
@@ -392,10 +456,8 @@ default {
         BuildTexturesList();
         BuildElementsList();
         BuildThemesList();
-    }
-
-    on_rez(integer iStart) {
-        if (llGetOwner() != g_kWearer) llResetScript();
+        llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_SAVE,"intern_looks=1","");
+        llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,"intern_looks=1","");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -481,7 +543,7 @@ default {
                     string sTextureName=llStringTrim(llList2String(lThisLine,0),STRING_TRIM);
                     string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
                     if ( ~llListFindList(g_lTextures,[sTextureName])) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" is in the %DEVICETYPE% AND the notecard.  %DEVICETYPE% texture takes priority.",g_kWearer);
-                    else if(kTextureKey!=NULL_KEY) {
+                    else if((key)kTextureKey) {
                         if(llStringLength(sShortName) > 23) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" in textures notecard too long, dropping.",g_kWearer);
                         else {
                             g_lTextures+=sTextureName;
@@ -566,9 +628,9 @@ default {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
             if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
-            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = NULL_KEY;
+            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID == "";
             if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();
-            else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = NULL_KEY;
+            else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = "";
         }
     }
 }

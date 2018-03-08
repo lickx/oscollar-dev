@@ -1,4 +1,6 @@
 
+//  oc_camera.lsl
+//
 //  Copyright (c) 2011 - 2016 Nandana Singh, Wendy Starfall, Medea Destiny,
 //  littlemousy, Romka Swallowtail, Garvin Twine et al.
 //

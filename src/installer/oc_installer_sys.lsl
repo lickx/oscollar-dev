@@ -1,4 +1,6 @@
 
+//  oc_installer_sys.lsl
+//
 //  Copyright (c) 2011 - 2016 Nandana Singh, Satomi Ahn, DrakeSystem,
 //  Wendy Starfall, littlemousy, Romka Swallowtail, Garvin Twine et al.
 //
@@ -314,6 +316,4 @@ default {
 
     }
 }
-
-
 

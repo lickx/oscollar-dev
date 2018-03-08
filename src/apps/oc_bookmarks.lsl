@@ -1,4 +1,6 @@
 
+//  oc_bookmarks.lsl
+//
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Wendy Starfall,
 //  Sumi Perl, Master Starship, littlemousy, mewtwo064, ml132,
 //  Romka Swallowtail, Garvin Twine et al.
@@ -18,69 +20,60 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
+integer g_iBuild = 6;
 string g_sAppVersion = "1.3";
 
-string  g_sSubMenu              = "Bookmarks"; // Name of the submenu
-string  g_sParentMenu          = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
-string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
-string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
-integer IN_DEBUG_MODE               = FALSE;    // set to TRUE to enable Debug messages
-string  g_sCard                     = ".bookmarks"; //Name of the notecards to store destinations.
+string g_sSubMenu = "Bookmarks";
+string g_sParentMenu = "Apps";
+string PLUGIN_CHAT_CMD = "tp";
+string PLUGIN_CHAT_CMD_ALT = "bookmarks";
+string g_sCard = ".bookmarks";
 
-list   g_lDestinations                = []; //Destination list direct from static notecard
-list   g_lDestinations_Slurls         = []; //Destination list direct from static notecard
-list   g_lVolatile_Destinations       = []; //These are in memory preferences that are not yet saved into the notecard
-list   g_lVolatile_Slurls             = []; //These are in memory preferences that are not yet saved into the notecard
-key    g_kRequestHandle               = NULL_KEY; //Sim Request Handle to convert global coordinates
-vector g_vLocalPos                    = ZERO_VECTOR;
-//key    g_kRemoveMenu                  = NULL_KEY; //Use a separate key for the remove menu ID
-integer g_iRLVOn                      = FALSE; //Assume RLV is off until we hear otherwise
-string g_tempLoc                      = "";   //This holds a global temp location for manual entry from provided location but no favorite name - g_kTBoxIdLocationOnly
+list g_lDestinations;
+list g_lDestinations_Slurls;
+list g_lVolatile_Destinations;
+list g_lVolatile_Slurls;
+key g_kRequestHandle;
+vector g_vLocalPos;
+integer g_iRLVOn;
+string g_tempLoc;
 
-list g_lMenuIDs;//3-strided list of avkey, dialogid, menuname
+list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-key     g_kWearer;
+key g_kWearer;
 
-string  g_sSettingToken             = "bookmarks_";
-//string g_sGlobalToken             = "global_";
-key     g_kDataID;
-integer g_iLine = 0;
-string  UPMENU                      = "BACK";
-key     g_kCommander;
+string  g_sSettingToken = "bookmarks_";
+key g_kDataID;
+integer g_iLine;
+string UPMENU = "BACK";
+key g_kCommander;
 
-list    PLUGIN_BUTTONS              = ["SAVE", "PRINT", "REMOVE"];
+list PLUGIN_BUTTONS = ["SAVE", "PRINT", "REMOVE"];
 
-//MESSAGE MAP
-//integer CMD_ZERO                  = 0;
-integer CMD_OWNER                   = 500;
-//integer CMD_TRUSTED               = 501;
-integer CMD_GROUP                   = 502;
-integer CMD_WEARER                  = 503;
-//integer CMD_EVERYONE              = 504;
-//integer CMD_RLV_RELAY             = 507;
-//integer CMD_SAFEWORD              = 510;
-//integer CMD_BLOCKED               = 520;
+integer CMD_OWNER = 500;
+integer CMD_GROUP = 502;
+integer CMD_WEARER = 503;
 
-integer NOTIFY                     = 1002;
-//integer SAY                        = 1004;
-integer REBOOT                     = -1000;
-integer LINK_DIALOG                = 3;
-integer LINK_RLV                   = 4;
-integer LINK_SAVE                  = 5;
-integer LINK_UPDATE                = -10;
-integer LM_SETTING_SAVE            = 2000;
-integer LM_SETTING_RESPONSE        = 2002;
-integer LM_SETTING_DELETE          = 2003;
-integer MENUNAME_REQUEST           = 3000;
-integer MENUNAME_RESPONSE          = 3001;
-integer MENUNAME_REMOVE            = 3003;
-integer RLV_CMD                    = 6000;
-integer RLV_OFF                    = 6100;
-integer RLV_ON                     = 6101;
-integer DIALOG                     = -9000;
-integer DIALOG_RESPONSE            = -9001;
-integer DIALOG_TIMEOUT             = -9002;
+integer NOTIFY = 1002;
+integer REBOOT = -1000;
+integer LINK_DIALOG = 3;
+integer LINK_RLV = 4;
+integer LINK_SAVE = 5;
+integer LINK_UPDATE = -10;
+integer LM_SETTING_SAVE = 2000;
+integer LM_SETTING_RESPONSE = 2002;
+integer LM_SETTING_DELETE = 2003;
+integer MENUNAME_REQUEST = 3000;
+integer MENUNAME_RESPONSE = 3001;
+integer MENUNAME_REMOVE = 3003;
+integer RLV_CMD = 6000;
+integer RLV_OFF = 6100;
+integer RLV_ON = 6101;
+integer DIALOG = -9000;
+integer DIALOG_RESPONSE = -9001;
+integer DIALOG_TIMEOUT = -9002;
+integer BUILD_REQUEST = 17760501;
 
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sMenuType) {
     key kMenuID = llGenerateKey();
@@ -97,26 +90,17 @@ DoMenu(key keyID, integer iAuth) {
 }
 
 UserCommand(integer iNum, string sStr, key kID) {
-    list lParams = llParseString2List(sStr, [" "], []);
-    // So commands can accept a value
     if (sStr == "reset") {
-        // it is a request for a reset
-        if(iNum == CMD_WEARER || iNum == CMD_OWNER)
-            //only owner and wearer may reset
-            llResetScript();
+        if(iNum == CMD_WEARER || iNum == CMD_OWNER) llResetScript();
     } else if (sStr == "rm bookmarks") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         else Dialog(kID,"\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iNum,"rmbookmarks");
-    }else if(sStr == PLUGIN_CHAT_CMD || llToLower(sStr) == "menu " + PLUGIN_CHAT_CMD_ALT || llToLower(sStr) == PLUGIN_CHAT_CMD_ALT) {
-        if (iNum==CMD_GROUP)
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        // an authorized user requested the plugin menu by typing the menus chat command
-        DoMenu(kID, iNum);
-    } else if(llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " save") - 1) == PLUGIN_CHAT_CMD + " save") {           if (iNum==CMD_GROUP){
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        }
-//grab partial string match to capture destination name
-        if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " save")) {
+    } else if (sStr == PLUGIN_CHAT_CMD || llToLower(sStr) == "menu " + PLUGIN_CHAT_CMD_ALT || llToLower(sStr) == PLUGIN_CHAT_CMD_ALT) {
+        if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else DoMenu(kID, iNum);
+    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD+" save")-1) == PLUGIN_CHAT_CMD+" save") {
+        if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " save")) {
             string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " save") + 1, -1), STRING_TRIM);
             if(llListFindList(g_lVolatile_Destinations, [sAdd]) >= 0 || llListFindList(g_lDestinations, [sAdd]) >= 0)
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This destination name is already taken",kID);
@@ -125,7 +109,6 @@ UserCommand(integer iNum, string sStr, key kID) {
                 addDestination(sAdd, slurl, kID);
             }
         } else {
-            // Notify that they need to give a description of the saved destination ie. <prefix>bookmarks save description
             Dialog(kID,
 "Enter a name for the destination below. Submit a blank field to cancel and return.
 You can enter:
@@ -133,9 +116,8 @@ You can enter:
 2) A new location or SLurl", [], [], 0, iNum,"TextBoxIdSave");
 
         }
-    } else if (llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " remove") - 1) == PLUGIN_CHAT_CMD + " remove") { //grab partial string match to capture destination name
-        if (iNum==CMD_GROUP)
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD+" remove")-1) == PLUGIN_CHAT_CMD+" remove") {
+        if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         else if (llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " remove")) {
             string sDel = llStringTrim(llGetSubString(sStr,  llStringLength(PLUGIN_CHAT_CMD + " remove"), -1), STRING_TRIM);
             if (llListFindList(g_lVolatile_Destinations, [sDel]) < 0) {
@@ -150,58 +132,48 @@ You can enter:
             }
         } else
             Dialog(kID, "Select a bookmark to be removed...", g_lVolatile_Destinations, [UPMENU], 0, iNum,"RemoveMenu");
-    } else if (llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " print") - 1) == PLUGIN_CHAT_CMD + " print") { //grab partial string match to capture destination name
-        if (iNum==CMD_GROUP)
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD+" print")-1) == PLUGIN_CHAT_CMD+" print") {
+        if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         else PrintDestinations(kID);
-    } else if (llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD) - 1) == PLUGIN_CHAT_CMD) {
-        if (iNum==CMD_GROUP)
+    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD)-1) == PLUGIN_CHAT_CMD) {
+        if (iNum == CMD_GROUP) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            return;
+        }
         string sCmd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD) + 1, -1), STRING_TRIM);
         g_kCommander = kID;
         if (llListFindList(g_lVolatile_Destinations, [sCmd]) >= 0) {
             integer iIndex = llListFindList(g_lVolatile_Destinations, [sCmd]);
             TeleportTo(llList2String(g_lVolatile_Slurls, iIndex));
-        } else if (llListFindList(g_lDestinations, [sCmd]) >= 0) { //Found exact match, TP over
+        } else if (llListFindList(g_lDestinations, [sCmd]) >= 0) {
             integer iIndex = llListFindList(g_lDestinations, [sCmd]);
             TeleportTo(llList2String(g_lDestinations_Slurls, iIndex));
-        } else if (llStringLength(sCmd) > 0) { // We didn't get a case sensitive match, so lets loop through what we know and try find what we need
+        } else if (llStringLength(sCmd) > 0) {
             integer i;
             integer iEnd = llGetListLength(g_lDestinations);
             string sDestination;
-            integer found = 0;
+            integer iFound;
             list matchedBookmarks;
-            for (; i < iEnd; i++) { //First check OC locations
+            for (; i < iEnd; i++) {
                 sDestination = llList2String(g_lDestinations, i);
                 if(llSubStringIndex(llToLower(sDestination), llToLower(sCmd)) >= 0) {
-                    //store it, if we only find one, we'll go there
-                    found += 1;
+                    iFound += 1;
                     matchedBookmarks += sDestination;
                 }
             }
-            i = 0;
             iEnd = llGetListLength(g_lVolatile_Destinations);
-            for(i = 0; i < iEnd; i++) { //Then check volatile destinations
+            for(i = 0; i < iEnd; i++) {
                 sDestination = llList2String(g_lVolatile_Destinations, i);
                 if(llSubStringIndex(llToLower(sDestination), llToLower(sCmd)) >= 0) {
-                    //store it, if we only find one, we'll go there
-                    found += 1;
+                    iFound += 1;
                     matchedBookmarks += sDestination;
                 }
             }
-            if(found == 0) {
-                //old hud command compatibility: 'o:176382.800000/261210.900000/3503.276000=force'
-                //if (llSubStringIndex(sCmd,"o:") == 0) llMessageLinked(LINK_SET, RLV_CMD, "tpt"+sCmd, kID);// (enable this to support hud forcetp.  disabled now since rlvtp still does this
-                //else
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The bookmark '" + sCmd + "' has not been found in the %DEVICETYPE% of %WEARERNAME%.",kID);
-            } else if(found > 1)
-                Dialog(kID, "More than one matching bookmark was found in the %DEVICETYPE% of %WEARERNAME%.\nChoose a bookmark to teleport to.", matchedBookmarks, [UPMENU], 0, iNum,"choose bookmark");
-            else  //exactly one matching LM found, so use it
-                UserCommand(iNum, PLUGIN_CHAT_CMD + " " + llList2String(matchedBookmarks, 0), g_kCommander); //Push matched result to command
+            if (!iFound) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The bookmark '" + sCmd + "' has not been found in the %DEVICETYPE% of %WEARERNAME%.",kID);
+            else if (iFound > 1) Dialog(kID, "More than one matching bookmark was found in the %DEVICETYPE% of %WEARERNAME%.\nChoose a bookmark to teleport to.", matchedBookmarks, [UPMENU], 0, iNum,"choose bookmark");
+            else UserCommand(iNum, PLUGIN_CHAT_CMD + " " + llList2String(matchedBookmarks, 0), g_kCommander);
         }
-        //Can't find in list, lets try find substring matches
-        else
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I didn't understand your command.",kID);
+        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I didn't understand your command.",kID);
     }
 }
 
@@ -217,7 +189,6 @@ addDestination(string sMessage, string sLoc, key kID) {
 }
 
 string FormatRegionName() {
-    //Formatting to regionname(x,x,x)
     string region = llGetRegionName();
     vector pos = llGetPos();
     string posx = (string)llRound(pos.x);
@@ -226,7 +197,7 @@ string FormatRegionName() {
     return (region + "(" + posx + "," + posy + "," + posz + ")");
 }
 
-string convertSlurl(string sStr, key kAv, integer iAuth) {  //convert the slurl http strings to region (xxx,xxx,xxx)
+string convertSlurl(string sStr) {
     sStr = llStringTrim(llUnescapeURL(sStr), STRING_TRIM);
     string sIndex = "http:";
     list lPieces =  llParseStringKeepNulls(sStr, ["/"], []);
@@ -235,64 +206,61 @@ string convertSlurl(string sStr, key kAv, integer iAuth) {  //convert the slurl 
     integer iHttpInString = llSubStringIndex(llList2String(lPieces, 0), sIndex);
     if(iHttpInString > 0)
         sStringToKeep = llGetSubString(llList2String(lPieces, 0), 0, iHttpInString - 1);
-    if(llGetListLength(lPieces) == 8) {
+    if (llGetListLength(lPieces) == 8) {
         string sRegion = llList2String(lPieces, iHttploc + 4);
         string sLocationx = llList2String(lPieces, iHttploc + 5);
         string sLocationy = llList2String(lPieces, iHttploc + 6);
         string sLocationz = llList2String(lPieces, iHttploc + 7);
         sStr = sStringToKeep + sRegion + "(" + sLocationx + "," + sLocationy + "," + sLocationz + ")";
-        //Debug("Converted slurl, sending for processing..." + sStr);
-        return sStr; //successful conversion, send converted string assembly
+        return sStr;
     }
-    //Debug("No slurl detected, sending for processing anyways :" + sStr);
-    return sStr; //failed conversion, send raw string assuming there's no Slurls
+    return sStr;
 }
 
-integer isInteger(string input) { //for validating location scheme
+integer isInteger(string input) {
     return ((string)((integer)input) == input);
 }
 
 integer validatePlace(string sStr, key kAv, integer iAuth) {
-    //Debug("validatePlaces working on: "+sStr);
     list lPieces;
-    integer MAX_CHAR_TYPE = 2; //we use +1 due since we're counting with a list split.  We can only accept 1 of each of the following: ()~
+    integer MAX_CHAR_TYPE = 2;
     string sAssembledLoc;
     string sRegionName;
     string sFriendlyName;
     sStr = llStringTrim(sStr, STRING_TRIM);
-    lPieces = llParseStringKeepNulls(sStr, ["~"], []); // split location from friendly name
-    if(llGetListLength(lPieces) == MAX_CHAR_TYPE) {   //We have a tilde, so make sure the friendly name is good
-        if(llStringLength(llList2String(lPieces, 0)) < 1) { return 2;} //make sure friendly name isn't empty
-        sFriendlyName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM); //assign friendly name
-        lPieces = llParseStringKeepNulls(llList2String(lPieces, 1), ["("], []); // split location from friendly name
-    } else if(llGetListLength(lPieces) > MAX_CHAR_TYPE) { return 1; } //too many tildes, retreat
-    else { lPieces = llParseStringKeepNulls(llList2String(lPieces, 0), ["("], []); } // We don't have a friendly name, so let's ignore that for now and split at 0
-    if(llGetListLength(lPieces) == MAX_CHAR_TYPE) {    //Check to see we don't have extra ('s - this might also mean there's no location coming...
-        if(llStringLength(llList2String(lPieces, 0)) < 1) { return 4;} //make sure region name isn't empty
-        sRegionName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM); //trim off whitespace from region name
-    } else if(llGetListLength(lPieces) > MAX_CHAR_TYPE) {return 3; } //this location looks wrong, retreat
-    else  { //there's no location here, kick out new menu
+    lPieces = llParseStringKeepNulls(sStr, ["~"], []);
+    if (llGetListLength(lPieces) == MAX_CHAR_TYPE) {
+        if(llStringLength(llList2String(lPieces, 0)) < 1) return 2;
+        sFriendlyName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM);
+        lPieces = llParseStringKeepNulls(llList2String(lPieces, 1), ["("], []);
+    } else if (llGetListLength(lPieces) > MAX_CHAR_TYPE) return 1;
+    else lPieces = llParseStringKeepNulls(llList2String(lPieces, 0), ["("], []);
+    if (llGetListLength(lPieces) == MAX_CHAR_TYPE) {
+        if(llStringLength(llList2String(lPieces, 0)) < 1) return 4;
+        sRegionName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM);
+    } else if (llGetListLength(lPieces) > MAX_CHAR_TYPE) return 3;
+    else  {
         UserCommand(iAuth, PLUGIN_CHAT_CMD + " save " + sStr, kAv);
         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
         return 0;
     }
-    //we're left with sFriendlyname,sRegionName,["blah","123,123)"] - so lets validate the last list item
-    sAssembledLoc = llStringTrim("(" + llList2String(lPieces, 1), STRING_TRIM); //reattach the bracket we lost, clean up whitespace
-    lPieces = llParseStringKeepNulls(sAssembledLoc, [","], []); // split location from friendly name
-    if(llGetListLength(lPieces) != 3) { return 5; }  //Check to see we don't have extra ,'s
-    if(llGetSubString(sAssembledLoc, 0, 0) != "(") { return 6; } //location doesn't start with (
-    if(llGetSubString(sAssembledLoc, llStringLength(sAssembledLoc) - 1, llStringLength(sAssembledLoc) - 1) != ")") { return 7; } //location doesn't end with )
-    lPieces = llParseStringKeepNulls(llGetSubString(sAssembledLoc, 1, llStringLength(sAssembledLoc) - 2), [","], []); // lPieces should be a list of 3 sets of numbers
+    sAssembledLoc = llStringTrim("(" + llList2String(lPieces, 1), STRING_TRIM);
+    lPieces = llParseStringKeepNulls(sAssembledLoc, [","], []);
+    if (llGetListLength(lPieces) != 3) return 5;
+    if (llGetSubString(sAssembledLoc, 0, 0) != "(") return 6;
+    if (llGetSubString(sAssembledLoc, llStringLength(sAssembledLoc) - 1, llStringLength(sAssembledLoc) - 1) != ")") return 7;
+    lPieces = llParseStringKeepNulls(llGetSubString(sAssembledLoc, 1, llStringLength(sAssembledLoc) - 2), [","], []);
     integer i;
-    for(; i <= llGetListLength(lPieces)-1; ++i) { //run through this number list to make sure each character is numeric
+    for (; i <= llGetListLength(lPieces)-1; ++i) {
         integer y = 0;
         integer z = llStringLength(llList2String(lPieces, i)) - 1;
-        for(y = 0; y <= z; ++y) {
-            if(isInteger(llGetSubString(llList2String(lPieces, i), y, y)) != 1) { return 8; } //something left in here isn't an integer
+        for (y = 0; y <= z; ++y) {
+            if (isInteger(llGetSubString(llList2String(lPieces, i), y, y)) != 1)
+                 return 8;
         }
     }
-    if(sFriendlyName == "") {
-        g_tempLoc = sRegionName + sAssembledLoc; //assign a global for use in response menu
+    if (sFriendlyName == "") {
+        g_tempLoc = sRegionName + sAssembledLoc;
         Dialog(kAv,
 "\nEnter a name for the destination " + sRegionName + sAssembledLoc + "
 below.\n- Submit a blank field to cancel and return.", [], [], 0, iAuth,"TextBoxIdLocation");
@@ -304,28 +272,25 @@ below.\n- Submit a blank field to cancel and return.", [], [], 0, iAuth,"TextBox
     return 0;
 }
 
-ReadDestinations() {  // On inventory change, re-read our .bookmarks notecard
+ReadDestinations() {
     g_lDestinations = [];
     g_lDestinations_Slurls = [];
-    //start re-reading the notecards
     g_iLine = 0;
     if(llGetInventoryKey(g_sCard)!=NULL_KEY)
         g_kDataID = llGetNotecardLine(g_sCard, 0);
 }
 
-TeleportTo(string sStr) {  //take a string in region (x,y,z) format, and retrieve global coordinates.  The teleport takes place in the data server section
+TeleportTo(string sStr) {
     string sRegion = llStringTrim(llGetSubString(sStr, 0, llSubStringIndex(sStr, "(") - 1), STRING_TRIM);
     string sCoords = llStringTrim(llGetSubString(sStr, llSubStringIndex(sStr, "(") + 1 , llStringLength(sStr) - 2), STRING_TRIM);
     list tokens = llParseString2List(sCoords, [","], []);
-    // Extract local X, Y and Z
     g_vLocalPos.x = llList2Float(tokens, 0);
     g_vLocalPos.y = llList2Float(tokens, 1);
     g_vLocalPos.z = llList2Float(tokens, 2);
-    // Request info about the sim
-    if(g_iRLVOn == FALSE)   //If we don't have RLV, we can just send to llMapDestination for a popup
-        llMapDestination(sRegion, g_vLocalPos, ZERO_VECTOR);
-    else  //We've got RLV, let's use it
+    if (g_iRLVOn)
         g_kRequestHandle = llRequestSimulatorData(sRegion, DATA_SIM_POS);
+    else
+        llMapDestination(sRegion, g_vLocalPos, ZERO_VECTOR);
 }
 
 PrintDestinations(key kID) {  // On inventory change, re-read our ~destinations notecard
@@ -358,42 +323,34 @@ default {
     }
 
     state_entry() {
-        g_kWearer = llGetOwner();  // store key of wearer
-        ReadDestinations(); //Grab our presets
-        //Debug("Starting");
+        g_kWearer = llGetOwner();
+        ReadDestinations();
     }
 
     dataserver(key kID, string sData) {
         if(kID == g_kRequestHandle) {
-            // Parse the dataserver response (it is a vector cast to a string)
             list tokens = llParseString2List(sData, ["<", ",", ">"], []);
             string pos_str;
             vector global_pos;
-            // The coordinates given by the dataserver are the ones of the
-            // South-West corner of this sim
-            // => offset with the specified local coordinates
             global_pos.x = llList2Float(tokens, 0);
             global_pos.y = llList2Float(tokens, 1);
             global_pos.z = llList2Float(tokens, 2);
             global_pos += g_vLocalPos;
-            // Build the command
             pos_str = (string)((integer)global_pos.x)
                       + "/" + (string)((integer)global_pos.y)
                       + "/" + (string)((integer)global_pos.z);
-            //Debug("Global position : "+(string)pos_str);
-            // Pass command to main
-            if(g_iRLVOn) {
+            if (g_iRLVOn) {
                 string sRlvCmd = "tpto:" + pos_str + "=force";
                 llMessageLinked(LINK_RLV, RLV_CMD, sRlvCmd, g_kCommander);
             }
         }
-        if(kID == g_kDataID) {
+        if (kID == g_kDataID) {
             list split;
-            if(sData != EOF) {
+            if (sData != EOF) {
                 if(llGetSubString(sData, 0, 2) != "") {
                     sData = llStringTrim(sData, STRING_TRIM);
                     split = llParseString2List(sData, ["~"], []);
-                    if(! ~llListFindList(g_lDestinations, [llStringTrim(llList2String(split, 0), STRING_TRIM)])){
+                    if (!~llListFindList(g_lDestinations, [llStringTrim(llList2String(split, 0), STRING_TRIM)])){
                         g_lDestinations += [ llStringTrim(llList2String(split, 0), STRING_TRIM) ];
                         g_lDestinations_Slurls += [ llStringTrim(llList2String(split, 1), STRING_TRIM) ];
                         if (llGetListLength(g_lDestinations) == 30) return;
@@ -406,14 +363,13 @@ default {
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
-        //     Debug((string)iSender + "|" + (string)iNum + "|" + sStr + "|" + (string)kID);
         if(iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
-        else if(iNum == RLV_OFF)
+        else if (iNum == RLV_OFF)
             g_iRLVOn = FALSE;
-        else if(iNum == RLV_ON)
+        else if (iNum == RLV_ON)
             g_iRLVOn = TRUE;
-        else if(iNum == LM_SETTING_RESPONSE) {
+        else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
@@ -430,61 +386,56 @@ default {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (iMenuIndex != -1) {
                 list lMenuParams = llParseStringKeepNulls(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0); // avatar using the menu
-                string sMessage = llList2String(lMenuParams, 1); // button label
-                integer iPage = (integer)llList2String(lMenuParams, 2); // menu page
-                integer iAuth = (integer)llList2String(lMenuParams, 3); // auth level of avatar
-                list lParams =  llParseStringKeepNulls(sStr, ["|"], []);
+                key kAv = (key)llList2String(lMenuParams, 0);
+                string sMessage = llList2String(lMenuParams, 1);
+                integer iAuth = (integer)llList2String(lMenuParams, 3);
                 string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
                 g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
-                if(sMenuType == "TextBoxIdLocation") {
+                if (sMenuType == "TextBoxIdLocation") {
                     if(sMessage != " ")
                         addDestination(sMessage, g_tempLoc, kID);
                     UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
-                } else if(sMenuType == "TextBoxIdSave") {
-                    //Debug("TBoxIDSave " + sMessage);
+                } else if (sMenuType == "TextBoxIdSave") {
                     if(sMessage != " ")
-                        validatePlace(convertSlurl(sMessage, kAv, iAuth), kAv, iAuth);
+                        validatePlace(convertSlurl(sMessage),kAv,iAuth);
                     else
                         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
-                } else if(sMenuType == "RemoveMenu") {
-                    //       Debug("|"+sMessage+"|");
-                    if(sMessage == UPMENU) {
+                } else if (sMenuType == "RemoveMenu") {
+                    if (sMessage == UPMENU)
                         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
-                        return;
-                    }
-                    if(sMessage != "") {
-                        //got a menu response meant for us. pull out values
+                    else if (sMessage != "") {
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " remove " + sMessage, kAv);
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " remove", kAv);
                     } else { UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv); }
-                } else if(sMessage == UPMENU) {
+                } else if (sMessage == UPMENU)
                     llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
-                } else if (sMenuType == "rmbookmarks") {
+                else if (sMenuType == "rmbookmarks") {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
                         if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
-                } else if(~llListFindList(PLUGIN_BUTTONS, [sMessage])) {
-                    if(sMessage == "SAVE")
+                } else if (~llListFindList(PLUGIN_BUTTONS, [sMessage])) {
+                    if (sMessage == "SAVE")
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " save", kAv);
-                    else if(sMessage == "REMOVE")
+                    else if (sMessage == "REMOVE")
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " remove", kAv);
-                    else if(sMessage == "PRINT") {
+                    else if (sMessage == "PRINT") {
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " print", kAv);
                         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
                     }
-                } else if(~llListFindList(g_lDestinations + g_lVolatile_Destinations, [sMessage]))
+                } else if (~llListFindList(g_lDestinations + g_lVolatile_Destinations, [sMessage]))
                     UserCommand(iAuth, PLUGIN_CHAT_CMD + " " + sMessage, kAv);
             }
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == DIALOG_TIMEOUT) {
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
+        else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);  //remove stride from g_lMenuIDs
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 

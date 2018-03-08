@@ -1,4 +1,8 @@
 
+//  oc_resizer2.lsl
+//
+//  Note: unported to OpenSim
+//
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,
 //  Cleo Collins, Master Starship, Joy Stipe, Wendy Starfall, littlemousy,
 //  Romka Swallowtail et al.
@@ -18,14 +22,12 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-// Based on a split of OpenCollar - appearance by Romka Swallowtail
-// Virtual Disgrace - Resizer is derivative of OpenCollar - adjustment
+integer g_iBuild = 12;
 
 string g_sSubMenu = "Size/Position";
-string g_sParentMenu = "Apps";
-//string g_sParentMenu = "Settings";
+string g_sParentMenu = "Settings";
 
-list g_lMenuIDs;//3-strided list of avkey, dialogid, menuname
+list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
 string RESTORE = "Restore";
@@ -40,42 +42,21 @@ string SIZEMENU = "Size";
 float g_fSmallNudge=0.0005;
 float g_fMediumNudge=0.005;
 float g_fLargeNudge=0.05;
-float g_fNudge=0.005; // g_fMediumNudge;
+float g_fNudge=0.005;
 float g_fRotNudge;
 
-// SizeScale
+list SIZEMENU_BUTTONS = [ "-1%", "-2%", "-5%", "-10%", "+1%", "+2%", "+5%", "+10%", "100%" ];
+list g_lSizeFactors = [-1, -2, -5, -10, 1, 2, 5, 10, -1000];
+list g_lPrimStartSizes;
+integer g_iScaleFactor = 100;
+integer g_iSizedByScript;
 
-list SIZEMENU_BUTTONS = [ "-1%", "-2%", "-5%", "-10%", "+1%", "+2%", "+5%", "+10%", "100%" ]; // buttons for menu
-list g_lSizeFactors = [-1, -2, -5, -10, 1, 2, 5, 10, -1000]; // actual size factors
-list g_lPrimStartSizes; // area for initial prim sizes (stored on rez)
-integer g_iScaleFactor = 100; // the size on rez is always regarded as 100% to preven problem when scaling an item +10% and than - 10 %, which would actuall lead to 99% of the original size
-integer g_iSizedByScript = FALSE; // prevent reseting of the script when the item has been chnged by the script
-
-//MESSAGE MAP
-//integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
-//integer CMD_TRUSTED = 501;
-//integer CMD_GROUP = 502;
 integer CMD_WEARER = 503;
-//integer CMD_EVERYONE = 504;
-//integer CMD_RLV_RELAY = 507;
-//integer CMD_SAFEWORD = 510;
-//integer CMD_RELAY_SAFEWORD = 511;
-//integer CMD_BLOCKED = 520;
 
 integer NOTIFY = 1002;
-//integer SAY = 1004;
-
-integer LM_SETTING_SAVE = 2000;
-//integer LM_SETTING_REQUEST = 2001;
-integer LM_SETTING_RESPONSE = 2002;
-integer LM_SETTING_DELETE = 2003;
-//integer LM_SETTING_EMPTY = 2004;
-integer REBOOT              = -1000;
-integer LINK_DIALOG         = 3;
-integer LINK_SAVE           = 5;
-integer LINK_UPDATE = -10;
-
+integer REBOOT = -1000;
+integer LINK_DIALOG = 3;
 integer MENUNAME_REQUEST = 3000;
 integer MENUNAME_RESPONSE = 3001;
 integer MENUNAME_REMOVE = 3003;
@@ -83,20 +64,15 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
+integer BUILD_REQUEST = 17760501;
 
 string UPMENU = "BACK";
 
 key g_kWearer;
 
-string g_sSettingToken = "resizer";
-//string g_sGlobalToken = "global_";
-
-list g_lPresets = [] ;  // [sName, "vScale/vPos/vRot"]
-
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
-    //Debug("Made menu.");
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
     if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, sMenuType];
@@ -127,7 +103,6 @@ integer MinMaxScaled(vector vSize, float fScale) {
     }
     return FALSE;
 }
-
 
 Store_StartScaleLoop() {
     g_lPrimStartSizes = [];
@@ -164,10 +139,9 @@ ScalePrimLoop(integer iScale, integer iRezSize, key kAV) {
         } else if (MinMaxScaled(fScale * vSize, fScale) || !iRezSize) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The object cannot be scaled as you requested; prims would surpass minimum or maximum size.",kAV);
             return;
-        } else llSetScale(fScale * vSize); // not linked prim
+        } else llSetScale(fScale * vSize);
     } else {
         if  (!iRezSize) {
-            // first some checking
             for (iPrimIndex = 1; iPrimIndex <= llGetNumberOfPrims(); iPrimIndex++ ) {
                 lPrimParams = llGetLinkPrimitiveParams( iPrimIndex, [PRIM_SIZE, PRIM_POSITION]);
                 vPrimScale = llList2Vector(g_lPrimStartSizes, (iPrimIndex  - 1)*2);
@@ -198,7 +172,6 @@ ScalePrimLoop(integer iScale, integer iRezSize, key kAV) {
 }
 
 ForceUpdate() {
-     //workaround for https://jira.secondlife.com/browse/VWR-1168
     llSetText(".", <1,1,1>, 1.0);
     llSetText("", <1,1,1>, 1.0);
 }
@@ -245,7 +218,7 @@ RotMenu(key kAv, integer iAuth) {
 
 PosMenu(key kAv, integer iAuth) {
     string sPrompt = "\nHere you can nudge the %DEVICETYPE% in place.\n\nCurrent nudge strength is: ";
-    list lMyButtons = ["left ←", "up ↑", "forward ↳", "right →", "down ↓", "backward ↲"];// ria iChange
+    list lMyButtons = ["left ←", "up ↑", "forward ↳", "right →", "down ↓", "backward ↲"];
     if (g_fNudge!=g_fSmallNudge) lMyButtons+=["▁"];
     else sPrompt += "▁";
     if (g_fNudge!=g_fMediumNudge) lMyButtons+=["▁ ▂"];
@@ -332,33 +305,28 @@ Delete(string sName, key kAv) {
     }
 }
 
-UserCommand(integer iNum, string sStr, key kID) {
-    list lParams = llParseString2List(sStr, [" "], []);
-    string sCommand = llToLower(llList2String(lParams, 0));
-    string sValue = llList2String(lParams, 1);
-    if (sCommand == "menu" && sValue == g_sSubMenu) {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) {
+UserCommand(integer iAuth, string sStr, key kID) {
+    sStr = llToLower(sStr);
+    if (sStr == "menu "+llToLower(g_sSubMenu)) {
+        if (kID != g_kWearer && iAuth != CMD_OWNER) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-            llMessageLinked(LINK_SET, iNum, "menu " + g_sParentMenu, kID);
-        } else DoMenu(kID, iNum);
+            llMessageLinked(LINK_SET, iAuth, "menu " + g_sParentMenu, kID);
+        } else DoMenu(kID, iAuth);
     } else if (sStr == "appearance") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else DoMenu(kID, iNum);
+        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else DoMenu(kID, iAuth);
     } else if (sStr == "rotation") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else RotMenu(kID, iNum);
+        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else RotMenu(kID, iAuth);
     } else if (sStr == "position") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else PosMenu(kID, iNum);
+        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else PosMenu(kID, iAuth);
     } else if (sStr == "size") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else SizeMenu(kID, iNum);
+        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else SizeMenu(kID, iAuth);
     } else if (sStr == "rm resizer") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else Dialog(kID, "\nDo you really want to remove the Resizer?", ["Yes","No","Cancel"], [], 0, iNum,"rmresizer");
-    } else if (sCommand == "restore") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else Restore(sValue,kID);
+        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else Dialog(kID, "\nDo you really want to remove the Resizer?", ["Yes","No","Cancel"], [], 0, iAuth,"rmresizer");
     }
 }
 
@@ -368,11 +336,9 @@ default {
     }
 
     state_entry() {
-        //llSetMemoryLimit(40960);  //2015-05-16 (5612 bytes free)
         g_kWearer = llGetOwner();
-        g_fRotNudge = PI / 32.0;//have to do this here since we can't divide in a global var declaration
+        g_fRotNudge = PI / 32.0;
         Store_StartScaleLoop();
-        //Debug("Starting");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -392,11 +358,8 @@ default {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
                 string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
-                //remove stride from g_lMenuIDs
-                //we have to subtract from the index because the dialog id comes in the middle of the stride
                 g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
                 if (sMenuType == g_sSubMenu) {
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
@@ -480,26 +443,20 @@ default {
         }
         else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
-                //remove stride from g_lMenuIDs
-                //we have to subtract from the index because the dialog id comes in the middle of the stride
+            if (~iMenuIndex)
                 g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
-            }
-        } else if (iNum == LINK_UPDATE) {
-            if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
-            else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        }
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
         else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     timer() {
-        // the timer is needed as the changed_size even is triggered twice
         llSetTimerEvent(0);
         if (g_iSizedByScript) g_iSizedByScript = FALSE;
     }
 
     changed(integer iChange) {
-        if (iChange & (CHANGED_SCALE)) {
+        if (iChange & CHANGED_SCALE) {
             if (g_iSizedByScript) llSetTimerEvent(0.5);
             else Store_StartScaleLoop();
         }
