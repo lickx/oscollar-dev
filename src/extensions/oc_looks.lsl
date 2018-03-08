@@ -1,90 +1,28 @@
-/*------------------------------------------------------------------------------
 
- Looks/Themes, Build 45
+//  oc_looks.lsl
+//
+//  Copyright (c) 2008 - 2017 Nandana Singh, Lulu Pink, Garvin Twine,
+//  Cleo Collins, Master Starship, Joy Stipe, Wendy Starfall, littlemousy,
+//  Romka Swallowtail et al.
+//
+//  This script is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published
+//  by the Free Software Foundation, version 2.
+//
+//  This script is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
+//
 
- Wendy's OpenCollar Distribution
- https://github.com/wendystarfall/opencollar
+// Based on a merge of all OpenCollar appearance plugins by littlemousy
+// Virtual Disgrace - Paint is derivate of Virtual Disgrace - Customize
+// OpenCollar - styles is derivative of Virtual Disgrace - Paint
 
---------------------------------------------------------------------------------
-
- OpenCollar v1.000 - v3.600 (OpenCollar - submission set free):
-
- Copyright © 2008, 2009, 2010 Cleo Collins, Garvin Twine, Lulu Pink,
- Master Starship, Nandana Singh, et al.
-
- The project in its original form concluded on October 19, 2011. Everything past
- this date is a derivative of OpenCollar's original SVN trunk from Google Code.
-
---------------------------------------------------------------------------------
-
- OpenCollar v3.700 - v3.720 (nirea's ocupdater):
-
- Copyright © 2011 nirea, Satomi Ahn
-
- https://github.com/OpenCollarUpdates/ocupdater/commits/release
-
---------------------------------------------------------------------------------
-
- OpenCollar v3.750 - v3.809 (Satomi's OpenCollarUpdates):
-
- Copyright © 2012 Satomi Ahn
-
- https://github.com/OpenCollarUpdates/ocupdater/commits/3.8
- https://github.com/OpenCollarUpdates/ocupdater/commits/beta
-
---------------------------------------------------------------------------------
-
- OpenCollar v3.809 - v3.843 (Joy's OpenCollar Evolution):
-
- Copyright © 2013 Joy Stipe
-
- https://github.com/JoyStipe/ocupdater/commits/Project_Evolution
-
---------------------------------------------------------------------------------
-
- OpenCollar v3.844 - v3.998 (Wendy's OpenCollar API 3.9):
-
- Copyright © 2013 Wendy Starfall
- Copyright © 2014 littlemousy, Romka Swallowtail, Wendy Starfall
-
- https://github.com/OpenCollar/opencollar/commits/master
- https://github.com/WendyStarfall/opencollar/commits/master
-
---------------------------------------------------------------------------------
-
- Virtual Disgrace Collar v1.0.0 - v2.1.1 (virtualdisgrace.com):
-
- Copyright © 2011, 2012, 2013 Wendy Starfall
- Copyright © 2014 littlemousy, Wendy Starfall
-
- https://github.com/WendyStarfall/opencollar/commits/master
- https://github.com/VirtualDisgrace/opencollar/commits/master
-
---------------------------------------------------------------------------------
-
- OpenCollar v4.0.0 - v6.7.5 - Peanut build 9 (virtualdisgrace.com):
-
- Copyright © 2015, 2016, 2017, 2018 Garvin Twine, Wendy Starfall
-
- https://github.com/VirtualDisgrace/opencollar/commits/master
- https://github.com/WendyStarfall/opencollar/commits/master
-
---------------------------------------------------------------------------------
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, see www.gnu.org/licenses/gpl-2.0
-
-------------------------------------------------------------------------------*/
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 integer g_iBuild = 45;
 
@@ -165,7 +103,7 @@ ThemeMenu(key kID, integer iAuth, integer iPage) {
         lButtons += llList2List(g_lThemes,i,i);
         i=i+2;
     }
-    Dialog(kID, "\n[http://www.opencollar.at/themes.html Themes]\n\nChoose a visual theme for your %DEVICETYPE%.\n", lButtons, ["BACK"], iPage, iAuth, "ThemeMenu~themes");
+    Dialog(kID, "\nThemes\n\nChoose a visual theme for your %DEVICETYPE%.\n", lButtons, ["BACK"], iPage, iAuth, "ThemeMenu~themes");
     lButtons=[];
 }
 
@@ -296,7 +234,7 @@ BuildElementsList(){
             if (~llListFindList(lParams,["noshiny"])) iLinkFlags = iLinkFlags | 4;
             if (~llListFindList(lParams,["noglow"])) iLinkFlags = iLinkFlags | 8;
             integer iElementIndex=llListFindList(g_lElements, [sElementName]);
-            if (! ~iElementIndex ) {
+            if (iElementIndex == -1) {
                 g_lElements += sElementName;
                 g_lElementFlags += iLinkFlags;
                 if (! (iLinkFlags & 16)) {
@@ -339,7 +277,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     llMessageLinked(LINK_ROOT,601,"themes "+sElement,g_kWearer);
                     g_iThemePage = iPage;
                     g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,g_iThemesNotecardLine);
-                } else if (g_kThemesCardUUID) {
+                } else if (g_kThemesCardUUID != NULL_KEY) {
                     if (g_iThemesReady) ThemeMenu(kID,iNum,iPage);
                     else {
                         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Themes still loading...",kID);
@@ -413,7 +351,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     if (~iDefaultTextureIndex) sTextureShortName = llList2String(g_lTextureDefaults, iDefaultTextureIndex + 1);
                 }
                 integer iTextureIndex=llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);
-                if ((key)sTextureShortName) iTextureIndex = 0;
+                if (osIsUUID(sTextureShortName)) iTextureIndex = 0;
                 else if (iTextureIndex == -1)
                     iTextureIndex = llListFindList(g_lTextures,[sTextureShortName]);
                 if (sTextureShortName == "") {
@@ -423,7 +361,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     if (reMenu) TextureMenu(kID, 0, iNum, sCommand+" "+sElement);
                 } else {
                     string sTextureKey;
-                    if ((key)sTextureShortName) sTextureKey=sTextureShortName;
+                    if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
                     else sTextureKey= llList2String(g_lTextureKeys,iTextureIndex);
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {
@@ -543,7 +481,7 @@ default {
                     string sTextureName=llStringTrim(llList2String(lThisLine,0),STRING_TRIM);
                     string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
                     if ( ~llListFindList(g_lTextures,[sTextureName])) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" is in the %DEVICETYPE% AND the notecard.  %DEVICETYPE% texture takes priority.",g_kWearer);
-                    else if((key)kTextureKey) {
+                    else if (kTextureKey != NULL_KEY) {
                         if(llStringLength(sShortName) > 23) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" in textures notecard too long, dropping.",g_kWearer);
                         else {
                             g_lTextures+=sTextureName;
