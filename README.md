@@ -39,7 +39,7 @@ OpenCollar source code and creative resource are covered by free software, free 
 
 * Most LSL scripts are licensed as and must remain under the [GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0).
 
-* The unmodified LSL scripts ``oc_root`` and ``oc_update`` have the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
+* The unmodified LSL script ``oc_root`` has the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 * Some creative content is licensed as and must remain under the [Creative Commons Attribution-ShareAlike 4.0 International Public License](https://creativecommons.org/licenses/by-sa/4.0/).
 
