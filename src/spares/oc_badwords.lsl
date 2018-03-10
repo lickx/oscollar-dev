@@ -167,7 +167,7 @@ MenuBadwords(key kID, integer iNum){
     if (g_iIsEnabled) lButtons += "OFF";
     else lButtons += "ON";
     lButtons += "Stop";
-    string sText= "\nLegacy Badwords\t"+g_sAppVersion+"\n";
+    string sText= "\nBadwords\t"+g_sAppVersion+"\n";
     sText+= "\n" + llList2CSV(g_lBadWords) + "\n";
     sText+= "\nPenance: " + g_sPenance;
     Dialog(kID, sText, lButtons, ["BACK"],0, iNum, "BadwordsMenu");

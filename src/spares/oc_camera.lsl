@@ -250,7 +250,7 @@ LockCam() {
 }
 
 CamMenu(key kID, integer iAuth) {
-    string sPrompt = "\nLegacy Camera\t"+g_sAppVersion+"\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
+    string sPrompt = "\nCamera\t"+g_sAppVersion+"\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
     integer stop = llGetListLength(llJson2List(g_sJsonModes));
