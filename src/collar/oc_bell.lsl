@@ -56,7 +56,7 @@
 //show/hide for elements named: Bell
 //2009-01-30 Cleo Collins - 1. draft
 
-string g_sAppVersion = "1.1";
+string g_sAppVersion = "1.2";
 
 string g_sSubMenu = "Bell";
 string g_sParentMenu = "Apps";
@@ -285,7 +285,7 @@ UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr
             if (iNum!=CMD_GROUP) {
                 if (g_iBellOn==0) {
                     g_iBellOn=iNum;
-                    if (!g_iHasControl) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
+                    llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "on=" + (string)g_iBellOn, "");
                     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The bell rings now.",kID);
                 }
@@ -321,7 +321,7 @@ UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr
 default {
     on_rez(integer param) {
         g_kWearer=llGetOwner();
-        if (g_iBellOn) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
+        if (g_iBellOn && !g_iHasControl) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
     }
 
     state_entry() {
