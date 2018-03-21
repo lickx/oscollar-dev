@@ -21,7 +21,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 110;
+integer g_iBuild = 111;
 
 string g_sCard = ".settings";
 string g_sSplitLine;

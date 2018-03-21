@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 181;
+integer g_iBuild = 186;
 
 string g_sWearerID;
 list g_lOwner;
@@ -29,11 +29,11 @@ list g_lTempOwner;
 integer g_iMaxUsers = 45;
 
 key g_kGroup = NULL_KEY;
-integer g_iGroupEnabled = FALSE;
+integer g_iGroupEnabled;
 
 string g_sParentMenu = "Main";
 string g_sSubMenu = "Access";
-integer g_iRunawayDisable=0;
+integer g_iRunawayDisable;
 
 string g_sDrop = "f364b699-fb35-1640-d40b-ba59bdd5f7b7";
 
@@ -70,8 +70,8 @@ string UPMENU = "BACK";
 
 integer g_iOpenAccess;
 integer g_iLimitRange=1;
-integer g_iVanilla;
-integer g_iHardVanilla;
+integer g_iVanilla = TRUE;
+integer g_iHardVanilla = TRUE;
 string g_sFlavor = "Vanilla";
 
 list g_lMenuIDs;
@@ -161,7 +161,7 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         if (sToken == "owner") {
             g_lOwner = lPeople;
-            if (g_lOwner) SayOwners();
+            SayOwners();
         }
         else if (sToken == "tempowner") g_lTempOwner = lPeople;
         else if (sToken == "trust") g_lTrust = lPeople;
@@ -223,39 +223,50 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
             if (sPersonID == g_sWearerID) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nOops!\n\n"+NameURI(sPersonID)+" doesn't belong on this list as the wearer of the %DEVICETYPE%. Instead try: /%CHANNEL% %PREFIX% vanilla on\n",kID);
                 return;
-            } else
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\n%WEARERNAME% belongs to you now.\n\nSee [http://www.opencollar.at/congratulations.html here] what that means!\n",sPersonID);
+            } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\n%WEARERNAME% belongs to you now.\n\nSee [http://www.opencollar.at/congratulations.html here] what that means!\n",sPersonID);
         }
         if (sToken == "trust")
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\n%WEARERNAME% seems to trust you.\n\nSee [http://www.opencollar.at/congratulations.html here] what that means!\n",sPersonID);
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
-        if (sToken=="owner") {
+        if (sToken == "owner") {
             g_lOwner = lPeople;
-            if (llGetListLength(g_lOwner)) SayOwners();
-        }
-        else if (sToken=="trust") g_lTrust = lPeople;
-        else if (sToken=="tempowner") g_lTempOwner = lPeople;
-        else if (sToken=="block") g_lBlock = lPeople;
+            SayOwners();
+        } else if (sToken == "trust") g_lTrust = lPeople;
+        else if (sToken == "tempowner") g_lTempOwner = lPeople;
+        else if (sToken == "block") g_lBlock = lPeople;
     }
 }
 
 SayOwners() {
+    if (llGetObjectDesc() == "Wendy's Updater") return;
     integer iCount = llGetListLength(g_lOwner);
-    if (iCount) {
+    if (iCount || g_iVanilla) {
         integer index;
         string sMsg = "You belong to ";
-        if (iCount == 1) sMsg += NameURI(llList2String(g_lOwner,0))+".";
-        else if (iCount == 2)
+        if (iCount == 1) {
+            sMsg += NameURI(llList2String(g_lOwner,0));
+            if (g_iVanilla) sMsg += " and yourself.";
+            else sMsg += ".";
+        } else if (iCount == 2 && !g_iVanilla)
             sMsg +=  NameURI(llList2String(g_lOwner,0))+" and "+NameURI(llList2Key(g_lOwner,1))+".";
-        else {
-            while (index < iCount-1 && index < 9) {
+        else if (iCount) {
+            integer iMax = 9;
+            if (g_iVanilla) iMax = 8;
+            while (index < iCount-1 && index < iMax) {
                 sMsg += NameURI(llList2String(g_lOwner,index))+", ";
                 index+=1;
             }
-            if (iCount > 10) sMsg += NameURI(llList2String(g_lOwner,index))+" et al.";
-            else sMsg += "and "+NameURI(llList2String(g_lOwner,index))+".";
+            if (iCount > (iMax+1)) {
+                sMsg += NameURI(llList2String(g_lOwner,index));
+                if (g_iVanilla) sMsg += ", yourself";
+                sMsg += " and others.";
+            } else {
+                if (g_iVanilla) sMsg += NameURI(llList2String(g_lOwner,index))+" and yourself.";
+                else sMsg += "and "+NameURI(llList2String(g_lOwner,index))+".";
+            }
         }
+        if (sMsg == "You belong to ") sMsg += "yourself."; 
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sMsg,g_sWearerID);
     }
 }
@@ -315,6 +326,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu) {
                     sOutput = "";
                 }
             }
+            if (g_iVanilla) sOutput += "\n" + NameURI(g_sWearerID)+" (vanilla)";
             if (sOutput) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Owners: "+sOutput,kID);
             else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Owners: none",kID);
             if (llGetListLength(g_lTempOwner))
@@ -340,35 +352,16 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu) {
             }
             if (sOutput) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Blocked: "+sOutput,kID);
             if (g_kGroup!=NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Group: secondlife:///app/group/"+(string)g_kGroup+"/about",kID);
-            if (g_iVanilla) sOutput = g_sFlavor+" Mode: enabled";
-            else sOutput = g_sFlavor+" Mode: disabled";
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sOutput,kID);
             sOutput="closed";
             if (g_iOpenAccess) sOutput="open";
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Public Access: "+ sOutput,kID);
-        }
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         if (iRemenu) AuthMenu(kID, iAuth);
-    } else if (sCommand == "hard" && sAction == "vanilla") {
-        if (kID != g_sWearerID || iAuth != CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%", kID);
-        else {
-            sAction = llToLower(llList2String(lParams,2));
-            if (sAction == "on") {
-                g_iHardVanilla = TRUE;
-                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"hardvanilla=1","");
-            } else if (sAction == "off") {
-                g_iHardVanilla = FALSE;
-                llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sSettingToken+"hardvanilla","");
-            }
-            sStr = "off";
-            if (g_iHardVanilla) sStr = "on";
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Hardvanilla is turned "+sStr+".", kID);
-        }
     } else if (sCommand == "vanilla" || sCommand == llToLower(g_sFlavor)) {
         if ((iAuth == CMD_OWNER && llListFindList(g_lTempOwner,[(string)kID]) == -1)
             || (g_iHardVanilla && kID == g_sWearerID)) {
             if (g_iHardVanilla && kID != g_sWearerID) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%", kID);
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This option can only be used by %WEARERNAME%.", kID);
                 jump next;
             }
             if (sAction == "on") {
@@ -377,7 +370,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Vanilla enabled.",kID);
             } else if (sAction == "off") {
                 g_iVanilla = FALSE;
-                llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sSettingToken+"vanilla","");
+                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"vanilla=0","");
                 llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Vanilla disabled.",kID);
                 if (iRemenu && kID == g_sWearerID) iAuth = Auth(kID);
             } else {
@@ -396,14 +389,17 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu) {
     } else if (sCommand == "add") {
         if (llListFindList(["owner","trust","block"],[sAction]) == -1) return;
         string sTmpID = llList2String(lParams,2);
-        if (iAuth!=CMD_OWNER && !( sAction == "trust" && kID==g_sWearerID )) {
+        if (iAuth!=CMD_OWNER && !(sAction == "trust" && kID == g_sWearerID)) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
             if (iRemenu) AuthMenu(kID, Auth(kID));
         } else if (osIsUUID(sTmpID)){
             AddUniquePerson(sTmpID, sAction, kID);
             if (iRemenu) Dialog(kID, "\nChoose who to add to the "+sAction+" list:\n",[sTmpID],[UPMENU],0,Auth(kID),"AddAvi"+sAction, TRUE);
-        } else
-            Dialog(kID, "\nChoose who to add to the "+sAction+" list:\n",[sTmpID],[UPMENU],0,iAuth,"AddAvi"+sAction, TRUE);
+        } else {
+            list lUtilButtons = [UPMENU];
+            if (sAction == "owner" && !g_iVanilla) lUtilButtons += "Yourself";
+            Dialog(kID, "\nChoose who to add to the "+sAction+" list:\n",[sTmpID],lUtilButtons,0,iAuth,"AddAvi"+sAction, TRUE);
+        }
     } else if (sCommand == "remove" || sCommand == "rm") {
         if (llListFindList(["owner","trust","block"],[sAction]) == -1) return;
         string sTmpID = llDumpList2String(llDeleteSubList(lParams,0,1), " ");
@@ -488,6 +484,8 @@ RunAway() {
     llMessageLinked(LINK_DIALOG,NOTIFY_OWNERS,"%WEARERNAME% ran away!","");
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "owner=", "");
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "vanilla", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "hardvanilla", "");
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "tempowner=", "");
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "tempowner", "");
     llMessageLinked(LINK_ALL_OTHERS, CMD_OWNER, "clear", g_sWearerID);
@@ -538,7 +536,7 @@ default {
                     g_lOwner = llParseString2List(sValue, [","], []);
                 else if (sToken == "tempowner") {
                     if (osIsUUID(sValue)) g_lTempOwner = [sValue];
-                    g_lTempOwner = llParseString2List(sValue, [","], []);
+                    else g_lTempOwner = [];
                 } else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
                 else if (sToken == "group") {
                     g_kGroup = (key)sValue;
@@ -556,9 +554,7 @@ default {
                 else if (sToken == "hardvanilla") g_iHardVanilla = (integer)sValue;
             } else if (sStr == "settings=sent") {
                 if (g_iFirstRun) {
-                    if (g_lOwner) SayOwners();
-                    if (g_iVanilla)
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"At the moment your %DEVICETYPE% is configured for you to remain in control at all times. If you don't want that, you can disable Vanilla Mode to relinquish control to only your owners: /%CHANNEL% %PREFIX% vanilla off",g_sWearerID);
+                    SayOwners();
                     g_iFirstRun = FALSE;
                 }
             }
