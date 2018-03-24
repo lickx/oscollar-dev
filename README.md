@@ -39,11 +39,11 @@ OpenCollar source code and creative resource are covered by free software, free 
 
 * Most LSL scripts are licensed as and must remain under the [GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0).
 
-* The unmodified LSL script ``oc_root`` has the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
+* Some scripts, most notably ``oc_root`` have the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 * Some creative content is licensed as and must remain under the [Creative Commons Attribution-ShareAlike 4.0 International Public License](https://creativecommons.org/licenses/by-sa/4.0/).
 
-* Everything else that is shared within the metaverse and where no explicit license was applied is covered by the [License Terms for the OpenCollar Role Play Device](https://raw.githubusercontent.com/lickx/opencollar-os/master/LICENSE).
+* Everything else that is shared within the metaverse and where no explicit license was applied is covered by the [License Terms for the OpenCollar Role Play Device](https://raw.githubusercontent.com/lickx/oscollar/master/LICENSE).
 
 **NOTE:** Please make sure that you have read and understood the full legal text of each license if your interest in OpenCollar goes beyond personal use (i.e. commercial redistribution). For human-readable summaries of various licenses, check out [tl;drLegal](https://tldrlegal.com/)
 
@@ -64,4 +64,4 @@ oscollar6 - stable release
  
 A reference collar is available in the region 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any open grid, copy/paste the address in the World Map, then press Search followed by Teleport.
 
-UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server. When acquiring objects coming from a foreign grid, any referenced assets are seamlessly transferred to your own grid's asset server using the same UUIDs (when not existing already). That's hypergrid magic :)
+UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server.
