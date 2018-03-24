@@ -7,26 +7,11 @@ repeatedly the 'landing' animation is played and sometimes 'flying'. This patch
 addresses this issue.
 
 
-For OpenSim 0.8 release:
+General patch instructions:
 
-cd opensim-0.8.2.1-source  
-patch -p1 --dry-run -i ~/Downloads/fixmovetotarget8.patch  
+cd opensim-source  
+patch -p1 --dry-run -i ~/Downloads/fix.diff  
+
 no errors with dry-run? then:  
-patch -p1 -i ~/Downloads/fixmovetotarget8.patch  
-
-
-For OpenSim 0.9 release:
-
-cd opensim-0.9.1-source  
-patch -p1 --dry-run -i ~/Downloads/fixmovetotarget9.diff  
-no errors with dry-run? then:  
-patch -p1 -i ~/Downloads/fixmovetotarget9.diff  
-
-
-For OpenSim git master:
-
-cd opensim  
-patch -p1 --dry-run -i ~/Downloads/fixmaster.diff  
-no errors with dry-run? then:  
-patch -p1 -i ~/Downloads/fixmaster.diff  
+patch -p1 -i ~/Downloads/fix.diff  
 
