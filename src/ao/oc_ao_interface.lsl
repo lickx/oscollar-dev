@@ -1,54 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-//                                                                          //
-//       _   ___     __            __  ___  _                               //
-//      | | / (_)___/ /___ _____ _/ / / _ \(_)__ ___ ________ ________      //
-//      | |/ / / __/ __/ // / _ `/ / / // / (_-</ _ `/ __/ _ `/ __/ -_)     //
-//      |___/_/_/  \__/\_,_/\_,_/_/ /____/_/___/\_, /_/  \_,_/\__/\__/      //
-//                                             /___/                        //
-//                                                                          //
-//                                        _                                 //
-//                                        \`*-.                             //
-//                                         )  _`-.                          //
-//                                        .  : `. .                         //
-//                                        : _   '  \                        //
-//                                        ; *` _.   `*-._                   //
-//                                        `-.-'          `-.                //
-//                                          ;       `       `.              //
-//                                          :.       .        \             //
-//                                          . \  .   :   .-'   .            //
-//                                          '  `+.;  ;  '      :            //
-//                                          :  '  |    ;       ;-.          //
-//                                          ; '   : :`-:     _.`* ;         //
-//       AO Interface - 160124.1         .*' /  .*' ; .*`- +'  `*'          //
-//                                       `*-*   `*-*  `*-*'                 //
-// ------------------------------------------------------------------------ //
-//  Copyright (c) 2008 - 2016 Nandana Singh, Jessenia Mocha, Alexei Maven,  //
-//  Wendy Starfall, littlemousy, Garvin Twine, Romka Swallowtail et al.     //
-// ------------------------------------------------------------------------ //
-//  This script is free software: you can redistribute it and/or modify     //
-//  it under the terms of the GNU General Public License as published       //
-//  by the Free Software Foundation, version 2.                             //
-//                                                                          //
-//  This script is distributed in the hope that it will be useful,          //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of          //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            //
-//  GNU General Public License for more details.                            //
-//                                                                          //
-//  You should have received a copy of the GNU General Public License       //
-//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0        //
-// ------------------------------------------------------------------------ //
-//  This script and any derivatives based on it must remain "full perms".   //
-//                                                                          //
-//  "Full perms" means maintaining MODIFY, COPY, and TRANSFER permissions   //
-//  in Second Life(R), OpenSimulator and the Metaverse.                     //
-//                                                                          //
-//  If these platforms should allow more fine-grained permissions in the    //
-//  future, then "full perms" will mean the most permissive possible set    //
-//  of permissions allowed by the platform.                                 //
-// ------------------------------------------------------------------------ //
-//           github.com/OpenCollar/opencollar/tree/master/src/ao            //
-// ------------------------------------------------------------------------ //
-//////////////////////////////////////////////////////////////////////////////
+
+//  Copyright (c) 2008 - 2016 Nandana Singh, Jessenia Mocha, Alexei Maven,
+//  Wendy Starfall, littlemousy, Garvin Twine, Romka Swallowtail et al.
+//
+//  This script is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published
+//  by the Free Software Foundation, version 2.
+//
+//  This script is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
+//
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iObjectchannel = -1812221819;//only send on this channel, not listen
