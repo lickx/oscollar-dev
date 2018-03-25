@@ -352,12 +352,6 @@ UserCommand(integer iNum, string sStr, key kID) {
 
 default {
     on_rez(integer param) {
-/*
-        if (g_iProfiled){
-            llScriptProfiler(1);
-            Debug("profiling restarted");
-        }
-*/
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRlvActive=FALSE;
         g_iViewerCheck=FALSE;
