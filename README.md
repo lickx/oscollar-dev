@@ -13,6 +13,8 @@ At the moment this repository is separated into resources, source code and web q
 ```
 ./oscollar/
 
+    > licenses: Verbatim copies of the licenses used
+
     > opensim-patches: Recommended patches for the OpenSim sources
 
     > res: Resource of creative content.
