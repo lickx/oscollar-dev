@@ -16,7 +16,9 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
-string g_sAppVersion = "¹⋅³";
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
+string g_sAppVersion = "1.3";
 
 string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
@@ -50,19 +52,7 @@ integer DIALOG_RESPONSE            = -9001;
 integer DIALOG_TIMEOUT             = -9002;
 
 integer CMD_REMOTE                 = 10000;
-/*
-integer g_iProfiled;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}
-*/
+
 Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, string sMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_THIS, DIALOG, (string)g_kOwner + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|", kMenuID);
@@ -434,14 +424,6 @@ default {
             ReadDestinations();
         }
         if(iChange & CHANGED_OWNER)  llResetScript();
-/*
-        if (iChange & CHANGED_REGION) {
-            if (g_iProfiled){
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
     }
 }
 

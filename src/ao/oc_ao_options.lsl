@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // -- HUD Message Map
 integer MENUNAME_RESPONSE = 3001;
 integer SUBMENU = 3002;

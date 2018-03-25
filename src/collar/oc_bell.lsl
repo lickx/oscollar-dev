@@ -15,6 +15,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 //scans for sounds starting with: bell_
 //show/hide for elements named: Bell
 //2009-01-30 Cleo Collins - 1. draft
@@ -94,19 +96,7 @@ string UPMENU = "BACK";
 string g_sSettingToken = "bell_";
 integer g_iHasBellPrims;
 //string g_sGlobalToken = "global_";
-/*
-integer g_iProfiled=1;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}
-*/
+
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
@@ -288,7 +278,6 @@ default {
     }
 
     state_entry() {
-       // llSetMemoryLimit(36864);
         g_kWearer=llGetOwner();
         FailSafe();
         llResetTime();  // reset script time used for ringing the bell in intervalls
@@ -441,14 +430,6 @@ default {
         }
         if (iChange & CHANGED_REGION) g_fNextRing=llGetTime()+1.0;
         if (iChange & CHANGED_OWNER) llResetScript();
-/*
-        if (iChange & CHANGED_REGION) {
-            if (g_iProfiled){
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
     }
 }
 

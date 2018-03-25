@@ -14,6 +14,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // Needs OpenCollar 3.9x or higher to work
 
 // Sends a "ping" message on the collar command channel:

@@ -15,6 +15,7 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 // this script receives DO_BUNDLE messages that contain the uuid of the collar being updated,
 // the name of a bundle notecard, the talkchannel on which the collar shim script is listening, and
@@ -77,10 +78,6 @@ SetStatus(string sName) {
     //if (g_iItemCounter == g_iTotalItems) g_iTotalItems= 0;
 }
 
-debug(string sMsg) {
-   // llOwnerSay(llGetScriptName() + ": " + sMsg);
-}
-
 FailSafe() {
     string sName = llGetScriptName();
     if (osIsUUID(sName)) return;
@@ -101,7 +98,7 @@ default
     }
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == DO_BUNDLE) {
-            debug("doing bundle: " + sStr);
+            //Debug("doing bundle: " + sStr);
             // str will be in form talkchannel|uuid|bundle_card_name
             list lParts = llParseString2List(sStr, ["|"], []);
             g_iTalkChannel = (integer)llList2String(lParts, 0);
@@ -138,11 +135,11 @@ default
                     SetStatus(sName);
                     kUUID = llGetInventoryKey(sName);
                     sMsg = llDumpList2String([sType, sName, kUUID, g_sMode], "|");
-                    debug("querying: " + sMsg);
+                    //Debug("querying: " + sMsg);
                     llRegionSayTo(g_kRCPT, g_iTalkChannel, sMsg);
                 }
             } else {
-                debug("finished bundle: " + g_sCard);
+                //Debug("finished bundle: " + g_sCard);
                 // all done reading the card. send link msg to main script saying we're done.
 
                 llListenRemove(g_iListener);
@@ -153,7 +150,7 @@ default
     }
 
     listen(integer iChannel, string sName, key kID, string sMsg) {
-        debug("heard: " + sMsg);
+        //Debug("heard: " + sMsg);
         if (llGetOwnerKey(kID) != llGetOwner()) return;
         // let's live on the edge and assume that we only ever listen with a uuid filter so we know it's safe
         // look for msgs in the form <type>|<name>|<cmd>

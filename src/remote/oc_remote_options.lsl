@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 //Adjusted to OpenCollar name convention und format standards June 2015 Otto (garvin.twine)
 //Updated Romka(romka.swallowtail)
 

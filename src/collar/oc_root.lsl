@@ -20,6 +20,8 @@
 //  the help and license files (if present in contents) and can print
 //  info/version. It can also be used to hide and show the whole device.
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
 integer NOTIFY = 1002;

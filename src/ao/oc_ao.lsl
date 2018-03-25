@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 string g_sFancyVersion = "6.8.0";
 float g_fBuildVersion = 170818.1;
 
@@ -52,11 +54,6 @@ list g_lAnims2Choose;
 list g_lCustomCards;
 integer g_iPage;
 integer g_iNumberOfPages;
-/*
-Debug(string sStr) {
-    llScriptProfiler(1);
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}*/
 
 //options
 

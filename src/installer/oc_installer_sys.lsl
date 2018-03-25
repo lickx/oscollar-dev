@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // This is the master updater script.  It complies with the update handshake
 // protocol that OC has been using for quite some time, and should therefore be
 // compatible with current OC collars.  the internals of this script, and the
@@ -30,7 +32,6 @@
 
 // This script also does a little bit of magic to ensure that the updater's
 // name always matches the contents of the ".name" card.
-
 
 integer g_iInstallOnRez = FALSE; // TRUE initiates right away on rez
 
@@ -101,10 +102,6 @@ DoBundle() {
     llMessageLinked(LINK_SET, DO_BUNDLE, bundlemsg, "");
 }
 
-Debug(string str) {
-    // llOwnerSay(llGetScriptName() + ": " + str);
-}
-
 ReadName() {
     // try to keep object's name in sync with ".name" notecard.
     if (llGetInventoryType(".name") == INVENTORY_NOTECARD) {
@@ -154,7 +151,7 @@ InitiateInstallation() {
     llPlaySound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f",1.0);
     //llPlaySound("3409e593-20ab-fd34-82b3-6ecfdefc0207",1.0); //ao
     //llPlaySound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b",1.0); //remote hud
-    Debug("Playing sound");
+    //Debug("Playing sound");
     llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
     //llWhisper(iChan,"-.. --- / .- ---"); AO command
     //llWhisper(iChan,"-.. --- / .... ..- -.."); Remote HUD command
@@ -222,7 +219,7 @@ default {
 
     listen(integer iChannel, string sName, key kID, string sMsg) {
         if (llGetOwnerKey(kID) != llGetOwner()) return;
-        Debug(llDumpList2String([sName, sMsg], ", "));
+        //Debug(llDumpList2String([sName, sMsg], ", "));
         if (iChannel == g_initChannel) {
             // everything heard on the init channel is stuff that has to
             // comply with the existing update kickoff protocol.  New stuff
@@ -236,7 +233,7 @@ default {
                     g_iDone = FALSE;
                     //llSetTimerEvent(30.0);
                 }
-                Debug("sound");
+                //Debug("sound");
                 llPlaySound("d023339f-9a9d-75cf-4232-93957c6f620c",1.0);
                 llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin
             } else if (sCmd == "ready") {
