@@ -29,8 +29,6 @@ At the moment this repository is separated into resources, source code and web q
         > installer: The source code for the package manager.
         > remote: The source code for the remote control HUD.
         > spares: Spares and snippets for research and development.
-
-    > web: Web queries.
 ```
 
 #### Licensing Information
