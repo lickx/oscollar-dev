@@ -117,6 +117,9 @@ integer g_iRLVOn=FALSE;     // To store if RLV was enabled in the collar
 integer g_iAwayCounter=0;
 
 list g_lRestrictionNames= ["fly","tplm","tplure","tploc"];
+
+vector g_vRegionSize;
+
 // ---------------------------------------------
 // ------ FUNCTION DEFINITIONS ------
 
@@ -580,11 +583,13 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
 default {
     on_rez(integer start_param) {
         if (llGetOwner()!=g_kWearer) llResetScript();
+        g_vRegionSize = osGetRegionSize();
         DoUnleash(FALSE);
     }
 
     state_entry() {
         g_kWearer = llGetOwner();
+        g_vRegionSize = osGetRegionSize();
         FailSafe();
         DoUnleash(FALSE);
         //Debug("Starting");
@@ -594,7 +599,7 @@ default {
         //inlined old isInSimOrJustOutside function
         vector vLeashedToPos=llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
         integer iIsInSimOrJustOutside=TRUE;
-        if(vLeashedToPos == ZERO_VECTOR || vLeashedToPos.x < -25 || vLeashedToPos.x > 280 || vLeashedToPos.y < -25 || vLeashedToPos.y > 280) iIsInSimOrJustOutside=FALSE;
+        if(vLeashedToPos == ZERO_VECTOR || vLeashedToPos.x < -25 || vLeashedToPos.x > (g_vRegionSize.x+25) || vLeashedToPos.y < -25 || vLeashedToPos.y > (g_vRegionSize.y+25)) iIsInSimOrJustOutside=FALSE;
 
         if (iIsInSimOrJustOutside && llVecDist(llGetPos(),vLeashedToPos)<60) {   //if the leasher is now in range
             if(!g_iLeasherInRange) { //and the leasher was previously not in range
@@ -790,6 +795,7 @@ default {
             g_kWearer = llGetOwner();
         }
         if (iChange & CHANGED_INVENTORY) FailSafe();
+        if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
     }
 }
 
