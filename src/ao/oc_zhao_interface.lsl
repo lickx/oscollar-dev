@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // ZHAO-II-interface - Ziggy Puff, 06/07
 
 ////////////////////////////////////////////////////////////////////////
@@ -245,13 +247,6 @@ integer isAttachedToHUD() {
 // STATE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-debug(string str)
-{
-    llOwnerSay(llGetScriptName() + "-Debug: " + str);
-}
-*/
-
 default {
     state_entry() {
         integer i;
@@ -274,7 +269,7 @@ default {
     }
 
     link_message(integer sender, integer num, string str, key id) {
-        //debug("lnkMsg: " + str + " auth=" + (string)num + "id= " + (string)id);
+        //Debug("lnkMsg: " + str + " auth=" + (string)num + "id= " + (string)id);
         if (num >= COMMAND_OWNER && num <= COMMAND_WEARER) {
             if (isLocked && num == COMMAND_WEARER) {
                 Notify(id, "You cannot change the AO while it is locked. You could use your safeword which will unlock the AO. Please ensure you have your collar on when doing this.", FALSE);

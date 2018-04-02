@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 integer g_iRLVOn = TRUE;
 integer g_iRLVOff = FALSE;
 integer g_iViewerCheck = FALSE;
@@ -104,19 +106,6 @@ key g_kSitTarget=NULL_KEY;
 integer CMD_ADDSRC = 11;
 integer CMD_REMSRC = 12;
 integer g_iIsLED;
-/*
-integer g_iProfiled;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}
-*/
 
 DoMenu(key kID, integer iAuth){
     key kMenuID = llGenerateKey();
@@ -363,12 +352,6 @@ UserCommand(integer iNum, string sStr, key kID) {
 
 default {
     on_rez(integer param) {
-/*
-        if (g_iProfiled){
-            llScriptProfiler(1);
-            Debug("profiling restarted");
-        }
-*/
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRlvActive=FALSE;
         g_iViewerCheck=FALSE;
@@ -657,12 +640,4 @@ default {
 
         }
     }
-/*
-        if (change & CHANGED_REGION) {
-            if (g_iProfiled){
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
 }

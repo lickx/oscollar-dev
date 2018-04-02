@@ -20,6 +20,8 @@
 // Virtual Disgrace - Paint is derivate of Virtual Disgrace - Customize
 // OpenCollar - styles is derivative of Virtual Disgrace - Paint
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 list g_lElements;  //list of element types, built on script start.  Changed event restarts script on link set change
 list g_lElementFlags;
 list g_lTextureDefaults;  //default textures for each element, actually the last textures sent out by the settings script, so not so much "default settings", closer to "what wa set when worn"
@@ -101,18 +103,6 @@ integer g_iThemePage;
 
 //command list - used for check in UserCommand()
 list commands = ["themes", "color", "texture", "shiny", "glow", "looks"];
-/*
-integer g_iProfiled=1;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled) {
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}*/
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
     key kMenuID = llGenerateKey();
@@ -693,13 +683,5 @@ default {
             if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();
             else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = NULL_KEY;
         }
-/*
-        if (iChange & CHANGED_REGION) {
-            if (g_iProfiled) {
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
     }
 }

@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // -- HUD Message Map
 integer MENUNAME_RESPONSE = 3001;
 integer SUBMENU = 3002;
@@ -119,12 +121,12 @@ DoTextures(string style) {
 
     list lTextures = [
     "[ Dark ]",
-    "Minimize~857cda3b-5a50-463f-9e3e-3d289b85c5df",
+    "Minimize~c2f13a8f-fe38-4129-874b-9e79e011cc3a",
     "Power~3ff1f3dd-abcf-413d-9e19-6c1a9dc50209",
     "SitAny~b90745b1-3d4e-4ee3-8a8d-5bf8014c8be3",
     "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
     "[ Light ]",
-    "Minimize~a9d26a81-e5b6-4eff-aa4f-625e03e04f15",
+    "Minimize~42a5d4ed-98d0-4d75-9b36-d06ab3df225a",
     "Power~0b504c91-efb1-4a69-b833-42b780897b59",
     "SitAny~2dc164d8-9f85-4247-951b-1c9e124e7f00",
     "Menu~83779c3b-5028-4a43-87d4-60b924afaebb"

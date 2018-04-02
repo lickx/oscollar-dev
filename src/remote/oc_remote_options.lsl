@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 //Adjusted to OpenCollar name convention und format standards June 2015 Otto (garvin.twine)
 //Updated Romka(romka.swallowtail)
 
@@ -116,7 +118,7 @@ DoStyle(string style) {
 
     list lTextures = [
     "[ Dark ]",
-    "Minimize~857cda3b-5a50-463f-9e3e-3d289b85c5df",
+    "Minimize~c2f13a8f-fe38-4129-874b-9e79e011cc3a",
     "Picture~57701142-dac0-49f5-9d1c-005bdf10277b",
     "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
     "Couples~8ea5b5c6-1746-4368-b414-dd3f6703a915",
@@ -138,7 +140,7 @@ DoStyle(string style) {
     "Acc-Blindfold~a9ae5c9a-f865-87b6-2ebf-c254c7cacb22",
     "Acc-Cuffs~1ad97509-88c3-a829-dfac-d3fc54422954",
     "[ Light ]",
-    "Minimize~a9d26a81-e5b6-4eff-aa4f-625e03e04f15",
+    "Minimize~42a5d4ed-98d0-4d75-9b36-d06ab3df225a",
     "Picture~442fd720-8d12-4529-8dea-3fdfa60d5eec",
     "Menu~83779c3b-5028-4a43-87d4-60b924afaebb",
     "Couples~548ff8ec-8dbd-4191-a7bd-c6cfd14972d7",

@@ -14,6 +14,7 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 string  SUBMENU_BUTTON              = "SafeZone"; // Name of the submenu
 string  COLLAR_PARENT_MENU          = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
@@ -68,9 +69,6 @@ integer DIALOG_TIMEOUT             = -9002;
 
 // menu option to go one step back in menustructure
 string  UPMENU                     = "BACK"; // when your menu hears this, give the parent menu
-
-
-//Debug(string sMsg) { llOwnerSay(llGetScriptName() + " [DEBUG]: " + sMsg);}
 
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer){
     if (kID == g_kWearer) llOwnerSay(sMsg);

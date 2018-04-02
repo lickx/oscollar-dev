@@ -14,6 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // Based on OpenCollar - takeme 3.980
 
 key     g_kWearer;
@@ -59,20 +61,6 @@ integer g_iCaptureOn        = FALSE;     // on/off toggle for the app.  Switchin
 integer g_iCaptureInfo = TRUE;
 string  g_sSettingToken     = "capture_";
 //string  g_sGlobalToken      = "global_";
-
-/*
-integer g_iProfiled;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+") :\n" + sStr);
-}
-*/
 
 string NameURI(string sID){
     return "secondlife:///app/agent/"+sID+"/about";
@@ -225,7 +213,6 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) {
 
 default{
     state_entry() {
-       // llSetMemoryLimit(32768); //2016-01-24 (6034 bytes free)
         g_kWearer = llGetOwner();
         FailSafe();
         //Debug("Starting");
@@ -322,11 +309,5 @@ default{
             }
         }
         if (iChange & CHANGED_INVENTORY) FailSafe();
-        /*if (iChange & CHANGED_REGION) {
-            if (g_iProfiled){
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }*/
     }
 }

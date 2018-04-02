@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 //RLV Commands (from RLVa sourcecode - rlvhandler.h v1.4.10)
 // @getstatus:[<option>][;<separator>] * Examples  : @getstatus=123 ; @getstatus:tp=123 ; @getstatus:tp;|=123 ; @getstatus:;|=123
 //   - if we passed RlvObject::m_idObj for idObj somewhere and process a @clear then idObj points to invalid/cleared memory at the end
@@ -336,8 +338,6 @@ integer LINK_DIALOG = 3;
 integer LINK_RLV    = 4;
 integer LINK_SAVE   = 5;
 integer LINK_UPDATE = -10;
-
-//Debug(string sMsg) { llOwnerSay(llGetScriptName() + " [DEBUG]: " + sMsg);}
 
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     llMessageLinked(LINK_DIALOG,NOTIFY,(string)iAlsoNotifyWearer+sMsg,kID);

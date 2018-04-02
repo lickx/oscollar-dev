@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 // ZHAO-II-core - Ziggy Puff, 07/07
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

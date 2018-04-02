@@ -16,6 +16,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
 string g_sFancyVersion = "6.8.1";
@@ -59,7 +61,7 @@ integer DIALOG               = -9000;
 integer DIALOG_RESPONSE      = -9001;
 integer DIALOG_TIMEOUT       = -9002;
 integer CMD_REMOTE           = 10000;
-
+integer UPDATE = 5555;
 string UPMENU          = "BACK";
 string g_sListPartners  = "List";
 string g_sRemovePartner = "Remove";
@@ -79,18 +81,6 @@ string  g_sRezObject;
 
 integer g_iAddPartnerTimer;
 integer g_iSaveCardTimer;
-
-/*integer g_iProfiled=1;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}*/
 
 string NameURI(string sID) {
     if (osIsUUID(sID))
@@ -329,7 +319,10 @@ default {
             lParams = [];
         } else if (iNum == SUBMENU && sStr == "Main") MainMenu();
         else if (iNum == CMD_REMOTE) SendCollarCommand(sStr);
-        else if (iNum == 111) {
+        else if (iNum == UPDATE) {
+            if (sStr != "") g_lPartners = llCSV2List(sStr);
+            else llMessageLinked(iSender,UPDATE+1,llList2CSV(g_lPartners),"");
+        } else if (iNum == 111) {
             g_sTextureALL = sStr;
             if (g_sActivePartnerID == g_sAllPartners)
                 llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);

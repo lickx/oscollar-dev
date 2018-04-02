@@ -14,6 +14,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Customizer";
 
@@ -58,21 +60,6 @@ list g_lCurrentParam ;
 
 list g_lMenuIDs;//3-strided list of kAv, dialogid, menuname
 integer g_iMenuStride = 3;
-
-
-/*
-integer g_iProfiled=TRUE;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}
-*/
 
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sMenuType)
 {
@@ -329,13 +316,5 @@ default
     {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_LINK) BuildElementsList();
-/*
-        if (iChange & CHANGED_REGION) {
-            if (g_iProfiled) {
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
     }
 }

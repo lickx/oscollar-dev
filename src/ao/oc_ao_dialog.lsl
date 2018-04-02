@@ -15,8 +15,9 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
-//an adaptation of Schmobag Hogfather's SchmoDialog script
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
+//an adaptation of Schmobag Hogfather's SchmoDialog script
 
 //MESSAGE MAP
 //integer CMD_ZERO = 0;
@@ -251,7 +252,7 @@ list RemoveMenuStride(list menu, integer index)
 
 CleanList()
 {
-    //debug("cleaning list");
+    //Debug("cleaning list");
     //loop through menus and remove any whose timeouts are in the past
     //start at end of list and loop down so that indices don't get messed up as we remove items
     integer length = llGetListLength(menus);
@@ -260,10 +261,10 @@ CleanList()
     for (n = length - stridelength; n >= 0; n -= stridelength)
     {
         integer dietime = llList2Integer(menus, n + 3);
-        //debug("dietime: " + (string)dietime);
+        //Debug("dietime: " + (string)dietime);
         if (now > dietime)
         {
-            debug("menu timeout");                
+            //Debug("menu timeout");                
             key id = llList2Key(menus, n + 1);
             llMessageLinked(LINK_SET, DIALOG_TIMEOUT, "", id);
             menus = RemoveMenuStride(menus, n);
@@ -277,16 +278,11 @@ ClearUser(key rcpt)
     integer index = llListFindList(menus, [rcpt]);
     while (~index)
     {
-        debug("removed stride for " + (string)rcpt);
+        //Debug("removed stride for " + (string)rcpt);
         menus = llDeleteSubList(menus, index - 4, index - 5 + stridelength);
         index = llListFindList(menus, [rcpt]);
     }
-    debug(llDumpList2String(menus, ","));
-}
-
-debug(string str)
-{
-    //llOwnerSay(llGetScriptName() + ": " + str);
+    //Debug(llDumpList2String(menus, ","));
 }
 
 default
@@ -306,7 +302,7 @@ default
         if (num == DIALOG)
         {//give a dialog with the options on the button labels
             //str will be pipe-delimited list with rcpt|prompt|page|backtick-delimited-list-buttons|backtick-delimited-utility-buttons
-            debug(str);
+            //Debug(str);
             list params = llParseStringKeepNulls(str, ["|"], []);
             key rcpt = (key)llList2String(params, 0);
             string prompt = llList2String(params, 1);
@@ -336,7 +332,7 @@ default
                    
             if (message == MORE)
             {
-                debug((string)page);
+                //Debug((string)page);
                 //increase the page num and give new menu
                 page++;
                 integer thispagesize = pagesize - llGetListLength(ubuttons) - 2;
@@ -348,7 +344,7 @@ default
             }
             else if (message == PREV)
             {
-                debug((string)page);
+                //Debug((string)page);
                 //increase the page num and give new menu
                 page--;
 
@@ -380,7 +376,7 @@ default
         
         if (!llGetListLength(menus))
         {
-            debug("no active dialogs, stopping timer");
+            //Debug("no active dialogs, stopping timer");
             llSetTimerEvent(0.0);
         }
     }

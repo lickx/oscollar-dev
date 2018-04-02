@@ -15,6 +15,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 string g_sWearerID;
 list g_lOwner;
 list g_lTrust;
@@ -93,18 +95,6 @@ integer g_iIsLED;
 
 string g_sSettingToken = "auth_";
 //string g_sGlobalToken = "global_";
-
-/*integer g_iProfiled=1;
-Debug(string sStr) {
-    //if you delete the first // from the preceeding and following  lines,
-    //  profiling is off, debug is off, and the compiler will remind you to
-    //  remove the debug calls from the code, we're back to production mode
-    if (!g_iProfiled){
-        g_iProfiled=1;
-        llScriptProfiler(1);
-    }
-    llOwnerSay(llGetScriptName() + "(min free:"+(string)(llGetMemoryLimit()-llGetSPMaxMemory())+")["+(string)llGetFreeMemory()+"] :\n" + sStr);
-}*/
 
 string NameURI(string sID){
     return "secondlife:///app/agent/"+sID+"/about";
@@ -549,11 +539,6 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         else g_iFirstRun = TRUE;
         FailSafe(0);
-      /*  if (g_iProfiled){
-            llScriptProfiler(1);
-           // Debug("profiling restarted");
-        }*/
-        //llSetMemoryLimit(65536);
         g_sWearerID = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
@@ -695,14 +680,6 @@ default {
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) FailSafe(0);
-/*
-        if (iChange & CHANGED_REGION) {
-            if (g_iProfiled){
-                llScriptProfiler(1);
-                Debug("profiling restarted");
-            }
-        }
-*/
     }
 }
 

@@ -15,6 +15,8 @@
 //  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
 //
 
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
+
 integer g_iInterfaceChannel = -12587429;
 integer g_iObjectchannel = -1812221819;//only send on this channel, not listen
 integer g_iListenHandle;
@@ -37,11 +39,6 @@ key g_kCollarID;
 string g_sPendingCmd;
 
 integer g_iUpdateChannel = -7483220;
-
-debug(string sMessage)
-{
-    //llOwnerSay(llGetScriptName() + " DEBUG: " + sMessage);
-}
 
 //===============================================================================
 //= parameters   :    key owner            key of the person to send the message to
@@ -97,7 +94,7 @@ default
     }
     
     link_message(integer iSender, integer iNum, string sStr, key kID) {
-        //debug("LinkMsg: " + str);
+        //Debug("LinkMsg: " + str);
      /*   if (iNum == COLLAR_INT_REQ)  {
             if (g_kCollarID != NULL_KEY) {
                 if (sStr == "CollarOn")
@@ -124,7 +121,7 @@ default
     }
     
     listen(integer iChannel, string sName, key kID, string sMessage) {
-        //debug("Listen: " + sMessage);        
+        //Debug("Listen: " + sMessage);        
         if (sMessage == "OpenCollar=No" && kID == g_kCollarID) { //Collar said it got detached
             g_iCollarIntegration = FALSE;
             g_kCollarID = NULL_KEY;
@@ -157,7 +154,7 @@ default
         list lParams = llParseString2List(sMessage,["|"],[]);
         string sMessageType = llList2String(lParams,0);
         integer iAuth;
-        debug(sMessageType);
+        //Debug(sMessageType);
         if (sMessageType == "AuthReply") {
             iAuth = llList2Integer(lParams,2);
             if (g_sPendingCmd) {
@@ -169,7 +166,7 @@ default
             if (iAuth)
                 llMessageLinked(LINK_THIS, iAuth, llList2String(lParams,2), llList2Key(lParams,3));
         }
-        debug(sMessage);
+        //Debug(sMessage);
 /*        //check if we get a auth request at all here
         index = llSubStringIndex(sMessage, g_sSeparator);
         iAuth = llList2Integer(lTemp,0);
