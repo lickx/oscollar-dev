@@ -17,8 +17,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sFancyVersion = "6.8.0";
-float g_fBuildVersion = 170818.1;
+string g_sVersion = "6.8.3";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -296,7 +295,7 @@ list SortButtons(list lButtons, list lStaticButtons) {
 }
 
 MenuAO(key kID) {
-    string sPrompt = "\nOsCollar AO\t"+g_sFancyVersion;
+    string sPrompt = "\nOsCollar AO\t"+g_sVersion;
     list lButtons = ["LOCK"];
     if (g_iLocked) lButtons = ["UNLOCK"];
     if (kID == g_kWearer) lButtons += "Collar Menu";
@@ -780,3 +779,4 @@ default {
         if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
+

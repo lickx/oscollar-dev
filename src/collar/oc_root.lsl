@@ -46,7 +46,7 @@ integer RLV_CLEAR = 6002;
 
 key g_kWearer;
 
-string g_sVersion = "6.8.2";
+string g_sVersion = "6.8.3";
 
 string g_sGlobalToken = "global_";
 string g_sAbout;
