@@ -148,9 +148,9 @@ Particles(key kTarget) {
 
 InitiateInstallation() {
     integer iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1)));
-    llPlaySound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f",1.0); //device - TODO: make a sound
-    //llPlaySound("3409e593-20ab-fd34-82b3-6ecfdefc0207",1.0); //ao - TODO: make a sound
-    //llPlaySound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b",1.0); //remote hud - TODO: make a sound
+    llPlaySound("56051ff8-a86f-467a-84fd-96e9cfd10c71",1.0); //device
+    //llPlaySound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c",1.0); //ao
+    //llPlaySound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249",1.0); //remote hud
     //Debug("Playing sound");
     llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
     //llWhisper(iChan,"-.. --- / .- ---"); AO command
@@ -326,5 +326,6 @@ default {
 
     }
 }
+
 
 
