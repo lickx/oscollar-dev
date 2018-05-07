@@ -250,7 +250,7 @@ default {
     }
     
     attach(key kAvatar) {
-        if(kAvatar) {//on attach
+        if(kAvatar!=NULL_KEY) {//on attach
             if(iType == 0) determineType();
             g_iMenuChannel = -(integer)llFrand(999999)-10000; //randomise menu channel 
         }  
