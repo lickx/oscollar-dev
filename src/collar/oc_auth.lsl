@@ -574,10 +574,11 @@ default {
                 sToken = llGetSubString(sToken, i + 1, -1);
                 if (sToken == "owner")
                     g_lOwner = llParseString2List(sValue, [","], []);
-                else if (sToken == "tempowner")
+                else if (sToken == "tempowner") {
+                    if (osIsUUID(sValue)) g_lTempOwner = [sValue];
                     g_lTempOwner = llParseString2List(sValue, [","], []);
                     //Debug("Tempowners: "+llDumpList2String(g_lTempOwner,","));
-                else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
+                } else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
                 else if (sToken == "group") {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly

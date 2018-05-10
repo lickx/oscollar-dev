@@ -72,6 +72,7 @@ key g_kConfirmDialogID;
 string g_sSampleURL = "https://goo.gl/adCn8Y";
 
 list g_lSettings;
+key g_kTempOwner;
 
 integer g_iSayLimit = 1024; // lsl "say" string limit
 integer g_iCardLimit = 255; // lsl card-line string limit
@@ -145,7 +146,10 @@ DelSetting(string sToken) { // we'll only ever delete user settings
         return;
     }
     i = llListFindList(g_lSettings, [sToken]);
-    if (~i) g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
+    if (~i) {
+        if (sToken == "auth_tempowner") g_kTempOwner = "";
+        g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
+    }
 }
 
 // run delimiters & add escape-characters for settings print
@@ -328,7 +332,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
     string sStrLower = llToLower(sStr);
     if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower,0,4));
     else if (!llSubStringIndex(sStrLower,"load")) {
-        if (iAuth == CMD_OWNER) {
+        if (iAuth == CMD_OWNER && kID != g_kTempOwner) {
             if (llSubStringIndex(sStrLower,"load url") == 0 && iAuth == CMD_OWNER) {
                 string sURL = llList2String(llParseString2List(sStr,[" "],[]),2);
                 if (!llSubStringIndex(sURL,"http")) {
@@ -437,6 +441,7 @@ default {
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
             g_lSettings = SetSetting(g_lSettings, sToken, sValue);
+            if (sToken == "auth_tempowner" && sValue != "") g_kTempOwner = (key)sValue;
             if (LINK_CUFFS) {
                 lParams = llParseString2List(sStr, ["_"], []);
                 if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
