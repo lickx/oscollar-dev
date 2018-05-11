@@ -1,55 +1,21 @@
-//////////////////////////////////////////////////////////////////////////////
-//                                                                          //
-//              ____                   ______      ____                     //
-//             / __ \____  ___  ____  / ____/___  / / /___ ______           //
-//            / / / / __ \/ _ \/ __ \/ /   / __ \/ / / __ `/ ___/           //
-//           / /_/ / /_/ /  __/ / / / /___/ /_/ / / / /_/ / /               //
-//           \____/ .___/\___/_/ /_/\____/\____/_/_/\__,_/_/                //
-//               /_/                                                        //
-//                                                                          //
-//                        ,^~~~-.         .-~~~"-.                          //
-//                       :  .--. \       /  .--.  \                         //
-//                       : (    .-`<^~~~-: :    )  :                        //
-//                       `. `-,~            ^- '  .'                        //
-//                         `-:                ,.-~                          //
-//                          .'                  `.                          //
-//                         ,'   @   @            |                          //
-//                         :    __               ;                          //
-//                      ...{   (__)          ,----.                         //
-//                     /   `.              ,' ,--. `.                       //
-//                    |      `.,___   ,      :    : :                       //
-//                    |     .'    ~~~~       \    / :                       //
-//                     \.. /               `. `--' .'                       //
-//                        |                  ~----~                         //
-//                          AO Link - 150902.1                              //
-// ------------------------------------------------------------------------ //
-//  Copyright (c) 2014 - 2015 Medea Destiny, XenHat Liamano, Silkie Sabra,  //
-//  Wendy Starfall, Sumi Perl, Ansariel Hiller and Garvin Twine             //
-// ------------------------------------------------------------------------ //
-//  This script is free software: you can redistribute it and/or modify     //
-//  it under the terms of the GNU General Public License as published       //
-//  by the Free Software Foundation, version 2.                             //
-//                                                                          //
-//  This script is distributed in the hope that it will be useful,          //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of          //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            //
-//  GNU General Public License for more details.                            //
-//                                                                          //
-//  You should have received a copy of the GNU General Public License       //
-//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0        //
-// ------------------------------------------------------------------------ //
-//  This script and any derivatives based on it must remain "full perms".   //
-//                                                                          //
-//  "Full perms" means maintaining MODIFY, COPY, and TRANSFER permissions   //
-//  in Second Life(R), OpenSimulator and the Metaverse.                     //
-//                                                                          //
-//  If these platforms should allow more fine-grained permissions in the    //
-//  future, then "full perms" will mean the most permissive possible set    //
-//  of permissions allowed by the platform.                                 //
-// ------------------------------------------------------------------------ //
-//         github.com/OpenCollar/opencollar/tree/master/src/spares          //
-// ------------------------------------------------------------------------ //
-//////////////////////////////////////////////////////////////////////////////
+
+//  Copyright (c) 2014 - 2015 Medea Destiny, XenHat Liamano, Silkie Sabra,
+//  Wendy Starfall, Sumi Perl, Ansariel Hiller and Garvin Twine
+//
+//  This script is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published
+//  by the Free Software Foundation, version 2.
+//
+//  This script is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this script; if not, see www.gnu.org/licenses/gpl-2.0
+//
+
+// Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 // Based on Medea Destiny's AO interface script for OpenCollar.
 
@@ -112,10 +78,10 @@ determineType() { //function to determine AO type.
     iType = 0;
     if (llSubStringIndex(llGetObjectName(),"AKEYO") >= 0) { //AKEYO is not a string in their script name, it is in animations but think the object name is a better test for this AO - Sumi Perl
         iType = AKEYO;
-        llOwnerSay("OC compatibility script configured for AKEYO AO.  This support is experimental.  Please let us know if you notice any problems.");
+        llOwnerSay("OsCollar compatibility script configured for AKEYO AO.  This support is experimental.  Please let us know if you notice any problems.");
     } else if (llSubStringIndex(llGetObjectName(),"HUDDLES") >= 0) { 
         iType = HUDDLES;
-        llOwnerSay("OC compatibility script configured for HUDDLES AO.  This support is experimental.  Please let us know if you notice any problems.");
+        llOwnerSay("OsCollar compatibility script configured for HUDDLES AO.  This support is experimental.  Please let us know if you notice any problems.");
     }
     if (iType) jump next ; // no need to check any further if we already have the type identified
     integer x = llGetInventoryNumber(INVENTORY_SCRIPT);
@@ -125,25 +91,25 @@ determineType() { //function to determine AO type.
         if(~llSubStringIndex(sScriptName,"vista")) {//if we find a script with "zhao" in the name.
             iType=VISTA;
             x=0;
-            llOwnerSay("OC compatibility script configured for VISTA AO. Support is very experimental since it is unknown how much was changed from ZHAO.");
+            llOwnerSay("OsCollar compatibility script configured for VISTA AO. Support is very experimental since it is unknown how much was changed from ZHAO.");
             llMessageLinked(LINK_SET, 0, "ZHAO_AOON", "");
         } else if ( ~llSubStringIndex(sScriptName,"huddles")) { //double check if the name wasnt found in the object name already
             iType = HUDDLES;
             x=0;
-            llOwnerSay("OC compatibility script configured for HUDDLES AO.  This support is experimental.  Please let us know if you notice any problems.");
+            llOwnerSay("OsCollar compatibility script configured for HUDDLES AO.  This support is experimental.  Please let us know if you notice any problems.");
         } else if (~llSubStringIndex(sScriptName,"z_ao")) {//if we find a script with "z_ao" in the name.
             iType=GAELINE;
             x=0;
-            llOwnerSay("OC compatibility script configured for Gaeline AO. Support is very experimental since it is unknown how much was changed from ZHAO.");
+            llOwnerSay("OsCollar compatibility script configured for Gaeline AO. Support is very experimental since it is unknown how much was changed from ZHAO.");
             llMessageLinked(LINK_SET, 103, "", "");
         } else if(~llSubStringIndex(sScriptName,"oracul")) {//if we find a script with "oracul" in the name.
             iType=ORACUL;
             x=0;
-            llOwnerSay("OC compatibility script configured for Oracul AO. IMPORTANT: for proper functioning, you must now switch your AO on (switching it off first if necessary!)");
+            llOwnerSay("OsCollar compatibility script configured for Oracul AO. IMPORTANT: for proper functioning, you must now switch your AO on (switching it off first if necessary!)");
         } else if(~llSubStringIndex(sScriptName,"zhao")) {//if we find a script with "zhao" in the name.
             iType=ZHAO;
             x=0;
-            llOwnerSay("OC compatibility script configured for Zhao AO. Depending on your AO model, you may sometimes see your AO buttons get out of sync when the AO is accessed via the collar, just toggle a setting to restore it. NOTE! Toggling sit override now is highly recommended, but if you don't know what that means or don't have one, don't worry.");
+            llOwnerSay("OsCollar compatibility script configured for Zhao AO. Depending on your AO model, you may sometimes see your AO buttons get out of sync when the AO is accessed via the collar, just toggle a setting to restore it. NOTE! Toggling sit override now is highly recommended, but if you don't know what that means or don't have one, don't worry.");
             llMessageLinked(LINK_SET, 0, "ZHAO_AOON", "");
         }
     }
@@ -192,7 +158,7 @@ zhaoMenu(key kMenuTo) {
     if(g_iSitOverride) sSit = "AO Sits OFF";
     list lButtons=[sSit,"Load Notecard","Done","AO on","AO off","Next Stand"];
     llSetTimerEvent(g_iMenuTimeout);
-    llDialog(kMenuTo,"AO options. Depending on model of AO, some may not work. Use OC Sub AO for more comprehensive control!",lButtons,g_iMenuChannel);   
+    llDialog(kMenuTo,"AO options. Depending on model of AO, some may not work. Use OsCollar AO for more comprehensive control!",lButtons,g_iMenuChannel);   
 }
 
 MenuCommand(string sMsg, key kID) {
@@ -313,3 +279,4 @@ default {
         if(change & CHANGED_OWNER) llResetScript();
     }  
 }
+
