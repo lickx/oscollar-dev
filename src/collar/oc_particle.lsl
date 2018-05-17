@@ -329,7 +329,7 @@ integer KeyIsAv(key id) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

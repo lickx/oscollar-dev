@@ -88,7 +88,7 @@ MenuRoot(key kID, integer iAuth) {
     sContext += "\n• Channel: %CHANNEL%";
     sContext += "\n• Safeword: "+g_sSafeword;
     if (g_sQuotation!="") {
-        sContext += "\n\n“"+osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
+        sContext += "\n\n“"+iwReplaceString(g_sQuotation, "\\n", "\n")+"”";
         if (g_sQuoter!="") sContext += "\n—"+g_sQuoter;
     }
     
@@ -108,7 +108,7 @@ MenuRoot(key kID, integer iAuth) {
 
 MenuSettings(key kID, integer iAuth) {
     string sContext = "\nSettings";
-    list lButtons = ["Print","Load","Save","Fix"];
+    list lButtons = ["Print","Load","Fix"];
     lButtons += g_lAdjusters;
     if (g_iHidden) lButtons += ["☑ Stealth"];
     else lButtons += ["☐ Stealth"];
@@ -125,7 +125,7 @@ MenuApps(key kID, integer iAuth) {
 
 MenuAbout(key kID) {
     string sContext = "\nVersion: "+g_sVersion+"\nOrigin: ";
-    if (osIsUUID(g_sDist)) {
+    if (iwVerifyType(g_sDist,TYPE_KEY)) {
         if (llKey2Name(g_sDist)!="") sContext += NameURI("agent/"+g_sDist);
         else sContext += "Hypergrid";
     }
@@ -239,7 +239,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
     } else if (sStr == "info" || sStr == "version") {
         string sMessage = "\n\nModel: "+llGetObjectName();
         sMessage += "\nVersion: "+g_sVersion+"\nOrigin: ";
-        if (osIsUUID(g_sDist)) {
+        if (iwVerifyType(g_sDist,TYPE_KEY)) {
             if (llKey2Name(g_sDist)!="") sMessage += NameURI("agent/"+g_sDist);
             else sMessage += "Hypergrid";
         }
@@ -296,13 +296,13 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     } else if (sStr == "hide" || sStr == "show" || sStr == "stealth") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) Stealth(sStr);
-        else if (osIsUUID(kID)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else if (iwVerifyType(kID,TYPE_KEY)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     }
 }
 
 Failsafe() {
     string sName = llGetScriptName();
-    if(osIsUUID(sName)) return;
+    if(iwVerifyType(sName,TYPE_KEY)) return;
     if(sName != "oc_root") llRemoveInventory(sName);
 }
 
@@ -420,7 +420,7 @@ default {
                     g_sQuotation = sButton;
                     llOwnerSay("\n\n"+g_sQuoter+" cites a quote in "+llKey2Name(g_kWearer)+
                                 "'s main menu:\n\n\""+g_sQuotation+"\"\n");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + iwReplaceString(g_sQuotation, "\n", "\\n"), "");
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
                 } else if (sMenu == "Patch") {
                     if (sButton == "Yes") Update();

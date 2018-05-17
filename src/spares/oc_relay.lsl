@@ -131,7 +131,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 // Sanitizes a key coming from the outside, so that only valid
 // keys are returned, and invalid ones are mapped to NULL_KEY
 key SanitizeKey(string uuid) {
-    if (osIsUUID(uuid)) return llToLower(uuid);
+    if (iwVerifyType(uuid,TYPE_KEY)) return llToLower(uuid);
     return NULL_KEY;
 }
 
@@ -477,7 +477,7 @@ CleanQueue() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

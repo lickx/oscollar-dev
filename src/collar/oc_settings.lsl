@@ -76,7 +76,6 @@ list g_lSettings;
 integer g_iSayLimit = 1024; // lsl "say" string limit
 integer g_iCardLimit = 255; // lsl card-line string limit
 string g_sDelimiter = "\\";
-integer g_iSaveAttempted = FALSE;
 
 // Get Group or Token, 0=Group, 1=Token
 string SplitToken(string sIn, integer iSlot) {
@@ -229,13 +228,6 @@ PrintSettings(key kID, string sDebug) {
     }
 }
 
-SaveSettings(key kID) {
-    list lOut = Add2OutList(g_lSettings, "print");
-    g_iSaveAttempted = TRUE;
-    llSetTimerEvent(3.0);
-    osMakeNotecard(g_sCard+".new", lOut);
-}
-
 LoadSetting(string sData, integer iLine) {
     string sID;
     string sToken;
@@ -312,7 +304,7 @@ SendValues() {
 
 FailSafe(integer iSec) {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -343,8 +335,6 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
             }
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (!llSubStringIndex(sStrLower,"save")) {
-        if (iAuth == CMD_OWNER) SaveSettings(kID);
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
@@ -477,17 +467,6 @@ default {
     timer() {
         llSetTimerEvent(0.0);
         SendValues();
-        if (g_iSaveAttempted) {
-            g_iSaveAttempted = FALSE;
-            if (llGetInventoryKey(g_sCard+".new")!=NULL_KEY) {
-                // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
-                string sNewSettings = osGetNotecard(g_sCard+".new");
-                osMakeNotecard(g_sCard, sNewSettings);
-                llRemoveInventory(g_sCard+".new");
-                llOwnerSay("\n\nSettings have been saved.\n\n");
-            } else llOwnerSay("\n\nSaving settings is not supported in this region.\n\n");
-        }
     }
 
     changed(integer iChange) {

@@ -307,7 +307,7 @@ releaseRestrictions() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -549,7 +549,7 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     } else if (llSubStringIndex(sLowerStr,"sit ") == 0) {
         if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
             sLowerStr = llDeleteSubString(sStr,0,llStringLength("sit ")-1);
-            if (osIsUUID(sLowerStr)) {
+            if (iwVerifyType(sLowerStr,TYPE_KEY)) {
                 llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y,unsit=force","vdRestrict");
                 llSleep(0.5);
                 g_kLastForcedSeat=(key)sLowerStr;

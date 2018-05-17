@@ -123,7 +123,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 // Sanitizes a key coming from the outside, so that only valid
 // keys are returned, and invalid ones are mapped to NULL_KEY
 key SanitizeKey(string uuid) {
-    if (osIsUUID(uuid)) return llToLower(uuid);
+    if (iwVerifyType(uuid,TYPE_KEY)) return llToLower(uuid);
     return NULL_KEY;
 }
 
@@ -167,7 +167,7 @@ integer Auth(string sObjectID, string sUserID) {
     else if (~llListFindList(g_lOwner+g_lTrust+[g_sTempOwner],[sOwner])) {}
     else iAuth = 0;
     //user auth
-    if (osIsUUID(sUserID)) {
+    if (iwVerifyType(sUserID,TYPE_KEY)) {
         if (~llListFindList(g_lBlock+g_lBlockAv,[sUserID])) return -1;
         else if (g_iBaseMode == 3) {}
         else if (g_sTempTrustUser == sUserID) {}
@@ -282,7 +282,7 @@ refreshRlvListener() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

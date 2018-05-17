@@ -151,7 +151,7 @@ CoupleAnimMenu(key kID, integer iAuth) {
 
 FailSafe(integer iSec) {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000) 
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -410,8 +410,8 @@ default {
 
         string sText = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 3);
         if (sText != "" && g_iVerbose) {
-            sText = osReplaceString(sText,"_PARTNER_",g_sPartnerName,-1,0);
-            sText = osReplaceString(sText,"_SELF_","%WEARERNAME%",-1,0);
+            sText = iwReplaceString(sText,"_PARTNER_",g_sPartnerName);
+            sText = iwReplaceString(sText,"_SELF_","%WEARERNAME%");
             llMessageLinked(LINK_DIALOG,SAY,"0"+sText,"");
         }
         if (g_fTimeOut > 0.0) {

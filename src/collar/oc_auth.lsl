@@ -332,7 +332,7 @@ integer Auth(string sObjID) {
 
 FailSafe(integer iSec) {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000) 
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -426,7 +426,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
         if (iNum!=CMD_OWNER && !( sAction == "trust" && kID==g_sWearerID )) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
             if (iRemenu) AuthMenu(kID, Auth(kID));
-        } else if (osIsUUID(sTmpID)){
+        } else if (iwVerifyType(sTmpID,TYPE_KEY)){
             AddUniquePerson(sTmpID, sAction, kID);
             if (iRemenu) Dialog(kID, "\nChoose who to add to the "+sAction+" list:\n",[sTmpID],[UPMENU],0,Auth(kID),"AddAvi"+sAction, TRUE);
         } else
@@ -437,7 +437,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
         if (iNum != CMD_OWNER && !( sAction == "trust" && kID == g_sWearerID )) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
             if (iRemenu) AuthMenu(kID, Auth(kID));
-        } else if (osIsUUID(sTmpID)) {
+        } else if (iwVerifyType(sTmpID,TYPE_KEY)) {
             RemovePerson(sTmpID, sAction, kID, FALSE);
             if (iRemenu) RemPersonMenu(kID, sAction, Auth(kID));
         } else if (llToLower(sTmpID) == "remove all") {
@@ -448,7 +448,7 @@ UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum:
          if (iNum==CMD_OWNER){
              if (sAction == "on") {
                 //if key provided use that, else read current group
-                if (osIsUUID(llList2String(lParams, -1))) g_kGroup = (key)llList2String(lParams, -1);
+                if (iwVerifyType(llList2String(lParams, -1),TYPE_KEY)) g_kGroup = (key)llList2String(lParams, -1);
                 else g_kGroup = (key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0); //record current group key
     
                 if (g_kGroup != NULL_KEY) {
@@ -582,7 +582,7 @@ default {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly
                     if (g_kGroup != NULL_KEY) {
-                        if (osIsUUID(llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0)) == g_kGroup) g_iGroupEnabled = TRUE;
+                        if ((key)llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
                         else g_iGroupEnabled = FALSE;
                     } else g_iGroupEnabled = FALSE;
                 }
@@ -651,7 +651,7 @@ default {
                     else if (sMessage == UPMENU) AuthMenu(kAv, iAuth);
                     else if (sMessage == "No") llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Runaway aborted.",kAv);
                 } if (llSubStringIndex(sMenu,"AddAvi") == 0) {
-                    if (osIsUUID(sMessage))
+                    if (iwVerifyType(sMessage,TYPE_KEY))
                         AddUniquePerson(sMessage, llGetSubString(sMenu,6,-1), kAv); //should be safe to uase key2name here, as we added from sensor dialog
                     else if (sMessage == "BACK")
                         AuthMenu(kAv,iAuth);

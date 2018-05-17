@@ -288,7 +288,7 @@ BuildElementsList(){
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -403,7 +403,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                 }
                 //get long name from short name
                 integer iTextureIndex=llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);  //first try to get index of custom texture
-                if (osIsUUID(sTextureShortName)) iTextureIndex=0;  //we have been given a key, so pretend we found it in the list
+                if (iwVerifyType(sTextureShortName,TYPE_KEY)) iTextureIndex=0;  //we have been given a key, so pretend we found it in the list
                 else if (! ~iTextureIndex) {
                     iTextureIndex=llListFindList(g_lTextures,[sTextureShortName]);  //else get index of regular texture
                 }
@@ -417,7 +417,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     //get key from long name
                     //Debug("Texture command is good:"+sStr);
                     string sTextureKey;
-                    if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
+                    if (iwVerifyType(sTextureShortName,TYPE_KEY)) sTextureKey=sTextureShortName;
                     else sTextureKey=llList2String(g_lTextureKeys,iTextureIndex);
                     //Debug("Key for "+sTextureShortName+" is "+sTextureKey);
                     //loop through prims and apply texture key

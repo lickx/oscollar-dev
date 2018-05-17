@@ -288,7 +288,7 @@ ClearEx() {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -340,7 +340,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         // Let's get a uuid to work with, if who is an avatar. This enables users to type in names OR keys for chat commands.
         sWho = llList2String(lParts, iL);
         string sWhoName;
-        if (osIsUUID(sWho)) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
+        if (iwVerifyType(sWho,TYPE_KEY)) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
         else sWhoName = sWho;
         sLower = llToLower(sWho);
         // preventing from getting owners and trusted messed up in the "other" list

@@ -118,7 +118,7 @@ integer g_iAwayCounter=0;
 
 list g_lRestrictionNames= ["fly","tplm","tplure","tploc"];
 
-vector g_vRegionSize;
+vector g_vRegionSize = <256,256,0>;
 
 // ---------------------------------------------
 // ------ FUNCTION DEFINITIONS ------
@@ -400,7 +400,7 @@ YankTo(key kIn){
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
@@ -464,7 +464,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             else if (sVal == "me") {
                 g_iPassConfirmed = TRUE;
                 LeashTo(kMessageID, kMessageID, iAuth, [], TRUE);
-            } else if (osIsUUID(sVal)) {
+            } else if (iwVerifyType(sVal,TYPE_KEY)) {
                 g_iPassConfirmed = TRUE;
                 LeashTo((key)sVal, kMessageID, iAuth, [], TRUE);
             } else
@@ -538,7 +538,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             if (!CheckCommandAuth(kMessageID, iAuth)) return;
             if (sVal==llToLower(BUTTON_UPMENU))
                 UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
-            else if(osIsUUID(sVal)) {
+            else if(iwVerifyType(sVal,TYPE_KEY)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
@@ -567,7 +567,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                 if (bFromMenu) UserCommand(iAuth, "post", kMessageID ,bFromMenu);
             }
             if (sVal==llToLower(BUTTON_UPMENU))  UserCommand(iAuth, "menu leash", kMessageID ,bFromMenu);
-            else if(osIsUUID(sVal)) {
+            else if(iwVerifyType(sVal,TYPE_KEY)) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 //debug("leash target is key");//could be a post, or could be we specified an av key
@@ -583,13 +583,11 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
 default {
     on_rez(integer start_param) {
         if (llGetOwner()!=g_kWearer) llResetScript();
-        g_vRegionSize = osGetRegionSize();
         DoUnleash(FALSE);
     }
 
     state_entry() {
         g_kWearer = llGetOwner();
-        g_vRegionSize = osGetRegionSize();
         FailSafe();
         DoUnleash(FALSE);
         //Debug("Starting");
@@ -795,7 +793,6 @@ default {
             g_kWearer = llGetOwner();
         }
         if (iChange & CHANGED_INVENTORY) FailSafe();
-        if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
     }
 }
 

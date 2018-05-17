@@ -110,7 +110,9 @@ vector GetScaleFactors()
     }
     float maxr = MAX_PRIM_SIZE/llListStatistics(LIST_STAT_MAX, size);
     if (llGetListLength(pos)) {
-        maxr = osMin(MAX_LINK_DIST/llListStatistics(LIST_STAT_MAX,pos), maxr);
+        if ((MAX_LINK_DIST/llListStatistics(LIST_STAT_MAX,pos)) < maxr) {
+            maxr = MAX_LINK_DIST/llListStatistics(LIST_STAT_MAX,pos);
+        }
     }
     return <MIN_PRIM_SIZE/llListStatistics(LIST_STAT_MIN,size),maxr,0>;
 }
@@ -180,7 +182,7 @@ RotMenu(key kAv, integer iAuth) {
 
 FailSafe() {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000)
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)

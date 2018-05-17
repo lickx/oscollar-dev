@@ -134,13 +134,13 @@ string NameURI(key kID){
 string SubstitudeVars(string sMsg) {
         if (sMsg == "%NOACCESS%") return "Access denied.";
         if (~llSubStringIndex(sMsg, "%PREFIX%"))
-            sMsg = osReplaceString(sMsg, "%PREFIX%", g_sPrefix, -1, 0);
+            sMsg = iwReplaceString(sMsg, "%PREFIX%", g_sPrefix);
         if (~llSubStringIndex(sMsg, "%CHANNEL%"))
-            sMsg = osReplaceString(sMsg, "%CHANNEL%", (string)g_iListenChan, -1, 0);
+            sMsg = iwReplaceString(sMsg, "%CHANNEL%", (string)g_iListenChan);
         if (~llSubStringIndex(sMsg, "%DEVICETYPE%"))
-            sMsg = osReplaceString(sMsg, "%DEVICETYPE%", g_sDeviceType, -1, 0);
+            sMsg = iwReplaceString(sMsg, "%DEVICETYPE%", g_sDeviceType);
         if (llSubStringIndex(sMsg, "%WEARERNAME%") != -1)
-            sMsg = osReplaceString(sMsg, "%WEARERNAME%", g_sWearerName, -1, 0);
+            sMsg = iwReplaceString(sMsg, "%WEARERNAME%", g_sWearerName);
         return sMsg;
 }
 
@@ -244,7 +244,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
         sNumberedButtons="\n"; //let's make this a linebreak instead
         for (iCur = iStart; iCur <= iEnd; iCur++) {
             string sButton = llList2String(lMenuItems, iCur);
-            if (osIsUUID(sButton)) {
+            if (iwVerifyType(sButton,TYPE_KEY)) {
                 //fixme: inlined single use key2name function
                 if (g_iSelectAviMenu) sButton = NameURI((key)sButton);
                 else if (llGetDisplayName((key)sButton)) sButton=llGetDisplayName((key)sButton);
@@ -418,7 +418,7 @@ ClearUser(key kRCPT) {
 
 FailSafe(integer iSec) {
     string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
+    if (iwVerifyType(sName,TYPE_KEY)) return;
     if (!(llGetObjectPermMask(1) & 0x4000) 
     || !(llGetObjectPermMask(4) & 0x4000)
     || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
