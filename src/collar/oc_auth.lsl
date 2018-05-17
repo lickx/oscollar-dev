@@ -583,7 +583,7 @@ default {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly
                     if (g_kGroup != NULL_KEY) {
-                        if (osIsUUID(llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0)) == g_kGroup) g_iGroupEnabled = TRUE;
+                        if ((key)llList2String(llGetObjectDetails(llGetKey(),[OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
                         else g_iGroupEnabled = FALSE;
                     } else g_iGroupEnabled = FALSE;
                 }
