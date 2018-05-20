@@ -108,7 +108,7 @@ MenuRoot(key kID, integer iAuth) {
 
 MenuSettings(key kID, integer iAuth) {
     string sContext = "\nSettings";
-    list lButtons = ["Print","Load","Fix"];
+    list lButtons = ["Print","Load","Save","Fix"];
     lButtons += g_lAdjusters;
     if (g_iHidden) lButtons += ["☑ Stealth"];
     else lButtons += ["☐ Stealth"];

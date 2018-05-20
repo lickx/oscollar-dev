@@ -228,6 +228,13 @@ PrintSettings(key kID, string sDebug) {
     }
 }
 
+SaveSettings(key kID) {
+    list lOut = Add2OutList(g_lSettings, "print");
+    if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
+    iwMakeNotecard(g_sCard, lOut);
+    llOwnerSay("\n\nSettings have been saved.\n\n");
+}
+
 LoadSetting(string sData, integer iLine) {
     string sID;
     string sToken;
@@ -335,6 +342,8 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
             }
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+    } else if (!llSubStringIndex(sStrLower,"save")) {
+        if (iAuth == CMD_OWNER) SaveSettings(kID);
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
@@ -471,9 +480,9 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if ((iChange & CHANGED_INVENTORY) || (iChange & CHANGED_REGION)) {
+        if (iChange & CHANGED_INVENTORY) {
             FailSafe(0);
-            if (llGetInventoryKey(g_sCard) != g_kCardID||(iChange & CHANGED_REGION)) {
+            if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;
                 if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
