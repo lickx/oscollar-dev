@@ -435,16 +435,6 @@ SetAsyncMenu(key kAv, integer iAuth) {
     g_kAsyncMenuUser = kAv;
     g_iAsyncMenuAuth = iAuth;
 }
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_folders")
-        llRemoveInventory(sName);
-}
 
 UserCommand(integer iNum, string sStr, key kID) {
     list lParams = llParseString2List(sStr, [" "], []);
@@ -496,7 +486,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Started");
     }
 
@@ -765,7 +754,4 @@ integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
         llSetTimerEvent(0.0);
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }

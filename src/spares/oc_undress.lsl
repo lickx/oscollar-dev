@@ -393,17 +393,6 @@ DoUnlockAll()
     if (g_iRLVOn) llOwnerSay("@addattach=y,remattach=y,addoutfit=y,remoutfit=y");
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_undress")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID)
 {
     if (iNum > CMD_WEARER || iNum < CMD_OWNER) return; // sanity check
@@ -628,7 +617,6 @@ default {
     state_entry()
     {
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Starting");
     }
 
@@ -796,9 +784,6 @@ default {
         llSetTimerEvent(0.0);
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }
 
 

@@ -148,17 +148,6 @@ ForceUpdate() {
     llSetText("", <1,1,1>, 1.0);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_presets")
-        llRemoveInventory(sName);
-}
-
 DoMenu(key kAv, integer iAuth) {
     list lMyButtons ;
     string sPrompt;
@@ -254,7 +243,6 @@ default {
     state_entry() {
         //llSetMemoryLimit(40960);  //2015-05-16 (5612 bytes free)
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Starting");
     }
 
@@ -321,7 +309,4 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
- }
+}

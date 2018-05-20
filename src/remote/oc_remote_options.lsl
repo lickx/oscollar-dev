@@ -310,22 +310,10 @@ OrderButton(string sButton)
     g_kMenuID = Dialog(llGetOwner(), sPrompt, lButtons, [UPMENU], 0);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_remote_options")
-        llRemoveInventory(sName);
-}
-
 default
 {
     state_entry() {
         //llSleep(1.0);
-        FailSafe();
         FindButtons(); // collect buttons names
         DefinePosition();
         DoStyle("initialize");
@@ -394,6 +382,5 @@ default
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_LINK) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }

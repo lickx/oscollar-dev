@@ -460,22 +460,10 @@ StartUpdate(key kID) {
     llRegionSayTo(kID, -7483220, "ready|" + (string)iPin );
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_ao")
-        llRemoveInventory(sName);
-}
-
 default {
     state_entry() {
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
         g_kWearer = llGetOwner();
-        FailSafe();
         g_iInterfaceChannel = -llAbs((integer)("0x" + llGetSubString(g_kWearer,30,-1)));
         llListen(g_iInterfaceChannel, "", "", "");
         g_iHUDChannel = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1)));
@@ -776,7 +764,6 @@ default {
         if (iChange & CHANGED_COLOR) {
             if (llGetColor(0) != g_vAOoncolor) DetermineColors();
         } else if (iChange & CHANGED_LINK) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
 

@@ -230,17 +230,6 @@ TimerStart(integer perm) {
     } else g_iOnRunning=3;
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_timer")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
     if ((g_iOnRunning || g_iRealRunning) && kID == g_kWearer) {
         if (!llSubStringIndex(llToLower(sStr),"timer")) {
@@ -393,7 +382,6 @@ default {
 
     state_entry() {
         //llSetMemoryLimit(40960);  //2015-05-06 (4238 bytes free)
-        FailSafe();
         g_iLastTime=llGetUnixTime();
         llSetTimerEvent(1);
         g_kWearer = llGetOwner();
@@ -567,7 +555,6 @@ default {
     }
 
     changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
         if (iChange & CHANGED_OWNER) llResetScript();
     }
 }

@@ -78,24 +78,13 @@ SetStatus(string sName) {
     //if (g_iItemCounter == g_iTotalItems) g_iTotalItems= 0;
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_installer_bundles")
-        llRemoveInventory(sName);
-}
-
 default
 {
     state_entry() {
         llSetLinkPrimitiveParamsFast(4,[PRIM_TEXT,"", <1,1,1>, 1.0]);
-        FailSafe();
         g_iTotalItems = llGetInventoryNumber(INVENTORY_ALL) - llGetInventoryNumber(INVENTORY_NOTECARD) - 3;
     }
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == DO_BUNDLE) {
             //Debug("doing bundle: " + sStr);

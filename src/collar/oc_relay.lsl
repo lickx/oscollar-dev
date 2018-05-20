@@ -280,17 +280,6 @@ refreshRlvListener() {
     }
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_relay")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sStr, key kID) {
     if (iAuth<CMD_OWNER || iAuth>CMD_WEARER) return;
     if (llToLower(sStr) == "rm relay") {
@@ -378,7 +367,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         llSetTimerEvent(g_iGarbageRate); //start garbage collection timer
         //Debug("Starting");
     }
@@ -617,9 +605,6 @@ default {
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs,iAuthMenuIndex-2,iAuthMenuIndex-3+g_iMenuStride);
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }
 
 
