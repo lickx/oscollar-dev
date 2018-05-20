@@ -15,8 +15,6 @@ At the moment this repository is separated into resources, source code and web q
 
     > licenses: Verbatim copies of the licenses used
 
-    > opensim-patches: Recommended patches for the OpenSim sources
-
     > res: Resource of creative content.
 
         > anims: Motions and Animations as .bvh and .avm binaries.
@@ -52,16 +50,3 @@ OpenCollar source code and creative resource are covered by free software, free 
 OpenCollar source code has been composed by many different authors and while not all authors composed something in every year since 2008, we chose to state copyright as year spans (i.e. Copyright (c) 2008 - 2017) in our copyright notice.
 
 We chose to do that in order to save space in a already cramped screen environment with in-world LSL editors. Nevertheless, we tried our best to make all authors appear in order of appearance if read from left to right. <3
-
-#### OpenSim Porting Information
-
-Since many grids are still on OpenSim 0.8.x that is our base target
-
-Branches: 
- 
-master - development branch  
-oscollar6 - stable release  
- 
-A reference collar is available in the region 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any open grid, copy/paste the address in the World Map, then press Search followed by Teleport.
-
-UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server.
