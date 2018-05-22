@@ -124,17 +124,6 @@ doCapture(string sCaptorID, integer iIsConfirmed) {
     }
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_capture")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, integer remenu) {
     string sStrLower=llToLower(sStr);
     if (llSubStringIndex(sStr,"capture TempOwner") == 0){
@@ -214,7 +203,6 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) {
 default{
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Starting");
     }
 
@@ -308,6 +296,5 @@ default{
                 }
             }
         }
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }

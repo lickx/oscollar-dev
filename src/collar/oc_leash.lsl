@@ -398,17 +398,6 @@ YankTo(key kIn){
     llStopMoveToTarget();
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_leash")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
     //Debug("Got user comand:\niAuth: "+(string)iAuth+"\nsMessage: "+sMessage+"\nkMessageID: "+(string)kMessageID+"\nbFromMenu: "+(string)bFromMenu);
     if (iAuth == CMD_EVERYONE) {
@@ -590,7 +579,6 @@ default {
     state_entry() {
         g_kWearer = llGetOwner();
         g_vRegionSize = osGetRegionSize();
-        FailSafe();
         DoUnleash(FALSE);
         //Debug("Starting");
     }
@@ -794,7 +782,6 @@ default {
         if (iChange & CHANGED_OWNER){
             g_kWearer = llGetOwner();
         }
-        if (iChange & CHANGED_INVENTORY) FailSafe();
         if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
     }
 }

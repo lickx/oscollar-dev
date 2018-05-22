@@ -236,17 +236,6 @@ ChatCamParams(integer iChannel, key kID) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sPosLine,kID);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_camera")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr: user command, kID: avatar id
     list lParams = llParseString2List(sStr, [" "], []);
     string sCommand = llList2String(lParams, 0);
@@ -320,7 +309,6 @@ default {
     state_entry() {
        // llSetMemoryLimit(36864);
         g_kWearer = llGetOwner();
-        FailSafe();
         g_sJsonModes = JsonModes();
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_CONTROL_CAMERA | PERMISSION_TRACK_CAMERA);
         //Debug("Starting");
@@ -402,7 +390,4 @@ default {
         }
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }

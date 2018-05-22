@@ -263,17 +263,6 @@ ConfirmDeleteMenu(key kAv, integer iAuth) {
     Dialog(kAv, sPrompt, ["Yes","No","Cancel"], [], 0, iAuth,"rmlabel");
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_meshlabel")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sStr, key kAv) {
     //Debug("Command: "+sStr);
     string sLowerStr = llToLower(sStr);
@@ -340,7 +329,6 @@ default
 {
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         Ureps = (float)1 / x;
         Vreps = (float)1 / y;
         LabelsCount();
@@ -461,7 +449,6 @@ default
                 SetLabelBaseAlpha(); // update hide elements
             }
         }
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
 

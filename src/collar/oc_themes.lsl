@@ -286,17 +286,6 @@ BuildElementsList(){
     }
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_themes")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
     string sStrLower = llToLower(sStr);
     if (sStrLower == "rm themes") {
@@ -455,7 +444,6 @@ default {
     state_entry() {
         //llSetMemoryLimit(65536);  //cant set any lower in this script
         g_kWearer = llGetOwner();
-        FailSafe();
         BuildTexturesList();
         BuildElementsList();
         BuildThemesList();
@@ -677,7 +665,6 @@ default {
         if (iChange & CHANGED_LINK) BuildElementsList();
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
-            FailSafe();
             if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
             else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = NULL_KEY;
             if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();

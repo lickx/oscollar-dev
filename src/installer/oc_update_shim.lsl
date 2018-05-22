@@ -65,20 +65,8 @@ Check4Core5Script() {
     } while (i);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_update_shim")
-        llRemoveInventory(sName);
-}
-
 default {
     state_entry() {
-        FailSafe();
         g_iStartParam = llGetStartParameter();
         if (g_iStartParam < 0 ) g_iIsUpdate = TRUE;
         // build script list
@@ -240,7 +228,6 @@ default {
 
     changed(integer iChange){
         if (iChange & (CHANGED_OWNER|CHANGED_LINK)) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
 

@@ -157,17 +157,6 @@ InitiateInstallation() {
     //llWhisper(iChan,"-.. --- / .... ..- -.."); Remote HUD command
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_installer_sys")
-        llRemoveInventory(sName);
-}
-
 default {
     state_entry() {
        // llPreloadSound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f");
@@ -175,7 +164,6 @@ default {
         //llPreloadSound("3409e593-20ab-fd34-82b3-6ecfdefc0207"); // ao
        // llPreloadSound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b"); //remote hud
         llSetTimerEvent(300.0);
-        FailSafe();
         ReadName();
         g_sObjectName = llGetObjectName();
         llListen(g_initChannel, "", "", "");

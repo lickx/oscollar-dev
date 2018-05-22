@@ -138,17 +138,6 @@ ParseAnimList(string sStr) {
     } while (i>0);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_badwords")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, integer remenu) { // here iNum: auth value, sStr: user command, kID: avatar id
     //Debug("Got command:"+sStr);
     sStr=llStringTrim(sStr,STRING_TRIM);
@@ -326,7 +315,6 @@ default {
     state_entry() {
         //llSetMemoryLimit(40960);
         g_kWearer = llGetOwner();
-        FailSafe();
         g_sBadWordAnim = "~shock";
         g_sBadWordSound = "Default" ;
         //Debug("Starting");
@@ -439,7 +427,4 @@ default {
         }
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }

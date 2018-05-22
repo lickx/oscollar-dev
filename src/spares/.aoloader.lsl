@@ -131,15 +131,6 @@ Particles(key kTarget) {
     ]);
 }
 
-FailSafe(string sName) {
-    if (osIsUUID(sName)) return;
-    if (!((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)) {
-        Say("\n\nThis can only work if the script \""+g_sMyName+"\" is set to \"☑ Modify ☑ Copy ☑ Transfer\". In case you have been handed this script by someone else you can copy and paste the [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aoloader.lsl recent source] of the AO Loader in a new script or ask the community for an already compiled variation.\n\nwww.opencollar.at/aoloader\n");
-        llRemoveInventory(sName);
-    }
-}
-
 RemoveMe() {
     llRemoveInventory(llGetScriptName());
 }
@@ -150,7 +141,6 @@ default {
         g_kOwner = llGetOwner();
         g_sMyName = llGetScriptName();
         g_sObjectName = llGetObjectName();
-        FailSafe(g_sMyName);
         integer i = llGetInventoryNumber(INVENTORY_NOTECARD);
         integer iIsOracul;
         while(i) {
@@ -235,7 +225,5 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe(g_sMyName);
-
     }
 }

@@ -300,12 +300,6 @@ UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
     }
 }
 
-Failsafe() {
-    string sName = llGetScriptName();
-    if(osIsUUID(sName)) return;
-    if(sName != "oc_root") llRemoveInventory(sName);
-}
-
 MakeMenus() {
     g_iMenuAnim = FALSE;
     g_iMenuRLV = FALSE;
@@ -321,7 +315,6 @@ MakeMenus() {
 Init() {
     g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
     GetLocks();
-    Failsafe();
     llSetTimerEvent(1.0);
 }
 
@@ -452,7 +445,6 @@ default {
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
         if ((iChange & CHANGED_INVENTORY) && !llGetStartParameter()) {
-            Failsafe();
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
         }

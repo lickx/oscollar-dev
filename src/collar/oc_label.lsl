@@ -422,17 +422,6 @@ FontMenu(key kID, integer iAuth) {
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"font");
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_label")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sStr, key kAv) {
     string sLowerStr = llToLower(sStr);
     if (sStr == "rm label") {
@@ -500,7 +489,6 @@ default
 {
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         //first count the label prims.
         integer ok = LabelsCount();
         SetOffsets(NULL_KEY);
@@ -617,7 +605,6 @@ default
                 SetLabelBaseAlpha(); // update hide elements
             }
         }
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
 

@@ -233,21 +233,9 @@ SaveCard()
     llSetTimerEvent(0.5);
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_remote_sys")
-        llRemoveInventory(sName);
-}
-
 default {
     state_entry() {
         g_kOwner = llGetOwner();
-        FailSafe();
         llSleep(1.0);//giving time for others to reset before populating menu
         if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
@@ -482,6 +470,5 @@ default {
             }
         }
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }
