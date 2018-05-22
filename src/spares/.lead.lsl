@@ -28,21 +28,10 @@ string g_sResponse;
 string g_sWearerID;
 integer g_i;
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000))
-        llRemoveInventory(sName);
-}
-
 default {
     state_entry() {
         llSetMemoryLimit(10240);
         g_sWearerID = (string)llGetOwner();
-        FailSafe();
         g_sListenfor = g_sWearerID + "handle";
         g_sResponse = g_sWearerID + "handle ok";
         llListen(g_iMychannel, "", NULL_KEY, g_sListenfor);
@@ -59,7 +48,6 @@ default {
             llSay(g_iMychannel, g_sWearerID+"handle detached");
     }
     changed(integer change) {
-        if (change & CHANGED_INVENTORY) FailSafe();
         if (change & CHANGED_TELEPORT) {
             llSay(g_iMychannel, g_sResponse);
             llSetTimerEvent(2.0);

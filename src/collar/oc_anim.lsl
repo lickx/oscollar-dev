@@ -336,24 +336,6 @@ CreateAnimList() {
     llMessageLinked(LINK_SET,ANIM_LIST_RESPONSE,llDumpList2String(g_lPoseList+g_lOtherAnims,"|"),"");
 }
 
-FailSafe(integer iSec) {
-    string sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000) 
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)  
-    || sName != "oc_anim" || iSec) {
-        integer i = llGetInventoryNumber(20);
-        while (i) {
-            sName = llGetInventoryName(20,--i);
-            if (llGetInventoryPermMask(sName,1) & 0x8000) 
-                llRemoveInventory(sName);
-        }
-        llRemoveInventory(llGetScriptName());
-    }
-}
-
 UserCommand(integer iNum, string sStr, key kID) {
     if (iNum == CMD_EVERYONE) return;  // No command for people with no privilege in this plugin.
 
@@ -480,10 +462,10 @@ UserCommand(integer iNum, string sStr, key kID) {
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"currentpose=" + g_sCurrentPose + "," + (string)g_iLastRank, "");
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     } else if ((sStr == "show animator")&&(iNum == CMD_OWNER || kID == g_kWearer)){
-        llSetPrimitiveParams([PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the animator prim again type:\n\n/%CHANNEL% %PREFIX% hide animator\n",kID);
     } else if ((sStr == "hide animator")&&(iNum == CMD_OWNER || kID == g_kWearer))
-        llSetPrimitiveParams([PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
 }
 
 default {
@@ -498,7 +480,6 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
        // llSetMemoryLimit(49152);  //2015-05-06 (5490 bytes free)
         g_kWearer = llGetOwner();
-        FailSafe(0);
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION );
         CreateAnimList();
         //Debug("Starting");
@@ -651,8 +632,7 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
-        } else if (iNum == 451 && kID == "sec") FailSafe(1);
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLVA_VERSION) g_iRLVA_ON = TRUE;
         else if (iNum == RLV_OFF) g_iRLVA_ON = FALSE;
     }
@@ -662,7 +642,6 @@ default {
         if (iChange & CHANGED_TELEPORT) RefreshAnim();
         if (iChange & CHANGED_INVENTORY) {  //start re-reading the ~heightscalars notecard
             if (g_iNumberOfAnims!=llGetInventoryNumber(INVENTORY_ANIMATION)) CreateAnimList();
-            FailSafe(0);
         }
     }
 }

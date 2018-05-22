@@ -72,6 +72,7 @@ key g_kConfirmDialogID;
 string g_sSampleURL = "https://goo.gl/adCn8Y";
 
 list g_lSettings;
+key g_kTempOwner;
 
 integer g_iSayLimit = 1024; // lsl "say" string limit
 integer g_iCardLimit = 255; // lsl card-line string limit
@@ -144,7 +145,10 @@ DelSetting(string sToken) { // we'll only ever delete user settings
         return;
     }
     i = llListFindList(g_lSettings, [sToken]);
-    if (~i) g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
+    if (~i) {
+        if (sToken == "auth_tempowner") g_kTempOwner = "";
+        g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
+    }
 }
 
 // run delimiters & add escape-characters for settings print
@@ -309,25 +313,11 @@ SendValues() {
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, "settings=sent", "");//tells scripts everything has be sentout
 }
 
-FailSafe(integer iSec) {
-    string sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_settings" || iSec) {
-        integer i = llGetInventoryNumber(7);
-        while (i) llRemoveInventory(llGetInventoryName(7,--i));
-        llRemoveInventory(sName);
-    }
-}
-
 UserCommand(integer iAuth, string sStr, key kID) {
     string sStrLower = llToLower(sStr);
     if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower,0,4));
     else if (!llSubStringIndex(sStrLower,"load")) {
-        if (iAuth == CMD_OWNER) {
+        if (iAuth == CMD_OWNER && kID != g_kTempOwner) {
             if (llSubStringIndex(sStrLower,"load url") == 0 && iAuth == CMD_OWNER) {
                 string sURL = llList2String(llParseString2List(sStr,[" "],[]),2);
                 if (!llSubStringIndex(sURL,"http")) {
@@ -355,10 +345,10 @@ UserCommand(integer iAuth, string sStr, key kID) {
             llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|\nAre you sure you want to reboot the %DEVICETYPE%?|0|Yes`No|Cancel|"+(string)iAuth,g_kConfirmDialogID);
         }
     } else if (sStrLower == "show storage") {
-        llSetPrimitiveParams([PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the storage prim again type:\n\n/%CHANNEL% %PREFIX% hide storage\n",kID);
     } else if (sStrLower == "hide storage")
-        llSetPrimitiveParams([PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
     else if (sStrLower == "runaway") llSetTimerEvent(2.0);
 }
 
@@ -366,7 +356,6 @@ default {
     state_entry() {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(llGetNumberOfPrims()),[OBJECT_CREATOR])];
-        FailSafe(0);
         if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
         // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
@@ -436,6 +425,7 @@ default {
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
             g_lSettings = SetSetting(g_lSettings, sToken, sValue);
+            if (sToken == "auth_tempowner" && sValue != "") g_kTempOwner = (key)sValue;
             if (LINK_CUFFS) {
                 lParams = llParseString2List(sStr, ["_"], []);
                 if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
@@ -454,8 +444,7 @@ default {
                 list lParams = llParseString2List(sStr, ["_"], []);
                 if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
             }
-        } else if (iNum == 451 && kID == "sec") FailSafe(1);
-        else if (iNum == DIALOG_RESPONSE && kID == g_kConfirmDialogID) {
+        } else if (iNum == DIALOG_RESPONSE && kID == g_kConfirmDialogID) {
             list lMenuParams = llParseString2List(sStr, ["|"], []);
             kID = llList2Key(lMenuParams,0);
             if (llList2String(lMenuParams,1) == "Yes") {
@@ -480,8 +469,12 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
+<<<<<<< HEAD
         if (iChange & CHANGED_INVENTORY) {
             FailSafe(0);
+=======
+        if ((iChange & CHANGED_INVENTORY) || (iChange & CHANGED_REGION)) {
+>>>>>>> 59a572eef36ff4406fc7d67158b4da4ebac6b784
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;

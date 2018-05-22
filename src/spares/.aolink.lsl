@@ -136,15 +136,6 @@ determineAOType() { //function to determine AO type.
     }
 }
 
-FailSafe(string sName) {
-    if (osIsUUID(sName)) return;
-    if (!((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)) {
-        Say("\n\nThis can only work if the script \""+g_sMyName+"\" is set to \"☑ Modify ☑ Copy ☑ Transfer\". In case you have been handed this script by someone else you can copy and paste the [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aolink.lsl recent source] of the AO Link in a new script or ask the community for an already compiled variation.\n\nwww.opencollar.at/aolink\n");
-        llRemoveInventory(sName);
-    }
-}
-
 AOPause() {
     if(g_iAOSwitch) {
         if (g_iAOType == ORACUL && g_sOraculstring != "") llMessageLinked(LINK_SET,0,"0"+g_sOraculstring,"ocpause");
@@ -176,7 +167,6 @@ default {
     state_entry() {
         g_sMyName = llGetScriptName();
         g_sObjectName = llGetObjectName();
-        FailSafe(g_sMyName);
         if (llGetInventoryType("oc_sys") == INVENTORY_SCRIPT) {
             Say("\n\nPlease drop me into an AO, I don't belong into a collar! Cleaning myself up here.\n");
             llRemoveInventory(g_sMyName);
@@ -301,7 +291,5 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe(g_sMyName);
-
     }
 }

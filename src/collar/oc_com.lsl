@@ -160,21 +160,6 @@ sendCommandFromLink(integer iLinkNumber, string sType, key kToucher) {
     }
 }
 
-FailSafe() {
-    string sName = "oc_sys";
-    if (llGetInventoryType(sName) == INVENTORY_SCRIPT) llRemoveInventory(sName);
-    sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000) 
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
-    || sName != "oc_com") {
-        llOwnerSay("\n\nHold on a second! Something is not right!\n\nFor this collar to work as it should, the object permissions have to be set to grant ☑ Modify rights to the next owner, and in case you already haven't, the same has to be set on the scripts themselves as well. For future updates to work the scripts also have to have the same name as they have in the git repository without the \".lsl\" file ending.\n\nPlease start over, if you are confused, try to use a sample collar as a cheat-sheet. Good luck! ♥\n");
-        llRemoveInventory(sName);
-    }
-}
-
 MoveAnims(integer i) {
     key kAnimator = llGetLinkKey(LINK_ANIM);
     string sAnim;
@@ -339,7 +324,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         g_sWearerName = NameURI(g_kWearer);
         g_sDeviceName = llGetObjectDesc();
         if (g_sDeviceName == "" || g_sDeviceName =="(No Description)") g_sDeviceName = llGetObjectName();
@@ -603,6 +587,5 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 }

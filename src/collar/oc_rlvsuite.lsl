@@ -305,17 +305,6 @@ releaseRestrictions() {
     doRestrictions();
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_rlvsuite")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     string sLowerStr=llToLower(sStr);
     //Debug(sStr);
@@ -578,7 +567,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Starting");
     }
 
@@ -730,7 +718,4 @@ default {
         llSetTimerEvent(0.0);
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }

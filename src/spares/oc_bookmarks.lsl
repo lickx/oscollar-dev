@@ -96,17 +96,6 @@ DoMenu(key keyID, integer iAuth) {
     Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "bookmarks");
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_bookmarks")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID) {
     list lParams = llParseString2List(sStr, [" "], []);
     // So commands can accept a value
@@ -370,7 +359,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();  // store key of wearer
-        FailSafe();
         ReadDestinations(); //Grab our presets
         //Debug("Starting");
     }
@@ -501,10 +489,7 @@ default {
     }
 
     changed(integer iChange) {
-        if(iChange & CHANGED_INVENTORY) {
-            FailSafe();
-            ReadDestinations();
-        }
+        if(iChange & CHANGED_INVENTORY) ReadDestinations();
         if(iChange & CHANGED_OWNER)  llResetScript();
     }
 }

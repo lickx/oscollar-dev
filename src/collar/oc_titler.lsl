@@ -122,17 +122,6 @@ ConfirmDeleteMenu(key kAv, integer iAuth) {
     Dialog(kAv, sPrompt, ["Yes","No","Cancel"], [], 0, iAuth,"rmtitler");
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_titler")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iAuth, string sStr, key kAv) {
     list lParams = llParseString2List(sStr, [" "], []);
     string sCommand = llToLower(llList2String(lParams, 0));
@@ -217,7 +206,6 @@ UserCommand(integer iAuth, string sStr, key kAv) {
 default{
     state_entry(){
        // llSetMemoryLimit(36864);
-        FailSafe(); 
         g_iTextPrim = LINK_ROOT;
         integer linkNumber = llGetNumberOfPrims()+1;
         while (linkNumber-- > 2) {
@@ -304,7 +292,6 @@ default{
 
     changed(integer iChange){
         if (iChange & (CHANGED_OWNER|CHANGED_LINK)) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe();
     }
 
     on_rez(integer param){

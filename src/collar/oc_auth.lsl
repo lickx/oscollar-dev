@@ -330,17 +330,6 @@ integer Auth(string sObjID) {
     return iNum;
 }
 
-FailSafe(integer iSec) {
-    string sName = llGetScriptName();
-    if (iwVerifyType(sName,TYPE_KEY)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000) 
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000) 
-    || sName != "oc_auth" || iSec)
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, integer iRemenu) { // here iNum: auth value, sStr: user command, kID: avatar id
    // Debug ("UserCommand("+(string)iNum+","+sStr+","+(string)kID+")");
     string sMessage = llToLower(sStr);
@@ -538,7 +527,6 @@ default {
     state_entry() {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         else g_iFirstRun = TRUE;
-        FailSafe(0);
         g_sWearerID = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
@@ -574,10 +562,11 @@ default {
                 sToken = llGetSubString(sToken, i + 1, -1);
                 if (sToken == "owner")
                     g_lOwner = llParseString2List(sValue, [","], []);
-                else if (sToken == "tempowner")
+                else if (sToken == "tempowner") {
+                    if (osIsUUID(sValue)) g_lTempOwner = [sValue];
                     g_lTempOwner = llParseString2List(sValue, [","], []);
                     //Debug("Tempowners: "+llDumpList2String(g_lTempOwner,","));
-                else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
+                } else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
                 else if (sToken == "group") {
                     g_kGroup = (key)sValue;
                     //check to see if the object's group is set properly
@@ -669,8 +658,7 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_AUTH","");
-        } else if (iNum == 451 && kID == "sec") FailSafe(1);
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
     
     timer () {
@@ -679,7 +667,6 @@ default {
     }
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_INVENTORY) FailSafe(0);
     }
 }
 

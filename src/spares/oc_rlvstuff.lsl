@@ -256,17 +256,6 @@ ClearSettings(string _category) { //clear settings list
     //main RLV script will take care of sending @clear to viewer
 }
 
-FailSafe() {
-    string sName = llGetScriptName();
-    if (osIsUUID(sName)) return;
-    if (!(llGetObjectPermMask(1) & 0x4000)
-    || !(llGetObjectPermMask(4) & 0x4000)
-    || !((llGetInventoryPermMask(sName,1) & 0xe000) == 0xe000)
-    || !((llGetInventoryPermMask(sName,4) & 0xe000) == 0xe000)
-    || sName != "oc_rlvstuff")
-        llRemoveInventory(sName);
-}
-
 UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
     if (iNum > CMD_WEARER) return;  //nothing for lower than wearer here
     sStr=llStringTrim(sStr,STRING_TRIM);
@@ -326,7 +315,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-        FailSafe();
         //Debug("Starting");
     }
 
@@ -439,7 +427,4 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    changed(integer iChange) {
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-    }
 }
