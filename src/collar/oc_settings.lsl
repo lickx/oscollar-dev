@@ -469,12 +469,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-<<<<<<< HEAD
         if (iChange & CHANGED_INVENTORY) {
-            FailSafe(0);
-=======
-        if ((iChange & CHANGED_INVENTORY) || (iChange & CHANGED_REGION)) {
->>>>>>> 59a572eef36ff4406fc7d67158b4da4ebac6b784
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;

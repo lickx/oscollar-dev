@@ -577,11 +577,6 @@ default {
 
     state_entry() {
         g_kWearer = llGetOwner();
-<<<<<<< HEAD
-        FailSafe();
-=======
-        g_vRegionSize = osGetRegionSize();
->>>>>>> 59a572eef36ff4406fc7d67158b4da4ebac6b784
         DoUnleash(FALSE);
         //Debug("Starting");
     }
@@ -785,11 +780,6 @@ default {
         if (iChange & CHANGED_OWNER){
             g_kWearer = llGetOwner();
         }
-<<<<<<< HEAD
-        if (iChange & CHANGED_INVENTORY) FailSafe();
-=======
-        if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
->>>>>>> 59a572eef36ff4406fc7d67158b4da4ebac6b784
     }
 }
 

@@ -563,7 +563,7 @@ default {
                 if (sToken == "owner")
                     g_lOwner = llParseString2List(sValue, [","], []);
                 else if (sToken == "tempowner") {
-                    if (osIsUUID(sValue)) g_lTempOwner = [sValue];
+                    if (iwVerifyType(sValue,TYPE_KEY)) g_lTempOwner = [sValue];
                     g_lTempOwner = llParseString2List(sValue, [","], []);
                     //Debug("Tempowners: "+llDumpList2String(g_lTempOwner,","));
                 } else if (sToken == "vanilla") g_iVanilla = (integer)sValue;
