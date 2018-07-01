@@ -4,7 +4,8 @@
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,
 //  Joy Stipe, Cleo Collins, Satomi Ahn, Master Starship, Toy Wylie,
 //  Kaori Gray, Sei Lisa, Wendy Starfall, littlemousy, Romka Swallowtail,
-//  Sumi Perl, Karo Weirsider, Kurt Burleigh, Marissa Mistwallow et al.
+//  Sumi Perl, Karo Weirsider, Kurt Burleigh, Marissa Mistwallow,
+//  klixi et al.
 //
 //  This script is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published
@@ -21,7 +22,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 136;
+integer g_iBuild = 137;
 
 string TOK_LENGTH = "leashlength";
 string TOK_DEST = "leashedto";
