@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 34;
+integer g_iBuild = 36;
 
 string  RESTRICTION_BUTTON = "Restrictions";
 string  RESTRICTIONS_CHAT_COMMAND = "restrictions";
@@ -200,8 +200,8 @@ doRestrictions(){
     else llMessageLinked(LINK_RLV,RLV_CMD,"sendchat=y","vdRestrict");
     if (g_iTouchRestricted)    llMessageLinked(LINK_RLV,RLV_CMD,"touchall=n","vdRestrict");
     else llMessageLinked(LINK_RLV,RLV_CMD,"touchall=y","vdRestrict");
-    if (g_iStrayRestricted)    llMessageLinked(LINK_RLV,RLV_CMD,"tplm=n,tploc=n,tplure=n,sittp=n","vdRestrict");
-    else llMessageLinked(LINK_RLV,RLV_CMD,"tplm=y,tploc=y,tplure=y,sittp=y","vdRestrict");
+    if (g_iStrayRestricted)    llMessageLinked(LINK_RLV,RLV_CMD,"tplm=n,tploc=n,tplure=n,sittp:6=n","vdRestrict");
+    else llMessageLinked(LINK_RLV,RLV_CMD,"tplm=y,tploc=y,tplure=y,sittp:6=y","vdRestrict");
     if (g_iStandRestricted) {
         if (llGetAgentInfo(g_kWearer)&AGENT_SITTING) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
     } else llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y","vdRestrict");
