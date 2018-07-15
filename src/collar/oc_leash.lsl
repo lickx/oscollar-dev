@@ -195,20 +195,13 @@ SetLength(integer iIn) {
 
 ApplyRestrictions() {
     //Debug("Applying Restrictions");
-    if (g_iLeasherInRange) {
-        if (g_iStrictModeOn) {
-            if (g_kLeashedTo != NULL_KEY) {
-                if (! g_bFollowMode) {
-                //Debug("Setting restrictions");
-                llMessageLinked(LINK_RLV, RLV_CMD, "fly=n,tplm=n,tplure=n,tploc=n,tplure:" + (string) g_kLeashedTo + "=add", "realleash");     //set all restrictions
+    if (g_iLeasherInRange && g_iStrictModeOn) {
+        if (g_kLeashedTo != NULL_KEY) {
+            if (!g_bFollowMode) {
+                llMessageLinked(LINK_RLV, RLV_CMD, "fly=n,tplm=n,tplure=n,tploc=n,sittp:6=n,tplure:" + (string) g_kLeashedTo + "=add", "realleash");
                 return;
-                }
             }
-        //} else {
-            //Debug("Strict is off");
         }
-    //} else {
-        //Debug("Leasher out of range");
     }
     //Debug("Releasing restrictions");
     llMessageLinked(LINK_RLV, RLV_CMD, "clear", "realleash");     //release all restrictions
