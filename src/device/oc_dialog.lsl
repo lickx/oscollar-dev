@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 111;
+integer g_iBuild = 113;
 
 integer CMD_ZERO = 0;
 
@@ -50,7 +50,7 @@ string g_sGlobalToken = "global_";
 integer g_iListenChan=1;
 string g_sPrefix;
 string g_sDeviceType = "collar";
-string g_sDeviceName;
+string g_sDeviceName = "Collar";
 string g_sWearerName;
 list g_lOwners;
 
@@ -332,9 +332,6 @@ default {
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer),0,1));
         g_sWearerName = NameURI(g_kWearer);
-        g_sDeviceName = llList2String(llGetLinkPrimitiveParams(1,[PRIM_DESC]),0);
-        if (g_sDeviceName == "" || g_sDeviceName =="(No Description)")
-            g_sDeviceName = llList2String(llGetLinkPrimitiveParams(1,[PRIM_NAME]),0);
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_NAME,g_sDeviceName]);
     }
 
