@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 3;
+integer g_iBuild = 6;
 
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
@@ -169,24 +169,23 @@ default {
             g_iCmdAuth = iNum;
             string sCommand = llToLower(llList2String(lParams, 0));
             string sValue = llToLower(llList2String(lParams, 1));
-            if (sCommand == "pet") {
+            if (sCommand == "pet" || sStr == "menu Couples" || sStr == "couples") {
+                if (sCommand != "pet") lParams = ["pet","me"];
                 if (llGetListLength(lParams) > 1) {
-                    string sTmpName = llDumpList2String(llList2List(lParams, 1, -1), " ");
-                    Dialog(g_kCmdGiver, "\nChoose a partner:\n", [sTmpName], ["CANCEL"], 0, iNum, "sensor");
+                    string sTmpName = llDumpList2String(llList2List(lParams, 1, -1)," ");
+                    Dialog(g_kCmdGiver,"\nChoose a partner:\n",[sTmpName],["CANCEL"],0,iNum,"sensor");
                 } else {
                     if (kID == g_kWearer) {
-                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nYou didn't give the name of the person you want to animate. To " + sCommand + " Wendy Starfall, for example, you could say:\n\n /%CHANNEL% %PREFIX% " + sCommand + " wen\n", g_kWearer);
+                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nYou didn't give the name of the person you want to animate. If you for example want to invite Wendy Starfall to pet you, the command would be:\n\n /%CHANNEL% %PREFIX% pet wen\n",g_kWearer);
                     } else {
                         g_kPartner = g_kCmdGiver;
                         g_sPartnerName = "secondlife:///app/agent/"+(string)g_kPartner+"/about";
                         StopAnims();
                         GetPartnerPermission();
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Offering to " + sCommand + " " + g_sPartnerName + ".",g_kWearer);
+                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Asking "+g_sPartnerName+" to pet you.",g_kWearer);
                     }
                 }
-            } else if (llToLower(sStr) == "stop couples") StopAnims();
-            else if (sStr == "menu Couples" || sStr == "couples")
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There are currently no couples features installed. For now you can only use the petting action. Type: /%CHANNEL% %PREFIX% pet",kID);
+            } else if (sCommand == "stop" && (sValue == "couples" || sValue == "pet")) StopAnims();
             else if (sCommand == "couples" && sValue == "verbose") {
                 sValue = llToLower(llList2String(lParams, 2));
                 if (sValue == "off"){
