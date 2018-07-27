@@ -46,7 +46,7 @@ integer RLV_CLEAR = 6002;
 
 key g_kWearer;
 
-string g_sVersion = "6.8.4";
+string g_sVersion = "6.8.5";
 
 string g_sGlobalToken = "global_";
 string g_sAbout;
@@ -162,7 +162,7 @@ UpdateGlows(integer iLink, integer iAlpha) {
         lGlows = g_lOpenLocksGlows;
         if (g_iLocked) lGlows = g_lClosedLocksGlows;
         iIndex = llListFindList(lGlows,[iLink]);
-        if (!~iIndex) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
+        if (!(~iIndex)) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
     } else {
         float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
         lGlows = g_lClosedLocksGlows;
