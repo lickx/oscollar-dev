@@ -27,8 +27,10 @@ At the moment this repository is separated into resources, source code and web q
     > src: Source code of the OpenCollar Six role play device.
 
         > ao: The source code for the animation overrider.
-        > collar: The source code for the collar device.
-        > installer: The source code for the package manager.
+        > apps: Fun features you can add to your device
+        > device: Everything you need for a full featured device
+        > extensions: Enhanced features that can be added to a device
+        > installer: The source code for the updater aka patch
         > remote: The source code for the remote control HUD.
         > spares: Spares and snippets for research and development.
 ```
@@ -55,12 +57,11 @@ We chose to do that in order to save space in a already cramped screen environme
 
 #### OpenSim Porting Information
 
-Since many grids are still on OpenSim 0.8.x that is our base target
-
 Branches: 
  
-master - development branch  
-oscollar6 - stable release  
+master - Generic version maximizing compatibility with old OpenSim versions  
+osgrid - OsGrid version utilizing all modern features of OpenSim 0.9  
+inworldz - OsCollar for Halcyon grids like InWorldz  
  
 A reference collar is available in the region 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any open grid, copy/paste the address in the World Map, then press Search followed by Teleport.
 
