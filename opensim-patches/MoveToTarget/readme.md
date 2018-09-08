@@ -1,17 +1,8 @@
 0008250: llMoveToTarget() in attachment plays 'landing' anim when on a prim floor
 http://opensimulator.org/mantis/view.php?id=8250
 
+When a scripted attachment calls llMoveToTarget() to move the wearer, the default 'landing' or 'flying' animation is sometimes played.
 
-With OsCollar, or any OpenCollar for that matter, when someone is leashed then
-repeatedly the 'landing' animation is played and sometimes 'flying'. This patch
-addresses this issue.
+In the case of OsCollar, the bug is seen when taking a leashed person for a walk, and is specifically noticable when walking up and down ramps or staircases.
 
-
-General patch instructions:
-
-cd opensim-source  
-patch -p1 --dry-run -i ~/Downloads/fix.diff  
-
-no errors with dry-run? then:  
-patch -p1 -i ~/Downloads/fix.diff  
-
+The patch adresses this by only playing those animations when not standing.
