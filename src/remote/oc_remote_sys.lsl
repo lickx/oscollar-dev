@@ -20,7 +20,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sFancyVersion = "6.8.3";
+string g_sFancyVersion = "6.8.5";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -80,7 +80,6 @@ key    g_kOwner;
 string  g_sRezObject;
 
 integer g_iAddPartnerTimer;
-integer g_iSaveCardTimer;
 
 string NameURI(string sID) {
     if (osIsUUID(sID))
@@ -226,13 +225,6 @@ integer PicturePrim() {
     return 0;
 }
 
-SaveCard()
-{
-    osMakeNotecard("test", "This notecard can be safely removed");
-    g_iSaveCardTimer = llGetUnixTime() + 5;
-    llSetTimerEvent(0.5);
-}
-
 default {
     state_entry() {
         g_kOwner = llGetOwner();
@@ -375,7 +367,6 @@ default {
                 if (sMessage == UPMENU) MainMenu();
                 else if (sMessage == "Yes") {
                     RemovePartner(g_kRemovedPartnerID);
-                    SaveCard();
                     MainMenu();
                 } else if (sMessage == "No") MainMenu();
                 else if (~index) {
@@ -406,7 +397,6 @@ default {
                 } else if (osIsUUID(sMessage))
                     AddPartner(sMessage);
                 g_lNewPartnerIDs = [];
-                SaveCard();
                 MainMenu();
             }
         }
@@ -426,17 +416,7 @@ default {
             g_lListeners = [];
         }
 
-        if (g_iSaveCardTimer) {
-            if (llGetInventoryKey("test")!=NULL_KEY) {
-                // test ok, we are allowed osMakeNotecard(), so replace the card
-                g_iSaveCardTimer = 0;
-                if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
-                osMakeNotecard(g_sCard, llDumpList2String(g_lPartners, "\n"));
-                llRemoveInventory("test"); // this will force CHANGED_INVENTORY to re-read the card
-            } else if (iTimeStamp >= g_iSaveCardTimer) g_iSaveCardTimer = 0;
-        }
-
-        if (!g_iAddPartnerTimer && !g_iSaveCardTimer) llSetTimerEvent(0);
+        if (!g_iAddPartnerTimer) llSetTimerEvent(0);
     }
 
     dataserver(key kRequestID, string sData) {
