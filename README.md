@@ -60,9 +60,7 @@ We chose to do that in order to save space in a already cramped screen environme
 Branches: 
  
 master - Generic version maximizing compatibility with old OpenSim versions  
-osgrid - OsGrid version utilizing all modern features of OpenSim 0.9  
+osgrid - OsGrid version utilizing all modern features of OpenSim 0.9+ and OsGrid  
 inworldz - OsCollar for Halcyon grids like InWorldz  
  
-A reference collar is available in the region 'Kinky Hub' in [OsGrid](https://www.osgrid.org). The hypergrid address to get there is 'hg.osgrid.org:80:Kinky Hub'. With your avatar from any open grid, copy/paste the address in the World Map, then press Search followed by Teleport.
-
-UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server.
+UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server
