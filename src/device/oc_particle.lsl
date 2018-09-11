@@ -235,7 +235,7 @@ GetSettings(integer iStartParticles) {
     if (g_sParticleMode == "Classic") SetTexture(g_sClassicTexture, NULLKEY);
     else if (g_sParticleMode == "Ribbon") SetTexture(g_sRibbonTexture, NULLKEY);
     if (iStartParticles &&  g_kLeashedTo != NULLKEY){
-        llSleep(0.1);
+        llSleep(0.5); // changed from 0.1 for XEngine
         StartParticles(g_kParticleTarget);
     }
 }
