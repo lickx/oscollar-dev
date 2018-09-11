@@ -330,7 +330,8 @@ default {
         } else if (iNum == BUILD_REQUEST)
             llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
         else if(iNum == CMD_OWNER && sStr == "runaway") {
-            llSleep(4);
+            //commented out for XEngine - is this llSleep really needed?
+            //llSleep(4);
             SetBellElementAlpha();
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
