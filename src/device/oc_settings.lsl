@@ -307,20 +307,20 @@ default {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
         if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
-        llSleep(0.5);
+        //llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
         if (!llGetStartParameter()) {
             if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-             g_kCardID = llGetInventoryKey(g_sCard);
+                g_kCardID = llGetInventoryKey(g_sCard);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
     }
 
     on_rez(integer iParam) {
         if (g_kWearer == llGetOwner())
-            llSetTimerEvent(2.0);
+            llSetTimerEvent(5.0);
         else llResetScript();
     }
 
