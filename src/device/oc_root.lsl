@@ -223,7 +223,7 @@ MenuRoot(key kID, integer iAuth) {
 
 MenuSettings(key kID, integer iAuth) {
     string sContext = "\nSettings";
-    list lTheseButtons = ["Print","Load","Fix"];
+    list lTheseButtons = ["Print","Load","Save","Fix"];
     lTheseButtons += g_lAdjusters;
     if (g_iHidden) lTheseButtons += ["☑ Stealth"];
     else lTheseButtons += ["☐ Stealth"];
@@ -415,6 +415,7 @@ default {
                 } else if (sMenu == "Settings") {
                      if (sButton == "Print") llMessageLinked(LINK_SAVE,iAuth,"print settings",kID);
                      else if (sButton == "Load") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
+                     else if (sButton == "Save") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
                      else if (sButton == "Fix") {
                          Commands(iAuth,sButton,kID);
                          return;
