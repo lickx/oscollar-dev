@@ -245,7 +245,7 @@ MenuAbout(key kID) {
     sContext += "\n\n“"+g_sAbout+"”";
     sContext += "\n\n"+g_sGroup;
     sContext += "\n"+g_sLandmark;
-    sContext += "\n\nOpenCollar scripts were used in this product to an unknown extent. Relevant [https://raw.githubusercontent.com/OpenCollar/opencollar/master/LICENSE license terms] still apply.";
+    sContext += "\n\nOsCollar is based on the work of the Peanut and OpenCollar projects.";
     llDialog(kID, sContext, ["OK"], -12345);
 }
 
@@ -291,10 +291,8 @@ Commands(integer iAuth, string sStr, key kID) {
     else if (sStr == "settings") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) MenuSettings(kID, iAuth);
     } else if (sCmd == "fix") {
-        if (kID == g_kWearer) {
-            MakeMenus();
-            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"I've fixed the menus.", kID);
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
+        MakeMenus();
+        //llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"The menus have been fixed.", kID);
     } else if (sCmd == "quote") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
             string sContext = "\nEnter a quote and press [Submit.]\n\n(Leave empty to cancel.)";
