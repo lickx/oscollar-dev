@@ -242,7 +242,7 @@ PlayAnim(string sAnim) {
             llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0.0=force",g_kWearer);
     }
     llStartAnimation(sAnim);
-    if (g_iCrawl) llSetTimerEvent(0.5);
+    if (g_iCrawl && g_sCurrentPose != "") llSetTimerEvent(0.5);
 }
 
 StopAnim(string sAnim, integer isPoseChange) {
@@ -510,7 +510,7 @@ default {
                     else if (sMessage == "Couples") llMessageLinked(LINK_THIS,iAuth,"menu Couples",kAv);
                     else if (sMessage == "Pet me!") llMessageLinked(LINK_THIS,iAuth,"pet me",kAv);
                     else if (sMessage == "AO Menu") {
-                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OpenCollar AO or an AO Link script in their AO HUD.\n\nwww.opencollar.at/ao\n", kAv);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OsCollar AO or an AO Link script in their AO HUD.\n\nhttps://github.com/lickx/oscollar/wiki/OsCollar-AO\n", kAv);
                         AOMenu(kAv, iAuth);
                     } else {
                         string sOnOff;
