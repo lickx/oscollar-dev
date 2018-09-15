@@ -1,4 +1,6 @@
 
+//  oc_titler.lsl
+//
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,
 //  Satomi Ahn, Kisamin, Joy Stipe, Wendy Starfall, littlemousy,
 //  Romka Swallowtail et al.
@@ -19,32 +21,22 @@
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 string g_sAppVersion = "2.1";
+integer g_iBuild = 74;
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
-string g_sPrimDesc = "FloatText";   //description text of the hovertext prim.  Needs to be separated from the menu name.
+string g_sPrimDesc = "FloatText";
 
-//MESSAGE MAP
-//integer CMD_ZERO = 0;
-integer CMD_OWNER            = 500;
-//integer CMD_TRUSTED        = 501;
-//integer CMD_GROUP          = 502;
-integer CMD_WEARER           = 503;
-integer CMD_EVERYONE         = 504;
-//integer CMD_RLV_RELAY      = 507;
-//integer CMD_SAFEWORD       = 510;
-//integer CMD_RELAY_SAFEWORD = 511;
-//integer CMD_BLOCKED = 520;
+integer CMD_OWNER = 500;
+integer CMD_WEARER = 503;
+integer CMD_EVERYONE = 504;
 
 integer NOTIFY = 1002;
-//integer SAY = 1004;
-integer REBOOT              = -1000;
-integer LINK_DIALOG         = 3;
-//integer LINK_RLV            = 4;
-integer LINK_SAVE           = 5;
+integer REBOOT = -1000;
+integer LINK_DIALOG = 3;
+integer LINK_SAVE = 5;
 integer LINK_UPDATE = -10;
 integer LM_SETTING_SAVE = 2000;
-//integer LM_SETTING_REQUEST = 2001;
 integer LM_SETTING_RESPONSE = 2002;
 integer LM_SETTING_DELETE = 2003;
 
@@ -55,20 +47,19 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
-
+integer BUILD_REQUEST = 17760501;
 
 integer g_iLastRank = 504; // CMD_EVERYONE
 integer g_iOn = FALSE;
 string g_sText;
-vector g_vColor = <1.0,1.0,1.0>; // default white
+vector g_vColor = <1.0,1.0,1.0>;
 
 integer g_iTextPrim;
 
 key g_kWearer;
 string g_sSettingToken = "titler_";
-//string g_sGlobalToken = "global_";
 
-list g_lMenuIDs;  //three strided list of avkey, dialogid, and menuname
+list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
 string SET = "Set Title" ;
@@ -79,11 +70,6 @@ string OFF = "☐ Show";
 string UPMENU = "BACK";
 string g_sUp;
 
-//float min_z = 0.25 ; // min height
-//float max_z = 1.0 ; // max height
-vector g_vPrimScale = <0.08,0.08,0.4>; // prim size, initial value (z - text offset height)
-
-// make a silly ascii-art bargraph
 string MakeGraph(integer iPercent, string sTitle) {
     string sResult = (string)iPercent+"% "+sTitle+"\n";
     integer iSlots = llRound(iPercent / 10);
@@ -102,19 +88,14 @@ string MakeGraph(integer iPercent, string sTitle) {
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
-    //Debug("Made menu.");
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
     if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, iMenuType];
 }
 
 ShowHideText() {
-    //Debug("ShowHideText");
-    //if (g_iTextPrim >0){
-        if (g_sText == "") g_iOn = FALSE;
-        llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TEXT,g_sText+g_sUp,g_vColor,(float)g_iOn]);
-        //llSetLinkPrimitiveParamsFast(g_iTextPrim, [PRIM_TEXT,g_sText,g_vColor,(float)g_iOn, PRIM_SIZE,g_vPrimScale, PRIM_SLICE,<0.490,0.51,0.0>]);
-    //}
+    if (g_sText == "") g_iOn = FALSE;
+    llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TEXT,g_sText+g_sUp,g_vColor,(float)g_iOn]);
 }
 
 ConfirmDeleteMenu(key kAv, integer iAuth) {
@@ -147,25 +128,21 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         Dialog(kAv, "\n- Submit the new title in the field below.\n- Submit a blank field to go back to " + g_sSubMenu + ".", [], [], 0, iAuth,"textbox");
     else if (sStr == "runaway" && (iAuth == CMD_OWNER || iAuth == CMD_WEARER)) {
         UserCommand(CMD_OWNER,"title off", g_kWearer);
-       /* g_sText = "";
-        g_iOn = FALSE;
-        ShowHideText();
-        llResetScript();*/
     } else if (sCommand == "title" || sCommand == "graph") {
         integer iIsCommand;
         if (llGetListLength(lParams) <= 2) iIsCommand = TRUE;
-        if (g_iOn && iAuth > g_iLastRank) //only change text if commander has same or greater auth
+        if (g_iOn && iAuth > g_iLastRank)
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You currently have not the right to change the Titler settings, someone with a higher rank set it!",kAv);
         else if (sAction == "on") {
             g_iLastRank = iAuth;
             g_iOn = TRUE;
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"on="+(string)g_iOn, "");
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"auth="+(string)g_iLastRank, "");  // save lastrank to DB
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"auth="+(string)g_iLastRank, "");
         } else if (sAction == "off" && iIsCommand) {
             g_iLastRank = CMD_EVERYONE;
             g_iOn = FALSE;
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"on", "");
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"auth", ""); // del lastrank from DB
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"auth", "");
         } else if (sAction == "up" && iIsCommand) {
             g_sUp += "\n ";
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
@@ -174,10 +151,9 @@ UserCommand(integer iAuth, string sStr, key kAv) {
             if (llStringLength(g_sUp) <= 2) g_sUp = "";
             else g_sUp = llGetSubString(g_sUp,2,-1);
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE, g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
-        } else {//if (sAction == "text") {
-            //string sNewText= llDumpList2String(llDeleteSubList(lParams, 0, 1), " ");//pop off the "text" command
+        } else {
             string sNewText= llDumpList2String(llDeleteSubList(lParams, 0, 0), " ");
-            g_sText = llDumpList2String(llParseStringKeepNulls(sNewText, ["\n"], []), "\n");// make it possible to insert line breaks in hover text
+            g_sText = llDumpList2String(llParseStringKeepNulls(sNewText, ["\n"], []), "\n");
             if (sNewText == "") {
                 g_iOn = FALSE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"title", "");
@@ -192,9 +168,9 @@ UserCommand(integer iAuth, string sStr, key kAv) {
                 }
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"title="+g_sText, "");
             }
-            g_iLastRank=iAuth;
+            g_iLastRank = iAuth;
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"on="+(string)g_iOn, "");
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"auth="+(string)g_iLastRank, ""); // save lastrank to DB
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"auth="+(string)g_iLastRank, "");
         }
         ShowHideText();
     } else if (sStr == "rm titler") {
@@ -205,7 +181,6 @@ UserCommand(integer iAuth, string sStr, key kAv) {
 
 default{
     state_entry(){
-       // llSetMemoryLimit(36864);
         g_iTextPrim = LINK_ROOT;
         integer linkNumber = llGetNumberOfPrims()+1;
         while (linkNumber-- > 2) {
@@ -213,18 +188,16 @@ default{
             if (llSubStringIndex(desc, g_sPrimDesc) == 0) {
                 g_iTextPrim = linkNumber;
                 llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TYPE,PRIM_TYPE_CYLINDER,0,<0.0,1.0,0.0>,0.0,ZERO_VECTOR,<1.0,1.0,0.0>,ZERO_VECTOR,PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1.0, 1.0, 0.0>,ZERO_VECTOR,0.0,PRIM_SLICE,<0.490,0.51,0.0>,PRIM_DESC,g_sPrimDesc+"~notexture~nocolor~nohide~noshiny~noglow"]);
-                linkNumber = 0 ; // break while cycle
+                linkNumber = 0;
             } else {
                 llSetLinkPrimitiveParamsFast(linkNumber,[PRIM_TEXT,"",<0,0,0>,0]);
             }
         }
         g_kWearer = llGetOwner();
-        //Debug("State Entry Event ended");
         ShowHideText();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID){
-        //Debug("Link Message Event");
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID);
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
@@ -240,7 +213,7 @@ default{
                     integer i = 1;
                     for(;i < (integer)sValue; ++i) g_sUp += "\n ";
                 }
-                if(sToken == "auth") g_iLastRank = (integer)sValue; // restore lastrank from DB
+                if(sToken == "auth") g_iLastRank = (integer)sValue;
             } else if( sStr == "settings=sent") ShowHideText();
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -264,13 +237,13 @@ default{
                         else if (sMessage == ON) UserCommand(iAuth, "title off", kAv);
                         UserCommand(iAuth, "menu titler", kAv);
                     }
-                } else if (sMenuType == "color") {  //response form the colours menu
+                } else if (sMenuType == "color") {
                     if (sMessage == UPMENU) UserCommand(iAuth, "menu titler", kAv);
                     else {
                         UserCommand(iAuth, "titler color "+sMessage, kAv);
                         Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],iPage,iAuth,"color");
                     }
-                } else if (sMenuType == "textbox") {  //response from text box
+                } else if (sMenuType == "textbox") {
                     if(sMessage != " ") UserCommand(iAuth, "title " + sMessage, kAv);
                     UserCommand(iAuth, "menu " + g_sSubMenu, kAv);
                 } else if (sMenuType == "rmtitler") {
@@ -283,11 +256,13 @@ default{
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);  //remove stride from g_lMenuIDs
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
+        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     changed(integer iChange){

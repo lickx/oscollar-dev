@@ -1,4 +1,6 @@
 
+//  oc_shocker.lsl
+//
 //  Copyright (c) 2014 - 2015 Romka Swallowtail
 //
 //  This script is free software: you can redistribute it and/or modify

@@ -1,4 +1,6 @@
 
+//  oc_label.lsl
+//
 //  Copyright (c) 2006 - 2016 Xylor Baysklef, Kermitt Quirk,
 //  Thraxis Epsilon, Gigs Taggart, Strife Onizuka, Huney Jewell,
 //  Salahzar Stenvaag, Lulu Pink, Nandana Singh, Cleo Collins, Satomi Ahn,
@@ -22,37 +24,25 @@
 
 string g_sAppVersion = "1.6";
 
+integer g_iBuild = 77;
+
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
 
 key g_kWearer;
 string g_sSettingToken = "label_";
-//string g_sGlobalToken = "global_";
 
-//MESSAGE MAP
-//integer CMD_ZERO = 0;
-integer CMD_OWNER            = 500;
-integer CMD_TRUSTED          = 501;
-//integer CMD_GROUP          = 502;
-integer CMD_WEARER           = 503;
-//integer CMD_EVERYONE       = 504;
-//integer CMD_RLV_RELAY      = 507;
-//integer CMD_SAFEWORD       = 510;
-//integer CMD_RELAY_SAFEWORD = 511;
-//integer CMD_BLOCKED = 520;
+integer CMD_OWNER = 500;
+integer CMD_TRUSTED = 501;
+integer CMD_WEARER = 503;
 
 integer NOTIFY = 1002;
-//integer SAY = 1004;
 integer REBOOT = -1000;
 integer LINK_DIALOG = 3;
-//integer LINK_RLV = 4;
 integer LINK_SAVE = 5;
 integer LINK_UPDATE = -10;
 integer LM_SETTING_SAVE = 2000;
-//integer LM_SETTING_REQUEST = 2001;
 integer LM_SETTING_RESPONSE = 2002;
-integer LM_SETTING_DELETE = 2003;
-//integer LM_SETTING_EMPTY = 2004;
 
 integer MENUNAME_REQUEST = 3000;
 integer MENUNAME_RESPONSE = 3001;
@@ -61,6 +51,7 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
+integer BUILD_REQUEST = 17760501;
 
 integer g_iCharLimit = -1;
 
@@ -70,13 +61,8 @@ string g_sTextMenu = "Set Label";
 string g_sFontMenu = "Font";
 string g_sColorMenu = "Color";
 
-list g_lMenuIDs;  //three strided list of avkey, dialogid, and menuname
+list g_lMenuIDs;
 integer g_iMenuStride = 3;
-
-//key g_kDialogID;
-//key g_kTBoxID;
-//key g_kFontID;
-//key g_kColorID;
 
 integer g_iScroll = FALSE;
 integer g_iShow = FALSE;
@@ -85,99 +71,26 @@ integer g_iHide;
 
 string g_sLabelText = "";
 
-float g_iRotIncrement = 11.75;
-// defaults for cylinders
 vector g_vGridOffset;
 vector g_vRepeats;
 vector g_vOffset;
+integer FACE = -1;
 
-////////////////////////////////////////////
-// Changed for the OpenColar label, only one face per prim on a cut cylinder,
-// HEAVILY reduced to what we need, else functions removed for easier reading
-// Lulu Pink 11/2008
-//
-// XyzzyText v2.1.UTF8 (UTF8-support) by Salahzar Stenvaag
-// XyzzyText v2.1 Script (Set Line Color) by Huney Jewell
-// XyzzyText v2.0 Script (5 Face, Single Texture)
-//
-// Heavily Modified by Thraxis Epsilon, Gigs Taggart 5/2007 and Strife Onizuka 8/2007
-// Rewrite to allow one-script-per-object operation w/ optional slaves
-// Enable prim-label functionality
-// Enabled Banking
-//
-// Modified by Kermitt Quirk 19/01/2006
-// To add support for 5 face prim instead of 3
-//
-// Core XyText Originally Written by Xylor Baysklef
-//
-//
-////////////////////////////////////////////
-
-/////////////// CONSTANTS ///////////////////
-// XyText Message Map.
-integer DISPLAY_STRING      = 204000;
-integer DISPLAY_EXTENDED    = 204001;
-integer REMAP_INDICES       = 204002;
-integer RESET_INDICES       = 204003;
-//integer SET_FADE_OPTIONS    = 204004;
-integer SET_FONT_TEXTURE    = 204005;
-//integer SET_LINE_COLOR      = 204006;
-//integer SET_COLOR           = 204007;
-integer RESCAN_LINKSET      = 204008;
-
-// This is an extended character escape sequence.
-string  ESCAPE_SEQUENCE = "\\e";
-
-// This is used to get an index for the extended character.
-string  EXTENDED_INDEX  = "12345";
-
-// Face numbers.
-// only one face needed. -1 lets setup function know that it hasn't run yet
-integer FACE          = -1;
-
-// Used to hide the text after a fade-out.
-//key     TRANSPARENT     = "701917a8-d614-471f-13dd-5f4644e36e3c";
-//key     null_key        = NULL_KEY;
-///////////// END CONSTANTS ////////////////
-
-///////////// GLOBAL VARIABLES ///////////////
-// This is the key of the font we are displaying.
-//key     gFontTexture        = "b2e7394f-5e54-aa12-6e1c-ef327b6bed9e";
-// 48 pixel font key     g_kFontTexture        = "f226766c-c5ac-690e-9018-5a37367ae95a";
-// 38 pixel font
-//key g_kFontTexture= "ac955f98-74bb-290f-7eb6-dca54e5e4491";
-//key g_kFontTexture= "e5efeead-c69e-eb81-e7bd-dad2bb787d2b"; // Bitstream Vera Monotype // SALAHZAR
-
-//key g_kFontTexture= "41b57e2d-e60b-01f0-8f23-e109f532d01d"; //oldEnglish Chars
-//key g_kFontTexture = "0d3c99c1-5df4-638c-0f51-ed8591ae8b93";  //Bitstream Vera Serif
-//key g_kFontTexture = "a37110e0-5a1f-810d-f999-d0b88568adf0";  //Apple Chancery
-//key g_kFontTexture = "020f8783-0d0d-88e3-487d-df3e07d068e7"; //Lucida Bright
-//key g_kFontTexture = "fa87184c-35ca-5143-fe24-cdf70e427a09"; // monotype Corsiva
-//key g_kFontTexture = "34835ebf-b13a-a054-46bc-678d0849025c"; // DejaVu Sans Mono
-//key g_kFontTexture = "316b2161-0669-1796-fec2-976526a29efd";//Andale Mono, Etched
-//key g_kFontTexture = "f38c6993-d85e-cffb-fce9-7aed87b80c2e";//andale mono etched 45 point
-//key g_kFontTexture = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe";//verily serif 40 etched, on white
 key g_kFontTexture = NULL_KEY;
 list g_lFonts = [
-    "Andale 1", "ccc5a5c9-6324-d8f8-e727-ced142c873da", //
-    "Andale 2", "8e10462f-f7e9-0387-d60b-622fa60aefbc", //not ideally aligned
+    "Andale 1", "ccc5a5c9-6324-d8f8-e727-ced142c873da",
+    "Andale 2", "8e10462f-f7e9-0387-d60b-622fa60aefbc",
     "Serif 1", "2c1e3fa3-9bdb-2537-e50d-2deb6f2fa22c",
     "Serif 2", "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe",
     "LCD", "014291dc-7fd5-4587-413a-0d690a991ae1"
         ];
 
-// All displayable characters.  Default to ASCII order.
 string g_sCharIndex;
-list g_lDecode=[]; // to handle special characters from CP850 page for european countries // SALAHZAR
-//string g_sScript;
-
-/////////// END GLOBAL VARIABLES ////////////
+list g_lDecode;
 
 ResetCharIndex() {
-
     g_sCharIndex  = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`";
     g_sCharIndex += "abcdefghijklmnopqrstuvwxyz{|}~\n\n\n\n\n";
-
     g_lDecode= [ "%C3%87", "%C3%BC", "%C3%A9", "%C3%A2", "%C3%A4", "%C3%A0", "%C3%A5", "%C3%A7", "%C3%AA", "%C3%AB" ];
     g_lDecode+=[ "%C3%A8", "%C3%AF", "%C3%AE", "%C3%AC", "%C3%84", "%C3%85", "%C3%89", "%C3%A6", "%C3%AE", "xxxxxx" ];
     g_lDecode+=[ "%C3%B6", "%C3%B2", "%C3%BB", "%C3%B9", "%C3%BF", "%C3%96", "%C3%9C", "%C2%A2", "%C2%A3", "%C2%A5" ];
@@ -186,71 +99,36 @@ ResetCharIndex() {
     g_lDecode+=[ "%CE%93", "%CF%80", "%CE%A3", "%CF%83", "%C2%B5", "%CF%84", "%CE%A6", "%CE%98", "%CE%A9", "%CE%B4" ];
     g_lDecode+=[ "%E2%88%9E", "%CF%86", "%CE%B5", "%E2%88%A9", "%E2%89%A1", "%C2%B1", "%E2%89%A5", "%E2%89%A4", "%E2%8C%A0", "%E2%8C%A1" ];
     g_lDecode+=[ "%C3%B7", "%E2%89%88", "%C2%B0", "%E2%88%99", "%C2%B7", "%E2%88%9A", "%E2%81%BF", "%C2%B2", "%E2%82%AC", "" ];
-
-    // END // SALAHZAR
-
 }
 
 vector GetGridOffset(integer iIndex) {
-    // Calculate the offset needed to display this character.
     integer iRow = iIndex / 10;
     integer iCol = iIndex % 10;
-    // Return the offset in the texture.
-    return <g_vGridOffset.x + 0.1 * iCol, g_vGridOffset.y - 0.05 * iRow, g_vGridOffset.z>; // SALAHZAR modified vertical offsets for 512x1024 textures    // Lulu modified for cut cylinders
-    //     return <-0.725 + 0.1 * iCol, 0.472 - 0.05 * iRow, 0.0>;
+    return <g_vGridOffset.x + 0.1 * iCol, g_vGridOffset.y - 0.05 * iRow, g_vGridOffset.z>;
 }
 
-//ShowChars(integer link,vector grkID_offset1, vector grkID_offset2, vector grkID_offset3, vector grkID_offset4, vector grkID_offset5)
 ShowChars(integer link,vector grkID_offset) {
-    // SALAHZAR modified .1 to .05 to handle different sized texture
     float alpha = llList2Float(llGetLinkPrimitiveParams( link,[PRIM_COLOR,FACE]),1);
     llSetLinkPrimitiveParamsFast( link,[
         PRIM_TEXTURE, FACE, (string)g_kFontTexture, g_vRepeats, grkID_offset - g_vOffset, 0.0,
         PRIM_COLOR, FACE, g_vColor, alpha]);
 }
 
-// SALAHZAR intelligent procedure to extract UTF-8 codes and convert to index in our "cp850"-like table
 integer GetIndex(string sChar) {
     integer  iRet=llSubStringIndex(g_sCharIndex, sChar);
     if(iRet>=0) return iRet;
-    // special char do nice trick :)
     string sEscaped=llEscapeURL(sChar);
     integer iFound=llListFindList(g_lDecode, [sEscaped]);
-    // Return blank if not found
     if(iFound<0) return 0;
-    // return correct index
     return 100+iFound;
 }
-// END SALAHZAR
-
 
 RenderString(integer iLink, string sStr) {
-    if(iLink <= 0) return; // check for negative and zero linknumber
-    // Get the grid positions for each pair of characters.
-    vector GridOffset1 = GetGridOffset( GetIndex(llGetSubString(sStr, 0, 0)) ); // SALAHZAR intermediate function
-    // Use these grid positions to display the correct textures/offsets.
-    //   ShowChars(iLink,GridOffset1, GridOffset2, GridOffset3, GridOffset4, GridOffset5);
+    if(iLink <= 0) return;
+    vector GridOffset1 = GetGridOffset( GetIndex(llGetSubString(sStr, 0, 0)) );
     ShowChars(iLink,GridOffset1);
 }
 
-integer ConvertIndex(integer iIndex) {
-    // This converts from an ASCII based index to our indexing scheme.
-    if (iIndex >= 32) // ' ' or higher
-        iIndex -= 32;
-    else { // index < 32
-        // Quick bounds check.
-        if (iIndex > 15)
-            iIndex = 15;
-
-        iIndex += 94; // extended characters
-    }
-
-    return iIndex;
-}
-
-/////END XYTEXT FUNCTIONS
-
-// add for text scroll
 float g_fScrollTime = 0.5 ;
 integer g_iSctollPos ;
 string g_sScrollText;
@@ -258,7 +136,6 @@ list g_lLabelLinks ;
 list g_lLabelBaseElements;
 list g_lGlows;
 
-// find all 'Label' prims, count and store it's link numbers for fast work SetLabel() and timer
 integer LabelsCount() {
     integer ok = TRUE ;
     g_lLabelLinks = [] ;
@@ -267,20 +144,16 @@ integer LabelsCount() {
     list lTmp;
     integer iLink;
     integer iLinkCount = llGetNumberOfPrims();
-
-    //find all 'Label' prims and count it's
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         sLabel = llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0);
         lTmp = llParseString2List(sLabel, ["~"],[]);
         sLabel = llList2String(lTmp,0);
         if(sLabel == "Label") {
-            g_lLabelLinks += [0]; // fill list witn nulls
-            //change prim description
+            g_lLabelLinks += [0];
             llSetLinkPrimitiveParamsFast(iLink,[PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
         } else if (sLabel == "LabelBase") g_lLabelBaseElements += iLink;
     }
     g_iCharLimit = llGetListLength(g_lLabelLinks);
-    //find all 'Label' prims and store it's links to list
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         sLabel = llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0);
         lTmp = llParseString2List(sLabel, ["~"],[]);
@@ -300,7 +173,6 @@ integer LabelsCount() {
 
 SetLabelBaseAlpha() {
     if (g_iHide) return ;
-    //loop through stored links, setting color if element type is bell
     integer n;
     integer iLinkElements = llGetListLength(g_lLabelBaseElements);
     for (n = 0; n < iLinkElements; n++) {
@@ -312,7 +184,7 @@ SetLabelBaseAlpha() {
 UpdateGlow(integer iLink, integer iAlpha) {
     if (iAlpha == 0) {
         SavePrimGlow(iLink);
-        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);  // set no glow;
+        llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);
     } else RestorePrimGlow(iLink);
 }
 
@@ -332,42 +204,36 @@ RestorePrimGlow(integer iLink) {
 SetLabel() {
     string sText ;
     if (g_iShow) sText = g_sLabelText;
-
     string sPadding;
-    if(g_iScroll==TRUE) {// || llStringLength(g_sLabelText) > g_iCharLimit)
-        // add some blanks
+    if (g_iScroll) {
         while(llStringLength(sPadding) < g_iCharLimit) sPadding += " ";
         g_sScrollText = sPadding + sText;
         llSetTimerEvent(g_fScrollTime);
     } else {
         g_sScrollText = "";
         llSetTimerEvent(0);
-        //inlined single use CenterJustify function
         while(llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
         sText = sPadding + sText;
         integer iCharPosition;
         for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
             RenderString(llList2Integer(g_lLabelLinks, iCharPosition), llGetSubString(sText, iCharPosition, iCharPosition));
     }
-    //Debug("Label set.");
 }
 
 SetOffsets(key font) {
-    // get 1-st link number from list
     integer link = llList2Integer(g_lLabelLinks, 0);
-    // Compensate for label box-prims, which must use face 0. Others can be added as needed.
     list params = llGetLinkPrimitiveParams(link, [PRIM_DESC, PRIM_TYPE]);
     string desc = llGetSubString(llList2String(params, 0), 0, 4);
     if (desc == "Label") {
         integer t = (integer)llList2String(params, 1);
         if (t == PRIM_TYPE_BOX) {
-            if (font == NULL_KEY) font = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe"; // LCD default for box
+            if (font == NULL_KEY) font = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe";
             g_vGridOffset = <-0.45, 0.425, 0.0>;
             g_vRepeats = <0.126, 0.097, 0>;
             g_vOffset = <0.036, 0.028, 0>;
             FACE = 0;
         } else if (t == PRIM_TYPE_CYLINDER) {
-            if (font == NULL_KEY) font = "2c1e3fa3-9bdb-2537-e50d-2deb6f2fa22c"; // Serif default for cyl
+            if (font == NULL_KEY) font = "2c1e3fa3-9bdb-2537-e50d-2deb6f2fa22c";
             g_vGridOffset = <-0.725, 0.425, 0.0>;
             g_vRepeats = <1.434, 0.05, 0>;
             g_vOffset = <0.037, 0.003, 0>;
@@ -375,11 +241,10 @@ SetOffsets(key font) {
         }
         integer o = llListFindList(g_lFonts, [(string)g_kFontTexture]);
         integer n = llListFindList(g_lFonts, [(string)font]);
-        if ((~o) && o != n) {// changing fonts - adjust for differences in font offsets
+        if ((~o) && o != n) {
             if (n < 8 && o == 9) g_vOffset.y += 0.0015;
             else if (o < 8 && n == 9) g_vOffset.y -= 0.0015;
         }
-        //Debug("Offset = " + (string)g_vOffset);
     }
     g_kFontTexture = font;
 }
@@ -387,7 +252,6 @@ SetOffsets(key font) {
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
-    //Debug("Made menu.");
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
     if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, iMenuType];
@@ -397,10 +261,8 @@ MainMenu(key kID, integer iAuth) {
     list lButtons= [g_sTextMenu, g_sColorMenu, g_sFontMenu];
     if (g_iShow) lButtons += ["☑ Show"];
     else lButtons += ["☐ Show"];
-
     if (g_iScroll) lButtons += ["☑ Scroll"];
     else lButtons += ["☐ Scroll"];
-
     string sPrompt = "\n[http://www.opencollar.at/label.html Label]\t"+g_sAppVersion+"\n\nCustomize the %DEVICETYPE%'s label!";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"main");
 }
@@ -432,7 +294,6 @@ UserCommand(integer iAuth, string sStr, key kAv) {
             MainMenu(kAv, iAuth);
             return;
         }
-
         list lParams = llParseString2List(sStr, [" "], []);
         string sCommand = llToLower(llList2String(lParams, 0));
         string sAction = llToLower(llList2String(lParams, 1));
@@ -485,12 +346,10 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     }
 }
 
-default
-{
+default {
     state_entry() {
         g_kWearer = llGetOwner();
-        //first count the label prims.
-        integer ok = LabelsCount();
+        LabelsCount();
         SetOffsets(NULL_KEY);
         ResetCharIndex();
         if (g_iCharLimit <= 0) {
@@ -532,7 +391,6 @@ default
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
                 if (sMenuType=="main") {
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
@@ -564,7 +422,7 @@ default
                         UserCommand(iAuth, "label font " + sMessage, kAv);
                         FontMenu(kAv, iAuth);
                     }
-                } else if (sMenuType == "textbox") {// TextBox response, extract values
+                } else if (sMenuType == "textbox") {
                     if (sMessage != " ") UserCommand(iAuth, "label " + sMessage, kAv);
                     UserCommand(iAuth, "menu " + g_sSubMenu, kAv);
                 } else if (sMenuType == "rmlabel") {
@@ -578,11 +436,13 @@ default
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);  //remove stride from g_lMenuIDs
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
+        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     timer() {
@@ -596,13 +456,13 @@ default
 
     changed(integer iChange) {
         if(iChange & CHANGED_LINK) {
-            if (LabelsCount()==TRUE) SetLabel();
+            if (LabelsCount()) SetLabel();
         }
         if (iChange & CHANGED_COLOR) {
-            integer iNewHide=!(integer)llGetAlpha(ALL_SIDES) ; //check alpha
-            if (g_iHide != iNewHide){   //check there's a difference to avoid infinite loop
+            integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
+            if (g_iHide != iNewHide) {
                 g_iHide = iNewHide;
-                SetLabelBaseAlpha(); // update hide elements
+                SetLabelBaseAlpha();
             }
         }
     }

@@ -1,4 +1,6 @@
 
+//  oc_meshlabel.lsl
+//
 //  Copyright (c) 2006 - 2016 Xylor Baysklef, Kermitt Quirk,
 //  Thraxis Epsilon, Gigs Taggart, Strife Onizuka, Huney Jewell,
 //  Salahzar Stenvaag, Lulu Pink, Nandana Singh, Cleo Collins, Satomi Ahn,
@@ -21,36 +23,25 @@
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 string g_sAppVersion = "1.1";
+integer g_iBuild = 58;
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
 
 key g_kWearer;
 
-//MESSAGE MAP
-integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
 integer CMD_TRUSTED = 501;
-//integer CMD_GROUP = 502;
 integer CMD_WEARER = 503;
-integer CMD_EVERYONE = 504;
-//integer CMD_RLV_RELAY = 507;
-//integer CMD_SAFEWORD = 510;
-//integer CMD_RELAY_SAFEWORD = 511;
-//integer CMD_BLOCKED = 520;
 
 integer NOTIFY = 1002;
-//integer SAY = 1004;
-integer REBOOT              = -1000;
-integer LINK_DIALOG         = 3;
-integer LINK_RLV            = 4;
-integer LINK_SAVE           = 5;
+integer REBOOT = -1000;
+integer LINK_DIALOG = 3;
+integer LINK_RLV = 4;
+integer LINK_SAVE = 5;
 integer LINK_UPDATE = -10;
 integer LM_SETTING_SAVE = 2000;
-//integer LM_SETTING_REQUEST = 2001;
 integer LM_SETTING_RESPONSE = 2002;
-integer LM_SETTING_DELETE = 2003;
-//integer LM_SETTING_EMPTY = 2004;
 
 integer MENUNAME_REQUEST = 3000;
 integer MENUNAME_RESPONSE = 3001;
@@ -59,6 +50,7 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
+integer BUILD_REQUEST = 17760501;
 
 integer g_iCharLimit = -1;
 
@@ -68,7 +60,7 @@ string g_sTextMenu = "Set Label";
 string g_sFontMenu = "Font";
 string g_sColorMenu = "Color";
 
-list g_lMenuIDs;  //three strided list of avkey, dialogid, and menuname
+list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
 string g_sCharmap = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǰǺǻǼǽǾǿȘșʼˆˇˉ˘˙˚˛˜˝˳̣̀́̃̉̏΄΅Ά·ΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώϑϒϖЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяѐёђѓєѕіїјљњћќѝўџѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿҀҁ҂҃҄҅҆҈҉ҊҋҌҍҎҏҐґҒғҔҕҖҗҘҙҚқҜҝҞҟҠҡҢңҤҥҦҧҨҩҪҫҬҭҮүҰұҲҳҴҵҶҷҸҹҺһҼҽҾҿӀӁӂӃӄӅӆӇӈӉӊӋӌӍӎӏӐӑӒӓӔӕӖӗӘәӚӛӜӝӞӟӠӡӢӣӤӥӦӧӨөӪӫӬӭӮӯӰӱӲӳӴӵӶӷӸӹӺӻӼӽӾӿԀԁԂԃԄԅԆԇԈԉԊԋԌԍԎԏԐԑԒԓḀḁḾḿẀẁẂẃẄẅẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹὍ–—―‗‘’‚‛“”„†‡•…‰′″‹›‼⁄ⁿ₣₤₧₫€℅ℓ№™Ω℮⅛⅜⅝⅞∂∆∏∑−√∞∫≈≠≤≥◊ﬁﬂﬃﬄ￼ ";
@@ -99,7 +91,6 @@ integer g_iHide;
 
 string g_sLabelText = "";
 string g_sSettingToken = "label_";
-//string g_sGlobalToken = "global_";
 
 float Ureps;
 float Vreps;
@@ -112,8 +103,8 @@ integer GetIndex(string sChar) {
     else return 854;
 }
 
-RenderString(integer iPos, string sChar) {  // iPos - позиция символа на лейбле
-    integer frame = GetIndex(sChar);  //номер символа в таблице
+RenderString(integer iPos, string sChar) {
+    integer frame = GetIndex(sChar);
     integer i = iPos/faces;
     integer link = llList2Integer(g_lLabelLinks,i);
     integer face = iPos - faces * i;
@@ -132,7 +123,7 @@ SetColor() {
         llSetLinkPrimitiveParamsFast(iLink, [PRIM_COLOR, ALL_SIDES, g_vColor, fAlpha]);
     } while (++i < llGetListLength(g_lLabelLinks));
 }
-// find all 'Label' prims, count and store it's link numbers for fast work SetLabel() and timer
+
 integer LabelsCount() {
     integer ok = TRUE ;
     g_lLabelLinks = [] ;
@@ -141,18 +132,15 @@ integer LabelsCount() {
     list lTmp;
     integer iLink;
     integer iLinkCount = llGetNumberOfPrims();
-    //find all 'Label' prims and count it's
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);
         if(sLabel == "MeshLabel") {
-            g_lLabelLinks += [0]; // fill list witn nulls
-            //change prim description
+            g_lLabelLinks += [0];
             llSetLinkPrimitiveParamsFast(iLink,[PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
         } else if (sLabel == "LabelBase") g_lLabelBaseElements += iLink;
     }
     g_iCharLimit = llGetListLength(g_lLabelLinks) * 6;
-    //find all 'Label' prims and store it's links to list
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);
@@ -176,7 +164,6 @@ integer LabelsCount() {
 
 SetLabelBaseAlpha() {
     if (g_iHide) return ;
-    //loop through stored links, setting color if element type is bell
     integer n;
     integer iLinkElements = llGetListLength(g_lLabelBaseElements);
     for (n = 0; n < iLinkElements; n++) {
@@ -198,12 +185,11 @@ UpdateGlow(integer iLink, integer iAlpha) {
         i = llListFindList(g_lGlows,[iLink]);
         if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(g_lGlows, i+1)]);
     }
-}   
+}
 
 SetLabel() {
     string sText ;
     if (g_iShow) sText = g_sLabelText;
-
     string sPadding;
     if(g_iScroll==TRUE) {
         while(llStringLength(sPadding) < g_iCharLimit) sPadding += " ";
@@ -219,7 +205,6 @@ SetLabel() {
         for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
             RenderString(iCharPosition, llGetSubString(sText, iCharPosition, iCharPosition));
     }
-    //Debug("Label Set");
 }
 
 Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
@@ -264,7 +249,6 @@ ConfirmDeleteMenu(key kAv, integer iAuth) {
 }
 
 UserCommand(integer iAuth, string sStr, key kAv) {
-    //Debug("Command: "+sStr);
     string sLowerStr = llToLower(sStr);
      if (sStr == "rm label") {
         if (kAv!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kAv);
@@ -325,8 +309,7 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     }
 }
 
-default
-{
+default {
     state_entry() {
         g_kWearer = llGetOwner();
         Ureps = (float)1 / x;
@@ -336,7 +319,6 @@ default
             llMessageLinked(LINK_SET, MENUNAME_REMOVE, g_sParentMenu + "|" + g_sSubMenu, "");
             llRemoveInventory(llGetScriptName());
         }
-        //SetLabel();
     }
 
     on_rez(integer iNum) {
@@ -375,10 +357,8 @@ default
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
                 if (sMenuType=="main") {
-                    //got a menu response meant for us.  pull out values
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == g_sTextMenu) TextMenu(kAv, iAuth);
                     else if (sMessage == g_sColorMenu) ColorMenu(kAv, iAuth);
@@ -408,7 +388,7 @@ default
                         UserCommand(iAuth, "label font " + sMessage, kAv);
                         FontMenu(kAv, iAuth);
                     }
-                } else if (sMenuType == "textbox") { // TextBox response, extract values
+                } else if (sMenuType == "textbox") {
                     if (sMessage != " ") UserCommand(iAuth, "label " + sMessage, kAv);
                     UserCommand(iAuth, "menu " + g_sSubMenu, kAv);
                 } else if (sMenuType == "rmlabel") {
@@ -422,12 +402,14 @@ default
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);  //remove stride from g_lMenuIDs
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
+        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     timer() {
@@ -440,13 +422,13 @@ default
     }
 
     changed(integer iChange) {
-        if(iChange & CHANGED_LINK) // if links changed
-            if (LabelsCount()==TRUE) SetLabel();
+        if(iChange & CHANGED_LINK)
+            if (LabelsCount()) SetLabel();
         if (iChange & CHANGED_COLOR) {
-            integer iNewHide=!(integer)llGetAlpha(ALL_SIDES) ; //check alpha
-            if (g_iHide != iNewHide){   //check there's a difference to avoid infinite loop
+            integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
+            if (g_iHide != iNewHide) {
                 g_iHide = iNewHide;
-                SetLabelBaseAlpha(); // update hide elements
+                SetLabelBaseAlpha();
             }
         }
     }

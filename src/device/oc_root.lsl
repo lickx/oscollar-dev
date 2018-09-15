@@ -1,4 +1,6 @@
 
+//  oc_root.lsl
+//
 //  Copyright (c) 2017 virtualdisgrace.com
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +24,43 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
+string g_sHeadline = "O  s  C  o  l  l  a  r / osgrid";
+// Example: string g_sHeadline = "Property of House Lannister";
+
+string g_sAbout = "";
+// Example: string g_sAbout = "This collar was forged by the mighty duergar of Undrendark!";
+
+string g_sVersion = "6.9.0";
+// Example: string g_sVersion = "1.0";
+
+string g_sGroup = "";  // Group URI
+// Example: string g_sGroup = "secondlife:///app/group/19657888-576f-83e9-2580-7c3da7c0e4ca/about";
+
+string g_sLandmark = ""; // SLURL
+// Example: string g_sLandmark = "http://maps.secondlife.com/secondlife/Hippo%20Hollow/128/128/2";
+
+string g_sLocking = "73f3f84b-0447-487d-8246-4ab3e5fdbf40"; // key of the lock sound
+string g_sUnlocking = "d64c3566-cf76-44b5-ae76-9aabf60efab8"; // key of the unlock sound
+
+string g_sSafeword = "RED";
+
+/*------------------------------------------------------------------------------
+         Everything below this line should only by edited by scripters!
+--------------------------------------------------------------------------------
+
+     This plugin creates the root (or main), apps and settings menus,
+     and has the default LOCK/UNLOCK button. It can also dispense the help
+     and license files (if present in contents) and can print info/version.
+
+     It also includes code for the tiny steam-engine behind the LOCK/UNLOCK
+     button and can play different noises depending on lock/unlock action,
+     and reveal or hide a lock element on the device. There is also dedicated
+     logic for a stealth function that can optionally hide the whole device.
+
+------------------------------------------------------------------------------*/
+
+integer g_iBuild = 16;
+
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
 integer NOTIFY = 1002;
@@ -37,104 +76,27 @@ integer LM_SETTING_DELETE = 2003;
 integer MENUNAME_REQUEST = 3000;
 integer MENUNAME_RESPONSE = 3001;
 integer MENUNAME_REMOVE = 3003;
-integer DIALOG = -9000;
-integer DIALOG_RESPONSE = -9001;
-integer DIALOG_TIMEOUT = -9002;
 integer RLV_CMD = 6000;
 integer RLV_REFRESH = 6001;
 integer RLV_CLEAR = 6002;
+integer DIALOG = -9000;
+integer DIALOG_RESPONSE = -9001;
+integer DIALOG_TIMEOUT = -9002;
+integer BUILD_REQUEST = 17760501;
 
 key g_kWearer;
 
-string g_sVersion = "6.8.5";
-
 string g_sGlobalToken = "global_";
-string g_sAbout;
 string g_sDist;
-string g_sSafeword = "RED";
 integer g_iLocked;
 integer g_iHidden;
 integer g_iLooks;
+
 string g_sQuoter;
 string g_sQuotation;
 string g_sQuoteToken = "quote_";
-key g_kInstallerID;
 
-list g_lMenus;
-
-Dialog(key kID, string sContext, list lButtons, list lArrows, integer iPage, integer iAuth, string sName) {
-    key kMenuID = llGenerateKey();
-
-llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kMenuID);
-    integer index = llListFindList(g_lMenus,[kID]);
-    if (~index) 
-        g_lMenus = llListReplaceList(g_lMenus,[kID,kMenuID,sName],index,index + 2);
-    else 
-        g_lMenus += [kID,kMenuID,sName];
-}
-
-list g_lApps;
-list g_lAdjusters;
-integer g_iMenuAnim;
-integer g_iMenuRLV;
-integer g_iMenuKidnap;
-
-MenuRoot(key kID, integer iAuth) {
-    string sContext = "\n";
-    if (g_iLocked) sContext += "🔒 ";
-    else sContext += "🔓 ";
-    sContext += "O  s  C  o  l  l  a  r    "+g_sVersion;
-    sContext += "\n\n• Prefix: %PREFIX%";
-    sContext += "\n• Channel: %CHANNEL%";
-    sContext += "\n• Safeword: "+g_sSafeword;
-    if (g_sQuotation!="") {
-        sContext += "\n\n“"+osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
-        if (g_sQuoter!="") sContext += "\n—"+g_sQuoter;
-    }
-    
-    list lButtons = ["Apps"];
-    if (g_iMenuAnim) lButtons += "Animations";
-    else lButtons += "-";
-    if (g_iMenuKidnap) lButtons += "Capture";
-    else lButtons += "-";
-    lButtons += ["Leash"];
-    if (g_iMenuRLV) lButtons += "RLV";
-    else lButtons += "-";
-    lButtons += ["Access","Settings","About"];
-    if (g_iLocked) lButtons = "UNLOCK" + lButtons;
-    else lButtons = "LOCK" + lButtons;
-    Dialog(kID,sContext,lButtons,[],0,iAuth,"Main");
-}
-
-MenuSettings(key kID, integer iAuth) {
-    string sContext = "\nSettings";
-    list lButtons = ["Print","Load","Save","Fix"];
-    lButtons += g_lAdjusters;
-    if (g_iHidden) lButtons += ["☑ Stealth"];
-    else lButtons += ["☐ Stealth"];
-    if (g_iLooks) lButtons += "Looks";
-    else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
-        lButtons += "Themes";
-    Dialog(kID,sContext,lButtons,["BACK"],0,iAuth,"Settings");
-}
-
-MenuApps(key kID, integer iAuth) {
-    string sContext="\nApps, extras and custom features";
-    Dialog(kID,sContext,g_lApps,["BACK"],0,iAuth,"Apps");
-}
-
-MenuAbout(key kID) {
-    string sContext = "\nVersion: "+g_sVersion+"\nOrigin: ";
-    if (osIsUUID(g_sDist)) {
-        if (llKey2Name(g_sDist)!="") sContext += NameURI("agent/"+g_sDist);
-        else sContext += "Hypergrid";
-    }
-    else sContext += "Unknown";
-    sContext+="\n\n"+g_sAbout;
-    sContext+="\n\nThe OpenCollar Six™ scripts were used in this product to an unknown extent. The OpenCollar project can't support this product. Relevant [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/LICENSE license terms] still apply.";
-    llDialog(kID,sContext,["OK"],-12345);
-}
-
+//lock
 list g_lClosedLocks;
 list g_lOpenLocks;
 list g_lClosedLocksGlows;
@@ -145,13 +107,13 @@ ShowHideLock() {
     integer i;
     integer iLinks = llGetListLength(g_lOpenLocks);
     for (;i < iLinks; ++i) {
-        llSetLinkAlpha(llList2Integer(g_lOpenLocks,i),!g_iLocked,ALL_SIDES);
+        llSetLinkAlpha(llList2Integer(g_lOpenLocks,i), !g_iLocked, ALL_SIDES);
         UpdateGlows(llList2Integer(g_lOpenLocks,i),!g_iLocked);
     }
     iLinks = llGetListLength(g_lClosedLocks);
     for (i=0; i < iLinks; ++i) {
-        llSetLinkAlpha(llList2Integer(g_lClosedLocks,i),g_iLocked,ALL_SIDES);
-        UpdateGlows(llList2Integer(g_lClosedLocks,i),g_iLocked);
+        llSetLinkAlpha(llList2Integer(g_lClosedLocks,i), g_iLocked, ALL_SIDES);
+        UpdateGlows(llList2Integer(g_lClosedLocks,i), g_iLocked);
     }
 }
 
@@ -161,19 +123,19 @@ UpdateGlows(integer iLink, integer iAlpha) {
     if (iAlpha) {
         lGlows = g_lOpenLocksGlows;
         if (g_iLocked) lGlows = g_lClosedLocksGlows;
-        iIndex = llListFindList(lGlows,[iLink]);
-        if (!(~iIndex)) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
+        iIndex = llListFindList(lGlows, [iLink]);
+        if (iIndex == -1) llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,llList2Float(lGlows,iIndex+1)]);
     } else {
-        float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+        float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink, [PRIM_GLOW,0]), 0);
         lGlows = g_lClosedLocksGlows;
         if (g_iLocked) lGlows = g_lOpenLocksGlows;
-        iIndex = llListFindList(lGlows,[iLink]);
-        if ((~iIndex) && fGlow > 0) lGlows = llListReplaceList(lGlows,[fGlow],iIndex+1,iIndex+1);
-        if ((~iIndex) && fGlow == 0) lGlows = llDeleteSubList(lGlows,iIndex,iIndex+1);
-        if (!(~iIndex) && fGlow > 0) lGlows += [iLink,fGlow];
+        iIndex = llListFindList(lGlows, [iLink]);
+        if ((~iIndex) && fGlow > 0) lGlows = llListReplaceList(lGlows, [fGlow], iIndex+1, iIndex+1);
+        if ((~iIndex) && fGlow == 0) lGlows = llDeleteSubList(lGlows, iIndex, iIndex+1);
+        if (iIndex == -1 && fGlow > 0) lGlows += [iLink, fGlow];
         if (g_iLocked) g_lOpenLocksGlows = lGlows;
         else g_lClosedLocksGlows = lGlows;
-        llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW,ALL_SIDES,0.0]);
+        llSetLinkPrimitiveParamsFast(iLink,[PRIM_GLOW, ALL_SIDES, 0.0]);
     }
 }
 
@@ -191,189 +153,259 @@ GetLocks() {
     }
 }
 
+//stealth
+list g_lGlowy;
 Stealth (string sStr) {
-    list lGlowy;
     if (sStr == "hide") g_iHidden = TRUE;
     else if (sStr == "show") g_iHidden = FALSE;
     else g_iHidden = !g_iHidden;
-    llSetLinkAlpha(LINK_SET,(float)(!g_iHidden),ALL_SIDES);
+    llSetLinkAlpha(LINK_SET, (float)(!g_iHidden), ALL_SIDES);
     integer iCount;
     if (g_iHidden) {
         iCount = llGetNumberOfPrims();
         float fGlow;
         for (;iCount > 0; --iCount) {
-            fGlow = llList2Float(llGetLinkPrimitiveParams(iCount,[PRIM_GLOW,0]),0);
-            if (fGlow > 0) lGlowy += [iCount,fGlow];
+            fGlow = llList2Float(llGetLinkPrimitiveParams(iCount, [PRIM_GLOW,0]), 0);
+            if (fGlow > 0) g_lGlowy += [iCount, fGlow];
         }
-        llSetLinkPrimitiveParamsFast(LINK_SET,[PRIM_GLOW,ALL_SIDES,0.0]);
+        llSetLinkPrimitiveParamsFast(LINK_SET, [PRIM_GLOW, ALL_SIDES, 0.0]);
     } else {
         integer i;
-        iCount = llGetListLength(lGlowy);
+        iCount = llGetListLength(g_lGlowy);
         for (;i < iCount;i += 2)
-            llSetLinkPrimitiveParamsFast(llList2Integer(lGlowy,i),[PRIM_GLOW,ALL_SIDES,llList2Float(lGlowy,i+1)]);
-        lGlowy = [];
+            llSetLinkPrimitiveParamsFast(llList2Integer(g_lGlowy,i),[PRIM_GLOW, ALL_SIDES, llList2Float(g_lGlowy, i+1)]);
+        g_lGlowy = [];
     }
+    ShowHideLock();
 }
 
-Update(){
-    integer iPin = (integer)llFrand(99999998.0) + 1;
-    llSetRemoteScriptAccessPin(iPin);
-    integer iChanInstaller = -7483213;
-    llRegionSayTo(g_kInstallerID,iChanInstaller,"ready|"+(string)iPin);
+//menus
+list g_lTheseMenus;
+
+Dialog(key kID, string sContext, list lButtons, list lArrows, integer iPage, integer iAuth, string sName) {
+    key kThatMenu = llGenerateKey();
+    llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|"+sContext+"|"+(string)iPage+"|"+llDumpList2String(lButtons,"`")+"|"+llDumpList2String(lArrows,"`")+"|"+(string)iAuth,kThatMenu);
+    integer index = llListFindList(g_lTheseMenus, [kID]);
+    if (~index)
+        g_lTheseMenus = llListReplaceList(g_lTheseMenus, [kID,kThatMenu,sName], index, index + 2);
+    else
+        g_lTheseMenus += [kID,kThatMenu,sName];
 }
 
-UserCommand(integer iAuth, string sStr, key kID, integer iClicked) {
+list g_lApps;
+list g_lAdjusters;
+integer g_iMenuAnim;
+integer iMenuRlv;
+integer iMenuKidnap;
+
+MenuRoot(key kID, integer iAuth) {
+    string sContext = "\n" + g_sHeadline;
+    sContext += "\n\nPrefix: %PREFIX%";
+    sContext += "\nChannel: /%CHANNEL%";
+    if (g_sSafeword) sContext += "\nSafeword: " + g_sSafeword;
+    if (g_sQuotation != "") {
+        sContext += "\n\n“" + osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
+        if (g_sQuoter != "") sContext += "\n—"+g_sQuoter;
+    }
+    list lTheseButtons = ["Apps"];
+    if (g_iMenuAnim) lTheseButtons += "Animations";
+    else lTheseButtons += "-";
+    if (iMenuKidnap) lTheseButtons += "Capture";
+    else lTheseButtons += "-";
+    lTheseButtons += ["Leash"];
+    if (iMenuRlv) lTheseButtons += "RLV";
+    else lTheseButtons += "-";
+    lTheseButtons += ["Access","Settings","About"];
+    if (g_iLocked) lTheseButtons = "UNLOCK" + lTheseButtons;
+    else lTheseButtons = "LOCK" + lTheseButtons;
+    Dialog(kID, sContext, lTheseButtons, [], 0, iAuth, "Main");
+}
+
+MenuSettings(key kID, integer iAuth) {
+    string sContext = "\nSettings";
+    list lTheseButtons = ["Print","Load","Save","Fix"];
+    lTheseButtons += g_lAdjusters;
+    if (g_iHidden) lTheseButtons += ["☑ Stealth"];
+    else lTheseButtons += ["☐ Stealth"];
+    if (g_iLooks) lTheseButtons += "Looks";
+    else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
+        lTheseButtons += "Themes";
+    Dialog(kID, sContext, lTheseButtons, ["BACK"], 0, iAuth, "Settings");
+}
+
+MenuApps(key kID, integer iAuth) {
+    string sContext="\nApps & Plugins";
+    Dialog(kID, sContext, g_lApps, ["BACK"], 0, iAuth, "Apps");
+}
+
+MenuAbout(key kID) {
+    string sContext = "\nVersion: "+(string)g_sVersion+"\nOrigin: ";
+    if (osIsUUID(g_sDist)) sContext += URI("agent/"+g_sDist);
+    else sContext += "";
+    sContext += "\n\n“"+g_sAbout+"”";
+    sContext += "\n\n"+g_sGroup;
+    sContext += "\n"+g_sLandmark;
+    sContext += "\n\nOpenCollar scripts were used in this product to an unknown extent. Relevant [https://raw.githubusercontent.com/OpenCollar/opencollar/master/LICENSE license terms] still apply.";
+    llDialog(kID, sContext, ["OK"], -12345);
+}
+
+Commands(integer iAuth, string sStr, key kID) {
     list lParams = llParseString2List(sStr,[" "],[]);
     string sCmd = llToLower(llList2String(lParams,0));
     sStr = llToLower(sStr);
     if (sCmd == "menu") {
-        string sSubMenu = llToLower(llList2String(lParams,1));
-        if (sSubMenu == "main" || sSubMenu == "") MenuRoot(kID,iAuth);
-        else if (sSubMenu == "apps") MenuApps(kID,iAuth);
-        else if (sSubMenu == "settings") {
+        string sSubmenu = llToLower(llList2String(lParams,1));
+        if (sSubmenu == "main" || sSubmenu == "") MenuRoot(kID, iAuth);
+        else if (sSubmenu == "apps") MenuApps(kID, iAuth);
+        else if (sSubmenu == "settings") {
             if (iAuth != CMD_OWNER && iAuth != CMD_WEARER) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-                MenuRoot(kID,iAuth);
-            } else MenuSettings(kID,iAuth);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
+                MenuRoot(kID, iAuth);
+            } else MenuSettings(kID, iAuth);
         }
+    } else if (sCmd == "safeword") {
+        string sNewSafeword = llList2String(lParams,1);
+        if(llStringTrim(sNewSafeword, STRING_TRIM) != "") {
+            g_sSafeword = sNewSafeword;
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You set a new safeword: "+g_sSafeword, g_kWearer);
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"safeword="+g_sSafeword, "");
+            llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sGlobalToken+"safeword="+g_sSafeword, "");
+        } else
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Your safeword is: "+g_sSafeword, g_kWearer);
     } else if (sStr == "info" || sStr == "version") {
         string sMessage = "\n\nModel: "+llGetObjectName();
-        sMessage += "\nVersion: "+g_sVersion+"\nOrigin: ";
-        if (osIsUUID(g_sDist)) {
-            if (llKey2Name(g_sDist)!="") sMessage += NameURI("agent/"+g_sDist);
-            else sMessage += "Hypergrid";
-        }
+        sMessage += "\nVersion: "+(string)g_sVersion+"\nOrigin: ";
+        if (osIsUUID(g_sDist)) sMessage += URI("agent/"+g_sDist);
         else sMessage += "Unknown";
         sMessage += "\nUser: "+llGetUsername(g_kWearer);
         sMessage += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeword+"\n";
-        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
+        llMessageLinked(LINK_DIALOG, NOTIFY, "1"+sMessage, kID);
     } else if (sStr == "license") {
-        if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(kID,".license");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no license file in this %DEVICETYPE%. Please request one directly from the creator!",kID);
+        if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(kID, ".license");
+        else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"There is no license file in this %DEVICETYPE%. Please request one directly from "+URI("agent/"+g_sDist)+"!", kID);
     } else if (sStr == "help") {
-        if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(kID,".help");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"There is no help file in this %DEVICETYPE%. Please request one directly from the creator!",kID);
+        if (llGetInventoryType(".help") == INVENTORY_NOTECARD) llGiveInventory(kID, ".help");
+        else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"There is no help file in this %DEVICETYPE%. Please request one directly from "+URI("agent/"+g_sDist)+"!", kID);
     } else if (sStr == "about") MenuAbout(kID);
-    else if (sStr == "apps") MenuApps(kID,iAuth);
+    else if (sStr == "apps") MenuApps(kID, iAuth);
     else if (sStr == "settings") {
-        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) MenuSettings(kID,iAuth);
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) MenuSettings(kID, iAuth);
     } else if (sCmd == "fix") {
-        MakeMenus();
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"I've fixed the menus.",kID);
+        if (kID == g_kWearer) {
+            MakeMenus();
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"I've fixed the menus.", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     } else if (sCmd == "quote") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
-            string sContext = "\nEnter a quote and press [Submit.]\n\n(Submit an empty field to cancel.)";
-            Dialog(kID,sContext,[],[],0,iAuth,"Quote");
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            string sContext = "\nEnter a quote and press [Submit.]\n\n(Leave empty to cancel.)";
+            Dialog(kID, sContext, [], [], 0, iAuth, "Quote");
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     } else if (sStr == "rm quote") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
             g_sQuotation = "";
             g_sQuoter = "";
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quotation", "");
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quoter", "");
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (sStr == "lock") {
-        if (iAuth == CMD_OWNER || kID == g_kWearer ) {
-            g_iLocked = TRUE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sGlobalToken+"locked=1","");
-            llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=1","");
-            llOwnerSay("@detach=n");
-            llMessageLinked(LINK_RLV,RLV_CMD,"detach=n","main");
-            llPlaySound("73f3f84b-0447-487d-8246-4ab3e5fdbf40",1.0);
-            ShowHideLock();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is locked.",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (sStr == "runaway" || sStr == "unlock") {
-        if (iAuth == CMD_OWNER)  {
-            g_iLocked = FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sGlobalToken+"locked","");
-            llMessageLinked(LINK_ROOT,LM_SETTING_RESPONSE,g_sGlobalToken+"locked=0","");
-            llOwnerSay("@detach=y");
-            llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
-            llPlaySound("d64c3566-cf76-44b5-ae76-9aabf60efab8",1.0);
-            ShowHideLock();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"/me is unlocked.",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     } else if (sStr == "hide" || sStr == "show" || sStr == "stealth") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) Stealth(sStr);
-        else if (osIsUUID(kID)) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else if (kID != NULL_KEY) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
+    } else if (sStr == "lock") {
+        if (iAuth == CMD_OWNER || kID == g_kWearer) {
+            g_iLocked = TRUE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"locked=1", "");
+            llMessageLinked(LINK_ROOT, LM_SETTING_RESPONSE, g_sGlobalToken+"locked=1", "");
+            llOwnerSay("@detach=n");
+            llMessageLinked(LINK_RLV, RLV_CMD, "detach=n", "main");
+            llPlaySound(g_sLocking, 1.0);
+            ShowHideLock();
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"/me is locked.", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);;
+    } else if (sStr == "runaway" || sStr == "unlock") {
+        if (iAuth == CMD_OWNER) {
+            g_iLocked = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sGlobalToken+"locked", "");
+            llMessageLinked(LINK_ROOT, LM_SETTING_RESPONSE, g_sGlobalToken+"locked=0", "");
+            llOwnerSay("@detach=y");
+            llMessageLinked(LINK_RLV, RLV_CMD, "detach=y", "main");
+            llPlaySound(g_sUnlocking, 1.0);
+            ShowHideLock();
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"/me is unlocked.", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     }
 }
 
 MakeMenus() {
     g_iMenuAnim = FALSE;
-    g_iMenuRLV = FALSE;
-    g_iMenuKidnap = FALSE;
+    iMenuRlv = FALSE;
+    iMenuKidnap = FALSE;
     g_lAdjusters = [];
     g_lApps = [] ;
-    llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Main","");
-    llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Apps","");
-    llMessageLinked(LINK_SET,MENUNAME_REQUEST,"Settings","");
-    llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
+    llMessageLinked(LINK_SET, MENUNAME_REQUEST, "Main", "");
+    llMessageLinked(LINK_SET, MENUNAME_REQUEST, "Apps", "");
+    llMessageLinked(LINK_SET, MENUNAME_REQUEST, "Settings", "");
+    llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE, "LINK_REQUEST", "");
 }
 
 Init() {
-    g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
     GetLocks();
+    g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
     llSetTimerEvent(1.0);
 }
 
-string NameURI(string sID) {
-    return "secondlife:///app/"+sID+"/inspect";
+string URI(string sStr) {
+    return "secondlife:///app/"+sStr+"/inspect";
 }
 
 default {
     state_entry() {
-        //llSetMemoryLimit(32768);
         g_kWearer = llGetOwner();
         Init();
     }
+
     on_rez(integer iStart) {
         Init();
     }
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         list lParams;
-        if (!llSubStringIndex(sStr,".- ... -.-") && kID == g_kWearer) {
-            g_kInstallerID = (key)llGetSubString(sStr,-36,-1);
-            Dialog(kID,"Ready to install?",["Yes", "No", "Cancel"],[],0,iNum,"Patch");
-        } else if (iNum == MENUNAME_RESPONSE) {
-            lParams = llParseString2List(sStr,["|"],[]);
-            string sParentMenu = llList2String(lParams,0);
-            string sSubMenu = llList2String(lParams,1);
+        if (iNum == MENUNAME_RESPONSE) {
+            lParams = llParseString2List(sStr, ["|"], []);
+            string sParentMenu = llList2String(lParams, 0);
+            string sSubmenu = llList2String(lParams, 1);
             if (sParentMenu == "Apps") {
-                if (!~llListFindList(g_lApps, [sSubMenu])) {
-                    g_lApps += [sSubMenu];
-                    g_lApps = llListSort(g_lApps,1,TRUE);
+                if (llListFindList(g_lApps, [sSubmenu]) == -1) {
+                    g_lApps += [sSubmenu];
+                    g_lApps = llListSort(g_lApps, 1, TRUE);
                 }
             } else if (sStr == "Main|Animations") g_iMenuAnim = TRUE;
-            else if (sStr == "Main|RLV") g_iMenuRLV = TRUE;
-            else if (sStr == "Main|Capture") g_iMenuKidnap = TRUE;
+            else if (sStr == "Main|RLV") iMenuRlv = TRUE;
+            else if (sStr == "Main|Capture") iMenuKidnap = TRUE;
             else if (sStr == "Settings|Size/Position") g_lAdjusters = ["Position","Rotation","Size"];
         } else if (iNum == MENUNAME_REMOVE) {
-            lParams = llParseString2List(sStr,["|"],[]);
+            lParams = llParseString2List(sStr, ["|"], []);
             string sParentMenu = llList2String(lParams,0);
-            string sSubMenu = llList2String(lParams,1);
+            string sSubmenu = llList2String(lParams,1);
             if (sParentMenu == "Apps") {
-                integer index = llListFindList(g_lApps,[sSubMenu]);
-                if (~index) g_lApps = llDeleteSubList(g_lApps,index,index);
-            } else if (sSubMenu == "Size/Position") g_lAdjusters = [];
+                integer iIndex = llListFindList(g_lApps, [sSubmenu]);
+                if (~iIndex) g_lApps = llDeleteSubList(g_lApps, iIndex, iIndex);
+            } else if (sSubmenu == "Size/Position") g_lAdjusters = [];
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == DIALOG_RESPONSE) {
-            integer iMenuIndex = llListFindList(g_lMenus,[kID]);
+            integer iMenuIndex = llListFindList(g_lTheseMenus, [kID]);
             if (~iMenuIndex) {
-                lParams = llParseString2List(sStr,["|"],[]);
+                lParams = llParseString2List(sStr, ["|"], []);
                 kID = (key)llList2String(lParams,0);
                 string sButton = llList2String(lParams,1);
-                integer iPage = (integer)llList2String(lParams,2);
                 integer iAuth = (integer)llList2String(lParams,3);
-                string sMenu = llList2String(g_lMenus,iMenuIndex + 1);
-                g_lMenus = llDeleteSubList(g_lMenus,iMenuIndex - 1,iMenuIndex + 1);
-                if (sMenu == "Main"){
+                string sMenu = llList2String(g_lTheseMenus,iMenuIndex + 1);
+                g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+                if (sMenu == "Main") {
                     if (sButton == "LOCK" || sButton== "UNLOCK")
-                        llMessageLinked(LINK_ROOT,iAuth,sButton,kID);
+                        llMessageLinked(LINK_ROOT, iAuth, sButton, kID);
                     else if (sButton == "About") MenuAbout(kID);
                     else if (sButton == "Apps") MenuApps(kID,iAuth);
                     else llMessageLinked(LINK_SET,iAuth,"menu "+sButton,kID);
@@ -385,7 +417,7 @@ default {
                      else if (sButton == "Load") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
                      else if (sButton == "Save") llMessageLinked(LINK_SAVE,iAuth,sButton,kID);
                      else if (sButton == "Fix") {
-                         UserCommand(iAuth,sButton,kID,TRUE);
+                         Commands(iAuth,sButton,kID);
                          return;
                     } else if (sButton == "☐ Stealth") {
                          llMessageLinked(LINK_ROOT,iAuth,"hide",kID);
@@ -415,59 +447,51 @@ default {
                                 "'s main menu:\n\n\""+g_sQuotation+"\"\n");
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
-                } else if (sMenu == "Patch") {
-                    if (sButton == "Yes") Update();
-                    else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"cancelled",kID);
                 }
             }
-        } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum,sStr,kID,FALSE);
-        else if (iNum == LM_SETTING_RESPONSE) {
+        } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) Commands(iNum,sStr,kID);
+        else if (iNum == RLV_REFRESH || iNum == RLV_CLEAR) {
+            if (g_iLocked) llMessageLinked(LINK_RLV, RLV_CMD,"detach=n","main");
+            else llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
+        } else if (iNum == LM_SETTING_RESPONSE) {
             lParams = llParseString2List(sStr,["="],[]);
-            string sToken = llList2String(lParams,0);
+            string sThisToken = llList2String(lParams,0);
             string sValue = llList2String(lParams,1);
-            if (sToken == g_sGlobalToken+"locked") {
+            if (sThisToken == g_sGlobalToken+"locked") {
                 g_iLocked = (integer)sValue;
                 if (g_iLocked) llOwnerSay("@detach=n");
                 ShowHideLock();
-            } else if (sToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
-            else if (sToken == "intern_dist") g_sDist = sValue;
-            else if (sToken == "intern_looks") g_iLooks = (integer)sValue;
-            else if (sToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
-            else if (sToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
+            } else if (sThisToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
+            else if (sThisToken == "intern_dist") g_sDist = sValue;
+            else if (sThisToken == "intern_looks") g_iLooks = (integer)sValue;
+            else if (sThisToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
+            else if (sThisToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
+            else if (sStr == "settings=sent")
+                llMessageLinked(LINK_SET,LM_SETTING_RESPONSE,g_sGlobalToken+"safeword="+g_sSafeword,"");
         } else if (iNum == DIALOG_TIMEOUT) {
-            integer iMenuIndex = llListFindList(g_lMenus,[kID]);
-            g_lMenus = llDeleteSubList(g_lMenus,iMenuIndex - 1,iMenuIndex + 1);
-        } else if (iNum == RLV_REFRESH || iNum == RLV_CLEAR) {
-            if (g_iLocked) llMessageLinked(LINK_RLV, RLV_CMD,"detach=n","main");
-            else llMessageLinked(LINK_RLV,RLV_CMD,"detach=y","main");
-        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+            integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
+            g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
+        } else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
+        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
-    changed(integer iChange) {
-        if (iChange & CHANGED_OWNER) llResetScript();
-        if ((iChange & CHANGED_INVENTORY) && !llGetStartParameter()) {
+
+    changed(integer iChanges) {
+        if (iChanges & CHANGED_OWNER) llResetScript();
+        if ((iChanges & CHANGED_INVENTORY) && !llGetStartParameter()) {
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
         }
-        if (iChange & CHANGED_COLOR) {
-            integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
-            if (g_iHidden != iNewHide) {
-                g_iHidden = iNewHide;
-                ShowHideLock();
-            }
-        }
-        if (iChange & CHANGED_LINK) {
+        if (iChanges & CHANGED_COLOR)
+            g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
+        if (iChanges & CHANGED_LINK) {
             GetLocks();
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
         }
     }
+
     timer() {
         MakeMenus();
         llSetTimerEvent(0.0);
     }
 }
-
-
-
-
-
-
