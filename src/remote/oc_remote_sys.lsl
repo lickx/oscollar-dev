@@ -205,8 +205,7 @@ NextPartner(integer iDirection, integer iTouch) {
             // Osgrid, name in hypergrid format. Keep "Firstname.Lastname", strip " @hg.osgrid.org:80"
             sName = llGetSubString(sName, 0, iGridIdx-1);
         } else if (~llSubStringIndex(sName, " @")) {
-            // Hypergrid, use generic picture
-            if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, "244e3128-c44f-4c32-a549-430cbca5b26e",<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);           
+            // Hypergrid, do nothing
             return;
         } else {
             // Osgrid, name in normal format. Convert "Firstname Lastname" to "Firstname.Lastname".
