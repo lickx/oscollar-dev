@@ -1,4 +1,6 @@
 
+//  oc_remote_dialog.lsl
+//
 //  Copyright (c) 2014 - 2015 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,
 //  Kire Faulkes, Zinn Ixtar, Builder's Brewery, Romka Swallowtail et al.
