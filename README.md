@@ -51,3 +51,10 @@ OpenCollar source code and creative resource are covered by free software, free 
 OpenCollar source code has been composed by many different authors and while not all authors composed something in every year since 2008, we chose to state copyright as year spans (i.e. Copyright (c) 2008 - 2017) in our copyright notice.
 
 We chose to do that in order to save space in a already cramped screen environment with in-world LSL editors. Nevertheless, we tried our best to make all authors appear in order of appearance if read from left to right. <3
+
+
+#### OpenSim Porting Information
+
+This branch is compatible with OpenSim 0.9 and higher
+
+UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server
