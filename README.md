@@ -7,9 +7,6 @@ OsCollar is a set of LSL scripts and other creative content, such as animations,
 Punk, goth and fetish collars would be the most popular of those and OpenCollar eventually became everyone's script set of choice to create items that are used for creative role play amongst adults in Second Life®.
 
 #### Finding your way around this repo
-
-At the moment this repository is separated into resources, source code and web queries. The directory names are self-explanatory and each has a readme attached that tells about specific details. Resource subdirectories inform which file formats we work with and point to other free software that can be used to create such content.
-
 ```
 ./oscollar/
 
@@ -57,10 +54,6 @@ We chose to do that in order to save space in a already cramped screen environme
 
 #### OpenSim Porting Information
 
-Branches: 
- 
-master - Generic version maximizing compatibility with old OpenSim versions  
-osgrid - OsGrid version utilizing all modern features of OpenSim 0.9+ and OsGrid  
-inworldz - OsCollar for Halcyon grids like InWorldz  
+This branch is compatible with OpenSim 0.8 and higher  
  
 UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server
