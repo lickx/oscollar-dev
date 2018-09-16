@@ -24,7 +24,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sHeadline = "O  s  C  o  l  l  a  r / osgrid";
+string g_sHeadline = "O  s  C  o  l  l  a  r";
 // Example: string g_sHeadline = "Property of House Lannister";
 
 string g_sAbout = "";
