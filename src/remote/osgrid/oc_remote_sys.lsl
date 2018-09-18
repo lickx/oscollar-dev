@@ -23,7 +23,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sFancyVersion = "6.8.6 OsGrid";
+string g_sFancyVersion = "6.9.0 OsGrid";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
