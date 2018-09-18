@@ -480,9 +480,11 @@ default {
 
     on_rez(integer iStart) {
         if (g_kWearer != llGetOwner()) llResetScript();
-        if (g_iLocked) llOwnerSay("@detach=n");
         g_iReady = FALSE;
-        llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
+        if (llGetAttached()) {
+            if (g_iLocked) llOwnerSay("@detach=n");
+            llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
+        }
     }
 
     attach(key kID) {
@@ -750,7 +752,7 @@ default {
                     g_iAO_ON = TRUE;
                 }
                 DoStatus();
-                llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
+                if (llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
             }
         }
     }
