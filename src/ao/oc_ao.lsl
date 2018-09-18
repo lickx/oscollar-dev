@@ -1,4 +1,6 @@
 
+//  oc_ao.lsl
+//
 //  Copyright (c) 2008 - 2017 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Wendy Starfall, littlemousy, Romka Swallowtail, Garvin Twine et al.
 //
@@ -17,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "6.8.3";
+string g_sVersion = "6.9.0";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -175,10 +177,12 @@ DetermineColors() {
 DoStatus() {
     vector vColor = g_vAOoffcolor;
     if (g_iAO_ON) vColor = g_vAOoncolor;
-    llSetLinkColor(llListFindList(g_lButtons,["Power"]), vColor, ALL_SIDES);
+    llSetLinkPrimitiveParamsFast(llListFindList(g_lButtons,["Power"]),
+        [PRIM_COLOR, ALL_SIDES, vColor, 1]);
     if (g_iSitAnywhereOn) vColor = g_vAOoncolor;
     else vColor = g_vAOoffcolor;
-    llSetLinkColor(llListFindList(g_lButtons,["SitAny"]), vColor, ALL_SIDES);
+    llSetLinkPrimitiveParamsFast(llListFindList(g_lButtons,["SitAny"]),
+        [PRIM_COLOR, ALL_SIDES, vColor, 1]);
 }
 
 //ao functions
