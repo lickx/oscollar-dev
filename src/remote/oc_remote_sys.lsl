@@ -23,7 +23,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sFancyVersion = "6.9.0";
+string g_sVersion = "7.0.0";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -158,7 +158,7 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 }
 
 MainMenu(){
-    string sPrompt = "\nOpenCollar Remote\t"+g_sFancyVersion;
+    string sPrompt = "\nOpenCollar Remote\t"+g_sVersion;
     sPrompt += "\n\nSelected Partner: "+NameURI(g_sActivePartnerID);
     list lButtons = g_lMainMenuButtons + g_lMenus;
     Dialog(sPrompt, lButtons, [], 0, g_sMainMenu);

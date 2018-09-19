@@ -27,10 +27,10 @@
 string g_sHeadline = "O  s  C  o  l  l  a  r";
 // Example: string g_sHeadline = "Property of House Lannister";
 
-string g_sAbout = "";
+string g_sAbout = "Optimized for OpenSim";
 // Example: string g_sAbout = "This collar was forged by the mighty duergar of Undrendark!";
 
-string g_sVersion = "6.9.0";
+string g_sVersion = "7.0.0";
 // Example: string g_sVersion = "1.0";
 
 string g_sGroup = "";  // Group URI
