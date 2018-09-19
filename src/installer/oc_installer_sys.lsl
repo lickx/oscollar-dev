@@ -39,8 +39,8 @@ integer g_iInstallOnRez = FALSE; // TRUE initiates right away on rez
 
 key g_kNameID;
 integer g_initChannel = -7483213;
-//integer g_initChannel = -7483220; channel for AO SIX
-//integer g_initChannel = -7483210; channel for Remote HUD SIX
+//integer g_initChannel = -7483220; //channel for AO SIX
+//integer g_initChannel = -7483210; //channel for Remote HUD SIX
 integer g_iSecureChannel;
 string g_sBuildVersion;
 
@@ -149,14 +149,15 @@ Particles(key kTarget) {
 }
 
 InitiateInstallation() {
-    integer iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1)));
+    integer iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1))); //collar+remote
+    //integer iChan = -llAbs((integer)("0x" + llGetSubString(llGetOwner(),30,-1))); // AO
     llPlaySound("56051ff8-a86f-467a-84fd-96e9cfd10c71",1.0); //device
     //llPlaySound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c",1.0); //ao
     //llPlaySound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249",1.0); //remote hud
     //Debug("Playing sound");
     llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
-    //llWhisper(iChan,"-.. --- / .- ---"); AO command
-    //llWhisper(iChan,"-.. --- / .... ..- -.."); Remote HUD command
+    //llWhisper(iChan,"-.. --- / .- ---"); //AO command
+    //llWhisper(iChan,"-.. --- / .... ..- -.."); //Remote HUD command
 }
 
 default {
