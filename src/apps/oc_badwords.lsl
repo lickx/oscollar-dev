@@ -261,7 +261,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer remenu) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+WordPrompt() ,kID);
                 if (remenu) MenuBadwords(kID,iAuth);
             } else {
-                if (llGetListLength(g_lBadWords)) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iNum, "BadwordsRemove");
+                if (llGetListLength(g_lBadWords)) Dialog(kID, "Select a badword to remove or clear them all.", g_lBadWords, ["Clear", "BACK"],0, iAuth, "BadwordsRemove");
                 else {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The list of badwords is currently empty.",kID);
                     MenuBadwords(kID,iAuth);
