@@ -237,7 +237,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 
 default {
     on_rez(integer param) {
-        if (g_iBellOn) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
+        if (g_iBellOn && llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
     }
 
     state_entry() {
@@ -310,7 +310,7 @@ default {
                 sToken = llGetSubString(sToken, i + 1, -1);
                 if (sToken == "on") {
                     g_iBellOn=(integer)sValue;
-                    if (g_iBellOn && !g_iHasControl)
+                    if (g_iBellOn && !g_iHasControl && llGetAttached())
                         llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
                     else if (!g_iBellOn && g_iHasControl) {
                         llReleaseControls();
