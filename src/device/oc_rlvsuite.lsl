@@ -55,6 +55,7 @@ integer g_iFolderRLV = 98745923;
 integer g_iFolderRLVSearch = 98745925;
 integer g_iTimeOut = 30;
 integer g_iRlvOn = FALSE;
+integer g_iRlvaOn = FALSE;
 string g_sPathPrefix = "Outfits/";
 
 key g_kWearer;
@@ -85,6 +86,7 @@ integer RLV_CMD = 6000;
 integer RLV_CLEAR = 6002;
 integer RLV_OFF = 6100;
 integer RLV_ON = 6101;
+integer RLVA_VERSION = 6004;
 
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
@@ -95,7 +97,7 @@ integer g_iAuth;
 
 key g_kLastForcedSeat;
 string g_sLastForcedSeat;
-string g_sTerminalText = "\n[http://www.opencollar.at/rlv.html RLV Command Terminal]\n\nType one command per line without \"@\" sign.";
+string g_sTerminalText = "\nRLV Command Terminal\n\nType one command per line without \"@\" sign.";
 
 Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer iPage, integer iAuth, string sMenuID) {
     key kMenuID = llGenerateKey();
@@ -183,10 +185,17 @@ OutfitsMenu(key kID, integer iAuth) {
 
 WearFolder(string sStr, key kID) {
     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Changing outfit!",kID);
-    llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=n");
-    llOwnerSay("@remoutfit=force,detach=force");
-    llOwnerSay("@attachallover:"+g_sPathPrefix+"basics/=force,attachallover:"+sStr+"=force");
-    llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=y");
+    if (g_iRlvaOn) {
+        llOwnerSay("@detachallthis:"+g_sPathPrefix+".basics=n");
+        llOwnerSay("@remoutfit=force,detach=force");
+        llOwnerSay("@attachallover:"+g_sPathPrefix+".basics/=force,attachallover:"+sStr+"=force");
+        llOwnerSay("@detachallthis:"+g_sPathPrefix+".basics=y");
+    } else if (g_iRlvOn) {
+        llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=n");
+        llOwnerSay("@remoutfit=force,detach=force");
+        llOwnerSay("@attachallover:"+g_sPathPrefix+"basics/=force,attachallover:"+sStr+"=force");
+        llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=y");
+    }
 }
 
 doRestrictions(){
@@ -501,6 +510,7 @@ default {
     on_rez(integer iParam) {
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRlvOn = FALSE;
+        g_iRlvaOn = FALSE;
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -553,6 +563,7 @@ default {
             g_iRlvOn = FALSE;
             releaseRestrictions();
         } else if (iNum == RLV_CLEAR) releaseRestrictions();
+        else if (iNum == RLVA_VERSION) g_iRlvaOn = TRUE;
         else if (iNum == CMD_SAFEWORD || iNum == CMD_RELAY_SAFEWORD) releaseRestrictions();
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -609,7 +620,7 @@ default {
             if (llStringLength(sMsg) == 1023) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nATTENTION: Either some of the names of your outfit folders are too long, or there are too many folders in your Outfits directory. This could lead to gaps in your outfits folder index. For best operability, please consider reducing the overall amount of subfolders within the Outfits directory and use shorter names.\n",g_kWearer);
             string sPrompt;
             if (sMsg == "") sPrompt = "\nLooks like there were no outfits prepared yet for this type of %DEVICETYPE%. Thankfully this is very easy to do ♥ : )\n\nVisit www.opencollar.at/outfits to learn how this works!";
-            Dialog(g_kMenuClicker,"\n[http://www.opencollar.at/outfits.html Outfits]\n"+sPrompt,llListSort(llParseString2List(sMsg,[","],[""]),1,TRUE),[UPMENU],0,g_iAuth,"folder");
+            Dialog(g_kMenuClicker,"\nOutfits\n"+sPrompt,llListSort(llParseString2List(sMsg,[","],[""]),1,TRUE),[UPMENU],0,g_iAuth,"folder");
             g_iAuth = CMD_EVERYONE;
         }
         else if (iChan == g_iFolderRLVSearch) {
