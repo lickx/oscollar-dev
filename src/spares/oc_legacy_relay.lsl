@@ -1,4 +1,6 @@
 
+//  oc_legay_relay.lsl
+//
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Joy Stipe,
 //  Wendy Starfall, Sumi Perl, littlemousy, Romka Swallowtail,
 //  Garvin Twine, Alex Carpenter et al.

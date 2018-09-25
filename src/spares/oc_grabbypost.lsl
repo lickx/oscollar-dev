@@ -215,10 +215,10 @@ default
         if(message==((string) wearer+":pong"))
         {
             // get the collar wearer's name
-            string name=llKey2Name(wearer);
+            string sName=llKey2Name(wearer);
 
             // cut to max. 24 characters and add to the list of names
-            victimNames+=[llGetSubString(name,0,23)];
+            victimNames+=[llGetSubString(sName,0,23)];
             // add to the list of keys
             victimKeys+=[wearer];
 

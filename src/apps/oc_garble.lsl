@@ -1,4 +1,6 @@
 
+//  oc_garble.lsl
+//
 //  Copyright (c) 2008 - 2015 Satomi Ahn, Nandana Singh, Joy Stipe,
 //  Wendy Starfall, Sumi Perl, littlemousy, Romka Swallowtail et al.
 //

@@ -38,7 +38,7 @@ OpenCollar source code and creative resource are covered by free software, free 
 
 * Most LSL scripts are licensed as and must remain under the [GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0).
 
-* Some scripts, most notably ``oc_root`` have the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
+* Some scripts, most notably ``oc_root`` and ``oc_update`` have the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 * Some creative content is licensed as and must remain under the [Creative Commons Attribution-ShareAlike 4.0 International Public License](https://creativecommons.org/licenses/by-sa/4.0/).
 
@@ -52,8 +52,9 @@ OpenCollar source code has been composed by many different authors and while not
 
 We chose to do that in order to save space in a already cramped screen environment with in-world LSL editors. Nevertheless, we tried our best to make all authors appear in order of appearance if read from left to right. <3
 
+
 #### OpenSim Porting Information
 
-This branch is compatible with OpenSim 0.8 and higher  
- 
+This branch is compatible with OpenSim 0.9 and higher
+
 UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server

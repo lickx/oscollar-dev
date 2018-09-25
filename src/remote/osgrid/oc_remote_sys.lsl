@@ -1,6 +1,6 @@
 
 //  oc_remote_sys.lsl
-//  Generic version
+//  OsGrid version
 //
 //  Copyright (c) 2014 - 2017 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,
@@ -23,7 +23,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "7.0.0";
+string g_sVersion = "7.0.0 OsGrid";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -51,6 +51,7 @@ integer g_iUpdateChan = -7483210;
 integer g_iHidden;
 integer g_iPicturePrim;
 string g_sPictureID;
+key g_kPicRequest;
 string g_sTextureALL ="57701142-dac0-49f5-9d1c-005bdf10277b";
 
 //  MESSAGE MAP
@@ -201,16 +202,20 @@ NextPartner(integer iDirection, integer iTouch) {
         g_sActivePartnerID = llList2String(g_lPartnersInSim,index);
     } else g_sActivePartnerID = g_sAllPartners;
     if (osIsUUID(g_sActivePartnerID)) {
-        // Nothing like osGetProfilePicture exists yet, so use a pic from inventory
-        // Try find a texture by partner name, else use a default picture
-        string sTexture = "244e3128-c44f-4c32-a549-430cbca5b26e"; // default_profile_picture
-        string sActivePartnerName = llKey2Name((key)g_sActivePartnerID);
-        integer iDot = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), ".");
-        integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
-        // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
-        if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
-        if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
-        if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        string sName = llKey2Name((key)g_sActivePartnerID);
+        integer iGridIdx = llSubStringIndex(sName, " @hg.osgrid.org");
+        if (~iGridIdx) {
+            // Osgrid, name in hypergrid format. Keep "Firstname.Lastname", strip " @hg.osgrid.org:80"
+            sName = llGetSubString(sName, 0, iGridIdx-1);
+        } else if (~llSubStringIndex(sName, " @")) {
+            // Hypergrid, use generic picture
+            if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, "244e3128-c44f-4c32-a549-430cbca5b26e",<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);           
+            return;
+        } else {
+            // Osgrid, name in normal format. Convert "Firstname Lastname" to "Firstname.Lastname".
+            sName = osReplaceString(sName, " ", ".", -1, 0);
+        }
+        g_kPicRequest = llHTTPRequest("http://helper.osgrid.org/get_picture_uuid.php?name="+sName, [HTTP_METHOD,"GET"],"");
     } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     if(iTouch) {
@@ -433,6 +438,15 @@ default {
         }
     }
 
+    http_response(key kRequestID, integer iStatus, list lMeta, string sBody) {
+        if (iStatus != 200) return;
+        if (kRequestID == g_kPicRequest && g_iPicturePrim) {
+            string sTexture = (string)NULL_KEY;
+            if (osIsUUID(sBody)) sTexture = sBody;
+            if ((key)sTexture != NULL_KEY) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        }
+    }
+
     object_rez(key kID) {
         llSleep(0.5); // make sure object is rezzed and listens
         if (g_sActivePartnerID == g_sAllPartners)
@@ -443,7 +457,7 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_INVENTORY) {
-            if (llGetInventoryKey("test")==NULL_KEY && llGetInventoryKey(g_sCard) != g_kCardID) {
+            if (llGetInventoryKey(g_sCard) != g_kCardID) {
                 // the .partners card changed.  Re-read it.
                 g_iLineNr = 0;
                 if (llGetInventoryKey(g_sCard)) {

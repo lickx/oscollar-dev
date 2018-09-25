@@ -1,6 +1,8 @@
-//  Copyright (c) 2008 - 2017 Nandana Singh, Cleo Collins, Master Starship, //
-//  Satomi Ahn, Garvin Twine, Joy Stipe, Alex Carpenter, Xenhat Liamano,    //
 
+//  oc_settings.lsl
+//
+//  Copyright (c) 2008 - 2017 Nandana Singh, Cleo Collins, Master Starship,
+//  Satomi Ahn, Garvin Twine, Joy Stipe, Alex Carpenter, Xenhat Liamano,
 //  Wendy Starfall, Medea Destiny, Rebbie, Romka Swallowtail,
 //  littlemousy et al.
 //
@@ -19,36 +21,22 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-// Central storage for settings of other plugins in the device.
+integer g_iBuild = 111;
 
 string g_sCard = ".settings";
-string g_sSplitLine; // to parse lines that were split due to lsl constraints
-integer g_iLineNr = 0;
+string g_sSplitLine;
+integer g_iLineNr;
 key g_kLineID;
-key g_kCardID = NULL_KEY; //needed for change event check if no .settings card is in the inventory
+key g_kCardID;
 list g_lExceptionTokens = ["texture","glow","shininess","color","intern"];
 key g_kLoadFromWeb;
 key g_kURLLoadRequest;
 key g_kWearer;
 
-//string g_sSettingToken = "settings_";
-//string g_sGlobalToken = "global_";
-
-//MESSAGE MAP
-//integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
-//integer CMD_TRUSTED = 501;
-//integer CMD_GROUP = 502;
-integer CMD_WEARER = 503;
-//integer CMD_EVERYONE = 504;
-//integer CMD_RLV_RELAY = 507;
-//integer CMD_SAFEWORD = 510;
-//integer CMD_RELAY_SAFEWORD = 511;
-//integer CMD_BLOCKED = 520;
 
-//integer POPUP_HELP = 1001;
 integer NOTIFY=1002;
-//integer SAY = 1004;
+
 integer LM_SETTING_SAVE = 2000;
 integer LM_SETTING_REQUEST = 2001;
 integer LM_SETTING_RESPONSE = 2002;
@@ -67,6 +55,8 @@ integer LINK_UPDATE = -10;
 integer LINK_CUFFS = -1;
 integer REBOOT = -1000;
 integer LOADPIN = -1904;
+integer BUILD_REQUEST = 17760501;
+
 integer g_iRebootConfirmed;
 key g_kConfirmDialogID;
 string g_sSampleURL = "https://goo.gl/adCn8Y";
@@ -74,22 +64,20 @@ string g_sSampleURL = "https://goo.gl/adCn8Y";
 list g_lSettings;
 key g_kTempOwner;
 
-integer g_iSayLimit = 1024; // lsl "say" string limit
-integer g_iCardLimit = 255; // lsl card-line string limit
+integer g_iSayLimit = 1024;
+integer g_iCardLimit = 255;
 string g_sDelimiter = "\\";
 integer g_iSaveAttempted = FALSE;
 
-// Get Group or Token, 0=Group, 1=Token
 string SplitToken(string sIn, integer iSlot) {
     integer i = llSubStringIndex(sIn, "_");
     if (!iSlot) return llGetSubString(sIn, 0, i - 1);
     return llGetSubString(sIn, i + 1, -1);
 }
-// To add new entries at the end of Groupings
+
 integer GroupIndex(list lCache, string sToken) {
     string sGroup = SplitToken(sToken, 0);
     integer i = llGetListLength(lCache) - 1;
-    // start from the end to find last instance, +2 to get behind the value
     for (; ~i ; i -= 2) {
         if (SplitToken(llList2String(lCache, i - 1), 0) == sGroup) return i + 1;
     }
@@ -108,37 +96,15 @@ list SetSetting(list lCache, string sToken, string sValue) {
     return lCache + [sToken, sValue];
 }
 
-// like SetSetting, but only sets the value if there's not one already there.
-list AddSetting(list lCache, string sToken, string sValue) {
-    integer i = llListFindList(lCache, [sToken]);
-    if (~i) return lCache;
-    i = GroupIndex(lCache, sToken);
-    if (~i) return llListInsertList(lCache, [sToken, sValue], i);
-    return lCache + [sToken, sValue];
-}
-
 string GetSetting(string sToken) {
     integer i = llListFindList(g_lSettings, [sToken]);
     return llList2String(g_lSettings, i + 1);
 }
-// per = number of entries to put in each bracket
-list ListCombineEntries(list lIn, string sAdd, integer iPer) {
-    list lOut;
-    while (llGetListLength(lIn)) {
-        list lItem;
-        integer i;
-        for (; i < iPer; i++) lItem += llList2List(lIn, i, i);
-        lOut += [llDumpList2String(lItem, sAdd)];
-        lIn = llDeleteSubList(lIn, 0, iPer - 1);
-    }
-    return lOut;
-}
 
-DelSetting(string sToken) { // we'll only ever delete user settings
+DelSetting(string sToken) {
     integer i = llGetListLength(g_lSettings) - 1;
     if (SplitToken(sToken, 1) == "all") {
         sToken = SplitToken(sToken, 0);
-      //  string sVar;
         for (; ~i; i -= 2) {
             if (SplitToken(llList2String(g_lSettings, i - 1), 0) == sToken)
                 g_lSettings = llDeleteSubList(g_lSettings, i - 1, i);
@@ -147,15 +113,14 @@ DelSetting(string sToken) { // we'll only ever delete user settings
     }
     i = llListFindList(g_lSettings, [sToken]);
     if (~i) {
-        if (sToken == "auth_tempowner") g_kTempOwner = "";
+        if (sToken == "auth_tempowner") g_kTempOwner = NULL_KEY;
         g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
     }
 }
 
-// run delimiters & add escape-characters for settings print
 list Add2OutList(list lIn, string sDebug) {
     if (!llGetListLength(lIn)) return [];
-    list lOut;// = ["#---My Settings---#"];
+    list lOut;
     string sBuffer;
     string sTemp;
     string sID;
@@ -164,22 +129,18 @@ list Add2OutList(list lIn, string sDebug) {
     string sToken;
     string sValue;
     integer i;
-
     for (i=0 ; i < llGetListLength(lIn); i += 2) {
         sToken = llList2String(lIn, i);
         sValue = llList2String(lIn, i + 1);
-        //sGroup = SplitToken(sToken, 0);
         sGroup = llToUpper(SplitToken(sToken, 0));
         if (sDebug == "print" && ~llListFindList(g_lExceptionTokens,[llToLower(sGroup)])) jump next;
         sToken = SplitToken(sToken, 1);
         integer bIsSplit = FALSE ;
         integer iAddedLength = llStringLength(sBuffer) + llStringLength(sValue)
-            + llStringLength(sID) +2; //+llStringLength(set);
-        if (sGroup != sID || llStringLength(sBuffer) == 0 || iAddedLength >= g_iCardLimit ) { // new group
-            // Starting a new group.. flush the buffer to the output.
+            + llStringLength(sID) +2;
+        if (sGroup != sID || llStringLength(sBuffer) == 0 || iAddedLength >= g_iCardLimit ) {
             if ( llStringLength(sBuffer) ) lOut += [sBuffer] ;
             sID = sGroup;
-           // pre = "\n" + set + sid + "=";
             sPre = "\n" + sID + "=";
         }
         else sPre = sBuffer + "~";
@@ -192,21 +153,17 @@ list Add2OutList(list lIn, string sDebug) {
                 sTemp = "\n" + llDeleteSubString(sTemp, 0, g_iCardLimit - 2);
             } else sTemp = "";
             if ( bIsSplit ) {
-                // if this is either a split buffer or one of it's continuation
-                // line outputs,
                 lOut += [sBuffer];
                 sBuffer = "" ;
             }
         }
         @next;
     }
-    // If there's anything left in the buffer, flush it to output.
     if ( llStringLength(sBuffer) ) lOut += [sBuffer] ;
     return lOut;
 }
 
 PrintSettings(key kID, string sDebug) {
-    // compile everything into one list, so we can tell the user everything seamlessly
     list lOut;
     list lSay = ["/me Settings:\n"];
     if (sDebug == "debug")
@@ -228,7 +185,6 @@ PrintSettings(key kID, string sDebug) {
     lOut += [sOld];
     while (llGetListLength(lOut)) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+llList2String(lOut, 0), kID);
-        //Notify(kID, llList2String(lOut, 0), TRUE);
         lOut = llDeleteSubList(lOut, 0, 0);
     }
 }
@@ -250,10 +206,8 @@ LoadSetting(string sData, integer iLine) {
         g_sSplitLine = "" ;
     }
     if (iLine) {
-        // first we can filter out & skip blank lines & remarks
         sData = llStringTrim(sData, STRING_TRIM_HEAD);
         if (sData == "" || llGetSubString(sData, 0, 0) == "#") return;
-        // check for "continued" line pieces
         if (llStringLength(g_sSplitLine)) {
             sData = g_sSplitLine + sData ;
             g_sSplitLine = "" ;
@@ -273,18 +227,16 @@ LoadSetting(string sData, integer iLine) {
             sToken = llList2String(lData, i);
             sValue = llList2String(lData, i + 1);
             if (sValue != "") {
-                if (sID == "auth_") { //if we have auth, can only be the below, else we dont care
+                if (sID == "auth_") {
                     sToken = llToLower(sToken);
                     if (~llListFindList(["block","trust","owner"],[sToken])) {
                         list lTest = llParseString2List(sValue,[","],[]);
                         list lOut;
                         integer n;
-                        do {//sanity check for valid entries
-                            if (llList2Key(lTest,n)) //if this is not a valid key, it's useless
+                        do {
+                            if (llList2Key(lTest,n))
                                 lOut += llList2String(lTest,n);
-                            integer iTest = llGetListLength(lOut);
                         } while (++n < llGetListLength(lTest));
-                        @next;
                         sValue = llDumpList2String(lOut,",");
                         lTest = [];
                         lOut = [];
@@ -297,8 +249,6 @@ LoadSetting(string sData, integer iLine) {
 }
 
 SendValues() {
-    //Debug("Sending all settings");
-    //loop through and send all the settings
     integer n;
     string sToken;
     list lOut;
@@ -310,8 +260,7 @@ SendValues() {
     n = 0;
     for (; n < llGetListLength(lOut); n++)
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llList2String(lOut, n), "");
-
-    llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, "settings=sent", "");//tells scripts everything has be sentout
+    llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, "settings=sent", "");
 }
 
 UserCommand(integer iAuth, string sStr, key kID) {
@@ -355,10 +304,9 @@ UserCommand(integer iAuth, string sStr, key kID) {
 
 default {
     state_entry() {
-        if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
-        if (llGetNumberOfPrims()>5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(llGetNumberOfPrims()),[OBJECT_CREATOR])];
+        if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
+        if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
         if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
-        // Ensure that settings resets AFTER every other script, so that they don't reset after they get settings
         llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
@@ -371,12 +319,9 @@ default {
     }
 
     on_rez(integer iParam) {
-        if (g_kWearer == llGetOwner()) {
+        if (g_kWearer == llGetOwner())
             llSetTimerEvent(2.0);
-            //llSleep(0.5); // brief wait for others to reset
-            //llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
-            //SendValues();
-        } else llResetScript();
+        else llResetScript();
     }
 
     dataserver(key kID, string sData) {
@@ -421,7 +366,6 @@ default {
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == CMD_OWNER || kID == g_kWearer) UserCommand(iNum, sStr, kID);
         else if (iNum == LM_SETTING_SAVE) {
-            //save the token, value
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
@@ -433,7 +377,6 @@ default {
             }
         }
         else if (iNum == LM_SETTING_REQUEST) {
-             //check the cache for the token
             if (SettingExists(sStr)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, sStr + "=" + GetSetting(sStr), "");
             else if (sStr == "ALL") {
                 llSetTimerEvent(2.0);
@@ -452,7 +395,7 @@ default {
                 g_iRebootConfirmed = TRUE;
                 UserCommand(llList2Integer(lMenuParams,3),"reboot",kID);
             } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Reboot aborted.",kID);
-        } else if (iNum == LOADPIN && sStr == llGetScriptName()) {
+        } else if (iNum == LOADPIN && ~llSubStringIndex(llGetScriptName(),sStr)) {
             integer iPin = (integer)llFrand(99999.0)+1;
             llSetRemoteScriptAccessPin(iPin);
             llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(),llGetKey());
@@ -461,6 +404,8 @@ default {
             else if (sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
         } else if (iNum == LM_CUFF_SET && sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
+        else if (iNum == BUILD_REQUEST)
+            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
     }
 
     timer() {
@@ -480,17 +425,15 @@ default {
     }
 
     changed(integer iChange) {
-        if (iChange & CHANGED_OWNER) llResetScript();
         if ((iChange & CHANGED_INVENTORY) || (iChange & CHANGED_REGION)) {
             if (llGetInventoryKey(g_sCard) != g_kCardID) {
-                // the .settings card changed.  Re-read it.
                 g_iLineNr = 0;
                 if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
                     g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
                     g_kCardID = llGetInventoryKey(g_sCard);
                 }
             } else {
-                llSetTimerEvent(1.0);   //pause, then send values if inventory changes, in case script was edited and needs its settings again
+                llSetTimerEvent(1.0);
                 SendValues();
             }
         }

@@ -1,4 +1,6 @@
 
+//  oc_remote_bookmarks.lsl
+//
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Wendy Starfall,
 //  Sumi Perl, Master Starship, littlemousy, mewtwo064, ml132,
 //  Romka Swallowtail, Garvin Twine, Mace68 et al.

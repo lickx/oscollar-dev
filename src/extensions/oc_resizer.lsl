@@ -1,4 +1,6 @@
 
+//  oc_resizer.lsl
+//
 //  Copyright (c) 2008 - 2016 Nandana Singh, Lulu Pink, Garvin Twine,
 //  Cleo Collins, Master Starship, Joy Stipe, Wendy Starfall, littlemousy,
 //  Romka Swallowtail et al.
@@ -44,10 +46,6 @@ float g_fRotNudge;
 list SIZEMENU_BUTTONS = [ "-1%", "-2%", "-5%", "+1%", "+2%", "+5%", "-10%", "+10%" ]; // buttons for menu
 list g_lSizeFactors = [0.99, 0.98, 0.95, 1.01, 1.02, 1.05, 0.90, 1.10]; // actual size factors
 
-float MAX_PRIM_SIZE=2.0; //maximum allowable prim size
-float MIN_PRIM_SIZE=0.001; //minimum allowable prim size
-float MAX_LINK_DIST=100.0; //maximum allowable link distance (hmn what is this value on opensim?)
-
 //MESSAGE MAP
 //integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
@@ -92,44 +90,6 @@ Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer i
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
     if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, sMenuType];
-}
-
-vector GetScaleFactors()
-{
-    integer p = llGetNumberOfPrims();
-    integer i;
-    list pos;
-    list size;
-    while (i < p) {
-        list t = llGetLinkPrimitiveParams(i+1,[PRIM_SIZE,PRIM_POS_LOCAL]);
-        if (i > 0) {
-            vector o=llList2Vector(t,1);
-            pos+=[llFabs(o.x),llFabs(o.y),llFabs(o.z)];
-        }
-        vector s=llList2Vector(t,0);size+=[s.x,s.y,s.z];++i;
-    }
-    float maxr = MAX_PRIM_SIZE/llListStatistics(LIST_STAT_MAX, size);
-    if (llGetListLength(pos)) {
-        maxr = osMin(MAX_LINK_DIST/llListStatistics(LIST_STAT_MAX,pos), maxr);
-    }
-    return <MIN_PRIM_SIZE/llListStatistics(LIST_STAT_MIN,size),maxr,0>;
-}
-
-integer ScaleByFactor(float f)
-{
-    vector v=GetScaleFactors();
-    if(f<v.x || f>v.y) return FALSE;
-    else {
-        integer p=llGetNumberOfPrims();
-        integer i;list n;
-        while(i<p) {
-            list t=llGetLinkPrimitiveParams(i+1,[PRIM_SIZE,PRIM_POS_LOCAL]);
-            n+=[PRIM_LINK_TARGET,i+1,PRIM_SIZE,llList2Vector(t,0)*f];
-            if(i>0){n+=[PRIM_POS_LOCAL,llList2Vector(t,1)*f];}++i;
-        }
-        llSetPrimitiveParams(n);
-        return TRUE;
-    }
 }
 
 ForceUpdate() {
@@ -302,7 +262,7 @@ default {
                         integer iMenuCommand = llListFindList(SIZEMENU_BUTTONS, [sMessage]);
                         if (iMenuCommand != -1) {
                             float fScale = llList2Float(g_lSizeFactors, iMenuCommand);
-                            if (ScaleByFactor(fScale)==FALSE) {
+                            if (llScaleByFactor(fScale)==FALSE) {
                                 llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't scale %DEVICETYPE% any further",kID);
                             } else {
                                 llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"%DEVICETYPE% has been scaled by "+llList2String(SIZEMENU_BUTTONS, iMenuCommand),kID);
