@@ -167,7 +167,7 @@ integer SetPosture(integer iOn, key kCommander) {
     if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (iOn && !g_iPosture) {
             llStartAnimation("~stiff");
-            if (kCommander) llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Posture override active.", kCommander);
+            if (kCommander != NULL_KEY) llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Posture override active.", kCommander);
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"posture=1","");
         } else if (!iOn) {
             llStopAnimation("~stiff");
