@@ -22,7 +22,7 @@
 //allows owner to set different camera mode
 //responds to commands from modes list
 
-string g_sAppVersion = "1.3.1";
+string g_sAppVersion = "1.4";
 
 key g_kWearer;
 integer g_iLastNum;
@@ -39,7 +39,7 @@ rotation g_rCamRot;
 integer g_iBroadChan;
 key g_kBroadRcpt;
 
-string g_sJsonModes;
+list g_lModes = ["default", "human", "1stperson", "ass", "far", "god", "ground", "worm"];
 
 //MESSAGE MAP
 //integer CMD_ZERO = 0;
@@ -83,53 +83,6 @@ string UPMENU = "BACK";
 
 string g_sSettingToken = "camera_";
 
-//changed the mode handles to a Json object with json arrays, one issue remains:
-//vectors get converted into strings and need to be reconverted to vectors.
-//For this to work easiest seems to just put for any mode which contains a vector,
-//the vector as last entry (if there shall be a mode which contains 2 vectors,
-//this needs to be addressed and handles as excetion in the list lJsonModes function
-string JsonModes() {
-    string sDefault =   llList2Json(JSON_ARRAY, [CAMERA_ACTIVE,FALSE]);
-    string sHuman =     llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_BEHINDNESS_ANGLE,0.0,
-                                                CAMERA_BEHINDNESS_LAG,0.0,
-                                                CAMERA_DISTANCE,2.5,
-                                                CAMERA_FOCUS_LAG,0.05,
-                                                CAMERA_POSITION_LOCKED,FALSE,
-                                                CAMERA_FOCUS_THRESHOLD,0.0,
-                                                CAMERA_PITCH,20.0,
-                                                CAMERA_POSITION_LAG,0.0,
-                                                CAMERA_POSITION_THRESHOLD,0.0,
-                                                CAMERA_FOCUS_OFFSET,<0.0, 0.0, 0.35>]);
-    string s1stperson = llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_DISTANCE, 0.5,
-                                                CAMERA_FOCUS_OFFSET, <2.5,0,1.0>]);
-    string sAss =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_DISTANCE,0.5]);
-    string sFar =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_DISTANCE,10.0]);
-    string sGod =       llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_DISTANCE,10.0,
-                                                CAMERA_PITCH,80.0]);
-    string sGround =    llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_PITCH,-15.0]);
-    string sWorm =      llList2Json(JSON_ARRAY,[CAMERA_ACTIVE,TRUE,
-                                                CAMERA_PITCH,-15.0,
-                                                CAMERA_FOCUS_OFFSET, <0.0,0.0,-0.75>]);
-
-    return llList2Json(JSON_OBJECT,["default",sDefault,"human", sHuman, "1stperson",s1stperson,"ass",sAss,"far",sFar,"god",sGod,"ground",sGround,"worm",sWorm]);
-
-}
-
-list lJsonModes(string sMode) {
-    string sJsonTmp = llJsonGetValue(g_sJsonModes, [sMode]);
-    list lTest = llJson2List(sJsonTmp);
-    integer index = llGetListLength(lTest)-1;
-    //last entry is checked if it is a vector to be converted from string to vector here:
-    if ((vector)llList2String(lTest,index)) lTest = llListReplaceList(lTest,[(vector)llList2String(lTest,index)],index,index);
-    return lTest;
-}
-
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
@@ -140,8 +93,45 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 }
 
 CamMode(string sMode) {
+    list lMode = [];
     llClearCameraParams();
-    llSetCameraParams(lJsonModes(sMode));
+    if (sMode=="default") {
+        lMode = [CAMERA_ACTIVE,FALSE];
+    } else if (sMode=="human") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_BEHINDNESS_ANGLE,0.0,
+                CAMERA_BEHINDNESS_LAG,0.0,
+                CAMERA_DISTANCE,2.5,
+                CAMERA_FOCUS_LAG,0.05,
+                CAMERA_POSITION_LOCKED,FALSE,
+                CAMERA_FOCUS_THRESHOLD,0.0,
+                CAMERA_PITCH,20.0,
+                CAMERA_POSITION_LAG,0.0,
+                CAMERA_POSITION_THRESHOLD,0.0,
+                CAMERA_FOCUS_OFFSET,<0.0, 0.0, 0.35>];
+    } else if (sMode=="1stperson") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_DISTANCE, 0.5,
+                CAMERA_FOCUS_OFFSET, <2.5,0,1.0>];
+    } else if (sMode=="ass") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_DISTANCE,0.5];
+    } else if (sMode=="far") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_DISTANCE,10.0];
+    } else if (sMode=="god") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_DISTANCE,10.0,
+                CAMERA_PITCH,80.0];
+    } else if (sMode=="ground") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_PITCH,-15.0];
+    } else if (sMode=="worm") {
+        lMode = [CAMERA_ACTIVE,TRUE,
+                CAMERA_PITCH,-15.0,
+                CAMERA_FOCUS_OFFSET, <0.0,0.0,-0.75>];
+    }    
+    if (llGetListLength(lMode)) llSetCameraParams(lMode);
 }
 
 ClearCam() {
@@ -208,9 +198,7 @@ CamMenu(key kID, integer iAuth) {
     string sPrompt = "\nCamera\t"+g_sAppVersion+"\n\nCurrent camera mode is " + g_sCurrentMode + ".\n\nNOTE: Full functionality only on RLV API v2.9 and greater.";
     list lButtons = ["CLEAR","FREEZE","MOUSELOOK"];
     integer n;
-    integer stop = llGetListLength(llJson2List(g_sJsonModes));
-    for (n = 0; n < stop; n +=2)
-        lButtons += [Capitalize(llList2String(llJson2List(g_sJsonModes),n))];
+    lButtons += g_lModes;
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "camera");
 }
 
@@ -268,7 +256,7 @@ UserCommand(integer iNum, string sStr, key kID) { // here iNum: auth value, sStr
             SaveSetting("mouselook");
             //Debug("newiNum=" + (string)iNum);
         } else {
-            integer iIndex = llSubStringIndex(g_sJsonModes, sValue);//llListFindList(g_lModes, [sValue]);
+            integer iIndex = llListFindList(g_lModes, [sValue]);
             if (iIndex != -1) {
                 CamMode(sValue);
                 g_iLastNum = iNum;
@@ -309,11 +297,8 @@ default {
     }
 
     state_entry() {
-       // llSetMemoryLimit(36864);
         g_kWearer = llGetOwner();
-        g_sJsonModes = JsonModes();
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_CONTROL_CAMERA | PERMISSION_TRACK_CAMERA);
-        //Debug("Starting");
     }
 
     run_time_permissions(integer iPerms) {
@@ -339,7 +324,7 @@ default {
                 if (llGetPermissions() & PERMISSION_CONTROL_CAMERA) {
                     if (sToken == "freeze") LockCam();
                     else if (sToken == "mouselook") llMessageLinked(LINK_RLV, RLV_CMD, "camdistmax:0=n", "camera");
-                    else if (~llSubStringIndex(g_sJsonModes, sToken)) CamMode(sToken);
+                    else if (~llListFindList(g_lModes, [sToken])) CamMode(sToken);
                     g_iLastNum = (integer)sValue;
                 }
             }
