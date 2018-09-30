@@ -307,13 +307,13 @@ default {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
         if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
-        llSleep(0.5);
+        //llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
         if (!llGetStartParameter()) {
-            if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
+            if (llGetInventoryType(g_sCard)==INVENTORY_NOTECARD) {
+                g_kCardID = llGetInventoryKey(g_sCard);
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-             g_kCardID = llGetInventoryKey(g_sCard);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
     }
@@ -332,8 +332,7 @@ default {
             } else {
                 g_iLineNr = 0;
                 LoadSetting(sData,g_iLineNr);
-                llSetTimerEvent(1.0);
-                SendValues();
+                llSetTimerEvent(2.0);
             }
         }
     }
@@ -410,7 +409,6 @@ default {
 
     timer() {
         llSetTimerEvent(0.0);
-        SendValues();
         if (g_iSaveAttempted) {
             g_iSaveAttempted = FALSE;
             if (llGetInventoryKey(g_sCard+".new")!=NULL_KEY) {
@@ -421,21 +419,16 @@ default {
                 llRemoveInventory(g_sCard+".new");
                 llOwnerSay("\n\nSettings have been saved.\n\n");
             } else llOwnerSay("\n\nSaving settings is not supported in this region.\n\n");
-        }
+        } else SendValues();
     }
 
     changed(integer iChange) {
-        if ((iChange & CHANGED_INVENTORY) || (iChange & CHANGED_REGION)) {
-            if (llGetInventoryKey(g_sCard) != g_kCardID) {
-                g_iLineNr = 0;
-                if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
-                    g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-                    g_kCardID = llGetInventoryKey(g_sCard);
-                }
-            } else {
-                llSetTimerEvent(1.0);
-                SendValues();
-            }
+        if ((iChange & CHANGED_INVENTORY) && (llGetInventoryKey(g_sCard) != g_kCardID)) {
+            // Re-read settings card if it has been changed
+            llSetTimerEvent(0);
+            g_iLineNr = 0;
+            g_kCardID = llGetInventoryKey(g_sCard);
+            g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
         }
     }
 }
