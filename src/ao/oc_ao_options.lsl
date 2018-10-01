@@ -209,11 +209,11 @@ DoStatus() {
     if (g_iAOPower) color = g_vAOoncolor;
     else color = g_vAOoffcolor;
     llSetLinkPrimitiveParamsFast(llListFindList(g_lButtons,["Power"]),
-[PRIM_COLOR, ALL_SIDES, vColor, 1]);
+[PRIM_COLOR, ALL_SIDES, color, 1]);
     if (g_iAOSit) color = g_vAOoncolor;
     else color = g_vAOoffcolor;
     llSetLinkPrimitiveParamsFast(llListFindList(g_lButtons,["SitAny"]),
-[PRIM_COLOR, ALL_SIDES, vColor, 1]);
+[PRIM_COLOR, ALL_SIDES, color, 1]);
 }
 
 MainMenu(key id) {

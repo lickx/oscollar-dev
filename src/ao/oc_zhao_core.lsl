@@ -1349,7 +1349,8 @@ default {
         if ( checkAndOverride() ) {
             // Is it time to switch stand animations?
             // Stand cycling can be turned off
-            if ( (standTime != 0) && (llGetTime() > standTime) && (llGetAnimation(Owner) != "Sitting")) {
+            if ( (standTime != 0) && (llGetTime() > standTime) &&
+                ((llGetAnimation(Owner) == "Standing") || (llGetAnimation(Owner) == "Stand")) ) {
                 // Don't interrupt the typing animation with a stand change. 
                 // Not from UI, no feedback
                 if ( !typingStatus )
