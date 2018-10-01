@@ -80,6 +80,9 @@ integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 integer BUILD_REQUEST = 17760501;
 
+integer REGION_CROSSED = 10050;
+integer REGION_TELEPORT = 10051;
+
 string UPMENU = "BACK";
 string TURNON = "  ON";
 string TURNOFF = " OFF";
@@ -433,6 +436,10 @@ default {
                 LINK_SAVE = iSender;
                 if (g_iRLVOn) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "on="+(string)g_iRLVOn, "");
             } else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_RLV","");
+        } else if (iNum == REGION_CROSSED || iNum == REGION_TELEPORT) {
+            integer numBaked=llGetListLength(g_lBaked);
+            while (numBaked--)
+                llOwnerSay("@"+llList2String(g_lBaked,numBaked)+"=n");
         } else if (g_iRlvActive) {
             if (g_iIsLED) {
                 llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,TRUE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_NONE,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.4]);
@@ -538,12 +545,8 @@ default {
             }
         }
     }
+
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_TELEPORT || iChange & CHANGED_REGION) {
-            integer numBaked=llGetListLength(g_lBaked);
-            while (numBaked--)
-                llOwnerSay("@"+llList2String(g_lBaked,numBaked)+"=n");
-        }
     }
 }

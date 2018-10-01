@@ -78,6 +78,8 @@ integer ANIM_LIST_REQUEST = 7002;
 integer ANIM_LIST_RESPONSE =7003;
 float g_fStandHover = 0.0;
 
+integer REGION_TELEPORT = 10051;
+
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
@@ -275,6 +277,7 @@ checkCrawl() {
         llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sSettingToken+"crawl","");
     }
 }
+
 CreateAnimList() {
     g_lPoseList=[];
     g_lOtherAnims =[];
@@ -566,7 +569,9 @@ default {
         else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLVA_VERSION) g_iRLVA_ON = TRUE;
         else if (iNum == RLV_OFF) g_iRLVA_ON = FALSE;
+        else if (iNum == REGION_TELEPORT) RefreshAnim();
     }
+
     timer() {
         integer iAgentState = llGetAgentInfo(g_kWearer);
         float fHover;
@@ -604,9 +609,9 @@ default {
             StartAnim(llList2String(g_lAnims,0));
         }
     }
+
     changed(integer iChange) {
         if (iChange & CHANGED_OWNER) llResetScript();
-        if (iChange & CHANGED_TELEPORT) RefreshAnim();
         if (iChange & CHANGED_INVENTORY) {
             if (g_iNumberOfAnims != llGetInventoryNumber(INVENTORY_ANIMATION)) CreateAnimList();
             checkCrawl();

@@ -50,11 +50,17 @@ list CUFFS_GROUPS = ["auth","color","texture","shininess"];
 
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
+
+integer REGION_CROSSED = 10050;
+integer REGION_TELEPORT = 10051;
+
 integer LINK_DIALOG = 3;
 integer LINK_UPDATE = -10;
 integer LINK_CUFFS = -1;
+
 integer REBOOT = -1000;
 integer LOADPIN = -1904;
+
 integer BUILD_REQUEST = 17760501;
 
 integer g_iRebootConfirmed;
@@ -403,6 +409,7 @@ default {
             else if (sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
         } else if (iNum == LM_CUFF_SET && sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
+        else if (iNum == REGION_CROSSED || iNum == REGION_TELEPORT) llSetTimerEvent(2.0);
         else if (iNum == BUILD_REQUEST)
             llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
     }

@@ -83,6 +83,8 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 integer BUILD_REQUEST = 17760501;
+integer REGION_CROSSED = 10050;
+integer REGION_TELEPORT = 10051;
 
 key g_kWearer;
 
@@ -486,7 +488,8 @@ default {
             GetLocks();
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
         }
-        if (iChanges & CHANGED_REGION) llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
+        if (iChanges & CHANGED_REGION) llMessageLinked(LINK_ALL_OTHERS,REGION_CROSSED,"","");
+        if (iChanges & CHANGED_TELEPORT) llMessageLinked(LINK_ALL_OTHERS,REGION_TELEPORT,"","");
     }
 
     timer() {
