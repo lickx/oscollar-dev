@@ -186,7 +186,7 @@ default {
     }
 
     timer() {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         integer i = llGetInventoryNumber(INVENTORY_SCRIPT);
         string sName;
         while (i) {
@@ -236,7 +236,7 @@ default {
     link_message(integer iPrim, integer iNum, string sMsg, key kID) {
         if (g_iDebugMode) Say("Debug:\niNum = "+(string)iNum+"\nMessage = "+sMsg);
         if (iNum == 161014 && kID != g_sMyName) {
-            llSetTimerEvent(0);
+            llSetTimerEvent(0.0);
             if (!llSubStringIndex(sMsg,"aolink:")) {
                 float fVersion = (float)llGetSubString(sMsg,llSubStringIndex(sMsg,":")+1,-1);
                 if (fVersion > (float)g_sVersion)

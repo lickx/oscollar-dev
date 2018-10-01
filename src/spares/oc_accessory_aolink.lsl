@@ -167,7 +167,7 @@ MenuCommand(string sMsg, key kID) {
         if(i > -1) g_lMenuUsers=llDeleteSubList(g_lMenuUsers,i,i); //remove user from menu users list.
         if(!llGetListLength(g_lMenuUsers)) {//remove listener if no menu users left
             llListenRemove(g_iMenuHandle);
-            llSetTimerEvent(0);
+            llSetTimerEvent(0.0);
         }
         return; // we're done here!
     } else if(sMsg == "Load Notecard") {//scan for notecards and provide a dialog to user
@@ -270,7 +270,7 @@ default {
     }
         
     timer() {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         llListenRemove(g_iMenuHandle);
         g_lMenuUsers = []; //clear list
     }

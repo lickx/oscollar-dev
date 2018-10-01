@@ -211,7 +211,7 @@ SetLabel() {
         llSetTimerEvent(g_fScrollTime);
     } else {
         g_sScrollText = "";
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         while(llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
         sText = sPadding + sText;
         integer iCharPosition;

@@ -573,7 +573,7 @@ CheckTeleport() {
     //DebugCurrentState("CheckTeleport");
     if (g_iState == iTELEPORT) {
         if (llGetRegionName()==g_sCageRegion && llVecDist(g_vCagePos,llGetPos()) < 10) {
-            llSetTimerEvent(0);
+            llSetTimerEvent(0.0);
             llResetTime();
             SetState(iCAGED);
             return;
@@ -605,7 +605,7 @@ SetState(integer iState) {
     if (iState <= iDISARMED) {
         g_iCageAuth = CMD_EVERYONE;
         g_kCageOwnerKey = NULL_KEY;
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         llSensorRemove();
         llTargetRemove(g_iTargetHandle);
         llStopMoveToTarget();

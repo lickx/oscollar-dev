@@ -160,7 +160,7 @@ Shock(integer time, key kID) {
     } else if (g_iShock == TRUE) {
         //llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"shocker off.", kID);
         llMessageLinked(LINK_DIALOG, SAY, "1"+"shocker off.", "");
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         Stop();
     }
 }
@@ -315,7 +315,7 @@ default {
     }
 
     timer() {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         Stop();
     }
 }

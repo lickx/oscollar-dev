@@ -262,7 +262,7 @@ StopAnim(string sAnim, integer isPoseChange) {
 
 UnPlayAnim(string sAnim) {
     if (g_iCrawl) {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         llStopAnimation(g_sPoseMoveRun);
         llStopAnimation(g_sCrawlWalk);
     }

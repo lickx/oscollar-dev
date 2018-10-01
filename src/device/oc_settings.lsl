@@ -432,7 +432,7 @@ default {
     changed(integer iChange) {
         if ((iChange & CHANGED_INVENTORY) && (llGetInventoryKey(g_sCard) != g_kCardID)) {
             // Re-read settings card if it has been changed
-            llSetTimerEvent(0);
+            llSetTimerEvent(0.0);
             g_iLineNr = 0;
             g_kCardID = llGetInventoryKey(g_sCard);
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);

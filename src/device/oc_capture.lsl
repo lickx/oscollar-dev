@@ -182,7 +182,7 @@ UserCommand(integer iNum, string sStr, key kID, integer remenu) {
             }
         } else if (sStrLower == "capture info off") {
             g_iCaptureInfo = FALSE;
-            if (g_iRiskyOn && g_iCaptureOn) llSetTimerEvent(0);
+            if (g_iRiskyOn && g_iCaptureOn) llSetTimerEvent(0.0);
             llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"\"Capture me\" announcements during risky mode are now disabled.", kID);
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"info=0","");
         }

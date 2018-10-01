@@ -501,7 +501,7 @@ default {
     }
 
     timer() {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         string sMessage;
         if (llGetListLength(g_lWrongRootScripts) > 0) {
             sMessage = "\nFalse root prim placement:\n";

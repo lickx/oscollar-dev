@@ -451,7 +451,7 @@ default {
     }
 
     timer() {
-        llSetTimerEvent(0);
+        llSetTimerEvent(0.0);
         if (g_iSizedByScript) g_iSizedByScript = FALSE;
     }
 

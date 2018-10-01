@@ -412,14 +412,14 @@ default {
             g_iAddPartnerTimer = 0;
             if (llGetListLength(g_lNewPartnerIDs)) AddPartnerMenu();
             else llOwnerSay("\n\nYou currently don't have access to any nearby collars. Requirements to add partners are to either have them captured or their collar is set to public or they have you listed as an owner or trust role. www.opencollar.at/remote\n");
-            llSetTimerEvent(0);
+            llSetTimerEvent(0.0);
             integer n = llGetListLength(g_lListeners);
             while (n--)
                 llListenRemove(llList2Integer(g_lListeners,n));
             g_lListeners = [];
         }
 
-        if (!g_iAddPartnerTimer) llSetTimerEvent(0);
+        if (!g_iAddPartnerTimer) llSetTimerEvent(0.0);
     }
 
     dataserver(key kRequestID, string sData) {
