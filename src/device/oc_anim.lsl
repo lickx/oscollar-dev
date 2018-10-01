@@ -225,7 +225,7 @@ RefreshAnim() {
 }
 
 StartAnim(string sAnim) {
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             if (llGetListLength(g_lAnims)) UnPlayAnim(llList2String(g_lAnims, 0));
             g_lAnims = [sAnim] + g_lAnims;
@@ -248,7 +248,7 @@ PlayAnim(string sAnim) {
 }
 
 StopAnim(string sAnim, integer isPoseChange) {
-    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION && llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
+    if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             integer n;
             while(~(n=llListFindList(g_lAnims,[sAnim])))
@@ -424,7 +424,7 @@ default {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         g_kWearer = llGetOwner();
         checkCrawl();
-        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS );
+        if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
     }
 
@@ -436,7 +436,7 @@ default {
 
     attach(key kID) {
         if (kID == NULL_KEY) g_lAnims = [];
-        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION | PERMISSION_OVERRIDE_ANIMATIONS);
+        else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
