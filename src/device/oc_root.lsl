@@ -486,6 +486,7 @@ default {
             GetLocks();
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
         }
+        if (iChanges & CHANGED_REGION) llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
     }
 
     timer() {
