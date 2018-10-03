@@ -55,6 +55,6 @@ We chose to do that in order to save space in a already cramped screen environme
 
 #### OpenSim Porting Information
 
-This branch is compatible with OpenSim 0.9 and higher
+This branch is compatible with OpenSim 0.8 and higher
 
 UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server
