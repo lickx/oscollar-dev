@@ -30,7 +30,7 @@ string g_sHeadline = "O  s  C  o  l  l  a  r";
 string g_sAbout = "Optimized for OpenSim";
 // Example: string g_sAbout = "This collar was forged by the mighty duergar of Undrendark!";
 
-string g_sVersion = "7.0.0";
+string g_sVersion = "7.0.1";
 // Example: string g_sVersion = "1.0";
 
 string g_sGroup = "";  // Group URI
@@ -201,7 +201,7 @@ integer iMenuRlv;
 integer iMenuKidnap;
 
 MenuRoot(key kID, integer iAuth) {
-    string sContext = "\n" + g_sHeadline;
+    string sContext = "\n" + g_sHeadline + "   "+g_sVersion;
     sContext += "\n\nPrefix: %PREFIX%";
     sContext += "\nChannel: /%CHANNEL%";
     if (g_sSafeword) sContext += "\nSafeword: " + g_sSafeword;

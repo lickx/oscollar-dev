@@ -18,7 +18,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "¹⁶¹⁰¹³⋅¹";
+string g_sAppVersion = "1.0";
 
 string g_sSubMenu = "Shocker";
 string g_sParentMenu = "Apps";
