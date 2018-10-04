@@ -299,7 +299,7 @@ CleanList() {
     }
     if (g_iSensorTimeout > iNow) {
         g_lSensorDetails = llDeleteSubList(g_lSensorDetails,0,3);
-        if (g_lSensorDetails) dequeueSensor();
+        if (llGetListLength(g_lSensorDetails)) dequeueSensor();
     }
 }
 

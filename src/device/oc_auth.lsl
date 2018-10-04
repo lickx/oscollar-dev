@@ -121,7 +121,7 @@ RemPersonMenu(key kID, string sToken, integer iAuth) {
     else if (sToken=="trust") lPeople=g_lTrust;
     else if (sToken=="block") lPeople=g_lBlock;
     else return;
-    if (lPeople)
+    if (llGetListLength(lPeople))
         Dialog(kID, "\nChoose the person to remove:\n", lPeople, ["Remove All",UPMENU], -1, iAuth, "remove"+sToken, FALSE);
     else {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The list is empty",kID);
@@ -136,12 +136,12 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
     else if (sToken=="trust") lPeople=g_lTrust;
     else if (sToken=="block") lPeople=g_lBlock;
     else return;
-    if (~llListFindList(g_lTempOwner,[(string)kCmdr]) && ! ~llListFindList(g_lOwner,[(string)kCmdr]) && sToken != "tempowner") {
+    if ((~llListFindList(g_lTempOwner,[(string)kCmdr])) && ! (~llListFindList(g_lOwner,[(string)kCmdr])) && sToken != "tempowner") {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kCmdr);
         return;
     }
     integer iFound;
-    if (lPeople) {
+    if (llGetListLength(lPeople)) {
         integer index = llListFindList(lPeople,[sPersonID]);
         if (~index) {
             lPeople = llDeleteSubList(lPeople,index,index);
@@ -154,7 +154,7 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
         }
     }
     if (iFound){
-        if (lPeople)
+        if (llGetListLength(lPeople))
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         else
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + sToken, "");
@@ -172,7 +172,7 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
 
 AddUniquePerson(string sPersonID, string sToken, key kID) {
     list lPeople;
-    if (~llListFindList(g_lTempOwner,[(string)kID]) && ! ~llListFindList(g_lOwner,[(string)kID]) && sToken != "tempowner")
+    if ((~llListFindList(g_lTempOwner,[(string)kID])) && ! (~llListFindList(g_lOwner,[(string)kID])) && sToken != "tempowner")
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     else {
         if (llGetListLength(g_lOwner+g_lTrust+g_lBlock) >= g_iMaxUsers) {
@@ -190,7 +190,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
             }
         } else if (sToken == "tempowner") {
             lPeople = g_lTempOwner;
-            if (lPeople) {
+            if (llGetListLength(lPeople)) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nSorry!\n\nYou can only be captured by one person at a time.\n",kID);
                 return;
             }
@@ -282,7 +282,7 @@ integer in_range(key kID) {
 integer Auth(string sObjID) {
     string sID = (string)llGetOwnerKey(sObjID);
     integer iAuth;
-    if (~llListFindList(g_lOwner+g_lTempOwner,[sID]) || (sID == g_sWearerID && g_iVanilla))
+    if ((~llListFindList(g_lOwner+g_lTempOwner,[sID])) || (sID == g_sWearerID && g_iVanilla))
         iAuth = CMD_OWNER;
     else if (llGetListLength(g_lOwner+g_lTempOwner) == 0 && sID == g_sWearerID)
         iAuth = CMD_OWNER;

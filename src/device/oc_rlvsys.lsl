@@ -477,7 +477,7 @@ default {
                         }
                     } else {
                         if (!llSubStringIndex(sCom,"tpto")) {
-                            if ( ~llListFindList(g_lBaked,["tploc"])  || ~llListFindList(g_lBaked,["unsit"]) ) {
+                            if ( (~llListFindList(g_lBaked,["tploc"]))  || (~llListFindList(g_lBaked,["unsit"])) ) {
                                 if (kID!=NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't teleport due to RLV restrictions",kID);
                                 return;
                             }

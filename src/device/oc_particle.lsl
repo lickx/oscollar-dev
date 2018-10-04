@@ -179,7 +179,7 @@ string Vec2String(vector vVec) {
     list lParts = [vVec.x, vVec.y, vVec.z];
     for (g_iLoop = 0; g_iLoop < 3; g_iLoop++) {
         string sStr = llList2String(lParts, g_iLoop);
-        while (~llSubStringIndex(sStr, ".") && (llGetSubString(sStr, -1, -1) == "0"
+        while ((~llSubStringIndex(sStr, ".")) && (llGetSubString(sStr, -1, -1) == "0"
             || llGetSubString(sStr, -1, -1) == "."))
             sStr = llGetSubString(sStr, 0, -2);
         lParts = llListReplaceList(lParts, [sStr], g_iLoop, g_iLoop);
