@@ -674,7 +674,7 @@ default {
     }
 
     timer() {
-        if (g_iAO_ON && g_iChangeInterval && llGetAnimation(g_kWearer)!="Sitting") SwitchStand();
+        if (g_iAO_ON && g_iChangeInterval && llGetAnimation(g_kWearer)=="Standing") SwitchStand();
         integer n = llGetListLength(g_lMenuIDs) - 5;
         integer iNow = llGetUnixTime();
         for (n; n>=0; n=n-5) {
