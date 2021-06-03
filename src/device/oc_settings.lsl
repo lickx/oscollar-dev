@@ -283,7 +283,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Please enter a valid URL like: "+g_sSampleURL,kID);
             } else if (sStrLower == "load card" || sStrLower == "load") {
                 if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\nwww.opencollar.at/settings\n",kID);
+                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\n",kID);
                     g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
                 } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
             }

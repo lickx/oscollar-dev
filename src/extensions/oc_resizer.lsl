@@ -200,7 +200,7 @@ SizeMenu(key kAv, integer iAuth) {
 DoMenu(key kAv, integer iAuth) {
     list lMyButtons ;
     string sPrompt;
-    sPrompt = "\nChange the position, rotation and size of your %DEVICETYPE%.\n\nwww.opencollar.at/appearance";
+    sPrompt = "\nChange the position, rotation and size of your %DEVICETYPE%.\n\n";
     lMyButtons = [POSMENU, ROTMENU, SIZEMENU];
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth,g_sSubMenu);
 }

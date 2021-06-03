@@ -83,7 +83,7 @@ Say(string sStr) {
 determineAOType() { //function to determine AO type.
     llListenRemove(g_iAOListenHandle);
     string sNotifyBegin = "\n\nCongratulations! Your ";
-    string sNotifyEnd = " has been successfully linked with OpenCollar Six™. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\nwww.opencollar.at/aolink\n";
+    string sNotifyEnd = " has been successfully linked with OpenCollar Six™. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\n\n";
     g_iAOType = 0;
     if (~llSubStringIndex(llGetObjectName(),"AKEYO")) { //AKEYO is not a string in their script name, it is in animations but think the object name is a better test for this AO - Sumi Perl
         if (~llSubStringIndex(llGetObjectName(),"NitroAO")) { // Nitro has different messages.
@@ -128,7 +128,7 @@ determineAOType() { //function to determine AO type.
         }
     }
     @next;
-    if(!g_iAOType) Say("\n\nOops! Either I landed in something that's not an AO or I'm not yet familiar with this type of AO. At version "+g_sVersion+" I know how to link with "+g_sKnownAOs+" AOs. Maybe there is a newer version of me available if you copy and paste my [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aolink.lsl recent source] in a new script!\n\nwww.opencollar.at/aolink\n");
+    if(!g_iAOType) Say("\n\nOops! Either I landed in something that's not an AO or I'm not yet familiar with this type of AO. At version "+g_sVersion+" I know how to link with "+g_sKnownAOs+" AOs. Maybe there is a newer version of me available if you copy and paste my [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aolink.lsl recent source] in a new script!\n\n");
     else {
         g_iAOListenHandle = llListen(g_iAOChannel,"","",""); //We identified type, start script listening!
         g_iLMListenHandle = llListen(g_iLMChannel,"","","");
@@ -215,7 +215,7 @@ default {
             } else if (sMsg == "debug off") {
                 Say("I'm done debugging.");
                 g_iDebugMode = FALSE;
-            } else if (sMsg == "help") Say("\n\n/88 lm on|off ... lockmeister support on/off\n/88 debug on|off ... debug mode on/off\n/88 version ... print the version\n/88 rm aolink ... remove the script\n\nwww.opencollar.at/aolink\n"); //why can't chat be monospaced >:(
+            } else if (sMsg == "help") Say("\n\n/88 lm on|off ... lockmeister support on/off\n/88 debug on|off ... debug mode on/off\n/88 version ... print the version\n/88 rm aolink ... remove the script\n\n"); //why can't chat be monospaced >:(
         } else if (iChannel == g_iLMChannel) {
             if (llGetSubString(sMsg,0,35) == g_kWearer) {
                 sMsg = llGetSubString(sMsg,36,-1);

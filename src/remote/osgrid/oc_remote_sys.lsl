@@ -241,7 +241,7 @@ default {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             g_kCardID = llGetInventoryKey(g_sCard);
         } else {
-            llOwnerSay("\n\nYou are probably wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD. www.opencollar.at/remote\n");
+            llOwnerSay("\n\nYou are probably wearing this OpenCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD.\n");
         }
         g_iListener=llListen(PersonalChannel(g_kOwner,0),"","",""); //lets listen here
         g_iCmdListener = llListen(g_iChannel,"",g_kOwner,"");
@@ -282,7 +282,7 @@ default {
                 } else llOwnerSay("Your HUD command channel is "+(string)g_iChannel+". Type /"+(string)g_iChannel+"menu to bring up your HUD menu.");
             }
             else if (llToLower(sMessage) == "help")
-                llOwnerSay("\n\nThe manual page can be found [http://www.opencollar.at/remote.html here].\n");
+                llOwnerSay("\n\nThe manual page can be found at [placeholder].\n");
             else if (sMessage == "reset") llResetScript();
         } else if (iChannel == PersonalChannel(g_kOwner,0) && llGetOwnerKey(kID) == g_kOwner) {
             if (sMessage == "-.. --- / .... ..- -..") {
@@ -416,7 +416,7 @@ default {
         if (g_iAddPartnerTimer && iTimeStamp >= g_iAddPartnerTimer) {
             g_iAddPartnerTimer = 0;
             if (llGetListLength(g_lNewPartnerIDs)) AddPartnerMenu();
-            else llOwnerSay("\n\nYou currently don't have access to any nearby collars. Requirements to add partners are to either have them captured or their collar is set to public or they have you listed as an owner or trust role. www.opencollar.at/remote\n");
+            else llOwnerSay("\n\nYou currently don't have access to any nearby collars. Requirements to add partners are to either have them captured or their collar is set to public or they have you listed as an owner or trust role.\n");
             llSetTimerEvent(0.0);
             integer n = llGetListLength(g_lListeners);
             while (n--)

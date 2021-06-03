@@ -182,7 +182,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\nUn/dress\t"+g_sAppVersion+"\nhttp://www.opencollar.at/undress.html";
+    string sPrompt = "\nUn/dress\t"+g_sAppVersion+"\n";
     if (g_iAllLocked) sPrompt += "\n\nAll clothes and attachments are currently locked.";
     list lButtons;
     if (!g_iAllLocked) lButtons += ["☐ Lock All","Lock Clothing","Lock Attach."];

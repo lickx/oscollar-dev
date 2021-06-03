@@ -129,7 +129,7 @@ Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
 }
 
 StuffMenu(key kID, integer iAuth) {
-    Dialog(kID, "\nLegacy RLV Stuff\t"+g_sAppVersion+"\nhttp://www.opencollar.at/legacy-rlv.html", ["Misc","Touch","Talk","Travel","View"], [UPMENU], 0, iAuth, "rlvstuff");
+    Dialog(kID, "\nLegacy RLV Stuff\t"+g_sAppVersion+"\n", ["Misc","Touch","Talk","Travel","View"], [UPMENU], 0, iAuth, "rlvstuff");
 }
 
 Menu(key kID, integer iAuth, string sMenuName) {
