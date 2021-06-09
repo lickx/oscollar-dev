@@ -283,7 +283,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                         else llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
                     }
                 } else {
-                    Dialog(kID,"\n⚠ This %DEVICETYPE% has no dedicated themes configured for it\n\nYou can [Uninstall] the themes plugin to save resources\nor you can use the [Looks] menu to fine-tune your %DEVICETYPE%\n\nATTENTION:\n\nDevices that are properly configured for [Looks] don't show this warning. Please use [Looks] responsibly in this case as it could alter your %DEVICETYPE% permanently\n\nIn case of doubt simply [Uninstall] this plugin ❤\n\nwww.opencollar.at/themes",[],["Uninstall","Looks","BACK"],0,iNum,"NoThemesMenu");
+                    Dialog(kID,"\n⚠ This %DEVICETYPE% has no dedicated themes configured for it\n\nYou can [Uninstall] the themes plugin to save resources\nor you can use the [Looks] menu to fine-tune your %DEVICETYPE%\n\nATTENTION:\n\nDevices that are properly configured for [Looks] don't show this warning. Please use [Looks] responsibly in this case as it could alter your %DEVICETYPE% permanently\n\nIn case of doubt simply [Uninstall] this plugin ❤\n\n",[],["Uninstall","Looks","BACK"],0,iNum,"NoThemesMenu");
                 }
             } else if (sCommand == "looks") LooksMenu(kID,iNum);
             else if (sCommand == "menu") ElementMenu(kID, 0, iNum, sElement);

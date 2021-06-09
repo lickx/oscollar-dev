@@ -364,7 +364,7 @@ default {
     }
 
     on_rez(integer iStart) {
-        Init();
+        if (g_kWearer != llGetOwner()) llResetScript();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {

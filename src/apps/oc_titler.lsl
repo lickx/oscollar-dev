@@ -111,7 +111,7 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     if (sLowerStr == "menu titler" || sLowerStr == "titler") {
         string ON_OFF ;
         string sPrompt;
-        sPrompt = "\n[http://www.opencollar.at/titler.html Titler]\t"+g_sAppVersion+"\n\nCurrent Title: " + g_sText ;
+        sPrompt = "\nTitler\t"+g_sAppVersion+"\n\nCurrent Title: " + g_sText ;
         if(g_iOn == TRUE) ON_OFF = ON ;
         else ON_OFF = OFF ;
         Dialog(kAv, sPrompt, [SET,UP,DN,ON_OFF,"Color"], [UPMENU],0, iAuth,"main");

@@ -313,6 +313,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 
 default {
     on_rez(integer param) {
+        if (g_kWearer != llGetOwner()) llResetScript();
         g_iRlvActive = FALSE;
         g_iViewerCheck = FALSE;
         g_iRLVOn = FALSE;
@@ -534,7 +535,7 @@ default {
             if (g_iCheckCount++ < g_iMaxViewerChecks)
                 llOwnerSay("@versionnew=293847");
             else {
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nRLV appears to be not currently activated in your viewer. There will be no further attempted handshakes \"@versionnew=293847\" until the next time you log in. To permanently turn RLV off, type \"/%CHANNEL% %PREFIX% rlv off\" but keep in mind that you will have to manually enable it if you wish to use it in the future.\n\nwww.opencollar.at/rlv\n", g_kWearer);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nRLV appears to be not currently activated in your viewer. There will be no further attempted handshakes \"@versionnew=293847\" until the next time you log in. To permanently turn RLV off, type \"/%CHANNEL% %PREFIX% rlv off\" but keep in mind that you will have to manually enable it if you wish to use it in the future.\n\n", g_kWearer);
                 llSetTimerEvent(0.0);
                 llListenRemove(g_iListener);
                 g_iCheckCount=0;

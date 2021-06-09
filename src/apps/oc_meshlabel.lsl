@@ -223,7 +223,7 @@ MainMenu(key kID, integer iAuth) {
     if (g_iScroll) lButtons += ["☑ Scroll"];
     else lButtons += ["☐ Scroll"];
 
-    string sPrompt = "\n[http://www.opencollar.at/label.html Label]\t"+g_sAppVersion+"\n\nCustomize the %DEVICETYPE%'s label!";
+    string sPrompt = "\nLabel\t"+g_sAppVersion+"\n\nCustomize the %DEVICETYPE%'s label!";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"main");
 }
 
@@ -239,7 +239,7 @@ ColorMenu(key kID, integer iAuth) {
 
 FontMenu(key kID, integer iAuth) {
     list lButtons=llList2ListStrided(g_lFonts,0,-1,2);
-    string sPrompt = "\n[http://www.opencollar.at/label.html Label]\n\nSelect the font for the %DEVICETYPE%'s label.";
+    string sPrompt = "\nLabel\n\nSelect the font for the %DEVICETYPE%'s label.";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"font");
 }
 

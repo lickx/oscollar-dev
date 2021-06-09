@@ -619,7 +619,7 @@ default {
         if (iChan == g_iFolderRLV) {
             if (llStringLength(sMsg) == 1023) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nATTENTION: Either some of the names of your outfit folders are too long, or there are too many folders in your Outfits directory. This could lead to gaps in your outfits folder index. For best operability, please consider reducing the overall amount of subfolders within the Outfits directory and use shorter names.\n",g_kWearer);
             string sPrompt;
-            if (sMsg == "") sPrompt = "\nLooks like there were no outfits prepared yet for this type of %DEVICETYPE%. Thankfully this is very easy to do ♥ : )\n\nVisit www.opencollar.at/outfits to learn how this works!";
+            if (sMsg == "") sPrompt = "\nLooks like there were no outfits prepared yet for this type of %DEVICETYPE%. Thankfully this is very easy to do ♥ : )\n\n";
             Dialog(g_kMenuClicker,"\nOutfits\n"+sPrompt,llListSort(llParseString2List(sMsg,[","],[""]),1,TRUE),[UPMENU],0,g_iAuth,"folder");
             g_iAuth = CMD_EVERYONE;
         }

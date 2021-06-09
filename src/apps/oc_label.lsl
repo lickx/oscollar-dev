@@ -263,12 +263,12 @@ MainMenu(key kID, integer iAuth) {
     else lButtons += ["☐ Show"];
     if (g_iScroll) lButtons += ["☑ Scroll"];
     else lButtons += ["☐ Scroll"];
-    string sPrompt = "\n[http://www.opencollar.at/label.html Label]\t"+g_sAppVersion+"\n\nCustomize the %DEVICETYPE%'s label!";
+    string sPrompt = "\nLabel\t"+g_sAppVersion+"\n\nCustomize the %DEVICETYPE%'s label!";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"main");
 }
 
 TextMenu(key kID, integer iAuth) {
-    string sPrompt = "\n[http://www.opencollar.at/label.html Label]\n\n- Submit the new label in the field below.\n- Submit a few spaces to clear the label.\n- Submit a blank field to go back to " + g_sSubMenu + ".";
+    string sPrompt = "\nLabel\n\n- Submit the new label in the field below.\n- Submit a few spaces to clear the label.\n- Submit a blank field to go back to " + g_sSubMenu + ".";
     Dialog(kID, sPrompt, [], [], 0, iAuth,"textbox");
 }
 
@@ -279,7 +279,7 @@ ColorMenu(key kID, integer iAuth) {
 
 FontMenu(key kID, integer iAuth) {
     list lButtons=llList2ListStrided(g_lFonts,0,-1,2);
-    string sPrompt = "\n[http://www.opencollar.at/label.html Label]\n\nSelect the font for the %DEVICETYPE%'s label.";
+    string sPrompt = "\nLabel\n\nSelect the font for the %DEVICETYPE%'s label.";
 
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"font");
 }
