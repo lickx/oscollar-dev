@@ -30,7 +30,7 @@ string g_sHeadline = "O  s  C  o  l  l  a  r";
 string g_sAbout = "Optimized for OpenSim";
 // Example: string g_sAbout = "This collar was forged by the mighty duergar of Undrendark!";
 
-string g_sVersion = "7.0.1";
+string g_sVersion = "7.0.2";
 // Example: string g_sVersion = "1.0";
 
 string g_sGroup = "";  // Group URI
@@ -348,6 +348,7 @@ MakeMenus() {
 }
 
 Init() {
+    g_kWearer = llGetOwner();
     GetLocks();
     g_iHidden = !(integer)llGetAlpha(ALL_SIDES);
     llSetTimerEvent(1.0);
@@ -359,12 +360,11 @@ string URI(string sStr) {
 
 default {
     state_entry() {
-        g_kWearer = llGetOwner();
         Init();
     }
 
     on_rez(integer iStart) {
-        if (g_kWearer != llGetOwner()) llResetScript();
+        Init();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
