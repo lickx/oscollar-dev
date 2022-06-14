@@ -15,8 +15,6 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-//  This file contains modifications by Lotek Ixtar
-// 
 //  This script creates the root (or main), apps and settings menus,
 //  and has the default LOCK/UNLOCK functionality. It can also dispense
 //  the help and license files (if present in contents) and can print
@@ -59,7 +57,7 @@ string g_sSafeword = "RED";
 
 ------------------------------------------------------------------------------*/
 
-integer g_iBuild = 16;
+integer g_iBuild = 17;
 
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
@@ -477,7 +475,7 @@ default {
     }
 
     changed(integer iChanges) {
-        if (iChanges & CHANGED_OWNER) llResetScript();
+        if (iChanges & CHANGED_OWNER) llResetScript(); // doesn't work on XEngine
         if ((iChanges & CHANGED_INVENTORY) && !llGetStartParameter()) {
             llSetTimerEvent(1.0);
             llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_REQUEST,"ALL","");
