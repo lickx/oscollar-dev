@@ -211,6 +211,7 @@ default{
                 if(sToken == "color") g_vColor = (vector)sValue;
                 if(sToken == "height") {
                     integer i = 1;
+                    g_sUp = "";
                     for(;i < (integer)sValue; ++i) g_sUp += "\n ";
                 }
                 if(sToken == "auth") g_iLastRank = (integer)sValue;
