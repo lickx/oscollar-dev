@@ -20,8 +20,8 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2.1";
-integer g_iBuild = 74;
+string g_sAppVersion = "2.2";
+integer g_iBuild = 75;
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
