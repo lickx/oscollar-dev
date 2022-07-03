@@ -19,14 +19,14 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "7.0.1";
+string g_sVersion = "7.0.3";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
 string g_sPendingCmd;
 
 key g_kWearer;
-string g_sCard = "Girl";
+string g_sCard = "Default";
 integer g_iCardLine;
 key g_kCard;
 integer g_iReady;
@@ -454,7 +454,14 @@ Command(key kID, string sCommand) {
             g_sJson_Anims = "{}";
             Notify(kID,"Loading animation set \""+g_sCard+"\".",TRUE);
             g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
-        } else MenuLoad(kID,0);
+        } else if (kID == llGetOwner() && g_sCard != "Default" && llGetInventoryType("Default") == INVENTORY_NOTECARD) {
+            // Fall back to default if requested notecard not found
+            g_sCard = "Default";
+            g_iCardLine = 0;
+            g_sJson_Anims = "{}";
+            Notify(kID,"Loading animation set \""+g_sCard+"\".",TRUE);
+            g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
+        }
     }
 }
 
@@ -475,7 +482,11 @@ default {
         DefinePosition();
         DoTextures("Dark");
         DetermineColors();
-        MenuLoad(g_kWearer,0);
+        if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) {
+            g_iCardLine = 0;
+            g_sJson_Anims = "{}";
+            g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
+        } else MenuLoad(g_kWearer,0);
     }
 
     on_rez(integer iStart) {
