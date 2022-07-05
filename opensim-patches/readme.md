@@ -10,5 +10,5 @@ This fixes state being lost or even non-working scripts after teleporting to a h
 [Mantis 6311](http://opensimulator.org/mantis/view.php?id=6311)  
 This affects RLVa, when declining a folder given to your shared #RLV folder by a scripted object/trap
 
-[Mantis 8250](http://opensimulator.org/mantis/view.php?id=8250)
+[Mantis 8250](http://opensimulator.org/mantis/view.php?id=8250)  
 If your sub has been bunny hopping or is stuck when walking up or down a hill, stairs, or other kind of slope, this patch fixes that leash weirdness.
