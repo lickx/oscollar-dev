@@ -68,6 +68,8 @@ integer CMD_EVERYONE = 504;
 integer CMD_SAFEWORD = 510;
 integer CMD_RELAY_SAFEWORD = 511;
 
+integer ATTACHMENT_RESPONSE = 601;
+
 integer NOTIFY = 1002;
 integer REBOOT = -1000;
 integer LINK_DIALOG = 3;
@@ -185,6 +187,8 @@ OutfitsMenu(key kID, integer iAuth) {
 
 WearFolder(string sStr, key kID) {
     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Changing outfit!",kID);
+    string sOutfit = llGetSubString(sStr, llStringLength(g_sPathPrefix), -2);
+    llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit,kID);
     if (g_iRlvaOn) {
         llOwnerSay("@detachallthis:"+g_sPathPrefix+".basics=n");
         llOwnerSay("@remoutfit=force,detach=force");
