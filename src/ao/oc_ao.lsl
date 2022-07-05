@@ -472,6 +472,43 @@ StartUpdate(key kID) {
     llRegionSayTo(kID, -7483220, "ready|" + (string)iPin );
 }
 
+StoreSettings() {
+    integer iSettingsPrim = osGetLinkNumber("settings");
+    if (iSettingsPrim == -1) return;
+    string sSettings;
+    sSettings += "ON="+(string)g_iAO_ON;
+    sSettings += "~SitAnimOn="+(string)g_iSitAnimOn;
+    sSettings += "~SitAnim="+g_sSitAnim;
+    sSettings += "~SitAnyOn="+(string)g_iSitAnywhereOn;
+    sSettings += "~WalkAnim="+g_sWalkAnim;
+    sSettings += "~Interval="+(string)g_iChangeInterval;
+    sSettings += "~Locked="+(string)g_iLocked;
+    sSettings += "~Shuffle="+(string)g_iShuffle;
+    sSettings += "~StandPause="+(string)g_iStandPause;
+    llSetLinkPrimitiveParamsFast(iSettingsPrim, [PRIM_DESC, sSettings]);
+}
+
+RestoreSettings()
+{
+    integer iSettingsPrim = osGetLinkNumber("settings");
+    if (iSettingsPrim == -1) return;
+    string sSettings = llList2String(llGetLinkPrimitiveParams(iSettingsPrim, [PRIM_DESC]), 0);
+    list lSettings = llParseString2List(sSettings, ["~","="], []);
+    integer i;
+    for (i = 0; i < llGetListLength(lSettings); i+=2) {
+        string sKey = llList2String(lSettings, i);
+        if (sKey == "ON") g_iAO_ON = llList2Integer(lSettings, i+1);
+        else if (sKey == "SitAnimOn") g_iSitAnimOn = llList2Integer(lSettings, i+1);
+        else if (sKey == "SitAnim") g_sSitAnim = llList2String(lSettings, i+1);
+        else if (sKey == "SitAnyOn") g_iSitAnywhereOn = llList2Integer(lSettings, i+1);
+        else if (sKey == "WalkAnim") g_sWalkAnim = llList2String(lSettings, i+1);
+        else if (sKey == "Interval") g_iChangeInterval = llList2Integer(lSettings, i+1);
+        else if (sKey == "Locked") g_iLocked = llList2Integer(lSettings, i+1);
+        else if (sKey == "Shuffle") g_iShuffle = llList2Integer(lSettings, i+1);
+        else if (sKey == "StandPause") g_iStandPause = llList2Integer(lSettings, i+1);
+    }
+}
+
 default {
     state_entry() {
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
@@ -492,6 +529,7 @@ default {
 
     on_rez(integer iStart) {
         if (g_kWearer != llGetOwner()) llResetScript();
+        RestoreSettings();
         g_iReady = FALSE;
         if (llGetAttached()) {
             if (g_iLocked) llOwnerSay("@detach=n");
@@ -594,6 +632,7 @@ default {
                     else g_iShuffle = TRUE;
                     MenuAO(kID);
                 }
+                StoreSettings();
             } else if (sMenuType == "Load") {
                 integer index = llListFindList(g_lCustomCards,[sMessage]);
                 if (~index) sMessage = llList2String(g_lCustomCards,index-1);
