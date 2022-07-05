@@ -1,0 +1,43 @@
+From d1f92fc97d543084f4839caf5b317ff1aac34a9a Mon Sep 17 00:00:00 2001
+From: lickx <sinesurfer@gmail.com>
+Date: Wed, 30 Jun 2021 19:35:04 +0200
+Subject: [PATCH] Improve MoveToTarget for Mantis 8250
+
+---
+ OpenSim/Region/Framework/Scenes/ScenePresence.cs | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/OpenSim/Region/Framework/Scenes/ScenePresence.cs b/OpenSim/Region/Framework/Scenes/ScenePresence.cs
+index f03ea943de..324c3a4d16 100644
+--- a/OpenSim/Region/Framework/Scenes/ScenePresence.cs
++++ b/OpenSim/Region/Framework/Scenes/ScenePresence.cs
+@@ -3244,14 +3244,22 @@ namespace OpenSim.Region.Framework.Scenes
+             if(IsNPC)
+             {
+                 if (!Flying)
+-                    shouldfly = noFly ? false : (pos.Z > terrainHeight + Appearance.AvatarHeight);
++                    shouldfly = noFly ? false : (pos.Z > AbsolutePosition.Z + (Appearance.AvatarHeight*2));
+                 LandAtTarget = landAtTarget & shouldfly;
+             }
+             else
+             {   
+-                // we have no control on viewer fly state
+-                shouldfly = Flying || (pos.Z > terrainHeight + Appearance.AvatarHeight);
+-                LandAtTarget = false;
++                if (pos.Z < AbsolutePosition.Z)
++                {
++                    shouldfly = false;
++                    LandAtTarget = false;
++                }
++                else
++                {
++                    // we have no control on viewer fly state
++                    shouldfly = Flying || (pos.Z > AbsolutePosition.Z + (Appearance.AvatarHeight*2));
++                    LandAtTarget = false;
++                }
+             }
+ 
+             // m_log.DebugFormat("[SCENE PRESENCE]: Local vector to target is {0},[1}", localVectorToTarget3D.X,localVectorToTarget3D.Y);
+-- 
+2.30.2.windows.1
+
