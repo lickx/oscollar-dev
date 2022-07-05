@@ -40,14 +40,14 @@ list g_lAnimStates = [ //http://wiki.secondlife.com/wiki/LlSetAnimationOverride
 
 string g_sJson_Anims = "{}";
 integer g_iAO_ON;
-integer g_iSitAnimOn;
+integer g_iSitAnimOn = FALSE;
 string g_sSitAnim;
 integer g_iSitAnywhereOn;
 string g_sSitAnywhereAnim;
 string g_sWalkAnim;
 integer g_iChangeInterval = 45;
 integer g_iLocked;
-integer g_iShuffle;
+integer g_iShuffle = TRUE;
 integer g_iStandPause;
 
 list g_lMenuIDs;
@@ -454,8 +454,9 @@ Command(key kID, string sCommand) {
             g_sJson_Anims = "{}";
             Notify(kID,"Loading animation set \""+g_sCard+"\".",TRUE);
             g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
-        } else if (kID == llGetOwner() && g_sCard != "Default" && llGetInventoryType("Default") == INVENTORY_NOTECARD) {
-            // Fall back to default if requested notecard not found
+        } else if (sValue == "") MenuLoad(kID,0);
+        else if (kID == llGetOwner() && g_sCard != "Default" && llGetInventoryType("Default") == INVENTORY_NOTECARD) {
+            // Card does not exist, fall back to default if not already loaded
             g_sCard = "Default";
             g_iCardLine = 0;
             g_sJson_Anims = "{}";
