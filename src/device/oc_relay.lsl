@@ -203,7 +203,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
              RelayNotify(g_kWearer,"\n\nBad command from "+llKey2Name(kID)+".\n\nCommand: "+sIdent+","+(string)g_kWearer+"\n\nFaulty subcommand: "+sCom+"\n\nPlease report to the maker of this device.\n",0);
             sAck="";
         }
-        if (sAck) sendrlvr(sIdent, kID, sCom, sAck);
+        if (sAck != "") sendrlvr(sIdent, kID, sCom, sAck);
     }
     return "";
 }
