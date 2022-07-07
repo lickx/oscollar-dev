@@ -303,7 +303,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
             //better try to execute the rest of the command, right?
             sAck=""; //not ko'ing as some old bug in chorazin cages would make them go wrong. Otherwise "ko" looks closer in spirit to the relay spec. (issue 514)
         }//probably an ill-formed command, not answering
-        if (sAck) sendrlvr(sIdent, kID, sCom, sAck);
+        if (sAck != "") sendrlvr(sIdent, kID, sCom, sAck);
     }
     return "";
 }
