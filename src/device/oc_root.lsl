@@ -57,8 +57,6 @@ string g_sSafeword = "RED";
 
 ------------------------------------------------------------------------------*/
 
-integer g_iBuild = 17;
-
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
 integer NOTIFY = 1002;
@@ -469,9 +467,7 @@ default {
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lTheseMenus,[kID]);
             g_lTheseMenus = llDeleteSubList(g_lTheseMenus,iMenuIndex - 1,iMenuIndex + 1);
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     changed(integer iChanges) {

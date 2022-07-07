@@ -20,8 +20,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 167;
-
 integer g_iPrivateListenChan = 1;
 integer g_iPublicListenChan = TRUE;
 string g_sPrefix = ".";
@@ -89,7 +87,6 @@ list g_lWrongRootScripts;
 integer g_iVerify;
 
 string g_sObjectName;
-integer g_iBuildCheck = TRUE;
 
 string NameURI(key kID){
     return "secondlife:///app/agent/"+(string)kID+"/about";
@@ -264,14 +261,7 @@ UserCommand(key kID, integer iAuth, string sStr) {
                 llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, g_sGlobalToken + "channel=" + (string)g_iPrivateListenChan + ",FALSE", "");
             }
         } else if (kID == g_kWearer) {
-           if (sStr == "list builds") {
-                g_sObjectName = llGetObjectName();
-                g_iBuildCheck = FALSE;
-                llSetObjectName(llGetScriptName());
-                llOwnerSay("build "+(string)g_iBuild);
-                llSetObjectName(g_sObjectName);
-                llMessageLinked(LINK_SET,BUILD_REQUEST,"","");
-            } else if (sStr == "mv anims") {
+            if (sStr == "mv anims") {
                 integer i = llGetInventoryNumber(INVENTORY_ANIMATION);
                 if (i) MoveAnims(i);
             } else if (sCommand == "busted") {
@@ -450,14 +440,7 @@ default {
                     g_lFoundCore5Scripts += [sStr,iSender];
                 if (llGetListLength(g_lFoundCore5Scripts) >= 10) llSetTimerEvent(0.5);
             }
-        } else if (iNum > BUILD_REQUEST && iNum < BUILD_REQUEST+9999) {
-            if (!g_iBuildCheck) {
-                llSetObjectName(sStr);
-                llOwnerSay("build "+(string)(iNum-BUILD_REQUEST));
-                llSetObjectName(g_sObjectName);
-            }
-        } else if (iNum == BUILD_REQUEST-1) llMessageLinked(iSender,BUILD_REQUEST+g_iBuild,llGetScriptName(),"");
-        else if (iNum == TOUCH_CANCEL) {
+        } else if (iNum == TOUCH_CANCEL) {
             integer iIndex = llListFindList(g_lTouchRequests, [kID]);
             if (~iIndex) {
                 g_lTouchRequests = llDeleteSubList(g_lTouchRequests, iIndex, iIndex - 1 + g_iStrideLength);

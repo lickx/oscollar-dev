@@ -19,8 +19,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 188;
-
 string g_sWearerID;
 list g_lOwner;
 list g_lTrust;
@@ -621,9 +619,7 @@ default {
             integer iPin = (integer)llFrand(99999.0)+1;
             llSetRemoteScriptAccessPin(iPin);
             llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(),llGetKey());
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == LINK_UPDATE) {
+        } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;

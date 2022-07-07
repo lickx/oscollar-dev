@@ -20,8 +20,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 141;
-
 list g_lAnims;
 list g_lPoseList;
 list g_lOtherAnims;
@@ -564,9 +562,7 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLVA_VERSION) g_iRLVA_ON = TRUE;
         else if (iNum == RLV_OFF) g_iRLVA_ON = FALSE;
         else if (iNum == REGION_TELEPORT) RefreshAnim();

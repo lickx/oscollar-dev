@@ -21,7 +21,6 @@
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
 string g_sAppVersion = "1.4";
-integer g_iBuild = 18;
 
 string g_sSubMenu = "Timer";
 string g_sParentMenu = "Apps";
@@ -451,9 +450,7 @@ default {
             else if (sStr == "LINK_AUTH") LINK_AUTH = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     timer() {

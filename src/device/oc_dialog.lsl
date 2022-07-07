@@ -20,8 +20,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 113;
-
 integer CMD_ZERO = 0;
 
 integer NOTIFY = 1002;
@@ -441,9 +439,7 @@ default {
         else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_DIALOG","");
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum==NOTIFY_OWNERS) NotifyOwners(sStr,(string)kID);
+        } else if (iNum==NOTIFY_OWNERS) NotifyOwners(sStr,(string)kID);
         else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 

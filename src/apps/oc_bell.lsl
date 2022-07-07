@@ -19,8 +19,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 107;
-
 string g_sAppVersion = "1.2";
 
 string g_sSubMenu = "Bell";
@@ -327,9 +325,7 @@ default {
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if(iNum == CMD_OWNER && sStr == "runaway") {
+        } else if(iNum == CMD_OWNER && sStr == "runaway") {
             //commented out for XEngine - is this llSleep really needed?
             //llSleep(4);
             SetBellElementAlpha();

@@ -21,8 +21,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 111;
-
 string g_sCard = ".settings";
 string g_sSplitLine;
 integer g_iLineNr;
@@ -410,8 +408,6 @@ default {
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
         } else if (iNum == LM_CUFF_SET && sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
         else if (iNum == REGION_CROSSED || iNum == REGION_TELEPORT) llSetTimerEvent(2.0);
-        else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
     }
 
     timer() {

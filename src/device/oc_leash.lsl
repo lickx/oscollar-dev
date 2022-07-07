@@ -22,8 +22,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 137;
-
 string TOK_LENGTH = "leashlength";
 string TOK_DEST = "leashedto";
 
@@ -653,9 +651,7 @@ default {
             if (sMessage == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sMessage == "LINK_RLV") LINK_RLV = iSender;
             else if (sMessage == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == REBOOT && sMessage == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sMessage == "reboot") llResetScript();
     }
 
     at_target(integer iNum, vector vTarget, vector vMe) {

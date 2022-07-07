@@ -19,8 +19,6 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-integer g_iBuild = 23;
-
 string g_sParentMenu = "RLV";
 string g_sSubMenu = "Relay";
 float g_fPause = 10;
@@ -268,7 +266,9 @@ UserCommand(integer iAuth, string sStr, key kID) {
     }
     if (llSubStringIndex(sStr,"relay") && sStr != "menu "+g_sSubMenu) return;
     if (iAuth == CMD_OWNER && sStr == "runaway") {
-        g_lOwner = g_lTrust = g_lBlock = [];
+        g_lOwner = [];
+        g_lTrust = [];
+        g_lBlock = [];
         return;
     }
     if (!g_iRLV) {
@@ -352,7 +352,7 @@ default {
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         else if (iNum == CMD_ADDSRC)
-            g_sSourceID = kID;
+            g_sSourceID = (string)kID;
         else if (iNum == CMD_REMSRC) {
             if (g_sSourceID == (string)kID) g_sSourceID = "";
         } else if (iNum == LM_SETTING_RESPONSE) {
@@ -377,7 +377,7 @@ default {
         } else if (iNum == CMD_SAFEWORD) {
             g_iRecentSafeword = TRUE;
             refreshRlvListener();
-            llSetTimerEvent(10.);
+            llSetTimerEvent(10.0);
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (~iMenuIndex) {
@@ -490,9 +490,7 @@ default {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-        } else if (iNum == BUILD_REQUEST)
-            llMessageLinked(iSender,iNum+g_iBuild,llGetScriptName(),"");
-        else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+        } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
     listen(integer iChan, string who, key kID, string sMsg) {
@@ -513,7 +511,7 @@ default {
             return;
         }
         lArgs = [];
-        if (g_sSourceID != kID && g_sSourceID != "") {
+        if (g_sSourceID != (string)kID && g_sSourceID != "") {
             if ((llGetAgentInfo(g_kWearer) & AGENT_ON_OBJECT) == AGENT_ON_OBJECT) return;
         }
         g_kObjectUser = NULL_KEY;
