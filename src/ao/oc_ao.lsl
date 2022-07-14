@@ -801,6 +801,7 @@ default {
                 } else {
                     llOwnerSay("The \""+g_sCard+"\" animation set was loaded successfully.");
                     g_iAO_ON = TRUE;
+                    StoreSettings();
                 }
                 DoStatus();
                 if (llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
