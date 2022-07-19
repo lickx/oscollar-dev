@@ -235,7 +235,7 @@ MenuAbout(key kID) {
     sContext += "\n\n“"+g_sAbout+"”";
     sContext += "\n\n"+g_sGroup;
     sContext += "\n"+g_sLandmark;
-    sContext += "\n\nOsCollar is based on the work of the Peanut and OpenCollar projects.";
+    sContext += "\n\nOsCollar is based on OpenCollar";
     llDialog(kID, sContext, ["OK"], -12345);
 }
 
