@@ -28,7 +28,7 @@ string g_sHeadline = "O  s  C  o  l  l  a  r";
 string g_sAbout = "Optimized for OpenSim";
 // Example: string g_sAbout = "This collar was forged by the mighty duergar of Undrendark!";
 
-string g_sVersion = "7.0.2";
+string g_sVersion = "7.0.3";
 // Example: string g_sVersion = "1.0";
 
 string g_sGroup = "";  // Group URI
@@ -89,10 +89,6 @@ string g_sDist;
 integer g_iLocked;
 integer g_iHidden;
 integer g_iLooks;
-
-string g_sQuoter;
-string g_sQuotation;
-string g_sQuoteToken = "quote_";
 
 //lock
 list g_lClosedLocks;
@@ -201,10 +197,6 @@ MenuRoot(key kID, integer iAuth) {
     sContext += "\n\nPrefix: %PREFIX%";
     sContext += "\nChannel: /%CHANNEL%";
     if (g_sSafeword) sContext += "\nSafeword: " + g_sSafeword;
-    if (g_sQuotation != "") {
-        sContext += "\n\n“" + osReplaceString(g_sQuotation, "\\n", "\n", -1, 0)+"”";
-        if (g_sQuoter != "") sContext += "\n—"+g_sQuoter;
-    }
     list lTheseButtons = ["Apps"];
     if (g_iMenuAnim) lTheseButtons += "Animations";
     else lTheseButtons += "-";
@@ -291,18 +283,6 @@ Commands(integer iAuth, string sStr, key kID) {
     } else if (sCmd == "fix") {
         MakeMenus();
         //llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"The menus have been fixed.", kID);
-    } else if (sCmd == "quote") {
-        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
-            string sContext = "\nEnter a quote and press [Submit.]\n\n(Leave empty to cancel.)";
-            Dialog(kID, sContext, [], [], 0, iAuth, "Quote");
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
-    } else if (sStr == "rm quote") {
-        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
-            g_sQuotation = "";
-            g_sQuoter = "";
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quotation", "");
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sQuoteToken + "quoter", "");
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
     } else if (sStr == "hide" || sStr == "show" || sStr == "stealth") {
         if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) Stealth(sStr);
         else if (kID != NULL_KEY) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
@@ -435,14 +415,6 @@ default {
                         return;
                     }
                     MenuSettings(kID,iAuth);
-                } else if (sMenu == "Quote") {
-                    if (sButton == "") return;
-                    g_sQuoter = llKey2Name(kID);
-                    g_sQuotation = sButton;
-                    llOwnerSay("\n\n"+g_sQuoter+" cites a quote in "+llKey2Name(g_kWearer)+
-                                "'s main menu:\n\n\""+g_sQuotation+"\"\n");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quotation=" + osReplaceString(g_sQuotation, "\n", "\\n", -1, 0), "");
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sQuoteToken + "quoter=" + g_sQuoter, "");
                 }
             }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) Commands(iNum,sStr,kID);
@@ -460,8 +432,6 @@ default {
             } else if (sThisToken == g_sGlobalToken+"safeword") g_sSafeword = sValue;
             else if (sThisToken == "intern_dist") g_sDist = sValue;
             else if (sThisToken == "intern_looks") g_iLooks = (integer)sValue;
-            else if (sThisToken == g_sQuoteToken+"quotation") g_sQuotation = sValue;
-            else if (sThisToken == g_sQuoteToken+"quoter") g_sQuoter = sValue;
             else if (sStr == "settings=sent")
                 llMessageLinked(LINK_SET,LM_SETTING_RESPONSE,g_sGlobalToken+"safeword="+g_sSafeword,"");
         } else if (iNum == DIALOG_TIMEOUT) {
