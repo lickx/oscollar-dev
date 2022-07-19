@@ -18,8 +18,6 @@
    \______|_______________|_____||
     ~~~~~~^^^^^^^^^^^^^^^^^^~~~~~~     www.gnu.org/licenses/gpl-2.0
 
-github.com/lickx/opencollar-os/blob/master/src/spares/.aolink.lsl
-
 Right-click and edit your AO HUD, then navigate to the Contents tab of
 the Build Menu. Once the contents finish loading, drag and drop this
 script from your Inventory into the Contents tab of your AO HUD. If the
@@ -83,7 +81,7 @@ Say(string sStr) {
 determineAOType() { //function to determine AO type.
     llListenRemove(g_iAOListenHandle);
     string sNotifyBegin = "\n\nCongratulations! Your ";
-    string sNotifyEnd = " has been successfully linked with OpenCollar Six™. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\n\n";
+    string sNotifyEnd = " has been successfully linked with OsCollar. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\n\n";
     g_iAOType = 0;
     if (~llSubStringIndex(llGetObjectName(),"AKEYO")) { //AKEYO is not a string in their script name, it is in animations but think the object name is a better test for this AO - Sumi Perl
         if (~llSubStringIndex(llGetObjectName(),"NitroAO")) { // Nitro has different messages.
@@ -185,13 +183,18 @@ default {
         determineAOType();
     }
 
+    on_rez(integer i)
+    {
+        if (g_kWearer == NULL_KEY || g_kWearer != llGetOwner()) llResetScript();
+    }
+
     timer() {
         llSetTimerEvent(0.0);
         integer i = llGetInventoryNumber(INVENTORY_SCRIPT);
         string sName;
         while (i) {
             sName = llToLower(llGetInventoryName(INVENTORY_SCRIPT,--i));
-            if ((~llSubStringIndex(sName,"aolink")) || (~llSubStringIndex(sName,"ao link"))
+            if (((~llSubStringIndex(sName,"aolink")) || (~llSubStringIndex(sName,"ao link")))
                 && sName != g_sMyName) llRemoveInventory(sName);
         }
     }
@@ -235,7 +238,7 @@ default {
 
     link_message(integer iPrim, integer iNum, string sMsg, key kID) {
         if (g_iDebugMode) Say("Debug:\niNum = "+(string)iNum+"\nMessage = "+sMsg);
-        if (iNum == 161014 && kID != g_sMyName) {
+        if (iNum == 161014 && kID != (key)g_sMyName) {
             llSetTimerEvent(0.0);
             if (!llSubStringIndex(sMsg,"aolink:")) {
                 float fVersion = (float)llGetSubString(sMsg,llSubStringIndex(sMsg,":")+1,-1);
