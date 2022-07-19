@@ -17,7 +17,7 @@ OsCollar is the de-facto OpenSim fork of OpenCollar, known from Second Life
         > sounds: Sounds as .wav and .aup binaries.
         > textures: Images as .png and .xcf binaries.
 
-    > src: Source code of the OpenCollar Six role play device.
+    > src: Source code of the OsCollar role play device.
 
         > ao: The source code for the animation overrider.
         > apps: Fun features you can add to your device
