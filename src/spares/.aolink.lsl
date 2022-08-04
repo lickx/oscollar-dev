@@ -185,7 +185,7 @@ default {
 
     on_rez(integer i)
     {
-        if (g_kWearer == NULL_KEY || g_kWearer != llGetOwner()) llResetScript();
+        if (g_kWearer != llGetOwner()) llResetScript();
     }
 
     timer() {
