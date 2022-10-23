@@ -97,6 +97,8 @@ integer g_iMinHelplessMode ;
 integer g_iBaseMode = 2;
 integer g_iHelpless;
 
+integer g_iSmartStrip = TRUE;
+
 key g_kDebugRcpt;
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
@@ -130,10 +132,11 @@ UpdateMode(integer iMode) {
     g_iMinBaseMode = (iMode >> 5) & 3;
     if (g_iMinBaseMode == 1) g_iMinBaseMode = 2;
     g_iMinHelplessMode = (iMode >> 7) & 1;
+    g_iSmartStrip = (iMode >> 10) & 1;
 }
 
 SaveMode() {
-    string sMode = (string)(128*g_iMinHelplessMode + 32*g_iMinBaseMode + 4*g_iHelpless + g_iBaseMode);
+    string sMode = (string)(1024*g_iSmartStrip + 512*128*g_iMinHelplessMode + 32*g_iMinBaseMode + 4*g_iHelpless + g_iBaseMode);
     llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"mode="+sMode,"");
 }
 
@@ -193,6 +196,8 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
         } else if (!iAuthed) return "need auth";
         else if (llGetListLength(lSubArgs)==2) {
             string sBehav=llGetSubString(llList2String(lSubArgs,0),1,-1);
+            if (g_iSmartStrip && llSubStringIndex(sBehav,"remoutfit:")==0 && sVal=="force")
+                sBehav="detachallthis:"+llDeleteSubString(sBehav,0,9);
             if (sVal=="force"||sVal=="n"||sVal=="add"||sVal=="y"||sVal=="rem"||sBehav=="clear") {
                 if (kID != g_sSourceID) llMessageLinked(LINK_RLV,RLV_CMD,"clear",g_sSourceID);
                 llMessageLinked(LINK_RLV,RLV_CMD,sBehav+"="+sVal,kID);
@@ -238,6 +243,8 @@ Menu(key kID, integer iAuth) {
         lButtons = ["☐ Ask","☒ Auto"];
         sPrompt += " is set to auto mode.";
     } else sPrompt += " is offline.";
+    if (g_iSmartStrip) lButtons+=["☑ Smart"];
+    else lButtons+=["☐ Smart"];
     lButtons += ["Reset"];
     if (g_iHelpless) lButtons+=["☑ Helpless"];
     else lButtons+=["☐ Helpless"];
@@ -314,6 +321,14 @@ UserCommand(integer iAuth, string sStr, key kID) {
                     g_iHelpless = FALSE;
                     sText = "Helplessness lifted.\n\nSafewording will clear restrictions from outside sources.\n";
                 }
+            }
+        } else if (llGetSubString(sChangetype,0,4) == "smart") {
+            if (sChangevalue == "off") {
+                g_iSmartStrip = FALSE;
+                sText = "Smartstrip turned off.\n\nAttachments and clothing, also if layers are somewhere inside #RLV folder directories, will be stripped normally.\n";
+            } else if (sChangevalue == "on") {
+                sText = "Smartstrip turned on.\n\nAll smartstrip ready folders in the #RLV directory will be removed as a whole when corresponding clothing layers are stripped.\n";
+                g_iSmartStrip = TRUE;
             }
         } else {
             list lModes = ["off","trust","ask","auto"];
