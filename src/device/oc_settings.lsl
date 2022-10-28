@@ -311,7 +311,7 @@ default {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
         if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
-        //llSleep(0.5);
+        llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
         if (!llGetStartParameter()) {

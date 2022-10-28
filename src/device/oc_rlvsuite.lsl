@@ -198,6 +198,7 @@ WearFolder(string sStr, key kID) {
         llOwnerSay("@attachallover:"+g_sPathPrefix+"basics/=force,attachallover:"+sStr+"=force");
         llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=y");
     }
+    llSleep(1.5); // delay for SSA
 }
 
 doRestrictions(){

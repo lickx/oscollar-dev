@@ -326,8 +326,7 @@ default {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if(iNum == CMD_OWNER && sStr == "runaway") {
-            //commented out for XEngine - is this llSleep really needed?
-            //llSleep(4);
+            llSleep(4);
             SetBellElementAlpha();
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
