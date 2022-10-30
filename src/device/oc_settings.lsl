@@ -169,7 +169,8 @@ list Add2OutList(list lIn, string sDebug) {
 
 PrintSettings(key kID, string sDebug) {
     list lOut;
-    list lSay = ["/me Settings:\n"];
+    string sSettingsLink = (string)llGetLinkNumber();
+    list lSay = ["/me \nTo copy/paste these settings in the settings notecard (link nr. "+sSettingsLink+"), make sure the device is unlocked!\n----- 8< ----- 8< ----- 8< -----\n"];
     if (sDebug == "debug")
         lSay = ["/me Settings Debug:\n"];
     lSay += Add2OutList(g_lSettings, sDebug);
