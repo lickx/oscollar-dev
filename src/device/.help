@@ -1,12 +1,39 @@
 =========================
-OsCollar Help Card | 2021-06-03
+OsCollar Help Card
 =========================
 
 This is only a short version of the manual, explaining the basic usage and lists all chat commands.
 
-Find out more about OsCollar at the wiki:
- 
-https://github.com/mdickson/oscollar/wiki/Users
+
+==============================
+A word about OpenSim and script state loss
+==============================
+
+In OpenSim there are still two ways scripts lose their memory (state):
+
+1 Teleport from a region that uses YEngine to a region that uses the now ancient XEngine
+2 Teleport to a hypergrid region (all attached scripts halt at this point), then cross or teleport to another region within that destination grid (all scripts will startup from scratch at this point).
+
+The first problem you're going to see less in the future as more regions phase out XEngine in favour of YEngine.
+
+The second problem can only be fixed by the OpenSim core developers, or the person running the destination region. This requires patching the OpenSim sourcecode with the patch I attached to Mantis 8366 (http://opensimulator.org/mantis/view.php?id=8366).
+
+Now because state loss isn't going to be resolved soon enough, it is STRONGLY RECOMMENDED to save the settings in your collar after changing anything. This is done in the so called settings notecard. Saving can be done like this:
+
+-> First, Open the collar menu, Click Settings, Click Save.
+The collar will attempt to save the notecard directly if the region allows for it (sim owners will need to set osMakeNotecard = true in osslEnable.ini). No matter what, you will be informed whether saving worked or not after trying.
+
+Alternatively, if the Save method didn't work you can do it manually:
+-> Open the collar menu, click Unlock (if locked), click Settings, click Print. The collar will print the settings to local chat.
+-> Select the settings below the cutline from local chat.
+-> Press Ctrl-C (copy selection)
+-> Edit the collar, and select the settings link/prim. You can cycle between links with with Ctrl-. (forward) and Ctrl-, (backward). If done right, you'll see the oc_settings script and the .settings notecard within the prim's inventory.
+-> Open the .settings notecard
+-> Press Ctrl-A (select everything)
+-> Press Ctrl-V (paste what you copied from local, it will replace the selection)
+ -> Press Save.
+
+From now on, any time scripts lose state, the collar can recover automatically!
 
 
 ==========
@@ -19,11 +46,10 @@ Making use of the many, many features in your collar can be done by touching you
 The Prefix:
 -------------
 
-Your [prefix] are the first two letters of your username
+Your [prefix] are the first two letters of your username, not of your displayname
 
-    Wendy Starfall's prefix is: we
-    Otto (garvin.twine)'s prefix is: ga
-    Virtual Disgrace™ (virtualdisgrace)'s prefix is: vi
+    John Doe's prefix is: jo
+    Loki (silvia.blep)'s prefix is: si
 
 Your prefix is used to issue commands in the Nearby Chat.
 

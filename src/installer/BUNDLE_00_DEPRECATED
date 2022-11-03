@@ -1,4 +1,5 @@
-SCRIPT|oc_sys
+SCRIPT|oc_root
+SCRIPT|oc_update
 SCRIPT|oc_stealth
 SCRIPT|oc_lock
 ITEM|.license
