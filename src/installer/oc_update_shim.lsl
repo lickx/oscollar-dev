@@ -107,7 +107,7 @@ default {
                         sCmd = "GIVE";
                     } else {
                         // it's in our list.  Check UUID.
-                        if (llGetInventoryKey(sName) == kUUID  && kUUID != NULL_KEY && sName != "oc_root") {
+                        if (llGetInventoryKey(sName) == kUUID  && kUUID != NULL_KEY && sName != "oc_sys") {
                             // already have script.  skip
                             sCmd = "SKIP";
                         } else {

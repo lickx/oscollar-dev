@@ -452,16 +452,16 @@ default {
             string sScriptName;
             while (i) {
                 sScriptName = llGetInventoryName(INVENTORY_SCRIPT,--i);
-                if (sScriptName != "oc_com" && sScriptName != "oc_root"
+                if (sScriptName != "oc_com" && sScriptName != "oc_sys"
                 && llGetInventoryType(sScriptName) == INVENTORY_SCRIPT
                 && llGetScriptState(sScriptName) == FALSE) {
                     llSetScriptState(sScriptName,TRUE);
                     llResetOtherScript(sScriptName);
                 }
             }
-            if (llGetInventoryType("oc_root") == INVENTORY_SCRIPT && !llGetScriptState("oc_root")) {
-                llSetScriptState("oc_root",TRUE);
-                llResetOtherScript("oc_root");
+            if (llGetInventoryType("oc_sys") == INVENTORY_SCRIPT && !llGetScriptState("oc_sys")) {
+                llSetScriptState("oc_sys",TRUE);
+                llResetOtherScript("oc_sys");
             }
             llResetScript();
         }
