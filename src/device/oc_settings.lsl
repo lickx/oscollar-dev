@@ -169,8 +169,9 @@ list Add2OutList(list lIn, string sDebug) {
 
 PrintSettings(key kID, string sDebug) {
     list lOut;
-    string sSettingsLink = (string)llGetLinkNumber();
-    list lSay = ["/me \nTo copy/paste these settings in the settings notecard (link nr. "+sSettingsLink+"), make sure the device is unlocked!\n----- 8< ----- 8< ----- 8< -----\n"];
+    string sLinkNr = (string)llGetLinkNumber();
+    string sLinkName = llGetLinkName(LINK_THIS);
+    list lSay = ["/me \nTo copy/paste the settings below in the .settings notecard (in the '"+sLinkName+"' prim, link nr. "+sLinkNr+"), make sure the device is unlocked! The '"+sLinkName+"' prim can also be shown and hidden with '<prefix> show storage' and '<prefix>hide storage'.\n----- 8< ----- 8< ----- 8< -----\n"];
     if (sDebug == "debug")
         lSay = ["/me Settings Debug:\n"];
     lSay += Add2OutList(g_lSettings, sDebug);
@@ -415,14 +416,16 @@ default {
         llSetTimerEvent(0.0);
         if (g_iSaveAttempted) {
             g_iSaveAttempted = FALSE;
-            if (llGetInventoryKey(g_sCard+".new")!=NULL_KEY) {
+            if (llGetInventoryType(g_sCard+".new")==INVENTORY_NOTECARD) {
                 // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryKey(g_sCard)!=NULL_KEY) llRemoveInventory(g_sCard);
+                if (llGetInventoryType(g_sCard)==INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
                 string sNewSettings = osGetNotecard(g_sCard+".new");
                 osMakeNotecard(g_sCard, sNewSettings);
                 llRemoveInventory(g_sCard+".new");
                 llOwnerSay("\n\nSettings have been saved.\n\n");
-            } else llOwnerSay("\n\nSaving settings is not supported in this region.\n\n");
+            } else {
+                llOwnerSay("\n\nSaving settings is not supported in this region. Use Settings->Print\n\n");
+            }
         } else SendValues();
     }
 
