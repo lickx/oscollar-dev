@@ -33,7 +33,7 @@ integer LOADPIN = -1904;
 // built on startup
 list g_lScripts;
 
-list g_lCore5Scripts = ["oc_auth","oc_dialog","oc_rlvsys","oc_settings","oc_anim"];
+list g_lCore5Scripts = ["oc_auth","oc_dialog","oc_rlvsys","oc_settings","oc_anim","oc_pet"];
 
 // list where we'll record all the settings and local settings we're sent, for replay later.
 // they're stored as strings, in form "<cmd>|<data>", where cmd is either LM_SETTING_SAVE
