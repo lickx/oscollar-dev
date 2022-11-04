@@ -25,9 +25,10 @@
 
 string g_sDevStage=" dev";
 string g_sCollarVersion="7.1.0";
-//integer g_iLatestVersion=TRUE;
 
 key g_kWearer;
+
+key g_kWWW;
 
 list g_lMenuIDs;//3-strided list of avatars given menus, their dialog ids, and the name of the menu they were given
 integer g_iMenuStride = 3;
@@ -77,9 +78,6 @@ integer REGION_TELEPORT = 10051;
 
 string UPMENU = "BACK";
 
-string GIVECARD = "Help";
-string HELPCARD = ".help";
-string LICENSE = "License";
 key g_kCurrentUser;
 
 list g_lAppsButtons;
@@ -112,14 +110,6 @@ integer g_iUpdateAuth;
 integer g_iWillingUpdaters = 0;
 
 string g_sSafeWord="RED";
-
-//Option Menu variables
-string BTN_PRINT = "Print";
-string BTN_SHOW = "☐ Hide"; // show the whole device
-string BTN_HIDE = "☑ Hide"; // hide the whole device
-string BTN_LOADCARD = "Load";
-string BTN_SAVECARD = "Save";
-string REFRESH_MENU = "Fix";
 
 string g_sGlobalToken = "global_";
 
@@ -163,10 +153,10 @@ string NameGroupURI(string sStr){
 
 SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\nSettings";
-    list lButtons = [BTN_PRINT,BTN_LOADCARD,BTN_SAVECARD,REFRESH_MENU];
+    list lButtons = ["Print","Load","Save","Fix"];
     lButtons += g_lResizeButtons;
-    if (g_iHide) lButtons += [BTN_HIDE];
-    else lButtons += [BTN_SHOW];
+    if (g_iHide) lButtons += ["☑ Hide"];
+    else lButtons += ["☐ Hide"];
     if (g_iLooks) lButtons += "Looks";
     else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT) lButtons += "Themes";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Settings");
@@ -186,7 +176,7 @@ HelpMenu(key kID, integer iAuth) {
     sPrompt+="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     sPrompt += "\n\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.";
     list lUtility = [UPMENU];
-    list lStaticButtons=[GIVECARD,LICENSE,"Update"];
+    list lStaticButtons=["Help","License","Update","Version"];
     Dialog(kID, sPrompt, lStaticButtons, lUtility, 0, iAuth, "Help/About");
 }
 
@@ -228,7 +218,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         sMessage += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
     } else if (sStr == "help") {
-        llGiveInventory(kID, HELPCARD);
+        llGiveInventory(kID, ".help");
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sStr == "license") {
         if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(kID, ".license");
@@ -419,6 +409,19 @@ RebuildMenu() {
     llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE,"LINK_REQUEST","");
 }
 
+Stealth(integer iHide)
+{
+    list lExclude = [LINK_ROOT, LINK_AUTH, LINK_DIALOG, LINK_RLV, LINK_SAVE, LINK_UPDATE];
+    float fAlpha = 1.0;
+    if (iHide) fAlpha = 0.0;
+    integer i;
+    for (i = 1; i < llGetNumberOfPrims(); i++) {
+        if (llListFindList(lExclude, [i]) == -1) llSetLinkAlpha(i, fAlpha, ALL_SIDES);
+    }
+    g_iHide = iHide;
+    SetLockElementAlpha();
+}
+
 init (){
     g_iWaitRebuild = TRUE;
     llSetTimerEvent(1.0);
@@ -496,9 +499,14 @@ default {
                 } else if (sMenu=="Help/About") {
                     //Debug("Help menu response");
                     if (sMessage == UPMENU) MainMenu(kAv, iAuth);
-                    else if (sMessage == GIVECARD) UserCommand(iAuth,"help",kAv, TRUE);
-                    else if (sMessage == LICENSE) UserCommand(iAuth,"license",kAv, TRUE);
+                    else if (sMessage == "Help") UserCommand(iAuth,"help",kAv, TRUE);
+                    else if (sMessage == "License") UserCommand(iAuth,"license",kAv, TRUE);
                     else if (sMessage == "Update") UserCommand(iAuth,"update",kAv,TRUE);
+                    else if (sMessage == "Version") {
+                        if (llStringLength(g_sDevStage)) {
+                            llOwnerSay("You are using a version that is still in development");
+                        } else g_kWWW = llHTTPRequest("www.example.com/version", [], "");
+                    }
                 } else if (sMenu == "UpdateConfirmMenu"){
                     if (sMessage=="Yes") StartUpdate();
                     else {
@@ -506,18 +514,18 @@ default {
                         return;
                     }
                 } else if (sMenu == "Settings") {
-                     if (sMessage == BTN_PRINT) llMessageLinked(LINK_SAVE, iAuth,"print settings",kAv);
-                     else if (sMessage == BTN_LOADCARD) llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
-                     else if (sMessage == BTN_SAVECARD) llMessageLinked(LINK_SAVE,iAuth,sMessage,kAv);
-                     else if (sMessage == REFRESH_MENU) {
+                     if (sMessage == "Print") llMessageLinked(LINK_SAVE, iAuth,"print settings",kAv);
+                     else if (sMessage == "Load") llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
+                     else if (sMessage == "Save") llMessageLinked(LINK_SAVE,iAuth,sMessage,kAv);
+                     else if (sMessage == "Fix") {
                          UserCommand(iAuth, sMessage, kAv, TRUE);
                          return;
-                    } else if (sMessage == BTN_SHOW) {
-                         llMessageLinked(LINK_ROOT, iAuth,"hide",kAv);
-                         g_iHide = TRUE;
-                    } else if (sMessage == BTN_HIDE) {
+                    } else if (sMessage == "☐ Hide") {
+                        Stealth(TRUE);
+                        llMessageLinked(LINK_ROOT, iAuth,"hide",kAv);
+                    } else if (sMessage == "☑ Hide") {
+                        Stealth(FALSE);
                         llMessageLinked(LINK_ROOT, iAuth,"show",kAv);
-                        g_iHide = FALSE;
                     } else if (sMessage == "Themes") {
                         llMessageLinked(LINK_ROOT, iAuth, "menu Themes", kAv);
                         return;
@@ -637,5 +645,19 @@ default {
             RebuildMenu();
         }
         if (!g_iWaitUpdate && !g_iWaitRebuild) llSetTimerEvent(0.0);
+    }
+    
+    http_response(key kID, integer iStatus, list lData, string sBody)
+    {
+        if (kID == g_kWWW && iStatus == 200) {
+            list lBody = llParseString2List(sBody, ["\n"], []);
+            string sWebVersion = llList2String(lBody, 0);
+            lBody = llDeleteSubList(lBody, 0, 0); // remove version, the rest is distributors
+            if (compareVersions(sWebVersion, g_sCollarVersion)) {
+                llOwnerSay("An update of OsCollar is available! Get it at:\n\n"+llDumpList2String(lBody, "\n"));
+            } else {
+                llOwnerSay("You are using the most recent version of OsCollar");
+            }
+        }
     }
 }
