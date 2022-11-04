@@ -251,7 +251,7 @@ default {
         // OpenSim fix
         if (g_iTargetID==0) return;
         
-        llTargetRemove(tiNum);
+        llTargetRemove(g_iTargetID);
         g_iTargetID = 0;
         llStopMoveToTarget();
         float offset = 10.0;

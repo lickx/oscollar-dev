@@ -95,7 +95,7 @@ integer g_iLeasherInRange;
 integer g_iRLVOn;
 integer g_iAwayCounter;
 
-vector g_vRegionSize;
+vector g_vRegionSize = <256,256,0>;
 
 string NameURI(key kID){
     if (llGetAgentSize(kID)!=ZERO_VECTOR)
@@ -168,7 +168,7 @@ ApplyRestrictions() {
     if (g_iLeasherInRange && g_iStrictModeOn) {
         if (g_kLeashedTo != NULL_KEY) {
             if (!g_bFollowMode) {
-                llMessageLinked(LINK_RLV, RLV_CMD, "fly=n,tplm=n,tplure=n,tploc=n,sittp:6=n,tplure:" + (string) g_kLeashedTo + "=add", "realleash");
+                llMessageLinked(LINK_RLV, RLV_CMD, "fly=n,tplm=n,tplure=n,tploc=n,tplure:" + (string) g_kLeashedTo + "=add,fartouch=n,sittp=n", "realleash");
                 return;
             }
         }
@@ -258,10 +258,13 @@ DoLeash(key kTarget, integer iAuth, list lPoints) {
             if (iPointCount == 1) g_sCheck = (string)llGetOwnerKey(kTarget) + llList2String(lPoints, 0) + " ok";
         }
         llMessageLinked(LINK_THIS, CMD_PARTICLE, "leash" + g_sCheck + "|" + (string)g_bLeashedToAvi, g_kLeashedTo);
-        llSetTimerEvent(3.0);
     }
+    llSetTimerEvent(3.0);
+
     g_vPos = llList2Vector(llGetObjectDetails(g_kLeashedTo, [OBJECT_POS]), 0);
     llTargetRemove(g_iTargetHandle);
+    g_iTargetHandle = 0;
+    llReleaseControls();
     llStopMoveToTarget();
     g_iTargetHandle = llTarget(g_vPos, (float)g_iLength);
     if (g_vPos != ZERO_VECTOR) {
@@ -322,6 +325,8 @@ Unleash(key kCmdGiver) {
 
 DoUnleash(integer iDelSettings) {
     llTargetRemove(g_iTargetHandle);
+    g_iTargetHandle = 0;
+    llReleaseControls();
     llStopMoveToTarget();
     llMessageLinked(LINK_THIS, CMD_PARTICLE, "unleash", g_kLeashedTo);
     g_kLeashedTo = NULL_KEY;
@@ -336,6 +341,7 @@ YankTo(key kIn){
     llMoveToTarget(llList2Vector(llGetObjectDetails(kIn, [OBJECT_POS]), 0), 0.5);
     if (llGetAgentInfo(g_kWearer)&AGENT_SITTING) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=force", "");
     llSleep(2.0);
+    llReleaseControls();
     llStopMoveToTarget();
 }
 
@@ -518,15 +524,18 @@ default {
         integer iIsInSimOrJustOutside=TRUE;
         if(vLeashedToPos == ZERO_VECTOR || vLeashedToPos.x < -25 || vLeashedToPos.x > (g_vRegionSize.x+25) || vLeashedToPos.y < -25 || vLeashedToPos.y > (g_vRegionSize.y+25)) iIsInSimOrJustOutside=FALSE;
 
-        if (iIsInSimOrJustOutside && llVecDist(llGetPos(),vLeashedToPos)<60) {
+        if (iIsInSimOrJustOutside && llVecDist(llGetPos(),vLeashedToPos)<(60+g_iLength)) {
             if(!g_iLeasherInRange) {
                 if (g_iAwayCounter) {
-                    g_iAwayCounter = 0;
+                    g_iAwayCounter = -1;
                     llSetTimerEvent(3.0);
                 }
-                llMessageLinked(LINK_THIS, CMD_PARTICLE, "leash" + g_sCheck + "|" + (string)g_bLeashedToAvi, g_kLeashedTo);
+                if (!g_bFollowMode)
+                    llMessageLinked(LINK_THIS, CMD_PARTICLE, "leash" + g_sCheck + "|" + (string)g_bLeashedToAvi, g_kLeashedTo);
                 g_iLeasherInRange = TRUE;
+
                 llTargetRemove(g_iTargetHandle);
+                g_iTargetHandle = 0;
                 g_vPos = vLeashedToPos;
                 g_iTargetHandle = llTarget(g_vPos, (float)g_iLength);
                 if (g_vPos != ZERO_VECTOR) llMoveToTarget(g_vPos, 0.8);
@@ -534,19 +543,20 @@ default {
             }
         } else {
             if (g_iLeasherInRange) {
-                if (g_iAwayCounter > 3) {
+                if (g_iAwayCounter <= llGetUnixTime()) {
                     llTargetRemove(g_iTargetHandle);
+                    g_iTargetHandle = 0;
+                    llReleaseControls();
                     llStopMoveToTarget();
-                    llMessageLinked(LINK_THIS, CMD_PARTICLE, "unleash", g_kLeashedTo);
+                    if(!g_bFollowMode)
+                        llMessageLinked(LINK_SET, CMD_PARTICLE, "unleash", g_kLeashedTo);
                     g_iLeasherInRange=FALSE;
                     ApplyRestrictions();
+                    g_iAwayCounter=-1;
+                } else if(g_iAwayCounter==-1){
+                    g_iAwayCounter = llGetUnixTime()+15;
                 }
-            }
-            g_iAwayCounter++;
-            if (g_iAwayCounter > 200) {
-                g_iAwayCounter = 1;
-                llSetTimerEvent(11.0);
-            }
+            } else llSetTimerEvent(11.0);
         }
     }
     link_message(integer iSender, integer iNum, string sMessage, key kMessageID){
@@ -656,6 +666,7 @@ default {
 
     at_target(integer iNum, vector vTarget, vector vMe) {
         if (g_iTargetHandle==0) return;
+        llReleaseControls();
         llStopMoveToTarget();
         llTargetRemove(g_iTargetHandle);
         g_iTargetHandle = 0;
@@ -676,27 +687,40 @@ default {
             vector vNewPos = llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0);
             if (g_vPos != vNewPos) {
                 llTargetRemove(g_iTargetHandle);
+                g_iTargetHandle = 0;
                 g_vPos = vNewPos;
                 g_iTargetHandle = llTarget(g_vPos, (float)g_iLength);
             }
-            if (g_vPos != ZERO_VECTOR) llMoveToTarget(g_vPos,1.0);
-            else llStopMoveToTarget();
-        } else DoUnleash(FALSE);
+            if (g_vPos != ZERO_VECTOR) {
+                llRequestPermissions(llGetOwner(), PERMISSION_TAKE_CONTROLS);
+                llMoveToTarget(g_vPos,0.4);
+            } else {
+                llReleaseControls();
+                llStopMoveToTarget();
+                llTargetRemove(g_iTargetHandle);
+                g_iTargetHandle = 0;
+            }
+        } else {
+            llReleaseControls();
+            llStopMoveToTarget();
+            llTargetRemove(g_iTargetHandle);
+            g_iTargetHandle = 0;
+            DoUnleash(FALSE);
+        }
     }
 
     run_time_permissions(integer iPerm) {
         if (iPerm & PERMISSION_TAKE_CONTROLS)
-            llTakeControls(CONTROL_ROT_LEFT | CONTROL_ROT_RIGHT | CONTROL_LBUTTON | CONTROL_ML_LBUTTON, FALSE, FALSE);
+            llTakeControls(CONTROL_ROT_LEFT | CONTROL_ROT_RIGHT | CONTROL_LEFT | CONTROL_RIGHT | CONTROL_FWD | CONTROL_BACK| CONTROL_UP | CONTROL_DOWN, TRUE, FALSE);
     }
+
     object_rez(key id) {
         g_iLength=3;
         DoLeash(id, g_iRezAuth, []);
     }
 
     changed (integer iChange){
-        if (iChange & CHANGED_OWNER) {
-            g_kWearer = llGetOwner();
-        }
+        if (iChange & CHANGED_OWNER) g_kWearer = llGetOwner();
         if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
     }
 }
