@@ -59,8 +59,6 @@ integer LINK_CUFFS = -1;
 integer REBOOT = -1000;
 integer LOADPIN = -1904;
 
-integer BUILD_REQUEST = 17760501;
-
 integer g_iRebootConfirmed;
 key g_kConfirmDialogID;
 string g_sSampleURL = "https://goo.gl/adCn8Y";
@@ -232,23 +230,8 @@ LoadSetting(string sData, integer iLine) {
         for (i = 0; i < llGetListLength(lData); i += 2) {
             sToken = llList2String(lData, i);
             sValue = llList2String(lData, i + 1);
-            if (sValue != "") {
-                if (sID == "auth_") {
-                    sToken = llToLower(sToken);
-                    if (~llListFindList(["block","trust","owner"],[sToken])) {
-                        list lTest = llParseString2List(sValue,[","],[]);
-                        list lOut;
-                        integer n;
-                        do {
-                            if (llList2Key(lTest,n))
-                                lOut += llList2String(lTest,n);
-                        } while (++n < llGetListLength(lTest));
-                        sValue = llDumpList2String(lOut,",");
-                        lTest = [];
-                        lOut = [];
-                    }
-                }
-                if (sValue) g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
+            if (sValue != "" && sID != "auth_") {
+                g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
             }
         }
     }
