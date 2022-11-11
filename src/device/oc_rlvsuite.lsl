@@ -92,7 +92,6 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 integer SENSORDIALOG = -9003;
-integer BUILD_REQUEST = 17760501;
 integer g_iAuth;
 
 key g_kLastForcedSeat;
@@ -263,7 +262,7 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Oops! Outfits can't be worn while the ability to dress is restricted.",kID);
         else {
             sLowerStr = llDeleteSubString(sStr,0,llStringLength("wear ")-1);
-            if (sLowerStr) {
+            if (sLowerStr != "") {
                 llSetTimerEvent(g_iTimeOut);
                 g_iListener = llListen(g_iFolderRLVSearch, "", g_kWearer, "");
                 g_kMenuClicker = kID;

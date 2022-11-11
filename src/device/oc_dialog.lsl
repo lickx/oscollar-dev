@@ -35,7 +35,6 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 integer SENSORDIALOG = -9003;
-integer BUILD_REQUEST = 17760501;
 
 integer g_iTimeOut = 300;
 integer g_iReapeat = 5;

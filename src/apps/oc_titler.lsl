@@ -46,7 +46,6 @@ integer MENUNAME_REMOVE = 3003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
-integer BUILD_REQUEST = 17760501;
 
 integer g_iLastRank = 504; // CMD_EVERYONE
 integer g_iOn = FALSE;

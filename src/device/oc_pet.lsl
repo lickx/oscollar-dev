@@ -73,7 +73,6 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 integer SENSORDIALOG = -9003;
-integer BUILD_REQUEST = 17760501;
 
 string g_sSettingToken = "coupleanim_";
 string g_sGlobalToken = "global_";

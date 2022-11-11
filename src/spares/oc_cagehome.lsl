@@ -406,7 +406,7 @@ Set(key kID, integer iAuth, string sMenuButton, string sButton) {
     else {
         integer iMenu = llListFindList(g_lMenuButtons, [sMenuButton]);
         if (iMenu > 9) {
-            //if (sButton)
+            //if (sButton != "")
             UserCommand(iAuth, g_sChatCmd +" "+ llList2String(g_lChatCommands,iMenu)+" "+sButton, kID);
             MenuSettings(kID, iAuth);
         } else if (iMenu < 10) {
@@ -430,7 +430,7 @@ Set(key kID, integer iAuth, string sMenuButton, string sButton) {
                 else sParam = "";
             }
             if (iMenu > 6 && iMenu < 10 && sParam=="0") sParam = "";
-            if (sParam) UserCommand(iAuth, g_sChatCmd+" "+llList2String(g_lChatCommands,iMenu)+" "+sParam, kID);
+            if (sParam != "") UserCommand(iAuth, g_sChatCmd+" "+llList2String(g_lChatCommands,iMenu)+" "+sParam, kID);
             MenuSet(kID, iAuth, sMenuButton);
         }
     }

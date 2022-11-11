@@ -199,7 +199,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer remenu) {
         else if (sCommand == "animation") {
             Stop();
             string sAnim = llStringTrim(sValue, STRING_TRIM);
-            if (sAnim) {
+            if (sAnim != "") {
                 if (~llListFindList(g_lAnims,[sAnim])) g_sShockAnim = sAnim;
                 else {
                     llMessageLinked(LINK_DIALOG, NOTIFY,"0"+sAnim+" is not a valid animation name.",kID);
@@ -210,7 +210,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer remenu) {
             } else DialogSelectAnim(kID, iAuth);
         } else if (sCommand == "sound") {
             string sSound = llStringTrim(sValue, STRING_TRIM);
-            if (sSound) {
+            if (sSound != "") {
                 if (sSound == g_sNoSound) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Punishment will be silently.",kID);
                 else if (llGetInventoryType(sSound) != INVENTORY_SOUND) {
                     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sSound+" is not a valid sound name.",kID);

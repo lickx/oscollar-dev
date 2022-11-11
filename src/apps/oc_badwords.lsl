@@ -49,7 +49,6 @@ integer ANIM_LIST_RESPONSE = 7003;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
-integer BUILD_REQUEST = 17760501;
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Badwords";

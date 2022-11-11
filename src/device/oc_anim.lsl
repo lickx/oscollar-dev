@@ -81,7 +81,6 @@ integer REGION_TELEPORT = 10051;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
-integer BUILD_REQUEST = 17760501;
 integer g_iAOChannel = -782690;
 
 string g_sSettingToken = "anim_";
@@ -251,7 +250,7 @@ StopAnim(string sAnim, integer isPoseChange) {
             integer n;
             while(~(n=llListFindList(g_lAnims,[sAnim])))
                 g_lAnims = llDeleteSubList(g_lAnims,n,n);
-            if (sAnim) UnPlayAnim(sAnim);
+            if (sAnim != "") UnPlayAnim(sAnim);
             if (llGetListLength(g_lAnims)) PlayAnim(llList2String(g_lAnims, 0));
             else if (!isPoseChange) MessageAOs("ON","STAND");
         }

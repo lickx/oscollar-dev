@@ -48,7 +48,6 @@ integer g_iLMListener;
 integer g_iLMListernerDetach;
 
 integer CMD_PARTICLE = 20000;
-integer BUILD_REQUEST = 17760501;
 
 string UPMENU = "BACK";
 string PARENTMENU = "Leash";

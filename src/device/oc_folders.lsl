@@ -47,7 +47,6 @@ integer RLVA_VERSION = 6004;
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
-integer BUILD_REQUEST = 17760501;
 
 string PARENT = "⏎";
 string ACTIONS_CURRENT = "Actions";
