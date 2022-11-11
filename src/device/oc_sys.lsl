@@ -54,6 +54,7 @@ integer LINK_AUTH = 2;
 integer LINK_DIALOG = 3;
 integer LINK_RLV = 4;
 integer LINK_SAVE = 5;
+integer LINK_ANIM = 6;
 integer LINK_UPDATE = -10;
 integer LM_SETTING_SAVE = 2000;
 integer LM_SETTING_REQUEST = 2001;
@@ -116,6 +117,9 @@ string g_sGlobalToken = "global_";
 integer g_iWaitUpdate;
 integer g_iWaitRebuild;
 string g_sIntegrity = "(pending...)";
+
+string g_sHelpCard = "OsCollar Help";
+string g_sLicenseCard = "OsCollar License";
 
 integer compareVersions(string v1, string v2) { //compares two symantic version strings, true if v1 >= v2
     integer v1Index=llSubStringIndex(v1,".");
@@ -182,7 +186,6 @@ HelpMenu(key kID, integer iAuth) {
 
 MainMenu(key kID, integer iAuth) {
     string sPrompt = "\nO s C o l l a r  "+g_sCollarVersion+g_sDevStage;
-    //if(!g_iLatestVersion) sPrompt+="\n\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n";
     list lStaticButtons=["Apps"];
     if (g_iAnimsMenu) lStaticButtons+="Animations";
     else lStaticButtons+="-";
@@ -218,10 +221,10 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         sMessage += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
     } else if (sStr == "help") {
-        llGiveInventory(kID, ".help");
+        if (llGetInventoryType(g_sHelpCard) == INVENTORY_NOTECARD) llGiveInventory(kID, g_sHelpCard);
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sStr == "license") {
-        if (llGetInventoryType(".license") == INVENTORY_NOTECARD) llGiveInventory(kID, ".license");
+        if (llGetInventoryType(g_sLicenseCard) == INVENTORY_NOTECARD) llGiveInventory(kID, g_sLicenseCard);
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sStr =="about" || sStr=="help/about") HelpMenu(kID,iNum);
     else if (sStr == "addons" || sStr=="apps") AppsMenu(kID, iNum);
@@ -291,7 +294,6 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         }
     } else if (sCmd == "version") {
         string sVersion = "\n\nOsCollar Version: "+g_sCollarVersion+g_sDevStage;
-        //if(!g_iLatestVersion) sVersion+="\nUPDATE AVAILABLE: A new patch has been released.\nPlease install at your earliest convenience. Thanks!\n\n";
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sVersion,kID);
     }/* else if (sCmd == "objectversion") {
         // ping from an object, we answer to it on the object channel
@@ -308,34 +310,15 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     }*/
 }
 
-string GetTimestamp() { // Return a string of the date and time
-    string out;
-    string DateUTC = llGetDate();
-    if (llGetGMTclock() < 28800) { // that's 28800 seconds, a.k.a. 8 hours.
-        list DateList = llParseString2List(DateUTC, ["-", "-"], []);
-        integer year = llList2Integer(DateList, 0);
-        integer month = llList2Integer(DateList, 1);
-        integer day = llList2Integer(DateList, 2);
-       if(day==1) {
-           if(month==1) return (string)(year-1) + "-01-31";
-           else {
-                --month;
-                if(month==2) day = 28+(year%4==FALSE); //To do: fix before 28th feb 2100.
-                else day = 30+ (!~llListFindList([4,6,9,11],[month])); //31 days hath == TRUE
-            }
-        }
-        else --day;
-        out=(string)year + "-" + (string)month + "-" + (string)day;
-    } else out=llGetDate();
-    integer t = (integer)llGetWallclock(); // seconds since midnight
-    out += " " + (string)(t / 3600) + ":";
-    integer mins=(t % 3600) / 60;
-    if (mins <10) out += "0";
-    out += (string)mins+":";
-    integer secs=t % 60;
-    if (secs < 10) out += "0";
-    out += (string)secs;
-    return out;
+string GetTimestamp()
+{
+    integer sltSecs = (integer) llGetWallclock(); // Get SL time in seconds (will be either PST or PDT)
+    integer diff    = (integer) llGetGMTclock() - sltSecs; // Compute the difference between UTC and SLT
+    integer iEpoch = llGetUnixTime(); // UTC unix
+    if (diff == 25200 || diff == -61200) iEpoch -= 25200; // PDT unix
+    else iEpoch -= 28800; // PST unix
+    string sOut = osUnixTimeToTimestamp(iEpoch); // threatlevel VeryLow
+    return llGetSubString(sOut, 0, 18);
 }
 
 BuildLockElementList() {//EB
@@ -409,14 +392,42 @@ RebuildMenu() {
     llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE,"LINK_REQUEST","");
 }
 
+list RebuildStealthCache()
+{
+    list lHidden = [-1000]; // to detect if we lost the list due to state loss
+    integer iLink;
+    integer idx;
+    for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
+        string sDesc = llList2String(llGetLinkPrimitiveParams(iLink, [PRIM_DESC]), 0);
+        list l = llParseString2List(llToLower(sDesc), ["~"], []);
+        idx = llListFindList(l, ["hidden"]);
+        if (~idx) lHidden += [iLink]; // link defined as hidden, state-loss-safe.
+        else if (g_iHide == FALSE) {
+            // last try, get prim property if collar not hidden yet. NOT state-loss-safe!
+            float f = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_COLOR,ALL_SIDES]),1);
+            if (f == 0.0) lHidden += [iLink];
+        }
+    }
+    return lHidden;
+}
+
+list g_lStealthCache;
 Stealth(integer iHide)
 {
-    list lExclude = [LINK_ROOT, LINK_AUTH, LINK_DIALOG, LINK_RLV, LINK_SAVE, LINK_UPDATE];
     float fAlpha = 1.0;
-    if (iHide) fAlpha = 0.0;
-    integer i;
-    for (i = 1; i < llGetNumberOfPrims(); i++) {
-        if (llListFindList(lExclude, [i]) == -1) llSetLinkAlpha(i, fAlpha, ALL_SIDES);
+    if (iHide) {
+        g_lStealthCache = RebuildStealthCache();
+        llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
+    } else { // Show
+        if (llGetListLength(g_lStealthCache) == 0) g_lStealthCache = RebuildStealthCache(); // cache lost, rebuild
+        if (llGetListLength(g_lStealthCache) == 1) llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES); // no hidden links
+        else { // we have one or more links to preserve hidden
+            integer iLink;
+            for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
+                if (~llListFindList(g_lStealthCache, iLink)) llSetLinkAlpha(iLink, 0.0, ALL_SIDES); // found hidden
+                llSetLinkAlpha(iLink, 1.0, ALL_SIDES); // solid
+            }
+        }
     }
     g_iHide = iHide;
     SetLockElementAlpha();
@@ -436,6 +447,7 @@ StartUpdate(){
 default {
     state_entry() {
         g_kWearer = llGetOwner();
+        g_iHide=!(integer)llGetAlpha(ALL_SIDES);
         BuildLockElementList();
         init();
         //Debug("Starting");
@@ -472,6 +484,7 @@ default {
             else if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
+            else if (sStr == "LINK_ANIM") LINK_ANIM = iSender;
         } else if (iNum == DIALOG_RESPONSE) {
             //Debug("Menu response");
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -505,7 +518,7 @@ default {
                     else if (sMessage == "Version") {
                         if (llStringLength(g_sDevStage)) {
                             llOwnerSay("You are using a version that is still in development");
-                        } else g_kWWW = llHTTPRequest("www.example.com/version", [], "");
+                        } else g_kWWW = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/version", [], "");
                     }
                 } else if (sMenu == "UpdateConfirmMenu"){
                     if (sMessage=="Yes") StartUpdate();
@@ -652,9 +665,13 @@ default {
         if (kID == g_kWWW && iStatus == 200) {
             list lBody = llParseString2List(sBody, ["\n"], []);
             string sWebVersion = llList2String(lBody, 0);
+            if (llGetListLength(llParseString2List(sWebVersion, ["."], [])) != 3) {
+                llOwnerSay("Could not retrieve info about the latest version");
+                return;
+            }
             lBody = llDeleteSubList(lBody, 0, 0); // remove version, the rest is distributors
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
-                llOwnerSay("An update of OsCollar is available! Get it at:\n\n"+llDumpList2String(lBody, "\n"));
+                llOwnerSay("An update of OsCollar is available!\n\nLatest version: "+sWebVersion+"\nYour version: "+g_sCollarVersion+"\n\n"+llDumpList2String(lBody, "\n"));
             } else {
                 llOwnerSay("You are using the most recent version of OsCollar");
             }
