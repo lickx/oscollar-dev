@@ -259,32 +259,38 @@ SaveAuthorized()
     float fOpenAccess = (float)g_iOpenAccess;
     float fVanilla = (float)g_iVanilla;
     float fHardVanilla = (float)g_iHardVanilla;
-    key kFirstOwner = NULL_KEY;
-    key kSecondOwner = NULL_KEY;
+    string sFirstOwner = TEXTURE_TRANSPARENT;
+    string sSecondOwner = TEXTURE_TRANSPARENT;
     integer iFace;
     if (llGetListLength(g_lOwner) == 1) {
-        kFirstOwner = llList2Key(g_lOwner, 0);
+        sFirstOwner = llList2String(g_lOwner, 0);
     } else if (llGetListLength(g_lOwner) > 1) {
-        kFirstOwner = llList2Key(g_lOwner, 0);
-        kSecondOwner = llList2Key(g_lOwner, 1);
+        sFirstOwner = llList2String(g_lOwner, 0);
+        sSecondOwner = llList2String(g_lOwner, 1);
     }
-    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 0, kFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,fOpenAccess>, 0]);
-    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 1, kSecondOwner, <1,1,0>, <fVanilla,fHardVanilla,0>, 0]);
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 0, sFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,fOpenAccess>, 0]);
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 1, sSecondOwner, <1,1,0>, <fVanilla,fHardVanilla,0>, 0]);
 
     if (llGetListLength(g_lTempOwner)) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <1,1,0>, <0,0,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, (string)NULL_KEY, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_TRANSPARENT, <1,1,0>, <0,0,0>, 0]);
     }
 
+    string sGroup = TEXTURE_TRANSPARENT;
+    if (g_kGroup != NULL_KEY) sGroup = (string)g_kGroup;
     if (g_iGroupEnabled) {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, (string)g_kGroup, <1,1,0>, <1,1,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <1,1,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, (string)g_kGroup, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <0,0,0>, 0]);
     }
 
-    for (iFace = 4; iFace < llGetListLength(g_lTrust) && iFace < 8; iFace++) {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, iFace), <1,1,0>, <0,0,0>, 0]);
+    for (iFace = 4; iFace < 8; iFace++) {
+        if (llGetListLength(g_lTrust) > (iFace-4)) {
+            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, (iFace-4)), <1,1,0>, <0,0,0>, 0]);
+        } else {
+            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, TEXTURE_TRANSPARENT, <1,1,0>, <0,0,0>, 0]);
+        }
     }
 }
 
@@ -317,6 +323,7 @@ LoadAuthorized()
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = [llList2Key(l, 0)];
+    if (g_kGroup == TEXTURE_TRANSPARENT) g_kGroup = NULL_KEY;
     v = llList2Vector(l, 2);
     if (g_kGroup != NULL_KEY && v.x > 0) {
         if ((key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
