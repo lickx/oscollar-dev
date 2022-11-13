@@ -254,13 +254,15 @@ SayOwners() {
 SaveAuthorized()
 {
     // face layout: g_lOwner[0], g_lOwner[1], g_lTempOwner[0], g_kGroup, g_lTrust[0], g_lTrust[1], g_lTrust[2], g_lTrust[3]
+    string TEXTURE_NOTHING = TEXTURE_TRANSPARENT;
+    if (g_iIsLED) TEXTURE_NOTHING = TEXTURE_BLANK;
     float fLimitRange = (float)g_iLimitRange;
     float fRunawayDisable = (float) g_iRunawayDisable;
     float fOpenAccess = (float)g_iOpenAccess;
     float fVanilla = (float)g_iVanilla;
     float fHardVanilla = (float)g_iHardVanilla;
-    string sFirstOwner = TEXTURE_TRANSPARENT;
-    string sSecondOwner = TEXTURE_TRANSPARENT;
+    string sFirstOwner = TEXTURE_NOTHING;
+    string sSecondOwner = TEXTURE_NOTHING;
     integer iFace;
     if (llGetListLength(g_lOwner) == 1) {
         sFirstOwner = llList2String(g_lOwner, 0);
@@ -274,10 +276,10 @@ SaveAuthorized()
     if (llGetListLength(g_lTempOwner)) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <1,1,0>, <0,0,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_TRANSPARENT, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
     }
 
-    string sGroup = TEXTURE_TRANSPARENT;
+    string sGroup = TEXTURE_NOTHING;
     if (g_kGroup != NULL_KEY) sGroup = (string)g_kGroup;
     if (g_iGroupEnabled) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <1,1,0>, 0]);
@@ -289,7 +291,7 @@ SaveAuthorized()
         if (llGetListLength(g_lTrust) > (iFace-4)) {
             llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, (iFace-4)), <1,1,0>, <0,0,0>, 0]);
         } else {
-            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, TEXTURE_TRANSPARENT, <1,1,0>, <0,0,0>, 0]);
+            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
         }
     }
 }
@@ -323,7 +325,7 @@ LoadAuthorized()
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = [llList2Key(l, 0)];
-    if (g_kGroup == TEXTURE_TRANSPARENT) g_kGroup = NULL_KEY;
+    else g_kGroup = NULL_KEY;
     v = llList2Vector(l, 2);
     if (g_kGroup != NULL_KEY && v.x > 0) {
         if ((key)llList2String(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
