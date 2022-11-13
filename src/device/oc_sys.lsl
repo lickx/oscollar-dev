@@ -405,7 +405,7 @@ list RebuildStealthCache()
         else if (g_iHide == FALSE) {
             // last try, get prim property if collar not hidden yet. NOT state-loss-safe!
             float f = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_COLOR,ALL_SIDES]),1);
-            if (f == 0.0) lHidden += [iLink];
+            if (f < 0.5) lHidden += [iLink];
         }
     }
     return lHidden;
@@ -414,12 +414,9 @@ list RebuildStealthCache()
 list g_lStealthCache;
 Stealth(integer iHide)
 {
-    float fAlpha = 1.0;
-    if (iHide) {
-        g_lStealthCache = RebuildStealthCache();
-        llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
-    } else { // Show
-        if (llGetListLength(g_lStealthCache) == 0) g_lStealthCache = RebuildStealthCache(); // cache lost, rebuild
+    if (llGetListLength(g_lStealthCache) == 0) g_lStealthCache = RebuildStealthCache(); // cache lost, rebuild
+    if (iHide) llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
+    else { // Show
         if (llGetListLength(g_lStealthCache) == 1) llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES); // no hidden links
         else { // we have one or more links to preserve hidden
             integer iLink;
@@ -605,10 +602,10 @@ default {
         if (iChange & CHANGED_LINK) {
             llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
             BuildLockElementList(); // need rebuils lockelements list
+            RebuildStealthCache();
         }
         if (iChange & CHANGED_REGION) llMessageLinked(LINK_ALL_OTHERS,REGION_CROSSED,"","");
         if (iChange & CHANGED_TELEPORT) llMessageLinked(LINK_ALL_OTHERS,REGION_TELEPORT,"","");
-
     }
 
     attach(key kID) {
