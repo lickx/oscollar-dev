@@ -97,6 +97,7 @@ integer g_iBaseMode = 2;
 integer g_iHelpless;
 
 integer g_iSmartStrip = TRUE;
+integer g_iAllowAttach = FALSE; // when TRUE, disallow @addattach=n restraint
 
 key g_kDebugRcpt;
 
@@ -197,7 +198,8 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
             string sBehav=llGetSubString(llList2String(lSubArgs,0),1,-1);
             if (g_iSmartStrip && llSubStringIndex(sBehav,"remoutfit:")==0 && sVal=="force")
                 sBehav="detachallthis:"+llDeleteSubString(sBehav,0,9);
-            if (sVal=="force"||sVal=="n"||sVal=="add"||sVal=="y"||sVal=="rem"||sBehav=="clear") {
+            if (g_iAllowAttach == TRUE && llSubStringIndex(sBehav,"addattach")==0 && sVal=="n") sAck = "";
+            else if (sVal=="force"||sVal=="n"||sVal=="add"||sVal=="y"||sVal=="rem"||sBehav=="clear") {
                 if (kID != g_sSourceID) llMessageLinked(LINK_RLV,RLV_CMD,"clear",g_sSourceID);
                 llMessageLinked(LINK_RLV,RLV_CMD,sBehav+"="+sVal,kID);
             } else sAck = "ko";
@@ -244,6 +246,8 @@ Menu(key kID, integer iAuth) {
     } else sPrompt += " is offline.";
     if (g_iSmartStrip) lButtons+=["☑ Smart"];
     else lButtons+=["☐ Smart"];
+    if (g_iAllowAttach) lButtons+=["☑ AllowAttch"];
+    else lButtons+=["☐ AllowAttch"];
     lButtons += ["Reset"];
     if (g_iHelpless) lButtons+=["☑ Helpless"];
     else lButtons+=["☐ Helpless"];
@@ -329,6 +333,16 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 sText = "Smartstrip turned on.\n\nAll smartstrip ready folders in the #RLV directory will be removed as a whole when corresponding clothing layers are stripped.\n";
                 g_iSmartStrip = TRUE;
             }
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"smartstrip="+g_iSmartStrip,"");
+        } else if (llGetSubString(sChangetype,0,9) == "allowattch") {
+            if (sChangevalue == "off") {
+                g_iAllowAttach = FALSE;
+                sText = "You can no longer attach objects, if the attachpoint is locked.\n";
+            } else if (sChangevalue == "on") {
+                sText = "You can now always attach objects, even when restrained.\n";
+                g_iAllowAttach = TRUE;
+            }
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"allowattach="+g_iAllowAttach,"");
         } else {
             list lModes = ["off","trust","ask","auto"];
             integer iModeType = llListFindList(lModes,[sChangetype]);
@@ -379,6 +393,8 @@ default {
             else if (sToken == "auth_tempowner") g_sTempOwner = sValue;
             else if (sToken == "auth_trust") g_lTrust = llParseString2List(sValue,[","],[]);
             else if (sToken == "auth_block") g_lBlock = llParseString2List(sValue,[","],[]);
+            else if (sToken == "smartstrip") g_iSmartStrip = (integer)sValue;
+            else if (sToken == "allowattach") g_iAllowAttach = (integer)sValue;
         } else if (iNum == RLV_OFF) {
             g_iRLV = FALSE;
             refreshRlvListener();
