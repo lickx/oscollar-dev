@@ -392,37 +392,62 @@ RebuildMenu() {
     llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE,"LINK_REQUEST","");
 }
 
-list RebuildStealthCache()
+list g_lStealthCacheHidden;
+list g_lStealthCacheGlows;
+RebuildStealthCache()
 {
-    list lHidden = [-1000]; // to detect if we lost the list due to state loss
+    g_lStealthCacheHidden = [-1000]; // to detect if we lost the list due to state loss, set index 0 to -1000
+    g_lStealthCacheGlows = [];
     integer iLink;
     integer idx;
     for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
-        string sDesc = llList2String(llGetLinkPrimitiveParams(iLink, [PRIM_DESC]), 0);
+        list lLinkParams = llGetLinkPrimitiveParams(iLink, [PRIM_DESC, PRIM_COLOR, 0, PRIM_GLOW, 0]);
+        // ^^ returns string desc, vector color, float alpha, float glow. note ALL_SIDES doesn't work on OS, so we use side 0.
+        string sDesc = llList2String(lLinkParams, 0);
         list l = llParseString2List(llToLower(sDesc), ["~"], []);
         idx = llListFindList(l, ["hidden"]);
-        if (~idx) lHidden += [iLink]; // link defined as hidden, state-loss-safe.
+        if (~idx) g_lStealthCacheHidden += [iLink]; // found hidden setting in prim desc, state-loss-safe.
         else if (g_iHide == FALSE) {
-            // last try, get prim property if collar not hidden yet. NOT state-loss-safe!
-            float f = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_COLOR,ALL_SIDES]),1);
-            if (f < 0.5) lHidden += [iLink];
+            // backup method, get alpha from prim if collar not hidden yet. NOT state-loss-safe!
+            float fAlpha = llList2Float(lLinkParams,2);
+            if (fAlpha < 0.5) g_lStealthCacheHidden += [iLink];
+        }
+        integer i;
+        for (i = 0; i < llGetListLength(l); i++) {
+            string sSetting = llList2String(l, i);
+            list lSetting = llParseString2List(sSetting, ["="], []);
+            if (llList2String(lSetting, 0) == "glow" && llGetListLength(lSetting) > 1) {
+                // found glow value in prim desc, state-loss-safe.
+                g_lStealthCacheGlows += [iLink, llList2Float(lSetting, 1)];
+            } else if (g_iHide == FALSE) {
+                // backup method: get glow from prim if collar not hidden yet. NOT state-loss-safe!
+                float fGlow = llList2Float(lLinkParams, 3);
+                if (fGlow > 0.0) g_lStealthCacheGlows += [iLink, fGlow];
+            }
         }
     }
-    return lHidden;
 }
 
-list g_lStealthCache;
 Stealth(integer iHide)
 {
-    if (llGetListLength(g_lStealthCache) == 0) g_lStealthCache = RebuildStealthCache(); // cache lost, rebuild
-    if (iHide) llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
-    else { // Show
-        if (llGetListLength(g_lStealthCache) == 1) llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES); // no hidden links
-        else { // we have one or more links to preserve hidden
-            integer iLink;
-            for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
-                if (~llListFindList(g_lStealthCache, iLink)) llSetLinkAlpha(iLink, 0.0, ALL_SIDES); // found hidden
-                llSetLinkAlpha(iLink, 1.0, ALL_SIDES); // solid
+    if (llGetListLength(g_lStealthCacheHidden) == 0) RebuildStealthCache(); // cache lost, rebuild
+    if (iHide) {
+        llSetLinkPrimitiveParamsFast(LINK_SET, [PRIM_GLOW, ALL_SIDES, 0.0]);
+        llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
+    } else { // Show
+        if (llGetListLength(g_lStealthCacheHidden) == 1) llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES); // no hidden links
+
+        integer iLink;
+        for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
+            if (llGetListLength(g_lStealthCacheHidden) > 1) {
+                if (~llListFindList(g_lStealthCacheHidden, iLink)) llSetLinkAlpha(iLink, 0.0, ALL_SIDES); // found hidden
+                else llSetLinkAlpha(iLink, 1.0, ALL_SIDES);
+            }
+            if (llGetListLength(g_lStealthCacheGlows) > 0) {
+                integer idx = llListFindList(g_lStealthCacheGlows, [iLink]);
+                if (~idx && (idx %2 == 0)) {
+                    llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(g_lStealthCacheGlows, idx+1)]);
+                }
             }
         }
     }
@@ -446,6 +471,7 @@ default {
         g_kWearer = llGetOwner();
         g_iHide=!(integer)llGetAlpha(ALL_SIDES);
         BuildLockElementList();
+        RebuildStealthCache();
         init();
         //Debug("Starting");
     }
@@ -580,7 +606,7 @@ default {
     }
 
     on_rez(integer iParam) {
-        if (g_kWearer != NULL_KEY && g_kWearer != llGetOwner()) llResetScript(); //workaround for CHANGED_OWNER not working on XEngine
+        if (g_kWearer != llGetOwner()) llResetScript(); //workaround for CHANGED_OWNER not working on XEngine
         g_iHide=!(integer)llGetAlpha(ALL_SIDES) ; //check alpha
         init();
     }
@@ -597,6 +623,7 @@ default {
             if (g_iHide != iNewHide){   //check there's a difference to avoid infinite loop
                 g_iHide = iNewHide;
                 SetLockElementAlpha(); // update hide elements
+                RebuildStealthCache();
             }
         }
         if (iChange & CHANGED_LINK) {
