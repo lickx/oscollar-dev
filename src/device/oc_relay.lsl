@@ -132,11 +132,12 @@ UpdateMode(integer iMode) {
     g_iMinBaseMode = (iMode >> 5) & 3;
     if (g_iMinBaseMode == 1) g_iMinBaseMode = 2;
     g_iMinHelplessMode = (iMode >> 7) & 1;
+    g_iAllowAttach = (iMode >> 9) & 1;
     g_iSmartStrip = (iMode >> 10) & 1;
 }
 
 SaveMode() {
-    string sMode = (string)(1024*g_iSmartStrip + 512*128*g_iMinHelplessMode + 32*g_iMinBaseMode + 4*g_iHelpless + g_iBaseMode);
+    string sMode = (string)(1024*g_iSmartStrip + 512*g_iAllowAttach + 128*g_iMinHelplessMode + 32*g_iMinBaseMode + 4*g_iHelpless + g_iBaseMode);
     llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"mode="+sMode,"");
 }
 
@@ -333,7 +334,6 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 sText = "Smartstrip turned on.\n\nAll smartstrip ready folders in the #RLV directory will be removed as a whole when corresponding clothing layers are stripped.\n";
                 g_iSmartStrip = TRUE;
             }
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"smartstrip="+g_iSmartStrip,"");
         } else if (llGetSubString(sChangetype,0,9) == "allowattch") {
             if (sChangevalue == "off") {
                 g_iAllowAttach = FALSE;
@@ -342,7 +342,6 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 sText = "You can now always attach objects, even when restrained.\n";
                 g_iAllowAttach = TRUE;
             }
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingsToken+"allowattach="+g_iAllowAttach,"");
         } else {
             list lModes = ["off","trust","ask","auto"];
             integer iModeType = llListFindList(lModes,[sChangetype]);
@@ -393,8 +392,6 @@ default {
             else if (sToken == "auth_tempowner") g_sTempOwner = sValue;
             else if (sToken == "auth_trust") g_lTrust = llParseString2List(sValue,[","],[]);
             else if (sToken == "auth_block") g_lBlock = llParseString2List(sValue,[","],[]);
-            else if (sToken == "smartstrip") g_iSmartStrip = (integer)sValue;
-            else if (sToken == "allowattach") g_iAllowAttach = (integer)sValue;
         } else if (iNum == RLV_OFF) {
             g_iRLV = FALSE;
             refreshRlvListener();
