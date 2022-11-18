@@ -303,6 +303,7 @@ PrintDestinations() {  // On inventory change, re-read our .bookmarks notecard
 
 default {
     on_rez(integer iStart) {
+        if (g_kOwner != llGetOwner()) llResetScript();
         ReadDestinations();
     }
 

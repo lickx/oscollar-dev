@@ -779,6 +779,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 default {
 
     on_rez(integer iParam) {
+        if (g_kWearer != llGetOwner()) llResetScript();
         g_iRlvActive = TRUE; // let the collar send new RLV-information upon rez
         g_iState = iDEFAULT;
     }

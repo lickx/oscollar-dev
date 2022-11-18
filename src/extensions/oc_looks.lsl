@@ -395,6 +395,11 @@ default {
         llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,"intern_looks=1","");
     }
 
+    on_rez(integer i)
+    {
+        if (g_kWearer != llGetOwner()) llResetScript();
+    }
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE,0);
         else if (iNum == LM_SETTING_RESPONSE) {

@@ -251,6 +251,10 @@ default {
         MainMenu();
     }
 
+    on_rez(integer i) {
+        if (g_kOwner != llGetOwner()) llResetScript();
+    }
+
     touch_start(integer iNum) {
         if (llGetAttached() && (llDetectedKey(0)==g_kOwner)) {// Dont do anything if not attached to the HUD
 //          I made the root prim the "menu" prim, and the button action default to "menu."

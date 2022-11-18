@@ -302,6 +302,11 @@ default {
         g_sBadWordSound = "Default" ;
     }
 
+    on_rez(integer i)
+    {
+        if (g_kWearer != llGetOwner()) llResetScript();
+    }
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu) {

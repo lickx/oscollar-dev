@@ -337,6 +337,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
 
 default {
     on_rez(integer iParam) {
+        if (g_kWearer != llGetOwner()) llResetScript();
         g_iLastTime=g_iLastRez=llGetUnixTime();
         llRegionSayTo(g_kWearer, g_iInterfaceChannel, "timer|sendtimers");
     }

@@ -235,7 +235,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
 }
 
 SayOwners() {
-    if (llGetObjectDesc() == "Wendy's Updater") return;
+    if (llGetObjectDesc() == "OsCollar Updater") return;
     integer iCount = llGetListLength(g_lOwner);
     if (iCount || g_iVanilla) {
         integer index;

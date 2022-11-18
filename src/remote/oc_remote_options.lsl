@@ -56,6 +56,7 @@ float g_Zoff = 0.04; // space between buttons and screen left/right border
 
 // Variables
 
+key g_kOwner;
 vector g_vColor = <1,1,1>;
 key g_kMenuID;
 string g_sCurrentMenu;
@@ -315,12 +316,17 @@ OrderButton(string sButton)
 default
 {
     state_entry() {
+        g_kOwner = llGetOwner();
         //llSleep(1.0);
         FindButtons(); // collect buttons names
         DefinePosition();
         DoStyle("initialize");
         DoStyle(llList2String(g_lStyles, 0));
        // llOwnerSay("Finalizing HUD Reset... please wait a few seconds so all menus have time to initialize.");
+    }
+
+    on_rez(integer i) {
+        if (g_kOwner != llGetOwner()) llResetScript();
     }
 
     attach(key kAttached) {

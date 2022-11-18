@@ -234,6 +234,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 
 default {
     on_rez(integer param) {
+        if (g_kWearer != llGetOwner()) llResetScript();
         if (g_iBellOn && llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
     }
 

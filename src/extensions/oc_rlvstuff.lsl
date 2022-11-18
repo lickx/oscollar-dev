@@ -267,6 +267,7 @@ UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
 
 default {
     on_rez(integer iParam) {
+        if (g_kWearer != llGetOwner()) llResetScript();
         llSetTimerEvent(0.0);
     }
 
