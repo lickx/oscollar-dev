@@ -76,6 +76,8 @@ integer g_iMenuStride = 3;
 integer g_iFirstRun;
 integer g_iIsLED;
 
+list g_lBlocklistPrims; // list of links with name 'blocklist'
+
 string g_sSettingToken = "auth_";
 
 string NameURI(string sID){
@@ -97,7 +99,11 @@ Dialog(string sID, string sPrompt, list lChoices, list lUtilityButtons, integer 
 
 AuthMenu(key kAv, integer iAuth) {
     string sPrompt = "\nAccess & Authorization\n\n";
-    list lButtons = ["+ Owner", "+ Trust", "+ Block", "− Owner", "− Trust", "− Block"];
+    list lButtons;
+    if (llGetListLength(g_lBlocklistPrims))
+        lButtons = ["+ Owner", "+ Trust", "+ Block", "− Owner", "− Trust", "− Block"];
+    else
+        lButtons = ["+ Owner", "+ Trust", "− Owner", "− Trust"];
     if (g_kGroup==NULL_KEY) lButtons += ["Group ☐"];
     else lButtons += ["Group ☑"];
     if (g_iOpenAccess) lButtons += ["Public ☑"];
@@ -155,8 +161,10 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
         }
         else if (sToken == "tempowner") g_lTempOwner = lPeople;
         else if (sToken == "trust") g_lTrust = lPeople;
-        else if (sToken == "block") g_lBlock = lPeople;
-        SaveAuthorized();
+        else if (sToken == "block") {
+            g_lBlock = lPeople;
+            SaveBlocklist();
+        } else SaveAuthorized();
     } else
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\""+NameURI(sPersonID) + "\" is not in "+sToken+" list.",kCmdr);
 }
@@ -229,8 +237,10 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
             SayOwners();
         } else if (sToken == "trust") g_lTrust = lPeople;
         else if (sToken == "tempowner") g_lTempOwner = lPeople;
-        else if (sToken == "block") g_lBlock = lPeople;
-        SaveAuthorized();
+        else if (sToken == "block") {
+            g_lBlock = lPeople;
+            SaveBlocklist();
+        } else SaveAuthorized();
     }
 }
 
@@ -337,6 +347,57 @@ LoadAuthorized()
     for (iFace = 4; iFace < 8; iFace++) {
         l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, iFace]);
         if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTrust += [llList2Key(l, 0)];
+    }
+}
+
+LoadBlocklist()
+{
+    if (llGetListLength(g_lBlocklistPrims) == 0) return;
+    list lExclude = ["", TEXTURE_BLANK, TEXTURE_PLYWOOD, TEXTURE_TRANSPARENT];
+
+    g_lBlock = [];
+    integer iPrim;
+    for (iPrim = 0; iPrim < llGetListLength(g_lBlocklistPrims); iPrim++) {
+        integer iFace;
+        integer iLink = llList2Integer(g_lBlocklistPrims, iPrim);
+        for (iFace = 0; iFace < 8; iFace++) {
+            list lParams = llGetLinkPrimitiveParams(iLink, [PRIM_TEXTURE, iFace]);
+            string sTexture = llList2String(lParams, 0);
+            if (llListFindList(lExclude, [sTexture]) == -1) g_lBlock += [(key)sTexture];
+        }
+    }
+}
+
+UpdateBlocklistPrims()
+{
+    g_lBlocklistPrims = [];
+    integer i;
+    for (i = LINK_ROOT; i < llGetNumberOfPrims()+1; i++) {
+        if (llGetLinkName(i) == "blocklist") g_lBlocklistPrims += [i];
+    }
+}
+
+SaveBlocklist()
+{
+    if (llGetListLength(g_lBlocklistPrims) == 0) return;
+    integer iPrim;
+    for (iPrim = 0; iPrim < llGetListLength(g_lBlocklistPrims); iPrim++) {
+        integer iFace;
+        integer iLink = llList2Integer(g_lBlocklistPrims, iPrim);
+        for (iFace = 0; iFace < 8; iFace++) {
+            integer idx = (iPrim*8)+iFace;
+            if (llGetListLength(g_lBlock)-1 > idx) {
+                // no more people, pad with TEXTURE_BLANK
+                llSetLinkPrimitiveParamsFast(iLink, [
+                    PRIM_TEXTURE, iFace, TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0,
+                    PRIM_COLOR, <1,1,1>, 0.0]);
+            } else {
+                // use blocked person's key as texture
+                llSetLinkPrimitiveParamsFast(iLink, [
+                    PRIM_TEXTURE, iFace, llList2String(g_lBlock, idx), <1,1,0>, <0,0,0>, 0,
+                    PRIM_COLOR, <1,1,1>, 0.0]);
+            }
+        }
     }
 }
 
@@ -552,7 +613,9 @@ RunAway() {
     g_iHardVanilla = FALSE;
     g_lTempOwner = [];
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "tempowner=", "");
-    SaveAuthorized(); // sleep here?
+    SaveAuthorized();
+    g_lBlock = [];
+    SaveBlocklist();
     llMessageLinked(LINK_ALL_OTHERS, CMD_OWNER, "clear", g_sWearerID);
     llMessageLinked(LINK_ALL_OTHERS, CMD_OWNER, "runaway", g_sWearerID);
     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Runaway finished.",g_sWearerID);
@@ -570,6 +633,8 @@ default {
         g_sWearerID = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         LoadAuthorized();
+        UpdateBlocklistPrims();
+        LoadBlocklist();
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
     }
 
@@ -621,6 +686,7 @@ default {
             } else if (sStr == "settings=sent") {
                 if (g_iFirstRun) {
                     LoadAuthorized();
+                    LoadBlocklist();
                     SayOwners();
                     g_iFirstRun = FALSE;
                 }
@@ -703,6 +769,13 @@ default {
     timer () {
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,FALSE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_HIGH,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.0]);
         llSetTimerEvent(0.0);
+    }
+
+    changed(integer iChange) {
+        if (iChange & CHANGED_LINK) {
+            UpdateBlocklistPrims();
+            LoadBlocklist();
+        }
     }
 }
 
