@@ -241,7 +241,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         if (iNum == CMD_OWNER || kID == g_kWearer ) {   //primary owners and wearer can lock and unlock. no one else
             //inlined old "Lock()" function
             g_iLocked = TRUE;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"locked=1", "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"lock=1", "");
             llOwnerSay("@detach=n");
             llMessageLinked(LINK_RLV, RLV_CMD, "detach=n", "main");
             llPlaySound(g_sLockSound, 1.0);
@@ -253,7 +253,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     } else if (sStr == "runaway" || sCmd == "unlock" || (g_iLocked && sStr == "togglelock")) {
         if (iNum == CMD_OWNER)  {
             g_iLocked = FALSE;
-            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sGlobalToken+"locked", "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"lock=0", "");
             llOwnerSay("@detach=y");
             llMessageLinked(LINK_RLV, RLV_CMD, "detach=y", "main");
             llPlaySound(g_sUnlockSound, 1.0);

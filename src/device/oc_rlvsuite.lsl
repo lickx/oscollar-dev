@@ -55,6 +55,7 @@ integer g_iTimeOut = 30;
 integer g_iRlvOn = FALSE;
 integer g_iRlvaOn = FALSE;
 string g_sPathPrefix = "Outfits/";
+string g_sCoreFolder = "Core";
 
 key g_kWearer;
 
@@ -75,6 +76,7 @@ integer LINK_RLV = 4;
 integer LINK_SAVE = 5;
 integer LINK_UPDATE = -10;
 integer LM_SETTING_SAVE = 2000;
+integer LM_SETTING_REQUEST = 2001;
 integer LM_SETTING_RESPONSE = 2002;
 integer LM_SETTING_DELETE = 2003;
 integer LM_SETTING_EMPTY = 2004;
@@ -94,6 +96,7 @@ integer DIALOG_TIMEOUT = -9002;
 integer SENSORDIALOG = -9003;
 integer g_iAuth;
 
+integer g_iLocked;
 key g_kLastForcedSeat;
 string g_sLastForcedSeat;
 string g_sTerminalText = "\nRLV Command Terminal\n\nType one command per line without \"@\" sign.";
@@ -175,6 +178,7 @@ DoTerminalCommand(string sMessage, key kID) {
 }
 
 OutfitsMenu(key kID, integer iAuth) {
+    llMessageLinked(LINK_SAVE, LM_SETTING_REQUEST, "global_lock", "");
     g_kMenuClicker = kID;
     g_iAuth = iAuth;
     llSetTimerEvent(g_iTimeOut);
@@ -186,17 +190,19 @@ WearFolder(string sStr, key kID) {
     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Changing outfit!",kID);
     string sOutfit = llGetSubString(sStr, llStringLength(g_sPathPrefix), -2);
     llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit,kID);
-    if (g_iRlvaOn) {
-        llOwnerSay("@detachallthis:"+g_sPathPrefix+".basics=n");
-        llOwnerSay("@remoutfit=force,detach=force");
-        llOwnerSay("@attachallover:"+g_sPathPrefix+".basics/=force,attachallover:"+sStr+"=force");
-        llOwnerSay("@detachallthis:"+g_sPathPrefix+".basics=y");
-    } else if (g_iRlvOn) {
-        llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=n");
-        llOwnerSay("@remoutfit=force,detach=force");
-        llOwnerSay("@attachallover:"+g_sPathPrefix+"basics/=force,attachallover:"+sStr+"=force");
-        llOwnerSay("@detachallthis:"+g_sPathPrefix+"basics=y");
-    }
+    // prep: lock the core folder, else lock at least this collar temporarily:
+    if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=n");
+    else llOwnerSay("@detach=n");
+    // unwear everything that's not locked:
+    llOwnerSay("@remoutfit=force,detach=force");
+    // wear clothes/parts from the core folder that are not already worn:
+    if (g_sCoreFolder != "") llOwnerSay("@attachallover:"+g_sCoreFolder+"=force");
+    // wear the chosen outfit:
+    llOwnerSay("@attachallover:"+sStr+"=force");
+    // cleanup: unlock core folder if exists
+    if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=y");
+    // cleanup: unlock the collar, only if it was locked temporarily
+    if (g_iLocked == FALSE) llOwnerSay("@detach=y");
     llSleep(1.5); // delay for SSA
 }
 
@@ -257,6 +263,17 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     if (sLowerStr == "outfits" || sLowerStr == "menu outfits") {
         OutfitsMenu(kID, iNum);
         return;
+    } else if (iNum == CMD_OWNER && llSubStringIndex(sLowerStr,"corefolder") == 0) {
+        string sCoreFolder = llList2String(llParseString2List(sStr, [" "], []), 1);
+        if (sCoreFolder == "none" || sCoreFolder == "") {
+            g_sCoreFolder = "";
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"corefolder=none","");
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder disabled",(string)g_kWearer);
+        } else {
+            g_sCoreFolder = sCoreFolder;
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"corefolder="+g_sCoreFolder,"");
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder changed to "+g_sCoreFolder,(string)g_kWearer);
+        }
     } else if (llSubStringIndex(sStr,"wear ") == 0) {
         if (g_iDressRestricted)
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Oops! Outfits can't be worn while the ability to dress is restricted.",kID);
@@ -549,9 +566,11 @@ default {
                 else if (sToken=="restrictions_blurred")  g_iBlurredRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dazed")    g_iDazedRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dress")    g_iDressRestricted=(integer)sValue;
-            }
-        }
-        else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID,FALSE);
+            } else if (sToken=="corefolder") {
+                if (sValue=="none") g_sCoreFolder = "";
+                else g_sCoreFolder = sValue;
+            } else if (sToken == "global_lock") g_iLocked=(integer)sValue;
+        } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID,FALSE);
         else if (iNum == RLV_ON) {
             g_iRlvOn = TRUE;
             doRestrictions();
