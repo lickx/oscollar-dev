@@ -175,13 +175,13 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     else {
         if (sToken == "owner") {
-            if (llGetListLength(g_lOwner) > 2) {
+            if (llGetListLength(g_lOwner) >= 2) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThe maximum of 2 owners has already been reached\n",kID);
                 return;
             } else lPeople = g_lOwner;
         }
         else if (sToken=="trust") {
-            if (llGetListLength(g_lTrust) > 4) {
+            if (llGetListLength(g_lTrust) >= 4) {
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThe maximum of 4 trusted people has already been reached\n",kID);
                 return;
             } else lPeople = g_lTrust;
@@ -213,7 +213,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+NameURI(sPersonID)+" is already registered as "+sToken+".",kID);
             return;
         }
-        if (sPersonID != g_sWearerID) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Building relationship...",g_sWearerID);
+        if (sPersonID != g_sWearerID && sToken != "block") llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Building relationship...",g_sWearerID);
         if (sToken == "owner") {
             if (~llListFindList(g_lTrust,[sPersonID])) RemovePerson(sPersonID, "trust", kID, TRUE);
             if (~llListFindList(g_lBlock,[sPersonID])) RemovePerson(sPersonID, "block", kID, TRUE);
