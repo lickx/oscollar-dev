@@ -334,7 +334,7 @@ LoadAuthorized()
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTempOwner += [llList2Key(l, 0)];
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
-    if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = [llList2Key(l, 0)];
+    if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = llList2Key(l, 0);
     else g_kGroup = NULL_KEY;
     v = llList2Vector(l, 2);
     if (g_kGroup != NULL_KEY && v.x > 0) {
