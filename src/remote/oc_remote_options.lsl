@@ -316,6 +316,7 @@ OrderButton(string sButton)
 default
 {
     state_entry() {
+        if (llGetAttached() == 0) return;
         g_kOwner = llGetOwner();
         //llSleep(1.0);
         FindButtons(); // collect buttons names
