@@ -161,10 +161,9 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted) {
         }
         else if (sToken == "tempowner") g_lTempOwner = lPeople;
         else if (sToken == "trust") g_lTrust = lPeople;
-        else if (sToken == "block") {
-            g_lBlock = lPeople;
-            SaveBlocklist();
-        } else SaveAuthorized();
+        else if (sToken == "block") g_lBlock = lPeople;
+        if (sToken == "block") SaveBlocklist();
+        else SaveAuthorized();
     } else
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\""+NameURI(sPersonID) + "\" is not in "+sToken+" list.",kCmdr);
 }
@@ -237,10 +236,9 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
             SayOwners();
         } else if (sToken == "trust") g_lTrust = lPeople;
         else if (sToken == "tempowner") g_lTempOwner = lPeople;
-        else if (sToken == "block") {
-            g_lBlock = lPeople;
-            SaveBlocklist();
-        } else SaveAuthorized();
+        else if (sToken == "block") g_lBlock = lPeople;
+        if (sToken == "block") SaveBlocklist();
+        else SaveAuthorized();
     }
 }
 
@@ -304,6 +302,7 @@ SaveAuthorized()
             llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
         }
     }
+
 }
 
 LoadAuthorized()
@@ -386,7 +385,7 @@ SaveBlocklist()
         integer iLink = llList2Integer(g_lBlocklistPrims, iPrim);
         for (iFace = 0; iFace < 8; iFace++) {
             integer idx = (iPrim*8)+iFace;
-            if (llGetListLength(g_lBlock)-1 > idx) {
+            if (llGetListLength(g_lBlock)-1 < idx) {
                 // no more people, pad with TEXTURE_BLANK
                 llSetLinkPrimitiveParamsFast(iLink, [
                     PRIM_TEXTURE, iFace, TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0,
@@ -745,9 +744,10 @@ default {
                     else if (sMessage == UPMENU) AuthMenu(kAv, iAuth);
                     else if (sMessage == "No") llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Runaway aborted.",kAv);
                 } if (llSubStringIndex(sMenu,"AddAvi") == 0) {
-                    if (osIsUUID(sMessage))
+                    if (osIsUUID(sMessage)) {
                         AddUniquePerson(sMessage, llGetSubString(sMenu,6,-1), kAv);
-                    else if (sMessage == "BACK")
+                        AuthMenu(kAv,iAuth);
+                    } else if (sMessage == "BACK")
                         AuthMenu(kAv,iAuth);
                 }
             }
