@@ -566,7 +566,7 @@ default {
                 else if (sToken=="restrictions_blurred")  g_iBlurredRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dazed")    g_iDazedRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dress")    g_iDressRestricted=(integer)sValue;
-            } else if (sToken=="corefolder") {
+            } else if (sToken=="rlvsuite_corefolder") {
                 if (sValue=="none") g_sCoreFolder = "";
                 else g_sCoreFolder = sValue;
             } else if (sToken == "global_lock") g_iLocked=(integer)sValue;
