@@ -267,11 +267,11 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
         string sCoreFolder = llList2String(llParseString2List(sStr, [" "], []), 1);
         if (sCoreFolder == "none" || sCoreFolder == "") {
             g_sCoreFolder = "";
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"corefolder=none","");
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"rlvsuite_corefolder=none","");
             llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder disabled",(string)g_kWearer);
         } else {
             g_sCoreFolder = sCoreFolder;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"corefolder="+g_sCoreFolder,"");
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"rlvsuite_corefolder="+g_sCoreFolder,"");
             llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder changed to "+g_sCoreFolder,(string)g_kWearer);
         }
     } else if (llSubStringIndex(sStr,"wear ") == 0) {
