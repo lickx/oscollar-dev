@@ -217,7 +217,7 @@ BuildElementsList(){
     g_iNumHideableElements = 0;
     g_iNumElements = 0;
     integer iLinkNum = llGetNumberOfPrims()+1;
-    while (iLinkNum-- > 2) {
+    while (iLinkNum-- > 1) {
         string sElement = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
         if ((~llSubStringIndex(llToLower(sElement),"floattext")) || (~llSubStringIndex(llToLower(sElement),"leashpoint"))) {
         } else if (sElement != "" && sElement != "(No Description)") {
@@ -292,7 +292,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                 if (sShiny=="") ShinyMenu(kID, iNum, sStr);
                 else if (iShiny || sShiny=="0") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
-                    while (iLinkCount-- > 2) {
+                    while (iLinkCount-- > 1) {
                         string sLinkType=LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             // OpenSim doesn't support PRIM_SPECULAR (yet) so we only support traditional shiny
@@ -314,7 +314,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     GlowMenu(kID, iNum, sStr);
                 } else if ((fGlow >= 0.0 && fGlow <= 1.0)|| sGlow=="0") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
-                    while (iLinkCount-- > 2) {
+                    while (iLinkCount-- > 1) {
                         string sLinkType=LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_GLOW,ALL_SIDES,fGlow]);
@@ -328,7 +328,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                 if (sColor != "") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     vector vColorValue=(vector)sColor;
-                    while (iLinkCount-- > 2) {
+                    while (iLinkCount-- > 1) {
                         string sLinkType=LinkType(iLinkCount, "nocolor");
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             llSetLinkColor(iLinkCount, vColorValue, ALL_SIDES);
@@ -359,7 +359,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
                     else sTextureKey= llList2String(g_lTextureKeys,iTextureIndex);
                     integer iLinkCount = llGetNumberOfPrims()+1;
-                    while (iLinkCount-- > 2) {
+                    while (iLinkCount-- > 1) {
                         string sLinkType = LinkType(iLinkCount, "notexture");
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             integer iSides = llGetLinkNumberOfSides(iLinkCount);
