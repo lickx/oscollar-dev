@@ -55,7 +55,7 @@ integer g_iTimeOut = 30;
 integer g_iRlvOn = FALSE;
 integer g_iRlvaOn = FALSE;
 string g_sPathPrefix = "Outfits/";
-string g_sCoreFolder = "Core";
+string g_sCoreFolder = "Core"; // always worn folder within #RLV, "none" is disabled
 
 key g_kWearer;
 
@@ -100,6 +100,7 @@ integer g_iLocked;
 key g_kLastForcedSeat;
 string g_sLastForcedSeat;
 string g_sTerminalText = "\nRLV Command Terminal\n\nType one command per line without \"@\" sign.";
+string g_sSettingToken = "rlvsuite_";
 
 Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer iPage, integer iAuth, string sMenuID) {
     key kMenuID = llGenerateKey();
@@ -265,13 +266,13 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
         return;
     } else if (iNum == CMD_OWNER && llSubStringIndex(sLowerStr,"corefolder") == 0) {
         string sCoreFolder = llList2String(llParseString2List(sStr, [" "], []), 1);
-        if (sCoreFolder == "none" || sCoreFolder == "") {
+        if (sCoreFolder == "none" || sCoreFolder == "disable") {
             g_sCoreFolder = "";
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"rlvsuite_corefolder=none","");
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder disabled",(string)g_kWearer);
-        } else {
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"corefolder=none","");
+            llMessageLinked(LINK_DIALOG,NOTIFY,"0No core folder will be used anymore from now on",(string)g_kWearer);
+        } else if (sCoreFolder != "") {
             g_sCoreFolder = sCoreFolder;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"rlvsuite_corefolder="+g_sCoreFolder,"");
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"corefolder="+g_sCoreFolder,"");
             llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder changed to "+g_sCoreFolder,(string)g_kWearer);
         }
     } else if (llSubStringIndex(sStr,"wear ") == 0) {
@@ -566,7 +567,7 @@ default {
                 else if (sToken=="restrictions_blurred")  g_iBlurredRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dazed")    g_iDazedRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dress")    g_iDressRestricted=(integer)sValue;
-            } else if (sToken=="rlvsuite_corefolder") {
+            } else if (sToken==g_sSettingToken+"corefolder") {
                 if (sValue=="none") g_sCoreFolder = "";
                 else g_sCoreFolder = sValue;
             } else if (sToken == "global_lock") g_iLocked=(integer)sValue;

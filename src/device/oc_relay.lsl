@@ -96,7 +96,7 @@ integer g_iMinHelplessMode ;
 integer g_iBaseMode = 2;
 integer g_iHelpless;
 
-integer g_iSmartStrip = TRUE;
+integer g_iSmartStrip = FALSE;
 integer g_iAllowAttach = FALSE; // when TRUE, disallow @addattach=n restraint
 
 key g_kDebugRcpt;
