@@ -55,7 +55,7 @@ integer g_iTimeOut = 30;
 integer g_iRlvOn = FALSE;
 integer g_iRlvaOn = FALSE;
 string g_sPathPrefix = "Outfits/";
-string g_sCoreFolder = "Core"; // always worn folder within #RLV, "none" is disabled
+string g_sCoreFolder = "Core"; // always worn folder within #RLV, "" means disabled
 
 key g_kWearer;
 
