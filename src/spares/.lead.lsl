@@ -3,7 +3,7 @@
    |;;|                      |;;||     Copyright (c) 2008 - 2016:
    |[]|----------------------|[]||
    |;;|     Collar Lead      |;;||     Ilse Mannonen
-   |;;|       161029.2       |;;||     Wendy Starfall
+   |;;|     2022-11-27       |;;||     Wendy Starfall
    |;;|----------------------|;;||     Garvin Twine
    |;;|   www.opencollar.at  |;;||
    |;;|----------------------|;;||
@@ -18,8 +18,6 @@
    \______|_______________|_____||
     ~~~~~~^^^^^^^^^^^^^^^^^^~~~~~~     www.gnu.org/licenses/gpl-2.0
 
-github.com/VirtualDisgrace/opencollar/blob/master/src/spares/.lead.lsl
-
 */
 
 integer g_iMychannel = -8888;
@@ -30,7 +28,7 @@ integer g_i;
 
 default {
     state_entry() {
-        llSetMemoryLimit(10240);
+        //llSetMemoryLimit(10240);
         g_sWearerID = (string)llGetOwner();
         g_sListenfor = g_sWearerID + "handle";
         g_sResponse = g_sWearerID + "handle ok";
