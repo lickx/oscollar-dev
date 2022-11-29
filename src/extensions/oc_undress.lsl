@@ -496,7 +496,7 @@ default {
             } else if (sToken == "rlvundress_List") {
                 g_lSettings = llParseString2List(sValue, [","], []);
                 UpdateSettings();
-            } else if (sToken == "rlvundress_smartstrip") g_iSmartStrip=TRUE;
+            } else if (sToken == "rlvundress_smartstrip" || sToken == "relay_smartstrip") g_iSmartStrip=TRUE;
         } else if (iNum == MENUNAME_RESPONSE) {
             list lParams = llParseString2List(sStr, ["|"], []);
             if (llList2String(lParams, 0) == g_sSubMenu) {
