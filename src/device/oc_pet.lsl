@@ -63,7 +63,7 @@ string g_sSubAnim = "~pet";
 string g_sDomAnim = "~good";
 integer g_iVerbose = TRUE;
 
-integer g_iRLVA_ON;
+integer g_iRLV_ON;
 
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
@@ -81,6 +81,7 @@ integer LM_SETTING_RESPONSE = 2002;
 integer LM_SETTING_DELETE = 2003;
 
 integer RLV_CMD = 6000;
+integer RLV_VERSION = 6003;
 integer RLVA_VERSION = 6004;
 
 integer ANIM_START = 7000;
@@ -187,7 +188,7 @@ default {
              llSleep(1.0);
              StopAnims();
         }
-        g_iRLVA_ON = FALSE;
+        g_iRLV_ON = FALSE;
         llResetScript();
     }
 
@@ -327,7 +328,7 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
-        else if (iNum == RLVA_VERSION) g_iRLVA_ON = TRUE;
+	else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
     }
     
     not_at_target() {
@@ -352,13 +353,9 @@ default {
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
         vector myPos = llList2Vector(llGetObjectDetails(llGetOwner(), [OBJECT_POS]), 0);
-        if (g_iRLVA_ON == TRUE)
+        if (g_iRLV_ON == TRUE)
         {
             llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)offset+"=force",g_kWearer);
-        }
-        else
-        {
-            llRegionSayTo(g_kWearer, 0, "Height adjustement won't work with RLV turned off");
         }
         vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot);
         target.z = myPos.z;
