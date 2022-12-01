@@ -508,7 +508,10 @@ default {
                         llMessageLinked(LINK_ALL_OTHERS, iAuth, "menu Main", kAv);
                     else if (sMessage == "Pose") PoseMenu(kAv, 0, iAuth);
                     else if (sMessage == "Couples") llMessageLinked(LINK_THIS,iAuth,"menu Couples",kAv);
-                    else if (sMessage == "Pet me!") llMessageLinked(LINK_THIS,iAuth,"pet me",kAv);
+                    else if (sMessage == "Pet me!") {
+                        if (kAv == g_kWearer) llMessageLinked(LINK_THIS,iAuth,"menu pet",kAv);
+                        else llMessageLinked(LINK_THIS,iAuth,"pet",kAv);
+                    }
                     else if (sMessage == "AO Menu") {
                         llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OsCollar AO or an AO Link script in their AO HUD.\n\nhttps://github.com/lickx/oscollar/wiki/OsCollar-AO\n", kAv);
                         AOMenu(kAv, iAuth);
