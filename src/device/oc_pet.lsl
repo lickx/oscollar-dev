@@ -1,4 +1,3 @@
-
 //  oc_pet.lsl
 //
 //  Copyright (c) 2004 - 2017 Francis Chung, Ilse Mannonen, Nandana Singh,
@@ -64,6 +63,8 @@ string g_sSubAnim = "~pet";
 string g_sDomAnim = "~good";
 integer g_iVerbose = TRUE;
 
+integer g_iRLV_ON;
+
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
 
@@ -80,6 +81,8 @@ integer LM_SETTING_RESPONSE = 2002;
 integer LM_SETTING_DELETE = 2003;
 
 integer RLV_CMD = 6000;
+integer RLV_VERSION = 6003;
+integer RLVA_VERSION = 6004;
 
 integer ANIM_START = 7000;
 integer ANIM_STOP = 7001;
@@ -185,6 +188,7 @@ default {
              llSleep(1.0);
              StopAnims();
         }
+        g_iRLV_ON = FALSE;
         llResetScript();
     }
 
@@ -324,6 +328,7 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
+	else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
     }
     
     not_at_target() {
@@ -348,7 +353,11 @@ default {
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
         vector myPos = llList2Vector(llGetObjectDetails(llGetOwner(), [OBJECT_POS]), 0);
-        vector target = partnerPos + (<1.0, 0.0, 0.0> * partnerRot * offset);
+        if (g_iRLV_ON == TRUE)
+        {
+            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)offset+"=force",g_kWearer);
+        }
+        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot);
         target.z = myPos.z;
         llMoveToTarget(target, g_fAlignTau);
         llSleep(g_fAlignDelay);
