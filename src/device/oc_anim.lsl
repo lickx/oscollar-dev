@@ -40,7 +40,7 @@ list g_lAnimButtons;
 integer g_iAnimLock;
 integer g_iPosture;
 list g_lHeightAdjustments;
-integer g_iRLVA_ON;
+integer g_iRLV_ON;
 integer g_iHoverOn = TRUE;
 float g_fHoverIncrement = 0.02;
 string g_sPose2Remove;
@@ -69,7 +69,7 @@ integer MENUNAME_REQUEST = 3000;
 integer MENUNAME_RESPONSE = 3001;
 integer RLV_CMD = 6000;
 integer RLV_OFF = 6100;
-integer RLVA_VERSION = 6004;
+integer RLV_VERSION = 6003;
 integer ANIM_START = 7000;
 integer ANIM_STOP = 7001;
 integer ANIM_LIST_REQUEST = 7002;
@@ -131,7 +131,7 @@ PoseMenu(key kID, integer iPage, integer iAuth) {
     if (g_sCurrentPose == "")sPrompt += "-\n";
     else {
         string sActivePose = g_sCurrentPose;
-        if (g_iRLVA_ON && g_iHoverOn) {
+        if (g_iRLV_ON && g_iHoverOn) {
             integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
             if (~index) {
                 string sAdjustment = llList2String(g_lHeightAdjustments,index+1);
@@ -143,15 +143,15 @@ PoseMenu(key kID, integer iPage, integer iAuth) {
         }
         sPrompt += sActivePose +"\n";
     }
-    if (g_fStandHover!=0.0 && g_iRLVA_ON && g_iHoverOn) {
+    if (g_fStandHover!=0.0 && g_iRLV_ON && g_iHoverOn) {
         string sAdjustment;
         if (g_fStandHover>0.0) sAdjustment = "+"+llGetSubString((string)g_fStandHover,0,3);
         else if (g_fStandHover<0.0) sAdjustment = llGetSubString((string)g_fStandHover,0,4);
         sPrompt += "Default Hover = "+(string)sAdjustment;
     }
     list lStaticButtons;
-    if (g_iRLVA_ON && g_iHoverOn && (llGetListLength(g_lPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
-    else if (g_iRLVA_ON && g_iHoverOn) lStaticButtons = ["↑", "↓","STOP","BACK"];
+    if (g_iRLV_ON && g_iHoverOn && (llGetListLength(g_lPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
+    else if (g_iRLV_ON && g_iHoverOn) lStaticButtons = ["↑", "↓","STOP","BACK"];
     else lStaticButtons = ["STOP", "BACK"];
     Dialog(kID, sPrompt, g_lPoseList, lStaticButtons, iPage, iAuth, "Pose");
 }
@@ -233,7 +233,7 @@ StartAnim(string sAnim) {
 }
 
 PlayAnim(string sAnim) {
-    if (g_iRLVA_ON && g_iHoverOn) {
+    if (g_iRLV_ON && g_iHoverOn) {
         integer index = llListFindList(g_lHeightAdjustments,[sAnim]);
         if (~index)
             llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+llList2String(g_lHeightAdjustments,index+1)+"=force",g_kWearer);
@@ -263,7 +263,7 @@ UnPlayAnim(string sAnim) {
         llStopAnimation(g_sPoseMoveRun);
         llStopAnimation(g_sCrawlWalk);
     }
-    if (g_iRLVA_ON && g_iHoverOn)
+    if (g_iRLV_ON && g_iHoverOn)
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)g_fStandHover+"=force",g_kWearer);
     llStopAnimation(sAnim);
 }
@@ -313,7 +313,7 @@ UserCommand(integer iNum, string sStr, key kID) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The default hover was reset.",kID);
             llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
             g_fStandHover = 0.0;
-            if (g_iRLVA_ON && g_iHoverOn && llGetListLength(g_lAnims) == 0)
+            if (g_iRLV_ON && g_iHoverOn && llGetListLength(g_lAnims) == 0)
                 llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0.0=force",g_kWearer);
         } else SetHover(sCommand);
     } else if (sStr == "runaway" && (iNum == CMD_OWNER || iNum == CMD_WEARER)) {
@@ -413,7 +413,7 @@ default {
     on_rez(integer iNum) {
         if (iNum == 825) llSetRemoteScriptAccessPin(0);
         if (llGetOwner() != g_kWearer) llResetScript();
-        g_iRLVA_ON = FALSE;
+        g_iRLV_ON = FALSE;
         checkCrawl();
     }
 
@@ -565,8 +565,8 @@ default {
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
-        else if (iNum == RLVA_VERSION) g_iRLVA_ON = TRUE;
-        else if (iNum == RLV_OFF) g_iRLVA_ON = FALSE;
+        else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
+        else if (iNum == RLV_OFF) g_iRLV_ON = FALSE;
         else if (iNum == REGION_TELEPORT) RefreshAnim();
     }
 
@@ -578,7 +578,7 @@ default {
                 g_iAgentStanding = 2;
                 llStopAnimation(g_sCurrentPose);
                 llStopAnimation(g_sCrawlWalk);
-                if (g_iRLVA_ON && g_iHoverOn) {
+                if (g_iRLV_ON && g_iHoverOn) {
                     fHover = g_fStandHover;
                     llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
                 }
@@ -588,7 +588,7 @@ default {
             if (g_iAgentStanding) {
                 g_iAgentStanding = 0;
                 llStopAnimation(g_sCurrentPose);
-                if (g_iRLVA_ON && g_iHoverOn) {
+                if (g_iRLV_ON && g_iHoverOn) {
                     fHover = g_fPoseMoveHover;
                     llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
                 }
@@ -598,7 +598,7 @@ default {
             llStopAnimation(g_sPoseMoveRun);
             llStopAnimation(g_sCrawlWalk);
             g_iAgentStanding = 1;
-            if (g_iRLVA_ON && g_iHoverOn) {
+            if (g_iRLV_ON && g_iHoverOn) {
                 fHover = 0.0;
                 integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
                 if (~index) fHover = (float)llList2String(g_lHeightAdjustments,index+1);
