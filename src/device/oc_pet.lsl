@@ -359,7 +359,7 @@ default {
         }
         if (g_iShoesWorn == TRUE)
         {
-            offset = offset - 0.1;
+            offset = offset + 0.1;
         }
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
         vector partnerPos = llList2Vector(partnerDetails, 0);
