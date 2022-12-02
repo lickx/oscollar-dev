@@ -316,6 +316,23 @@ UserCommand(integer iAuth, string sStr, key kID) {
     }
 }
 
+PieSlice()
+{
+    if (llGetAttached()) {
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.4, 0.6, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 1, 0.753>, 0.0
+        ]);
+    } else { // rezzed on ground
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.4, 0.6, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 1, 0.753>, 1
+        ]);
+    }
+}
+
 default {
     on_rez(integer param) {
         if (g_kWearer != llGetOwner()) llResetScript();
@@ -324,6 +341,7 @@ default {
         g_iRLVOn = FALSE;
         g_lBaked = [];
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_RLV","");
+        if (!g_iIsLED) PieSlice();
     }
 
     state_entry() {
@@ -331,6 +349,7 @@ default {
         llOwnerSay("@clear");
         g_kWearer = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
+        if (!g_iIsLED) PieSlice();
     }
 
     listen(integer iChan, string sName, key kID, string sMsg) {
@@ -364,7 +383,8 @@ default {
             } else if (llGetSubString(sMsg, 0, 6) != "/notify") {
                 // @getoutfit result (a string of 1's and 0's)
                 string sFlagShoes = llGetSubString(sMsg, 4, 4);
-                if (sFlagShoes == "1" || sFlagShoes == "0") { 
+                if (sFlagShoes == "1" || sFlagShoes == "0")
+                {
                     g_iShoesWorn = (integer)llGetSubString(sMsg, 4, 4);
                     if (g_iShoesWorn) llMessageLinked(LINK_ANIM, RLV_SHOES, "", "");
                     else llMessageLinked(LINK_ANIM, RLV_NOSHOES, "", "");

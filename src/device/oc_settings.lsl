@@ -284,11 +284,36 @@ UserCommand(integer iAuth, string sStr, key kID) {
             llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|\nAre you sure you want to reboot the %DEVICETYPE%?|0|Yes`No|Cancel|"+(string)iAuth,g_kConfirmDialogID);
         }
     } else if (sStrLower == "show storage") {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_POS_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 1
+        ]);
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the storage prim again type:\n\n/%CHANNEL% %PREFIX% hide storage\n",kID);
     } else if (sStrLower == "hide storage")
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_POS_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 0.0
+        ]);
     else if (sStrLower == "runaway") llSetTimerEvent(2.0);
+}
+
+PieSlice()
+{
+    if (llGetAttached()) {
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 0.0
+        ]);
+    } else { // rezzed on ground
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 1
+        ]);
+    }
 }
 
 default {
@@ -305,11 +330,14 @@ default {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
+        PieSlice();
     }
 
     on_rez(integer iParam) {
-        if (g_kWearer == llGetOwner())
+        if (g_kWearer == llGetOwner()) {
+            PieSlice();
             llSetTimerEvent(2.0);
+        }
         else llResetScript();
     }
 

@@ -318,6 +318,23 @@ dequeueSensor() {
     llSetTimerEvent(g_iReapeat);
 }
 
+PieSlice()
+{
+    if (llGetAttached()) {
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.20, 0.40, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 1.000, 0.753>, 0.0
+        ]);
+    } else { // rezzed on ground
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.20, 0.40, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 1.000, 0.753>, 1
+        ]);
+    }
+}
+
 default {
     on_rez(integer iParam) {
         llResetScript();
@@ -329,6 +346,7 @@ default {
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer),0,1));
         g_sWearerName = NameURI(g_kWearer);
+        if (!g_iIsLED) PieSlice();
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_NAME,g_sDeviceName]);
     }
 

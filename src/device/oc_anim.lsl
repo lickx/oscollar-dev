@@ -412,12 +412,30 @@ UserCommand(integer iNum, string sStr, key kID) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
 }
 
+PieSlice()
+{
+    if (llGetAttached()) {
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.80, 1.00, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 1.000>, 0.0
+        ]);
+    } else { // rezzed on ground
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.80, 1.00, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 1.000>, 1
+        ]);
+    }
+}
+
 default {
     on_rez(integer iNum) {
         if (iNum == 825) llSetRemoteScriptAccessPin(0);
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRLV_ON = FALSE;
         checkCrawl();
+        PieSlice();
     }
 
     state_entry() {
@@ -426,6 +444,7 @@ default {
         checkCrawl();
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
+        PieSlice();
     }
 
     run_time_permissions(integer iPerm) {

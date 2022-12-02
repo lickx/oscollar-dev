@@ -263,8 +263,7 @@ SayOwners() {
 SaveAuthorized()
 {
     // face layout: g_lOwner[0], g_lOwner[1], g_lTempOwner[0], g_kGroup, g_lTrust[0], g_lTrust[1], g_lTrust[2], g_lTrust[3]
-    string TEXTURE_NOTHING = TEXTURE_TRANSPARENT;
-    if (g_iIsLED) TEXTURE_NOTHING = TEXTURE_BLANK;
+    string TEXTURE_NOTHING = TEXTURE_BLANK;
     float fLimitRange = (float)g_iLimitRange;
     float fRunawayDisable = (float) g_iRunawayDisable;
     float fOpenAccess = (float)g_iOpenAccess;
@@ -293,10 +292,10 @@ SaveAuthorized()
     if (g_iGroupEnabled) {
         llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <1,1,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 3, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
     }
 
-    for (iFace = 4; iFace < 8; iFace++) {
+    for (iFace = 4; iFace < llGetNumberOfPrims(); iFace++) {
         if (llGetListLength(g_lTrust) > (iFace-4)) {
             llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, (iFace-4)), <1,1,0>, <0,0,0>, 0]);
         } else {
@@ -622,6 +621,23 @@ RunAway() {
     llResetScript();
 }
 
+PieSlice()
+{
+    if (llGetAttached()) {
+        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.0, 0.20, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 0.753>, 0.0
+        ]);
+    } else { // rezzed on ground
+        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [
+            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.0, 0.20, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
+            PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 0.753>, 1
+        ]);
+    }
+}
+
 default {
     on_rez(integer iParam) {
         llResetScript();
@@ -638,6 +654,7 @@ default {
         UpdateBlocklistPrims();
         LoadBlocklist();
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
+        if (!g_iIsLED) PieSlice();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
@@ -776,6 +793,9 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_LINK) {
+            g_iAuthlistPrim = osGetLinkNumber("authlist");
+            if (g_iAuthlistPrim == -1) g_iAuthlistPrim = LINK_THIS;
+            LoadAuthorized();
             UpdateBlocklistPrims();
             LoadBlocklist();
         }
