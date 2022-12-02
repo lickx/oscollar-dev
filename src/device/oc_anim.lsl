@@ -70,11 +70,14 @@ integer MENUNAME_RESPONSE = 3001;
 integer RLV_CMD = 6000;
 integer RLV_OFF = 6100;
 integer RLV_VERSION = 6003;
+integer RLV_SHOES = 6108;
+integer RLV_NOSHOES = 6109;
 integer ANIM_START = 7000;
 integer ANIM_STOP = 7001;
 integer ANIM_LIST_REQUEST = 7002;
 integer ANIM_LIST_RESPONSE =7003;
 float g_fStandHover = 0.0;
+integer g_iShoesWorn = FALSE;
 
 integer REGION_TELEPORT = 10051;
 
@@ -563,6 +566,8 @@ default {
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
+        else if (iNum == RLV_SHOES) g_iShoesWorn = TRUE;
+        else if (iNum == RLV_NOSHOES) g_iShoesWorn = FALSE;
         else if (iNum == RLV_OFF) g_iRLV_ON = FALSE;
         else if (iNum == REGION_TELEPORT) RefreshAnim();
     }

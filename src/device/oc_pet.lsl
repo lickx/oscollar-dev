@@ -83,6 +83,8 @@ integer LM_SETTING_DELETE = 2003;
 integer RLV_CMD = 6000;
 integer RLV_VERSION = 6003;
 integer RLVA_VERSION = 6004;
+integer RLV_SHOES = 6108;
+integer RLV_NOSHOES = 6109;
 
 integer ANIM_START = 7000;
 integer ANIM_STOP = 7001;
@@ -98,6 +100,7 @@ string g_sStopString = "stop";
 integer g_iStopChan = 99;
 integer g_iLMChannel = -8888;
 integer g_iListener;
+integer g_iShoesWorn = FALSE;
 
 Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer iPage, integer iAuth, string sMenuID) {
     key kMenuID = llGenerateKey();
@@ -328,7 +331,9 @@ default {
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
-	else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
+        else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
+        else if (iNum == RLV_SHOES) g_iShoesWorn = TRUE;
+        else if (iNum == RLV_NOSHOES) g_iShoesWorn = FALSE;
     }
     
     not_at_target() {
