@@ -376,10 +376,10 @@ default {
             //} else
             if (sMsg  == "/unworn legally shoes") {
                 g_iShoesWorn = FALSE;
-                llMessageLinked(LINK_ANIM, RLV_SHOES, "", "");
+                llMessageLinked(LINK_ANIM, RLV_NOSHOES, "", "");
             } else if (sMsg == "/worn legally shoes") {
                 g_iShoesWorn = TRUE;
-                llMessageLinked(LINK_ANIM, RLV_NOSHOES, "", "");
+                llMessageLinked(LINK_ANIM, RLV_SHOES, "", "");
             } else if (llGetSubString(sMsg, 0, 6) != "/notify") {
                 // @getoutfit result (a string of 1's and 0's)
                 string sFlagShoes = llGetSubString(sMsg, 4, 4);
