@@ -205,7 +205,7 @@ SetHover(string sStr) {
     @next;
     if (g_sCurrentPose == g_sCrawlPose) g_fPoseMoveHover = fNewHover;
     if (g_iShoesWorn)
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+0.1)+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover-0.1)+"=force",g_kWearer);
     else
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
     llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+llDumpList2String(g_lHeightAdjustments,","),"");
