@@ -335,7 +335,7 @@ default {
         else if (iNum == RLV_SHOES) g_iShoesWorn = TRUE;
         else if (iNum == RLV_NOSHOES) g_iShoesWorn = FALSE;
     }
-    
+
     not_at_target() {
         // OpenSim fix
         if (g_iTargetID==0) return;
@@ -353,7 +353,14 @@ default {
         g_iTargetID = 0;
         llStopMoveToTarget();
         float offset = 0.55;
-        if (g_iCmdIndex != -1) offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
+        if (g_iCmdIndex != -1)
+        {
+            offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
+        }
+        if (g_iShoesWorn == TRUE)
+        {
+            offset = offset - 0.1;
+        }
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
