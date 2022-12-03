@@ -155,10 +155,11 @@ PoseMenu(key kID, integer iPage, integer iAuth) {
         sPrompt += "Default Hover = "+(string)sAdjustment;
     }
     list lStaticButtons;
-    if (g_iRLV_ON && g_iHoverOn && (llGetListLength(g_lPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
+    list lTotalPoseList = g_lPoseList + g_lOtherAnims;
+    if (g_iRLV_ON && g_iHoverOn && (llGetListLength(lTotalPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
     else if (g_iRLV_ON && g_iHoverOn) lStaticButtons = ["↑", "↓","STOP","BACK"];
     else lStaticButtons = ["STOP", "BACK"];
-    Dialog(kID, sPrompt, g_lPoseList, lStaticButtons, iPage, iAuth, "Pose");
+    Dialog(kID, sPrompt, lTotalPoseList, lStaticButtons, iPage, iAuth, "Pose");
 }
 
 AOMenu(key kID, integer iAuth) {
@@ -210,7 +211,15 @@ SetHover(string sStr) {
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+SHOE_OFFSET)+"=force",g_kWearer);
     else
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
-    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+llDumpList2String(g_lHeightAdjustments,","),"");
+    string sSettings;
+    integer i;
+    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+        string sPose = llList2String(g_lHeightAdjustments, i);
+        if (llGetSubString(sPose, 0, 0)=="~") sPose = "++"+llGetSubString(sPose, 1, -1); // convert ~ prefix to ++
+        string sOffset = llGetSubString((string)llList2Float(g_lHeightAdjustments, i+1), 0, 3); // 2 decimals
+        sSettings += sPose+","+sOffset+",";
+    }
+    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+sSettings,"");
 }
 
 MessageAOs(string sONOFF, string sWhat) {
@@ -290,10 +299,10 @@ CreateAnimList() {
     string sName;
     integer i;
     do { sName = llGetInventoryName(INVENTORY_ANIMATION, i);
-        if (sName != "") { // && llSubStringIndex(sName,"~")) {
+        if (sName != "" && llSubStringIndex(sName,"~") != 0) {
             if (llListFindList(["-1","-2","+1","+2"],[llGetSubString(sName,-2,-1)]) == -1)
                 g_lPoseList+=[sName];
-        } else if (!llSubStringIndex(sName,"~")) g_lOtherAnims+=sName;
+        } else if (llSubStringIndex(sName,"~") == 0) g_lOtherAnims+=sName;
     } while (g_iNumberOfAnims > ++i);
     llMessageLinked(LINK_SET,ANIM_LIST_RESPONSE,llDumpList2String(g_lPoseList+g_lOtherAnims,"|"),"");
 }
@@ -515,6 +524,15 @@ default {
                     if (g_fHoverIncrement == 0.0) g_fHoverIncrement = 0.02;
                 } else if (sToken == "hovers") {
                     g_lHeightAdjustments = llParseString2List(sValue,[","],[]);
+                    integer i;
+                    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+                        // convert ++ prefix to ~ if found
+                        string sName = llList2String(g_lHeightAdjustments, i);
+                        if (llSubStringIndex(sName, "++") == 0) {
+                            sName = "~"+llGetSubString(sName, 2, -1);
+                            g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments, [sName], i, i);
+                        }
+                    }
                     integer index = llListFindList(g_lHeightAdjustments,[g_sCrawlPose]);
                     if (~index)
                         g_fPoseMoveHover = (float)llList2String(g_lHeightAdjustments,index+1);
