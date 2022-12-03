@@ -353,29 +353,31 @@ default {
         g_iTargetID = 0;
         llStopMoveToTarget();
         float offset = 0.55;
-        if (g_iCmdIndex != -1)
-        {
-            offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
-        }
-        if (g_iShoesWorn == TRUE)
-        {
-            offset = offset + 0.1;
-        }
+        if (g_iCmdIndex != -1) offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
         vector myPos = llList2Vector(llGetObjectDetails(llGetOwner(), [OBJECT_POS]), 0);
-        if (g_iRLV_ON == TRUE)
-        {
-            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)offset+"=force",g_kWearer);
-        }
-        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot);
+        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot * offset);
         target.z = myPos.z;
         llMoveToTarget(target, g_fAlignTau);
         llSleep(g_fAlignDelay);
         llStopMoveToTarget();
         g_sSubAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4);
         g_sDomAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 1);
+
+        if (g_iRLV_ON == TRUE)
+        {
+            llOwnerSay("rlv is on, use adjustheight");
+            if (g_iShoesWorn) {
+                llOwnerSay("shoes/heels are worn, so adjust height DOWN");
+                float fAdjust = -0.1;
+                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fAdjust+"=force",g_kWearer);
+            } else {
+                llOwnerSay("shoes/heels are NOT worn, so RESET height adjustment");
+                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
+            }
+        }
 
         llMessageLinked(LINK_THIS, ANIM_START, g_sSubAnim, "");
         llRegionSayTo(g_kPartner,g_iLMChannel,(string)g_kPartner+"bootoff");
