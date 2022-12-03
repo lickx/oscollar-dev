@@ -141,7 +141,7 @@ PetAnimMenu(key kID, integer iAuth) {
 }
 
 StopAnims() {
-    if (g_iShoesWorn) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
+    if (g_iRLV_ON && g_iShoesWorn) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
     if (llGetInventoryType(g_sSubAnim) == INVENTORY_ANIMATION) llMessageLinked(LINK_THIS, ANIM_STOP, g_sSubAnim, "");
     if (llGetInventoryType(g_sDomAnim) == INVENTORY_ANIMATION) {
         if (llKey2Name(g_kPartner) != "") {
