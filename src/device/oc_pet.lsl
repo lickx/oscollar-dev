@@ -353,7 +353,7 @@ default {
         llTargetRemove(g_iTargetID);
         g_iTargetID = 0;
         llStopMoveToTarget();
-        float offsetX = 0.55;
+        float offsetX = 0.35;
         float offsetZ = 0.0;
         if (g_iCmdIndex != -1) offsetZ = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
