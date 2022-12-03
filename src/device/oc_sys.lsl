@@ -23,8 +23,8 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sDevStage=" dev";
-string g_sCollarVersion="7.1.0";
+string g_sDevStage="";
+string g_sCollarVersion="20221201";
 
 key g_kWearer;
 
