@@ -141,6 +141,7 @@ PetAnimMenu(key kID, integer iAuth) {
 }
 
 StopAnims() {
+    if (g_iShoesWorn) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
     if (llGetInventoryType(g_sSubAnim) == INVENTORY_ANIMATION) llMessageLinked(LINK_THIS, ANIM_STOP, g_sSubAnim, "");
     if (llGetInventoryType(g_sDomAnim) == INVENTORY_ANIMATION) {
         if (llKey2Name(g_kPartner) != "") {
@@ -353,30 +354,20 @@ default {
         g_iTargetID = 0;
         llStopMoveToTarget();
         float offset = 0.55;
-        if (g_iCmdIndex != -1)
-        {
-            offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
-        }
-        if (g_iShoesWorn == TRUE)
-        {
-            offset = offset + 0.1;
-        }
+        if (g_iCmdIndex != -1) offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
         vector myPos = llList2Vector(llGetObjectDetails(llGetOwner(), [OBJECT_POS]), 0);
-        if (g_iRLV_ON == TRUE)
-        {
-            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)offset+"=force",g_kWearer);
-        }
-        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot);
+        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot * offset);
         target.z = myPos.z;
         llMoveToTarget(target, g_fAlignTau);
         llSleep(g_fAlignDelay);
         llStopMoveToTarget();
         g_sSubAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4);
         g_sDomAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 1);
-
+        if (g_iRLV_ON == TRUE && g_iShoesWorn)
+            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;-0.1=force",g_kWearer);
         llMessageLinked(LINK_THIS, ANIM_START, g_sSubAnim, "");
         llRegionSayTo(g_kPartner,g_iLMChannel,(string)g_kPartner+"bootoff");
         llStartAnimation(g_sDomAnim);
