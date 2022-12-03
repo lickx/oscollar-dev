@@ -141,6 +141,7 @@ PetAnimMenu(key kID, integer iAuth) {
 }
 
 StopAnims() {
+    if (g_iShoesWorn) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
     if (llGetInventoryType(g_sSubAnim) == INVENTORY_ANIMATION) llMessageLinked(LINK_THIS, ANIM_STOP, g_sSubAnim, "");
     if (llGetInventoryType(g_sDomAnim) == INVENTORY_ANIMATION) {
         if (llKey2Name(g_kPartner) != "") {
@@ -373,10 +374,7 @@ default {
                 llOwnerSay("shoes/heels are worn, so adjust height DOWN");
                 float fAdjust = -0.1;
                 llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fAdjust+"=force",g_kWearer);
-            } else {
-                llOwnerSay("shoes/heels are NOT worn, so RESET height adjustment");
-                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
-            }
+            } else llOwnerSay("shoes/heels NOT worn, no adjustment needed");
         }
 
         llMessageLinked(LINK_THIS, ANIM_START, g_sSubAnim, "");
