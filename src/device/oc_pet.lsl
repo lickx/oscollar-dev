@@ -366,17 +366,8 @@ default {
         llStopMoveToTarget();
         g_sSubAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4);
         g_sDomAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 1);
-
-        if (g_iRLV_ON == TRUE)
-        {
-            llOwnerSay("rlv is on, use adjustheight");
-            if (g_iShoesWorn) {
-                llOwnerSay("shoes/heels are worn, so adjust height DOWN");
-                float fAdjust = -0.1;
-                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fAdjust+"=force",g_kWearer);
-            } else llOwnerSay("shoes/heels NOT worn, no adjustment needed");
-        }
-
+        if (g_iRLV_ON == TRUE && g_iShoesWorn)
+            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;-0.1=force",g_kWearer);
         llMessageLinked(LINK_THIS, ANIM_START, g_sSubAnim, "");
         llRegionSayTo(g_kPartner,g_iLMChannel,(string)g_kPartner+"bootoff");
         llStartAnimation(g_sDomAnim);
