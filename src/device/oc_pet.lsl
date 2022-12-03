@@ -141,7 +141,7 @@ PetAnimMenu(key kID, integer iAuth) {
 }
 
 StopAnims() {
-    if (g_iRLV_ON && g_iShoesWorn) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
+    if (g_iRLV_ON) llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0=force",g_kWearer);
     if (llGetInventoryType(g_sSubAnim) == INVENTORY_ANIMATION) llMessageLinked(LINK_THIS, ANIM_STOP, g_sSubAnim, "");
     if (llGetInventoryType(g_sDomAnim) == INVENTORY_ANIMATION) {
         if (llKey2Name(g_kPartner) != "") {
@@ -353,7 +353,7 @@ default {
         llTargetRemove(g_iTargetID);
         g_iTargetID = 0;
         llStopMoveToTarget();
-        float offsetX = 0.35;
+        float offsetX = 0.55;
         float offsetZ = 0.0;
         if (g_iCmdIndex != -1) offsetZ = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
