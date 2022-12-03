@@ -353,21 +353,26 @@ default {
         llTargetRemove(g_iTargetID);
         g_iTargetID = 0;
         llStopMoveToTarget();
-        float offset = 0.55;
-        if (g_iCmdIndex != -1) offset = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
+        float offsetX = 0.55;
+        float offsetZ = 0.0;
+        if (g_iCmdIndex != -1) offsetZ = (float)llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 2);
         list partnerDetails = llGetObjectDetails(g_kPartner, [OBJECT_POS, OBJECT_ROT]);
         vector partnerPos = llList2Vector(partnerDetails, 0);
         rotation partnerRot = llList2Rot(partnerDetails, 1);
         vector myPos = llList2Vector(llGetObjectDetails(llGetOwner(), [OBJECT_POS]), 0);
-        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot * offset);
+        vector target = partnerPos + (<0.6, 0.0, 0.0> * partnerRot * offsetX);
         target.z = myPos.z;
         llMoveToTarget(target, g_fAlignTau);
         llSleep(g_fAlignDelay);
         llStopMoveToTarget();
         g_sSubAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4);
         g_sDomAnim = llList2String(g_lAnimSettings, g_iCmdIndex * 4 + 1);
-        if (g_iRLV_ON == TRUE && g_iShoesWorn)
-            llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;-0.1=force",g_kWearer);
+        if (g_iRLV_ON == TRUE) {
+            if (g_iShoesWorn)
+                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(offsetZ+-0.1)+"=force",g_kWearer);
+            else
+                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)offsetZ+"=force",g_kWearer);
+        }
         llMessageLinked(LINK_THIS, ANIM_START, g_sSubAnim, "");
         llRegionSayTo(g_kPartner,g_iLMChannel,(string)g_kPartner+"bootoff");
         llStartAnimation(g_sDomAnim);
