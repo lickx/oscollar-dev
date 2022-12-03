@@ -352,6 +352,14 @@ default {
         if (!g_iIsLED) PieSlice();
     }
 
+    attach(key kID) {
+        if (kID == NULL_KEY && g_iRLVOn) {
+            // Detach, so de-register worn and unworn events (if it gets through)
+            llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=rem");
+            llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=rem");
+        }
+    }
+
     listen(integer iChan, string sName, key kID, string sMsg) {
         if (iChan == 293847)
         {
