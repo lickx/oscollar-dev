@@ -290,7 +290,7 @@ CreateAnimList() {
     string sName;
     integer i;
     do { sName = llGetInventoryName(INVENTORY_ANIMATION, i);
-        if (sName != "" && llSubStringIndex(sName,"~")) {
+        if (sName != "") { // && llSubStringIndex(sName,"~")) {
             if (llListFindList(["-1","-2","+1","+2"],[llGetSubString(sName,-2,-1)]) == -1)
                 g_lPoseList+=[sName];
         } else if (!llSubStringIndex(sName,"~")) g_lOtherAnims+=sName;
@@ -628,6 +628,7 @@ default {
                 fHover = 0.0;
                 integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
                 if (~index) fHover = (float)llList2String(g_lHeightAdjustments,index+1);
+                if (g_iShoesWorn) fHover += SHOE_OFFSET;
                 llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
             }
             StartAnim(llList2String(g_lAnims,0));
