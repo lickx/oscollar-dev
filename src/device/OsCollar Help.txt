@@ -294,15 +294,16 @@ Leash:
     # yank
     # unleash
 
+    # Give Holder Will give a leash holder to owners and trusted or everyone if the "Public" option is enabled.
     # follow
-    # beckon
-    # unfollow
+    # beckon Chat option only, it doesn't have a menu button.
+    # unfollow Chat option only, it doesn't have a menu button.
 
-    # stay
-    # move
+    # stay Chat option only, it doesn't have a menu button.
+    # move Chat option only, it doesn't have a menu button.
 
     # anchor
-    # park
+    # park This will rez a balloon and leash the collar wearer to it, it's a command line option only.
 
     # pass
 
