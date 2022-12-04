@@ -101,6 +101,8 @@ If that’s too hard to remember you can easily change it.
     [prefix] safeword taxi
     [prefix] safeword BANANA
 
+This works only if your RLV relay is NOT in helpless mode. (Main Menu -> RLV -> Relay -> Helpless) if Helpless mode is on the safeword option will be disabled.
+
 
 ===============
 List of Chat Commands
@@ -222,27 +224,36 @@ Poses (stock selection):
 
     # pose
 
-    # back
-    # beautystand
-    # belly
-    # booty
+    # Beautystand
+    # Bendover
+    # Bracelets
+    # Cutie
+    # Display
+    # Doggie
 
-    # bop
-    # bracelets
-    # cutie
-    # display
+    # Nadu
+    # Nadu Wide
+    # Plead
+    # Shy
+    # Sleep
+    # Squirm
 
-    # doggie
-    # kneel
-    # nadu
-    # rise
+    # Submit
+    # Table
+    # Tower
 
-    # shy
-    # submit
-    # table
-    # tower
+    (The following animations prefixed with a curly symbol ~ are animations used by the couples or plugins, 
+     they're listed here to allow you to adjust the height for your avatar, so when the couple pose is called
+     it will display properly for you)
 
-    # stop
+    # ~crawl (used when the collar wearer is on a kneel pose and starts to walk or is dragged by the leash)
+    # ~good (submissive part of the "Pet" couple animation)
+    # ~jump-botto (submissive part of the "Jump" couple animation)
+    # ~jump-top (dominant part of the "Jump" couple animation)
+    # ~pet (dominant part of the "Pet" couple animation)
+    # ~run (used when the collar wearer is on a pose and start running)
+    # ~shock (used by the shocker plugin)
+    # ~stiff (used to freeze the neck for posture collars)
 
 -------------------------------------------
 Couple Animations (stock selection):
