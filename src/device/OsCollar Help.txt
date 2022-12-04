@@ -224,23 +224,23 @@ Poses (stock selection):
 
     # pose
 
-    # Beautystand
-    # Bendover
-    # Bracelets
-    # Cutie
-    # Display
-    # Doggie
+    # beautystand
+    # bendover
+    # bracelets
+    # cutie
+    # display
+    # doggie
 
-    # Nadu
-    # Nadu Wide
-    # Plead
-    # Shy
-    # Sleep
-    # Squirm
+    # nadu
+    # naduwide
+    # plead
+    # shy
+    # sleep
+    # squirm
 
-    # Submit
-    # Table
-    # Tower
+    # submit
+    # table
+    # tower
 
     (The following animations prefixed with a curly symbol ~ are animations used by the couples or plugins, 
      they're listed here to allow you to adjust the height for your avatar, so when the couple pose is called
@@ -261,13 +261,8 @@ Couple Animations (stock selection):
 
     # couples
 
-    # hug
-    # kiss
-    # pet
-
-    # cling
-    # foot
-    # catch
+    # Pet
+    # Jump
 
     # stop couples
 
@@ -490,4 +485,13 @@ Help/About:
     # update
 
     # reboot
+
+--------------
+Commands without menu buttons:
+--------------
+
+    # heeloffset [number]  This will change the shoe height compensator for the poses and couple anims.
+			   Example: aaheeloffset -0.2
+    # heeloffset reset Will reset to the default offset of -0.1
+
 
