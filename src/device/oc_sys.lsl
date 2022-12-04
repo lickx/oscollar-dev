@@ -384,10 +384,11 @@ RebuildCaches()
         integer i;
         for (i = 0; i < llGetListLength(l); i++) {
             string sSetting = llList2String(l, i);
-            list lSetting = llParseString2List(sSetting, ["="], []);
-            if (llList2String(lSetting, 0) == "glow" && llGetListLength(lSetting) > 1) {
+            if (sSetting == "glow") {
                 // found glow value in prim desc, state-loss-safe.
-                g_lCacheGlows += [iLink, llList2Float(lSetting, 1)];
+                if (llGetListLength(l)-1 >= i+1) {
+                    g_lCacheGlows += [iLink, llList2Float(l, i+1)];
+                }
             } else if (g_iHide == FALSE) {
                 // backup method: get glow from prim if collar not hidden yet. NOT state-loss-safe!
                 float fGlow = llList2Float(lLinkParams, 3);
