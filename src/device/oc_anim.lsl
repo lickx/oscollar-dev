@@ -92,7 +92,7 @@ key g_kWearer;
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-float SHOE_OFFSET = -0.1;
+float g_fHeelOffset = -0.1;
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
     key kMenuID = llGenerateKey();
@@ -155,10 +155,11 @@ PoseMenu(key kID, integer iPage, integer iAuth) {
         sPrompt += "Default Hover = "+(string)sAdjustment;
     }
     list lStaticButtons;
-    if (g_iRLV_ON && g_iHoverOn && (llGetListLength(g_lPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
+    list lTotalPoseList = g_lPoseList + g_lOtherAnims;
+    if (g_iRLV_ON && g_iHoverOn && (llGetListLength(lTotalPoseList) <= 8)) lStaticButtons = ["STOP","↑", "↓","BACK"];
     else if (g_iRLV_ON && g_iHoverOn) lStaticButtons = ["↑", "↓","STOP","BACK"];
     else lStaticButtons = ["STOP", "BACK"];
-    Dialog(kID, sPrompt, g_lPoseList, lStaticButtons, iPage, iAuth, "Pose");
+    Dialog(kID, sPrompt, lTotalPoseList, lStaticButtons, iPage, iAuth, "Pose");
 }
 
 AOMenu(key kID, integer iAuth) {
@@ -207,10 +208,18 @@ SetHover(string sStr) {
     @next;
     if (g_sCurrentPose == g_sCrawlPose) g_fPoseMoveHover = fNewHover;
     if (g_iShoesWorn)
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+SHOE_OFFSET)+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force",g_kWearer);
     else
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
-    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+llDumpList2String(g_lHeightAdjustments,","),"");
+    string sSettings;
+    integer i;
+    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+        string sPose = llList2String(g_lHeightAdjustments, i);
+        if (llGetSubString(sPose, 0, 0)=="~") sPose = "++"+llGetSubString(sPose, 1, -1); // convert ~ prefix to ++
+        string sOffset = llGetSubString((string)llList2Float(g_lHeightAdjustments, i+1), 0, 3); // 2 decimals
+        sSettings += sPose+","+sOffset+",";
+    }
+    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+sSettings,"");
 }
 
 MessageAOs(string sONOFF, string sWhat) {
@@ -245,7 +254,7 @@ PlayAnim(string sAnim) {
         integer index = llListFindList(g_lHeightAdjustments,[sAnim]);
         float fOffset = 0.0;
         if (~index) fOffset += llList2Float(g_lHeightAdjustments,index+1);
-        if (g_iShoesWorn) fOffset += SHOE_OFFSET;
+        if (g_iShoesWorn) fOffset += g_fHeelOffset;
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fOffset+"=force",g_kWearer);
     }
     llStartAnimation(sAnim);
@@ -290,10 +299,10 @@ CreateAnimList() {
     string sName;
     integer i;
     do { sName = llGetInventoryName(INVENTORY_ANIMATION, i);
-        if (sName != "" && llSubStringIndex(sName,"~")) {
+        if (sName != "" && llSubStringIndex(sName,"~") != 0) {
             if (llListFindList(["-1","-2","+1","+2"],[llGetSubString(sName,-2,-1)]) == -1)
                 g_lPoseList+=[sName];
-        } else if (!llSubStringIndex(sName,"~")) g_lOtherAnims+=sName;
+        } else if (llSubStringIndex(sName,"~") == 0) g_lOtherAnims+=sName;
     } while (g_iNumberOfAnims > ++i);
     llMessageLinked(LINK_SET,ANIM_LIST_RESPONSE,llDumpList2String(g_lPoseList+g_lOtherAnims,"|"),"");
 }
@@ -401,7 +410,18 @@ UserCommand(integer iNum, string sStr, key kID) {
                 RefreshAnim();
                 if (llList2String(lParams,2) == "") llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Crawl mode deactivated.", kID);
             }
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change crawl settings.",g_kWearer);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change crawl settings.",kID);
+    } else if (sCommand == "heeloffset") {
+        if ((iNum == CMD_OWNER) || (kID == g_kWearer)) {
+            if (sValue == "" || sValue == "reset") {
+                g_fHeelOffset = -0.1;
+                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"heeloffset", "");
+            } else {
+                g_fHeelOffset = (float)sValue;
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"heeloffset="+(string)g_fHeelOffset, "");
+            }
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"New heeloffset is now "+(string)g_fHeelOffset,g_kWearer);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.",kID);
     } else if (llGetInventoryType(sStr) == INVENTORY_ANIMATION) {
         if (iNum <= g_iLastRank || !g_iAnimLock || g_sCurrentPose == "") {
             StopAnim(g_sCurrentPose,(g_sCurrentPose != ""));
@@ -506,7 +526,7 @@ default {
                 else if (sToken == "crawl") {
                     g_iCrawl = (integer)sValue;
                     checkCrawl();
-                }
+                } else if (sToken == "heeloffset") g_fHeelOffset = (float)sValue;
             } else if (llGetSubString(sToken,0,i) == "offset_") {
                 sToken = llGetSubString(sToken,i+1,-1);
                 if (sToken == "AllowHover") {
@@ -515,6 +535,15 @@ default {
                     if (g_fHoverIncrement == 0.0) g_fHoverIncrement = 0.02;
                 } else if (sToken == "hovers") {
                     g_lHeightAdjustments = llParseString2List(sValue,[","],[]);
+                    integer i;
+                    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+                        // convert ++ prefix to ~ if found
+                        string sName = llList2String(g_lHeightAdjustments, i);
+                        if (llSubStringIndex(sName, "++") == 0) {
+                            sName = "~"+llGetSubString(sName, 2, -1);
+                            g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments, [sName], i, i);
+                        }
+                    }
                     integer index = llListFindList(g_lHeightAdjustments,[g_sCrawlPose]);
                     if (~index)
                         g_fPoseMoveHover = (float)llList2String(g_lHeightAdjustments,index+1);
@@ -628,6 +657,7 @@ default {
                 fHover = 0.0;
                 integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
                 if (~index) fHover = (float)llList2String(g_lHeightAdjustments,index+1);
+                if (g_iShoesWorn) fHover += g_fHeelOffset;
                 llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
             }
             StartAnim(llList2String(g_lAnims,0));
