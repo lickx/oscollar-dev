@@ -96,6 +96,8 @@ integer g_iAwayCounter;
 
 vector g_vRegionSize = <256,256,0>;
 
+string LEASH_HOLDER = "Leash Holder";
+
 string NameURI(key kID){
     if (llGetAgentSize(kID)!=ZERO_VECTOR)
         return "secondlife:///app/agent/"+(string)kID+"/about";
@@ -362,9 +364,12 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                 if (g_bFollowMode) lButtons += ["Unfollow"];
                 else lButtons += ["Unleash"];
             }
-            else lButtons += "-";
+            else lButtons += ["-"];
             if (kMessageID == g_kLeashedTo) lButtons += "Yank";
-            else lButtons += "-";
+            else {
+                if (iAuth < CMD_WEARER && llGetInventoryType(LEASH_HOLDER)==INVENTORY_OBJECT) lButtons += ["Give Holder"];
+                else lButtons += ["-"];
+            }
             lButtons += ["Follow"];
             lButtons += ["Anchor","Pass"];
             lButtons += ["Length"];
@@ -409,6 +414,9 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             if(llGetAgentInfo(g_kWearer)&AGENT_SITTING) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=force", "realleash");
             if (bFromMenu) UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
             YankTo(kMessageID);
+        } else if (sMessage == "give holder") {
+            if (iAuth < CMD_WEARER && llGetInventoryType(LEASH_HOLDER) == INVENTORY_OBJECT)
+                llGiveInventory(kMessageID, LEASH_HOLDER);
         } else if (sMessage == "beckon" && iAuth == CMD_OWNER) YankTo(kMessageID);
         else if (sMessage == "stay") {
             if (iAuth <= CMD_GROUP) {
@@ -616,6 +624,7 @@ default {
                 }
                 else if (sMenu == "PostTarget") UserCommand(iAuth, "anchor " + sButton, kAV, TRUE);
                 else if (sMenu == "SetLength") UserCommand(iAuth, "length " + sButton, kAV, TRUE);
+                else if (sMenu == "Give Holder") UserCommand(iAuth, "give holder", kAV, TRUE);
                 else if (sMenu == "LeashTarget") {
                     g_kLeashCmderID = kAV;
                     ConfirmDialog((key)sButton, kAV, "LeashTarget", iAuth);
