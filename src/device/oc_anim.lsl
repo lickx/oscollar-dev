@@ -27,7 +27,6 @@ integer g_iNumberOfAnims;
 
 integer g_iCrawl = 1;
 string g_sCrawlWalk = "~crawl";
-string g_sCrawlPose = "crawl";
 float g_fPoseMoveHover = 0.0;
 string g_sPoseMoveRun = "~run";
 
@@ -206,7 +205,7 @@ SetHover(string sStr) {
             g_lHeightAdjustments = llDeleteSubList(g_lHeightAdjustments,index,index+1);
     } else g_lHeightAdjustments += [g_sCurrentPose,fNewHover];
     @next;
-    if (g_sCurrentPose == g_sCrawlPose) g_fPoseMoveHover = fNewHover;
+    if (g_sCurrentPose == g_sCrawlWalk) g_fPoseMoveHover = fNewHover;
     if (g_iShoesWorn)
         llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force",g_kWearer);
     else
@@ -544,7 +543,7 @@ default {
                             g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments, [sName], i, i);
                         }
                     }
-                    integer index = llListFindList(g_lHeightAdjustments,[g_sCrawlPose]);
+                    integer index = llListFindList(g_lHeightAdjustments,[g_sCrawlWalk]);
                     if (~index)
                         g_fPoseMoveHover = (float)llList2String(g_lHeightAdjustments,index+1);
                 } else if (sToken == "standhover") g_fStandHover = (float)sValue;
