@@ -96,7 +96,7 @@ integer g_iAwayCounter;
 
 vector g_vRegionSize = <256,256,0>;
 
-string LEASH_HOLDER = "Leash Holder";
+string g_sLeashHolder = "Leash Holder";
 
 string NameURI(key kID){
     if (llGetAgentSize(kID)!=ZERO_VECTOR)
@@ -343,6 +343,18 @@ YankTo(key kIn){
     llStopMoveToTarget();
 }
 
+FindLeashHolder() {
+    g_sLeashHolder = "";
+    integer i = 0;
+    while (i < llGetInventoryNumber(INVENTORY_OBJECT) && g_sLeashHolder == "") {
+        string sItemName = llGetInventoryName(INVENTORY_OBJECT, i);
+        if (~llSubStringIndex(llToLower(sItemName), "holder")) {
+            g_sLeashHolder = sItemName;
+        }
+        i++;
+    }
+}
+
 UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
     if (iAuth == CMD_EVERYONE) {
         if (kMessageID == g_kLeashedTo) {
@@ -367,7 +379,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             else lButtons += ["-"];
             if (kMessageID == g_kLeashedTo) lButtons += "Yank";
             else {
-                if (iAuth < CMD_WEARER && llGetInventoryType(LEASH_HOLDER)==INVENTORY_OBJECT) lButtons += ["Give Holder"];
+                if (iAuth < CMD_WEARER && llGetInventoryType(g_sLeashHolder)==INVENTORY_OBJECT) lButtons += ["Give Holder"];
                 else lButtons += ["-"];
             }
             lButtons += ["Follow"];
@@ -415,8 +427,9 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             if (bFromMenu) UserCommand(iAuth, "leashmenu", kMessageID ,bFromMenu);
             YankTo(kMessageID);
         } else if (sMessage == "give holder") {
-            if (iAuth < CMD_WEARER && llGetInventoryType(LEASH_HOLDER) == INVENTORY_OBJECT)
-                llGiveInventory(kMessageID, LEASH_HOLDER);
+            if (iAuth < CMD_WEARER && llGetInventoryType(g_sLeashHolder) == INVENTORY_OBJECT) {
+                llGiveInventory(kMessageID, g_sLeashHolder);
+            }
         } else if (sMessage == "beckon" && iAuth == CMD_OWNER) YankTo(kMessageID);
         else if (sMessage == "stay") {
             if (iAuth <= CMD_GROUP) {
@@ -521,6 +534,7 @@ default {
         g_kWearer = llGetOwner();
         g_vRegionSize = osGetRegionSize();
         DoUnleash(FALSE);
+        FindLeashHolder();
     }
 
     timer() {
@@ -717,6 +731,7 @@ default {
     changed (integer iChange){
         if (iChange & CHANGED_OWNER) g_kWearer = llGetOwner();
         if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
+        if (iChange & CHANGED_INVENTORY) FindLeashHolder();
     }
 }
 
