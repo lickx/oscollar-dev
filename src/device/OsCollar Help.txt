@@ -224,23 +224,23 @@ Poses (stock selection):
 
     # pose
 
-    # beautystand
-    # bendover
-    # bracelets
-    # cutie
-    # display
-    # doggie
+    # BeautyStand
+    # Bendover
+    # Bracelets
+    # Cutie
+    # Display
+    # Doggie
 
-    # nadu
-    # naduwide
-    # plead
-    # shy
-    # sleep
-    # squirm
+    # Nadu
+    # NaduWide
+    # Plead
+    # Shy
+    # Sleep
+    # Squirm
 
-    # submit
-    # table
-    # tower
+    # Submit
+    # Table
+    # Tower
 
     (The following animations prefixed with a curly symbol ~ are animations used by the couples or plugins, 
      they're listed here to allow you to adjust the height for your avatar, so when the couple pose is called
