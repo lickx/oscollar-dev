@@ -306,6 +306,19 @@ CreateAnimList() {
     llMessageLinked(LINK_SET,ANIM_LIST_RESPONSE,llDumpList2String(g_lPoseList+g_lOtherAnims,"|"),"");
 }
 
+// Case insensitive match of sName against any inventory item of type iType
+// Returns actual inventory name when matched
+// Returns empty string if no match
+string MatchInventoryName(string sName, integer iType) {
+    integer i = 0;
+    while (i < llGetInventoryNumber(iType)) {
+        string sItemName = llGetInventoryName(iType, i);
+        if (~llSubStringIndex(llToLower(sItemName), llToLower(sName))) return sItemName;
+        i++;
+    }
+    return "";
+}
+
 UserCommand(integer iNum, string sStr, key kID) {
     if (iNum == CMD_EVERYONE) return;
     list lParams = llParseString2List(sStr, [" "], []);
@@ -421,7 +434,18 @@ UserCommand(integer iNum, string sStr, key kID) {
             }
             llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"New heeloffset is now "+(string)g_fHeelOffset,g_kWearer);
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.",kID);
-    } else if (llGetInventoryType(sStr) == INVENTORY_ANIMATION) {
+    } else if ((sStr == "show animator")&&(iNum == CMD_OWNER || kID == g_kWearer)){
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
+        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the animator prim again type:\n\n/%CHANNEL% %PREFIX% hide animator\n",kID);
+    } else if ((sStr == "hide animator")&&(iNum == CMD_OWNER || kID == g_kWearer))
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
+    else {
+        // Check if given command is a pose in inv, and if so play it
+        if (llStringLength(sStr) > 63) return; // inv item names can only have up to 63 chars
+        if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) {
+            sStr = MatchInventoryName(sStr, INVENTORY_ANIMATION);
+            if (sStr == "") return; // no match in aNy cAsE
+        } // else sStr is an exact match
         if (iNum <= g_iLastRank || !g_iAnimLock || g_sCurrentPose == "") {
             StopAnim(g_sCurrentPose,(g_sCurrentPose != ""));
             g_sCurrentPose = sStr;
@@ -429,11 +453,7 @@ UserCommand(integer iNum, string sStr, key kID) {
             StartAnim(g_sCurrentPose);
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"currentpose=" + g_sCurrentPose + "," + (string)g_iLastRank, "");
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
-    } else if ((sStr == "show animator")&&(iNum == CMD_OWNER || kID == g_kWearer)){
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the animator prim again type:\n\n/%CHANNEL% %PREFIX% hide animator\n",kID);
-    } else if ((sStr == "hide animator")&&(iNum == CMD_OWNER || kID == g_kWearer))
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
+    }
 }
 
 PieSlice()
