@@ -1,4 +1,3 @@
-
 //  oc_anim.lsl
 //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,
@@ -554,7 +553,6 @@ default {
                     if (g_fHoverIncrement == 0.0) g_fHoverIncrement = 0.02;
                 } else if (sToken == "hovers") {
                     g_lHeightAdjustments = llParseString2List(sValue,[","],[]);
-                    integer i;
                     for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
                         // convert ++ prefix to ~ if found
                         string sName = llList2String(g_lHeightAdjustments, i);
