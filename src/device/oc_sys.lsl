@@ -88,7 +88,7 @@ integer g_iLocked = FALSE;
 integer g_bDetached = FALSE;
 integer g_iHide ; // global hide
 
-list g_lCacheHidden; // integer link. for preserving hidden links when unhiding the device
+list g_lCacheAlpha; // integer link, float alpha. for preserving transparent links when unhiding the device
 list g_lCacheGlows; // integer link, float glow. for restoring links with glow when unhiding the device
 
 list g_lClosedLockElements; // integer link. links to show when device locked
@@ -358,7 +358,7 @@ RebuildMenu() {
 
 RebuildCaches()
 {
-    g_lCacheHidden = [-1000]; // to detect if we lost the lists due to state loss, set this index 0 to some value
+    g_lCacheAlpha = [-1000, 0.1]; // dummy pair to detect if we lost the lists due to state loss
     g_lCacheGlows = [];
     g_lOpenLockElements = [];
     g_lClosedLockElements = [];
@@ -369,33 +369,28 @@ RebuildCaches()
         list lLinkParams = llGetLinkPrimitiveParams(iLink, [PRIM_DESC, PRIM_COLOR, 0, PRIM_GLOW, 0]);
         // ^^ returns string desc, vector color, float alpha, float glow. note ALL_SIDES doesn't work on OS, so we use side 0.
         string sDesc = llList2String(lLinkParams, 0);
-        list l = llParseString2List(llToLower(sDesc), ["~"], []);
+        list lSettings = llParseString2List(llToLower(sDesc), ["~"], []);
 
-        // is hidden?
-        idx = llListFindList(l, ["hidden"]);
-        if (~idx) g_lCacheHidden += [iLink]; // found hidden setting in prim desc, state-loss-safe.
-        else if (g_iHide == FALSE) {
-            // backup method, get alpha from prim if collar not hidden yet. NOT state-loss-safe!
-            float fAlpha = llList2Float(lLinkParams,2);
-            if (fAlpha < 0.5) g_lCacheHidden += [iLink];
-        }
-
-        // has glows?
-        integer i;
-        for (i = 0; i < llGetListLength(l); i++) {
-            string sSetting = llList2String(l, i);
-            if (sSetting == "glow") {
-                // found glow value in prim desc, state-loss-safe.
-                if (llGetListLength(l)-1 >= i+1) {
-                    g_lCacheGlows += [iLink, llList2Float(l, i+1)];
-                }
-            } else if (g_iHide == FALSE) {
-                // backup method: get glow from prim if collar not hidden yet. NOT state-loss-safe!
-                float fGlow = llList2Float(lLinkParams, 3);
-                if (fGlow > 0.0) g_lCacheGlows += [iLink, fGlow];
+        // is hidden? has alpha?
+        idx = llListFindList(lSettings, ["hidden"]);
+        if (~idx) g_lCacheAlpha += [iLink, 0.0]; // found hidden setting in prim desc, state-loss-safe.
+        else {
+            idx = llListFindList(lSettings, ["alpha"]);
+            if (~idx) g_lCacheAlpha += [iLink, llList2Float(lSettings, idx+1)]; // found desc alpha~f setting
+            else if (g_iHide == FALSE) {
+                // backup method, get alpha from prim if collar not hidden yet. NOT state-loss-safe!
+                float fAlpha = llList2Float(lLinkParams,2);
+                if (fAlpha < 1.0) g_lCacheAlpha += [iLink, fAlpha];
             }
         }
-
+        // has glows?
+        idx = llListFindList(lSettings, ["glow"]);
+        if (~idx) g_lCacheGlows += [iLink, llList2Float(lSettings, idx+1)]; // found desc glow~f setting
+        else if (g_iHide == FALSE) {
+            // backup method: get glow from prim if collar not hidden yet. NOT state-loss-safe!
+            float fGlow = llList2Float(lLinkParams, 3);
+            if (fGlow > 0) g_lCacheGlows += [iLink, fGlow];
+        }
         // is a lock prim?
         list lPrimName = llParseString2List(llGetLinkName(iLink), ["~"], []);
         if (llListFindList(lPrimName, ["Lock"]) >= 0 || llListFindList(lPrimName, ["ClosedLock"]) >= 0)
@@ -407,25 +402,24 @@ RebuildCaches()
 
 Stealth(integer iHide)
 {
-    if (llGetListLength(g_lCacheHidden) == 0) RebuildCaches(); // cache lost, rebuild
+    if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // cache lost, rebuild
     if (iHide) {
         llSetLinkPrimitiveParamsFast(LINK_SET, [PRIM_GLOW, ALL_SIDES, 0.0]);
         llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
     } else { // Show
-        if (llGetListLength(g_lCacheHidden) == 1) llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES); // no hidden links
-
         integer iLink;
         for (iLink = 1; iLink < llGetNumberOfPrims(); iLink++) {
-            if (llGetListLength(g_lCacheHidden) > 1) {
-                if (~llListFindList(g_lCacheHidden, iLink))
-                    llSetLinkAlpha(iLink, 0.0, ALL_SIDES); // found hidden
-                else llSetLinkAlpha(iLink, 1.0, ALL_SIDES);
-            }
-            if (llGetListLength(g_lCacheGlows) > 0) {
-                integer idx = llListFindList(g_lCacheGlows, [iLink]);
-                if (~idx && (idx %2 == 0)) {
-                    llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(g_lCacheGlows, idx+1)]);
-                }
+            // restore alpha's:
+            integer idx = llListFindList(g_lCacheAlpha, iLink);
+            if (~idx && (idx % 2 == 0)) {
+                float fAlpha = llList2Float(g_lCacheAlpha, idx+1);
+                llSetLinkAlpha(iLink, fAlpha, ALL_SIDES);
+            } else llSetLinkAlpha(iLink, 1.0, ALL_SIDES);
+            // restore glows:
+            idx = llListFindList(g_lCacheGlows, [iLink]);
+            if (~idx && (idx %2 == 0)) {
+                float fGlow = llList2Float(g_lCacheGlows, idx+1);
+                llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, fGlow]);
             }
         }
     }
@@ -448,7 +442,7 @@ default {
     state_entry() {
         g_kWearer = llGetOwner();
         g_iHide=!(integer)llGetAlpha(ALL_SIDES);
-        if (llGetListLength(g_lCacheHidden) == 0) RebuildCaches(); // cache lost, rebuild
+        if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // no dummy pair, so cache lost, rebuild
         init();
         //Debug("Starting");
     }
