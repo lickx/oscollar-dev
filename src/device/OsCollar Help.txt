@@ -495,4 +495,6 @@ Commands without menu buttons:
 			   Example: aaheeloffset -0.2
     # heeloffset reset Will reset to the default offset of -0.1
 
+    # park It'll rez a baloon and automatically leash the collar owner to it.
+
 
