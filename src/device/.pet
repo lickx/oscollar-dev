@@ -1,1 +1,2 @@
-pet|~wearer-anim|~partner-anim|0.55|_PARTNER_ pets _SELF_'s head.
+Pet|~good|~pet|0.95|_PARTNER_ pets _SELF_'s head.
+Jump|~jump-bottom|~jump-top|1.1|_SELF_ jumps onto _PARTNER_.
