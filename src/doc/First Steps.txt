@@ -1,0 +1,88 @@
+Collar first steps:
+------------------
+
+To tke advantage of all the functions of your new collar, make sure your RLV is turned on on your viewer.
+For example in Firestorm go to the menu Advanced and select the option RestrainedLove API, then restart the viewer.
+(If you don't see the menu Advanced, go to preferences (Ctrl P) tab Advanced and check "Show Advanced Menu").
+
+
+The Beginning:
+
+
+1. Adjusting the collar to your avatar:
+---------------------------------------
+
+Wear the collar, right click on it and adjust the position and size to match your avatar, when you're satisfied, take it off and put it on again.
+
+
+2. Adding an owner/trusted/blocked people:
+------------------------------------------
+
+Now you can add an owner, trusted person or even block people from using your collar, to do so you need to invoke the menu.
+
+To do so type the first two letters of your name followed by "menu", for example if your name is Jane Doe type "jamenu" or "ja menu", alternatively simply click on the collar.
+
+Click on the option Access and to add an owner just click on the button "+ Owner".  Make sure the person you select as owner is near you in the same sim.
+The name of the owner candidate will appear listed on the menu, just click on the name to register him/her as owner and allow access and control of your collar.
+
+Same procedure with trusted people and to manage the block list.
+
+If you wish to own your own collar instead just pick your name from the list.
+
+
+3. Setting up the poses:
+------------------------
+
+The collar comes with a series of poses, you may need to adjust them for the height of your avatar.
+
+Call the menu and select Animations, then Pose, for the following steps remove your shoes and layer shoes, and turn off your AO.
+
+Press on BeautyStand, your avatar will assume the position, check your feet, if you're sunk in the ground or floating above it you will need to adjust it, to do so simply press the up or down arrow untiliN your feet are just on the ground.
+
+Click on the next animation and repeat the process, at the end of the list you will also find animations that start with a curly symbol "~" those are for different plugins and functions of your collar, you can adjust the height of those animations in the same way.
+
+Once you cycled on the whole list you're done!  Now it's time to save the settings.
+
+Call the menu again go to Settings and Save.
+
+(to save your settings make sure you're in a sim that allows to use such ossl function, if you get an error just press Settings and Print t get your settings list ready to be copied to a notecard.
+
+
+4. Setting up the Label:
+------------------------
+
+If you're already owned this must be performed by your owner, if you're not owned then you can do it yourself.
+
+The label is a text that will appear on the side of the collar, depending on the model it can be bigger text or smaller and it's appearance may change.
+
+Invoke the menu, press Apps and then Label, then press Set Label and input the text you want, depending on the collar model you have a limit of 8 to ~16 characters available.  After you're done press Submit.
+
+To make the new text visible press on "Show", you can also change the font, colours and set the text to scroll from this menu.
+
+
+5. Setting up the Titler:
+-------------------------
+
+The titler is another app, this one can be setup by the collar wearer.  The titler is an hovertext that will appear on top of the head of the collar wearer.
+
+Invoke the menu and press Apps and then Titler.
+
+Press Set Title to input your text, then press Submit.  To make it appear press "Show", you may need to adjust the height of the text, you can do so by pressing the arrows up and down on the menu, by default the title may be too close inside the head of the collar wearer and so you need to move it up by pressing the up button several times.
+
+You can also change the colour of the text from this menu.
+
+
+6. Setting up the leash:
+------------------------
+
+The leash by default is the rope (ribbon type of particles), by invoking the menu and then option Leash -> Configure you can switch the particle type by select "Chain" instead, you can also change the colour and characteristics of the leash from this menu.
+
+Your owner or trustees can click on the Leash menu too and press on the Give Holder button to get a leash holder they can wear.  The chain/rope then will attach to the holder for a pleasing visuals.
+
+_________________________________________________________________________________________
+
+
+That's it!  If you read so far congratulations you will have a highly personalized collar that will cover your needs
+
+For more information about all the available commands, invoke your menu and then select Help/About and press the button Help.  You'll receive a notecard with all the commands the collar has and the descriptions for all the functions.
+
