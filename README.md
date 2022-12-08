@@ -2,7 +2,7 @@
 
 OsCollar is the de-facto OpenSim fork of OpenCollar, a device for submission roleplay that originated in Second Life
 
-Grid and sim owners might want to read [opensim-patches.md](opensim-patches.md)
+Grid and sim owners might want to read [opensim patches](doc/opensim-patches.md)
 
 For help and chatter, join us on [Matrix](https://matrix.to/#/#oscollar:matrix.org)
 
