@@ -341,7 +341,7 @@ default {
         g_iRLVOn = FALSE;
         g_lBaked = [];
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_RLV","");
-        if (!g_iIsLED) PieSlice();
+        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     state_entry() {
@@ -349,7 +349,7 @@ default {
         llOwnerSay("@clear");
         g_kWearer = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
-        if (!g_iIsLED) PieSlice();
+        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     attach(key kID) {

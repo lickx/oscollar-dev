@@ -478,7 +478,7 @@ default {
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRLV_ON = FALSE;
         checkCrawl();
-        PieSlice();
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     state_entry() {
@@ -487,7 +487,7 @@ default {
         checkCrawl();
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
-        PieSlice();
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     run_time_permissions(integer iPerm) {

@@ -316,7 +316,7 @@ OrderButton(string sButton)
 default
 {
     state_entry() {
-        if (llGetAttached() == 0 || llGetAttached() == ATTACH_LHAND || llGetAttached() == ATTACH_RHAND) return;
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
         g_kOwner = llGetOwner();
         //llSleep(1.0);
         FindButtons(); // collect buttons names

@@ -346,7 +346,7 @@ default {
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer),0,1));
         g_sWearerName = NameURI(g_kWearer);
-        if (!g_iIsLED) PieSlice();
+        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_NAME,g_sDeviceName]);
     }
 

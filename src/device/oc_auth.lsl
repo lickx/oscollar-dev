@@ -654,7 +654,7 @@ default {
         UpdateBlocklistPrims();
         LoadBlocklist();
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
-        if (!g_iIsLED) PieSlice();
+        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {

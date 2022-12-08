@@ -320,7 +320,7 @@ default {
     state_entry() {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
         if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
-        if (llGetInventoryKey("OC_Cuffs_sync")!=NULL_KEY) llRemoveInventory("OC_Cuffs_sync");
+        if (llGetInventoryType("OC_Cuffs_sync")==INVENTORY_SCRIPT) llRemoveInventory("OC_Cuffs_sync");
         llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
@@ -330,12 +330,12 @@ default {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
-        PieSlice();
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
     }
 
     on_rez(integer iParam) {
         if (g_kWearer == llGetOwner()) {
-            PieSlice();
+            if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
             llSetTimerEvent(2.0);
         }
         else llResetScript();
