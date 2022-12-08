@@ -11,6 +11,8 @@ For help and chatter, join us on [Matrix](https://matrix.to/#/#oscollar:matrix.o
 ```
 ./oscollar/
 
+    > doc: Useful information and documentation
+
     > res: Resource of creative content.
 
         > anims: Motions and Animations as .bvh and .avm binaries.
@@ -29,8 +31,11 @@ For help and chatter, join us on [Matrix](https://matrix.to/#/#oscollar:matrix.o
         > spares: Spares and snippets for research and development.
 ```
 
-#### OpenSim Porting Information
+#### Requirements
 
-OsCollar strives for 100% compatibility with OpenSim 0.9.x and newer
+Simulator: OpenSim 0.9.1.0 or newer
+XEngine or YEngine (YEngine strongly recommended!)
+
+Note that as soon as YEngine becomes the default in a forthcoming OpenSim release, we will drop XEngine support. High quality grids already have set YEngine as default, or at least give simowners the option to enable it.
 
 UUIDs referenced by code and notecards refer to assets on the OsGrid.org asset server
