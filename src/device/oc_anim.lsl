@@ -459,7 +459,7 @@ PieSlice()
 {
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
-            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
+            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
             PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.80, 1.00, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
             PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 1.000>, 0.0
         ]);
