@@ -665,9 +665,9 @@ default {
             }
             lBody = llDeleteSubList(lBody, 0, 0); // remove version, the rest is distributors
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
-                llOwnerSay("An update of OsCollar is available!\n\nLatest version: "+sWebVersion+"\nYour version: "+g_sCollarVersion+"\n\n"+llDumpList2String(lBody, "\n"));
+                llOwnerSay("An update is available!\n\nLatest version: "+sWebVersion+"\nYour version: "+g_sCollarVersion+"\n\n"+llDumpList2String(lBody, "\n"));
             } else {
-                llOwnerSay("You are using the most recent version of OsCollar");
+                llOwnerSay("You are using the most recent version of the scripts");
             }
         }
     }

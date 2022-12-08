@@ -1,4 +1,4 @@
-## OpenCollar Animations
+## Animations
 
 ###### In this place we are going to collaborate on animations.
 

@@ -1,4 +1,4 @@
-## OpenCollar Sounds
+## Sounds
 
 ###### In this place we are going to collaborate on sounds.
 

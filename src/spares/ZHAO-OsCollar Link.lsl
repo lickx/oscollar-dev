@@ -18,14 +18,14 @@
    \______|_______________|_____||
     ~~~~~~^^^^^^^^^^^^^^^^^^~~~~~~     www.gnu.org/licenses/gpl-2.0
 
-Right-click and edit your AO HUD, then navigate to the Contents tab of
+Right-click and edit your ZHAO HUD, then navigate to the Contents tab of
 the Build Menu. Once the contents finish loading, drag and drop this
-script from your Inventory into the Contents tab of your AO HUD. If the
-AO Link is compatible with your AO HUD, it will indicate so in the Chat.
+script from your Inventory into the Contents tab of your ZHAO HUD. If the
+AO Link is compatible with your ZHAO HUD, it will indicate so in the Chat.
 
 NOTE: Please be aware that some shops sell modified GPL licensed ZHAOII
 scripts in their AOs with closed permissions and without publishing the
-source code anywhere. If your AO reports having successfully linked but
+source code anywhere. If your ZHAO reports having successfully linked but
 goes haywire chances are that this is such a case. This is very sad and
 the only thing you can do then is to remove the link with: /88 rm aolink
 
@@ -81,7 +81,7 @@ Say(string sStr) {
 determineAOType() { //function to determine AO type.
     llListenRemove(g_iAOListenHandle);
     string sNotifyBegin = "\n\nCongratulations! Your ";
-    string sNotifyEnd = " has been successfully linked with OsCollar. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\n\n";
+    string sNotifyEnd = " has been successfully linked with your collar. Your AO will now pause itself when you play a pose or couples animation with your collar. To make things work smoothly, please push the power button on your AO HUD off/on once.\n\nFor a list of commands type: /88 help\n\n";
     g_iAOType = 0;
     if (~llSubStringIndex(llGetObjectName(),"AKEYO")) { //AKEYO is not a string in their script name, it is in animations but think the object name is a better test for this AO - Sumi Perl
         if (~llSubStringIndex(llGetObjectName(),"NitroAO")) { // Nitro has different messages.
@@ -126,7 +126,7 @@ determineAOType() { //function to determine AO type.
         }
     }
     @next;
-    if(!g_iAOType) Say("\n\nOops! Either I landed in something that's not an AO or I'm not yet familiar with this type of AO. At version "+g_sVersion+" I know how to link with "+g_sKnownAOs+" AOs. Maybe there is a newer version of me available if you copy and paste my [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aolink.lsl recent source] in a new script!\n\n");
+    if(!g_iAOType) Say("\n\nOops! Either I landed in something that's not an AO or I'm not yet familiar with this type of AO. At version "+g_sVersion+" I know how to link with "+g_sKnownAOs+" AOs.\n\n");
     else {
         g_iAOListenHandle = llListen(g_iAOChannel,"","",""); //We identified type, start script listening!
         g_iLMListenHandle = llListen(g_iLMChannel,"","","");
@@ -169,7 +169,7 @@ default {
             Say("\n\nPlease drop me into an AO, I don't belong into a collar! Cleaning myself up here.\n");
             llRemoveInventory(g_sMyName);
         } else if (llGetInventoryType("oc_ao") == INVENTORY_SCRIPT || llGetInventoryType("oc_ao_interface") == INVENTORY_SCRIPT) {
-            Say("\n\nPlease don't drop me into the OpenCollar AO, I'm not needed in there as it already works just fine. Just drop me into any other AO to make it OpenCollar Six™ compatible if you want. Cleaning myself up here.\n");
+            Say("\n\nPlease don't drop me into the OsCollar AO, I'm not needed in there as it already works just fine. Just drop me into any other AO to make it OsCollar compatible if you want. Cleaning myself up here.\n");
             llRemoveInventory(g_sMyName);
         } else if (llGetInventoryType("OpenCollarAttch - Interface") == INVENTORY_SCRIPT) {
             Say("\n\nPlease don't drop me into the OpenCollar Sub AO, I'm not needed in there. Just drop me into any other AO to make it OpenCollar Six™ compatible if you want. If you are trying to update a very old Sub AO, please find a cost-free replacement at any official OpenCollar location or network vendor. Cleaning myself up here.\n");
@@ -210,7 +210,7 @@ default {
                 Say("\n\nLockMeister protocol support for couple animators and furniture has been disabled.\n");
             } else if (sMsg == "version") Say("I'm version "+g_sVersion);
             else if (sMsg == "rm aolink") {
-                Say("\n\nRemoving AO Link v"+g_sVersion+". If you want to link this AO with OpenCollar Six™ again, please copy and paste the [https://raw.githubusercontent.com/VirtualDisgrace/opencollar/master/src/spares/.aolink.lsl recent source] of the AO Link in a new script or ask the community for an already compiled variation.\n");
+                Say("\n\nRemoving AO Link v"+g_sVersion+". If you want to link this AO with OsCollar again, just copy the 'Zhao-OsCollar Link' script into the ZHAO HUD.\n");
                 llRemoveInventory(g_sMyName);
             } else if (sMsg == "debug on") {
                 g_iDebugMode = TRUE;

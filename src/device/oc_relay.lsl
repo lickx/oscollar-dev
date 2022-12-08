@@ -185,7 +185,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
             llMessageLinked(LINK_RLV,RLV_CMD,"clear",kID);
             g_sSourceID = g_sTempTrustObj =  g_sTempTrustUser = "";
         } else if (sCom == "!version") sAck = "1100";
-        else if (sCom == "!implversion") sAck = "relay_171201";
+        else if (sCom == "!implversion") sAck = "relay_221208";
         else if (sCom == "!x-orgversions") sAck = "ORG=0003/who=001";
         else if (llGetSubString(sCom,0,0) == "!") sAck = "ko";
         else if (llGetSubString(sCom,0,0) != "@") {

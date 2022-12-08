@@ -175,7 +175,7 @@ default
             // scan for victims
             if(message=="Scan")
             {
-                llRegionSayTo(menuUser,0,"Scanning for OpenCollar compatible victims, please wait ...");
+                llRegionSayTo(menuUser,0,"Scanning for OsCollar compatible victims, please wait ...");
                 llSensor("",NULL_KEY,AGENT,RANGE,PI);
 
                 // set up scanning mode

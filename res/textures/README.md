@@ -1,4 +1,4 @@
-## OpenCollar Textures
+## Textures
 
 ###### In this place we are going to collaborate on images.
 

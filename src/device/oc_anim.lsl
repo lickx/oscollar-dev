@@ -583,7 +583,7 @@ default {
                     else if (sMessage == "Couples") llMessageLinked(LINK_THIS,iAuth,"menu Couples",kAv);
                     else if (sMessage == "Pet me!") llMessageLinked(LINK_THIS,iAuth,"menu pet",kAv);
                     else if (sMessage == "AO Menu") {
-                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OsCollar AO or an AO Link script in their AO HUD.\n\nhttps://github.com/lickx/oscollar/wiki/OsCollar-AO\n", kAv);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OsCollar AO or a ZHAO AO with the 'Zhao-OsCollar Link' script in their AO HUD.\n\nhttps://github.com/lickx/oscollar/wiki/OsCollar-AO\n", kAv);
                         AOMenu(kAv, iAuth);
                     } else {
                         string sOnOff;
