@@ -160,8 +160,8 @@ SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\nSettings";
     list lButtons = ["Print","Load","Save","Fix"];
     lButtons += g_lResizeButtons;
-    if (g_iHide) lButtons += ["☑ Hide"];
-    else lButtons += ["☐ Hide"];
+    if (g_iHide) lButtons += ["☐ Visible"];
+    else lButtons += ["☑ Visible"];
     if (g_iLooks) lButtons += "Looks";
     else if (llGetInventoryType("oc_themes") == INVENTORY_SCRIPT) lButtons += "Themes";
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "Settings");
@@ -527,10 +527,10 @@ default {
                      else if (sMessage == "Fix") {
                          UserCommand(iAuth, sMessage, kAv, TRUE);
                          return;
-                    } else if (sMessage == "☐ Hide") {
+                    } else if (sMessage == "☑ Visible") {
                         Stealth(TRUE);
                         llMessageLinked(LINK_ROOT, iAuth,"hide",kAv);
-                    } else if (sMessage == "☑ Hide") {
+                    } else if (sMessage == "☐ Visible") {
                         Stealth(FALSE);
                         llMessageLinked(LINK_ROOT, iAuth,"show",kAv);
                     } else if (sMessage == "Themes") {
