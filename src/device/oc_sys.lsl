@@ -177,8 +177,9 @@ UpdateConfirmMenu() {
 
 HelpMenu(key kID, integer iAuth) {
     string sPrompt="\nVersion: "+g_sCollarVersion+g_sDevStage+"\n";
-    sPrompt+="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
+    sPrompt +="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     sPrompt += "\n\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.";
+    sPrompt += "\n\nScript engine: "+osGetScriptEngineName();
     list lUtility = [UPMENU];
     list lStaticButtons=["Help","Update","Version"];
     Dialog(kID, sPrompt, lStaticButtons, lUtility, 0, iAuth, "Help/About");
