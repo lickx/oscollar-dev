@@ -3,4 +3,4 @@
 # If settings are loaded from a URL, we need RAW data without meta-tags
 # Settings loaded from URLs are only fetched once and then stored locally
 
-GLOBAL=DeviceName~Punk Choker~channel~23,TRUE~safeword~Mayday
+# GLOBAL=DeviceName~Name of the collar~DeviceType~collar~channel~23,TRUE~safeword~Mayday
