@@ -120,7 +120,6 @@ integer g_iWaitRebuild;
 string g_sIntegrity = "(pending...)";
 
 string g_sHelpCard = "OsCollar Help";
-string g_sLicenseCard = "OsCollar License";
 
 integer compareVersions(string v1, string v2) { //compares two symantic version strings, true if v1 >= v2
     integer v1Index=llSubStringIndex(v1,".");
@@ -181,7 +180,7 @@ HelpMenu(key kID, integer iAuth) {
     sPrompt+="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     sPrompt += "\n\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.";
     list lUtility = [UPMENU];
-    list lStaticButtons=["Help","License","Update","Version"];
+    list lStaticButtons=["Help","Update","Version"];
     Dialog(kID, sPrompt, lStaticButtons, lUtility, 0, iAuth, "Help/About");
 }
 
@@ -223,9 +222,6 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         llMessageLinked(LINK_DIALOG,NOTIFY,"1"+sMessage,kID);
     } else if (sStr == "help") {
         if (llGetInventoryType(g_sHelpCard) == INVENTORY_NOTECARD) llGiveInventory(kID, g_sHelpCard);
-        if (fromMenu) HelpMenu(kID, iNum);
-    } else if (sStr == "license") {
-        if (llGetInventoryType(g_sLicenseCard) == INVENTORY_NOTECARD) llGiveInventory(kID, g_sLicenseCard);
         if (fromMenu) HelpMenu(kID, iNum);
     } else if (sStr =="about" || sStr=="help/about") HelpMenu(kID,iNum);
     else if (sStr == "addons" || sStr=="apps") AppsMenu(kID, iNum);
