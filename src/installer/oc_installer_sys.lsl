@@ -155,17 +155,16 @@ InitiateInstallation() {
     //llPlaySound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c",1.0); //ao
     //llPlaySound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249",1.0); //remote hud
     //Debug("Playing sound");
-    llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
+    llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey()); //device
     //llWhisper(iChan,"-.. --- / .- ---"); //AO command
     //llWhisper(iChan,"-.. --- / .... ..- -.."); //Remote HUD command
 }
 
 default {
     state_entry() {
-       // llPreloadSound("6b4092ce-5e5a-ff2e-42e0-3d4c1a069b2f");
-       // llPreloadSound("d023339f-9a9d-75cf-4232-93957c6f620c");
-        //llPreloadSound("3409e593-20ab-fd34-82b3-6ecfdefc0207"); // ao
-       // llPreloadSound("95d3f6c5-6a27-da1c-d75c-a57cb29c883b"); //remote hud
+        llPreloadSound("56051ff8-a86f-467a-84fd-96e9cfd10c71"); //device
+        //llPreloadSound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c"); //ao
+        //llPreloadSound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249"); //remote hud
         llSetTimerEvent(300.0);
         ReadName();
         g_sObjectName = llGetObjectName();
