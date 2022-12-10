@@ -1,4 +1,3 @@
-
 //  oc_relay.lsl
 //
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Wendy Starfall,
@@ -199,7 +198,7 @@ string HandleCommand(string sIdent, key kID, string sCom, integer iAuthed) {
             string sBehav=llGetSubString(llList2String(lSubArgs,0),1,-1);
             if (g_iSmartStrip && llSubStringIndex(sBehav,"remoutfit:")==0 && sVal=="force")
                 sBehav="detachallthis:"+llDeleteSubString(sBehav,0,9);
-            if (g_iAllowAttach == TRUE && llSubStringIndex(sBehav,"addattach")==0 && sVal=="n") sAck = "";
+            if (g_iAllowAttach == TRUE && llSubStringIndex(sBehav,"addattach")==0 && sVal=="n") sAck = "ok";
             else if (sVal=="force"||sVal=="n"||sVal=="add"||sVal=="y"||sVal=="rem"||sBehav=="clear") {
                 if (kID != g_sSourceID) llMessageLinked(LINK_RLV,RLV_CMD,"clear",g_sSourceID);
                 llMessageLinked(LINK_RLV,RLV_CMD,sBehav+"="+sVal,kID);
@@ -597,6 +596,3 @@ default {
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs,iAuthMenuIndex-2,iAuthMenuIndex-3+g_iMenuStride);
     }
 }
-
-
-
