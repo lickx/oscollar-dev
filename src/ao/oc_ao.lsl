@@ -325,7 +325,8 @@ MenuLoad(key kID, integer iPage) {
     integer i;
     while (i < iEnd) {
         sNotecardName = llGetInventoryName(INVENTORY_NOTECARD, i++);
-        if (llSubStringIndex(sNotecardName,".") && sNotecardName != "") {
+        if (llSubStringIndex(sNotecardName,".") && sNotecardName != "OsCollar Help" &&
+            sNotecardName != "OsCollar License" && sNotecardName != "") {
             if (!llSubStringIndex(sNotecardName,"SET"))
                 g_lCustomCards += [sNotecardName,"Wildcard "+(string)(++iCountCustomCards)];// + g_lCustomCards;
             else if(llStringLength(sNotecardName) < 24) lButtons += sNotecardName;
