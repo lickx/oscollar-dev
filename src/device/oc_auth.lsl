@@ -623,6 +623,7 @@ RunAway() {
 
 PieSlice()
 {
+    if (llGetLinkNumber() == LINK_ROOT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,

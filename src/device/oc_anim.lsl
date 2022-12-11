@@ -457,6 +457,7 @@ UserCommand(integer iNum, string sStr, key kID) {
 
 PieSlice()
 {
+    if (llGetLinkNumber() == LINK_ROOT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
