@@ -134,11 +134,12 @@ integer LabelsCount() {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);
         if(sLabel == "MeshLabel") {
+            faces = llGetLinkNumberOfSides(iLink);
             g_lLabelLinks += [0];
             llSetLinkPrimitiveParamsFast(iLink,[PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
         } else if (sLabel == "LabelBase") g_lLabelBaseElements += iLink;
     }
-    g_iCharLimit = llGetListLength(g_lLabelLinks) * 6;
+    g_iCharLimit = llGetListLength(g_lLabelLinks) * faces;
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);
