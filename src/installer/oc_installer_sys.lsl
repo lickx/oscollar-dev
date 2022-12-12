@@ -131,7 +131,7 @@ Particles(key kTarget) {
             PSYS_PART_TARGET_POS_MASK |
             PSYS_PART_EMISSIVE_MASK,
         PSYS_SRC_PATTERN, PSYS_SRC_PATTERN_EXPLODE,
-        PSYS_SRC_TEXTURE, "78830bd0-dc9b-440d-95fc-10897fdfcf84",
+        PSYS_SRC_TEXTURE, "oc_installer_particle",
         PSYS_SRC_TARGET_KEY, kTarget,
         PSYS_PART_START_COLOR, vParticleColor,
         PSYS_PART_END_COLOR, vParticleColor,
@@ -141,7 +141,7 @@ Particles(key kTarget) {
         PSYS_PART_END_SCALE, <0.04, 0.04, 0>,
         PSYS_PART_START_ALPHA, 0.1,
         PSYS_PART_END_ALPHA, 1,
-        PSYS_SRC_BURST_PART_COUNT, 4,
+        PSYS_SRC_BURST_PART_COUNT, 1,
         PSYS_PART_MAX_AGE, 2,
         PSYS_SRC_BURST_SPEED_MIN, 0.2,
         PSYS_SRC_BURST_SPEED_MAX, 1
