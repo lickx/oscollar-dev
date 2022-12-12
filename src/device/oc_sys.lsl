@@ -309,8 +309,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
 }
 
 // Returns timestamp in gridtime (PDT/PST) as YYYY-MM-DD.HH:MM:SS
-string GetTimestamp()
-{
+string GetTimestamp() {
     integer sltSecs = (integer) llGetWallclock(); // Get SL time in seconds (will be either PST or PDT)
     integer diff    = (integer) llGetGMTclock() - sltSecs; // Compute the difference between UTC and SLT
     integer iEpoch = llGetUnixTime(); // UTC unix
@@ -353,8 +352,7 @@ RebuildMenu() {
     llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE,"LINK_REQUEST","");
 }
 
-RebuildCaches()
-{
+RebuildCaches() {
     g_lCacheAlpha = [-1000, 0.1]; // dummy pair to detect if we lost the lists due to state loss
     g_lCacheGlows = [];
     g_lOpenLockElements = [];
@@ -397,8 +395,7 @@ RebuildCaches()
     }
 }
 
-Stealth(integer iHide)
-{
+Stealth(integer iHide) {
     if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // cache lost, rebuild
     if (iHide) {
         llSetLinkPrimitiveParamsFast(LINK_SET, [PRIM_GLOW, ALL_SIDES, 0.0]);
@@ -424,12 +421,16 @@ Stealth(integer iHide)
     SetLockElementAlpha();
 }
 
-init (){
+init() {
     g_iWaitRebuild = TRUE;
     llSetTimerEvent(1.0);
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
+        string sObjectName = osReplaceString(llGetObjectName(), "[0-9]+\.[0-9]+\.?[0-9]+", g_sCollarVersion, -1, 0);
+        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
+    }
 }
 
-StartUpdate(){
+StartUpdate() {
     integer pin = (integer)llFrand(99999998.0) + 1; //set a random pin
     llSetRemoteScriptAccessPin(pin);
     llRegionSayTo(g_kUpdaterOrb, g_iUpdateChan, "ready|" + (string)pin );

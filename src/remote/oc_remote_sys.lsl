@@ -23,7 +23,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2022.12.04";
+string g_sVersion = "2022.12.12";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -248,6 +248,10 @@ default {
 
     on_rez(integer i)
     {
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
+            string sObjectName = osReplaceString(llGetObjectName(), "[0-9]+\.[0-9]+\.?[0-9]+", g_sVersion, -1, 0);
+            if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
+        }
         if (g_kOwner != llGetOwner()) llResetScript();
     }
 
