@@ -11,8 +11,11 @@ Free software for image manipulation:
 Free software for drawing and illustration:
 * [Inkscape](https://inkscape.org/)
 
+Free software for 3D assets creation:
+* [Blender](https://blender.org/)
+
 License:
-* The official OpenCollar logos and the Virtual Disgrace "Bleeding Heart" symbol and either derivatives are trademark and property of their respective owners and may not be used without prior express permission.
+* The official OpenCollar logos and derivatives are trademark and property of their respective owners and may not be used without prior express permission.
 
 * Button textures, which are generally prefixed with button_ in their name, may only be used with express permission.
 
