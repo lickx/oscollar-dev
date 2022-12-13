@@ -24,7 +24,7 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="2022.12.04";
+string g_sCollarVersion="2022.12.13";
 
 key g_kWearer;
 
@@ -283,11 +283,11 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     } else if (!llSubStringIndex(sStr,".- ... -.-")) {
         if (kID == g_kWearer) {
             list lTemp = llParseString2List(sStr,["|"],[]);
-            if (llList2String(lTemp,1) != "AppInstall") {
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Installation aborted. The version you are trying to install is deprecated. ",g_kWearer);
-            } else {
+            if (llList2Integer(lTemp,1) > 0 || llList2String(lTemp,1) == "AppInstall") {
                 g_kUpdaterOrb = (key)llGetSubString(sStr,-36,-1);
                 UpdateConfirmMenu();
+            } else {
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Installation aborted. The version you are trying to install is deprecated. ",g_kWearer);
             }
         }
     } else if (sCmd == "version") {

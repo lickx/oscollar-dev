@@ -292,7 +292,7 @@ default {
             // make sure that object name matches this card.
             integer index = llSubStringIndex(sData,"&");
             g_sBuildVersion = llStringTrim(llGetSubString(sData,index+1,-1),STRING_TRIM);
-            if ((float)g_sBuildVersion == 0.0 && g_sBuildVersion != "AppInstall") {
+            if ((integer)g_sBuildVersion == 0 && g_sBuildVersion != "AppInstall") {
                 llOwnerSay("Invalid .name notecard, please fix!");
                 return;
             }
