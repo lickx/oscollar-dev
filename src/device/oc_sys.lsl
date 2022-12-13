@@ -425,7 +425,7 @@ init() {
     g_iWaitRebuild = TRUE;
     llSetTimerEvent(1.0);
     if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-        string sObjectName = osReplaceString(llGetObjectName(), "[0-9]+\.[0-9]+\.?[0-9]+", g_sCollarVersion, -1, 0);
+        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sCollarVersion, -1, 0);
         if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
     }
 }

@@ -249,7 +249,7 @@ default {
     on_rez(integer i)
     {
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-            string sObjectName = osReplaceString(llGetObjectName(), "[0-9]+\.[0-9]+\.?[0-9]+", g_sVersion, -1, 0);
+            string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
             if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         }
         if (g_kOwner != llGetOwner()) llResetScript();
