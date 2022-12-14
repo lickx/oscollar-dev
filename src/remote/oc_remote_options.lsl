@@ -52,7 +52,7 @@ list g_lAttachPoints = [
 
 float g_fGap = 0.001; // This is the space between buttons
 float g_Yoff = 0.002; // space between buttons and screen top/bottom border
-float g_Zoff = 0.04; // space between buttons and screen left/right border
+float g_Zoff = 0.15; // space between buttons and screen left/right border
 
 // Variables
 
@@ -75,7 +75,7 @@ integer g_iSPosition = 69; // Nuff'said =D
 integer g_iOldPos;
 integer g_iNewPos;
 integer g_iColumn = 1;  // 0 - Column, 1 - Alternate
-integer g_iRows = 3;  // nummer of Rows: 1,2,3,4... up to g_iMaxRows
+integer g_iRows = 2;  // nummer of Rows: 1,2,3,4... up to g_iMaxRows
 integer g_iMaxRows = 4; // maximal Rows in Columns
 
 //**************************
