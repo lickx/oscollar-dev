@@ -63,10 +63,7 @@ integer g_iMenuStride = 3;
 
 string g_sCharmap = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǰǺǻǼǽǾǿȘșʼˆˇˉ˘˙˚˛˜˝˳̣̀́̃̉̏΄΅Ά·ΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώϑϒϖЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяѐёђѓєѕіїјљњћќѝўџѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿҀҁ҂҃҄҅҆҈҉ҊҋҌҍҎҏҐґҒғҔҕҖҗҘҙҚқҜҝҞҟҠҡҢңҤҥҦҧҨҩҪҫҬҭҮүҰұҲҳҴҵҶҷҸҹҺһҼҽҾҿӀӁӂӃӄӅӆӇӈӉӊӋӌӍӎӏӐӑӒӓӔӕӖӗӘәӚӛӜӝӞӟӠӡӢӣӤӥӦӧӨөӪӫӬӭӮӯӰӱӲӳӴӵӶӷӸӹӺӻӼӽӾӿԀԁԂԃԄԅԆԇԈԉԊԋԌԍԎԏԐԑԒԓḀḁḾḿẀẁẂẃẄẅẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹὍ–—―‗‘’‚‛“”„†‡•…‰′″‹›‼⁄ⁿ₣₤₧₫€℅ℓ№™Ω℮⅛⅜⅝⅞∂∆∏∑−√∞∫≈≠≤≥◊ﬁﬂﬃﬄ￼ ";
 
-list g_lFonts = [
-    "Solid", "464e8b47-d578-4e24-a671-de7c2f2b7a24",
-    "Outlined", "efeb123d-a014-4586-8012-62086272ccaf"
-    ];
+list g_lFonts;
 
 key g_kFontTexture = "464e8b47-d578-4e24-a671-de7c2f2b7a24";
 
@@ -308,9 +305,27 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     }
 }
 
+LoadFonts()
+{
+    g_lFonts = [];
+    integer i;
+    for (i = 0; i < llGetInventoryNumber(INVENTORY_TEXTURE); i++) {
+        string sName = llGetInventoryName(INVENTORY_TEXTURE, i);
+        if (llGetSubString(sName, 0, 4) == "font_")
+            g_lFonts += [llGetSubString(sName, 5, -1), llGetInventoryKey(sName)];
+    }
+    if (llGetListLength(g_lFonts) == 0) {
+        // Fall back to original asset uuids (might not be present in the grid's asset server)
+        g_lFonts =  ["Solid", "464e8b47-d578-4e24-a671-de7c2f2b7a24",
+                     "Outlined", "efeb123d-a014-4586-8012-62086272ccaf"];
+    }
+    //Debug("New font list: "+llList2CSV(g_lFonts));
+}
+
 default {
     state_entry() {
         g_kWearer = llGetOwner();
+        LoadFonts();
         Ureps = (float)1 / x;
         Vreps = (float)1 / y;
         LabelsCount();
@@ -428,6 +443,6 @@ default {
                 SetLabelBaseAlpha();
             }
         }
+        if (iChange & CHANGED_INVENTORY) LoadFonts();
     }
 }
-
