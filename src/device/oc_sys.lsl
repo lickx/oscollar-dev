@@ -24,7 +24,7 @@
 //on listen, send submenu link message
 
 string g_sDevStage="";
-string g_sCollarVersion="2022.12.13";
+string g_sCollarVersion="2022.12.14";
 
 key g_kWearer;
 
