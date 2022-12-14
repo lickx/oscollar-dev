@@ -1,4 +1,3 @@
-
 //  oc_rlvsuite.lsl
 //
 //  Copyright (c) 2014 - 2017 Wendy Starfall, littlemousy, Sumi Perl,
@@ -191,9 +190,10 @@ WearFolder(string sStr, key kID) {
     llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Changing outfit!",kID);
     string sOutfit = llGetSubString(sStr, llStringLength(g_sPathPrefix), -2);
     llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit,kID);
-    // prep: lock the core folder, else lock at least this collar temporarily:
+    // always lock collar during outfit change
+    llOwnerSay("@detach=n");
+    // lock the core folder if exists
     if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=n");
-    else llOwnerSay("@detach=n");
     // unwear everything that's not locked:
     llOwnerSay("@remoutfit=force,detach=force");
     // wear clothes/parts from the core folder that are not already worn:
