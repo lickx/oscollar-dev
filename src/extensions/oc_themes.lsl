@@ -198,7 +198,7 @@ BuildTexturesList() {
     while (numInventoryTextures--) {
         string sTextureName = llGetInventoryName(INVENTORY_TEXTURE, numInventoryTextures);
         string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
-        if (!(llGetSubString(sTextureName, 0, 5) == "leash_" || sTextureName == "chain" || sTextureName == "rope")) {
+        if (!(llGetSubString(sTextureName, 0, 5) == "leash_" || sTextureName == "chain" || sTextureName == "rope" || llGetSubString(sTextureName, 0, 5) == "font_")) {
             g_lTextures += sTextureName;
             g_lTextureKeys += sTextureName;
             g_lTextureShortNames+=sShortName;
