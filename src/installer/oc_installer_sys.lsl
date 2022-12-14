@@ -262,7 +262,6 @@ default {
                 g_iDone = TRUE;
                 llMessageLinked(LINK_SET,INSTALLION_DONE,"","");
                 llSleep(1);
-                llLoadURL(llGetOwner(),"\nVisit our website for manual pages and release notes!\n",g_sInfoURL);
                 Say(g_sInfoText);
                 llSetTimerEvent(15.0);
             }

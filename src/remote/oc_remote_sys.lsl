@@ -1,6 +1,5 @@
 
 //  oc_remote_sys.lsl
-//  Generic version
 //
 //  Copyright (c) 2014 - 2017 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,
@@ -137,7 +136,7 @@ AddPartner(string sID) {
     if (~llListFindList(g_lPartners,[sID])) return;
     if ((key)sID != NULL_KEY) {//don't register any unrecognised
         g_lPartners+=[sID];//Well we got here so lets add them to the list.
-        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\n");//Tell the owner we made it.
+        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Remote called '"+llKey2Name((key)sID)+"'.\n");//Tell the owner we made it.
     }
 }
 
