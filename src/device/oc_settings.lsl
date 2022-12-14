@@ -447,7 +447,8 @@ default {
             llSetTimerEvent(0.0);
             g_iLineNr = 0;
             g_kCardID = llGetInventoryKey(g_sCard);
-            g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
+            if (g_kCardID != NULL_KEY)
+                g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
         }
     }
 }
