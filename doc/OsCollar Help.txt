@@ -497,4 +497,6 @@ Commands without menu buttons:
 
     # park It'll rez a baloon and automatically leash the collar owner to it.
 
+    # rm [Name of Plugin]  Removes the plugin script from the collar.
+
 
