@@ -208,8 +208,24 @@ NextPartner(integer iDirection, integer iTouch) {
         integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
         // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
         if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
-        if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) sTexture = sActivePartnerName;
-        if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        if (g_iPicturePrim) {
+            if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) {
+                sTexture = sActivePartnerName;
+                llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+            } else if (llGetInventoryType(".initials") == INVENTORY_TEXTURE) {
+                string sAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+                string sLetter = llGetSubString(sActivePartnerName, 0, 0);
+                integer iPos = llSubStringIndex(sAlphabet, sLetter);
+                if (~iPos) {
+                    sTexture = ".initials";
+                    float WIDTH = 1.0 / 6.0;
+                    float HEIGHT = 1.0 / 6.0;
+                    float fOffsetY = ((iPos / 6) * HEIGHT) + (HEIGHT / 2);
+                    float fOffsetX = ((iPos % 6) * WIDTH) + (WIDTH / 2) - 0.5;
+                    llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, ".initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
+                } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
+            } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]); // fallback to default_profile_picture
+        }
     } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     if(iTouch) {
