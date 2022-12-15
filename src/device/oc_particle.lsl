@@ -239,10 +239,10 @@ GetSettings(integer iStartParticles) {
 
 SetTexture(string sIn, key kIn) {
     g_sParticleTexture = sIn;
-    if (sIn=="Silk") g_sParticleTextureID="leash_silk";
-    else if (sIn=="Chain") g_sParticleTextureID="leash_chain";
-    else if (sIn=="Leather") g_sParticleTextureID="leash_leather";
-    else if (sIn=="Rope") g_sParticleTextureID="leash_rope";
+    if (sIn=="Silk") g_sParticleTextureID="leash_Silk";
+    else if (sIn=="Chain") g_sParticleTextureID="leash_Chain";
+    else if (sIn=="Leather") g_sParticleTextureID="leash_Leather";
+    else if (sIn=="Rope") g_sParticleTextureID="leash_Rope";
     else if (sIn=="totallytransparent") g_sParticleTextureID=TEXTURE_TRANSPARENT;
     else {
         if (llToLower(g_sParticleTexture) == "noleash") g_sParticleMode = "noParticle";
