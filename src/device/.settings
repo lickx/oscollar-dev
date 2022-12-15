@@ -4,4 +4,4 @@
 # Settings loaded from URLs are only fetched once and then stored locally
 
 # GLOBAL=DeviceName~Name of the collar~DeviceType~collar~channel~23,TRUE~safeword~Mayday
-PARTICLE=C_Texture~Chain LC~R_Texture~Rope LC~ParticleMode~Ribbon~Gravity~-0.6~Size~<0.07,0.07,1>~Color~<1.000000, 1.000000, 1.000000>
+PARTICLE=C_Texture~chain~R_Texture~rope~ParticleMode~Ribbon~Gravity~-0.6~Size~<0.07,0.07,1>~Color~<1.000000, 1.000000, 1.000000>
