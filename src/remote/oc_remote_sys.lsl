@@ -220,8 +220,8 @@ NextPartner(integer iDirection, integer iTouch) {
                     sTexture = ".initials";
                     float WIDTH = 1.0 / 6.0;
                     float HEIGHT = 1.0 / 6.0;
-                    float fOffsetY = ((iPos / 6) * HEIGHT) + (HEIGHT / 2);
-                    float fOffsetX = ((iPos % 6) * WIDTH) + (WIDTH / 2) - 0.5;
+                    float fOffsetY = 0.5 - ((iPos / 6) * HEIGHT) - (HEIGHT/2);
+                    float fOffsetX = -0.5 + ((iPos % 6) * WIDTH) + (WIDTH/2);
                     llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, ".initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
                 } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
             } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]); // fallback to default_profile_picture
