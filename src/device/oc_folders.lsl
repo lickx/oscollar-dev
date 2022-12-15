@@ -295,7 +295,7 @@ FolderBrowseMenu(string sStr) {
         lItem=llParseString2List(llList2String(sData,i),["|"],[]);
         string sFolder = llList2String(lItem,0);
         iWorn=llList2Integer(lItem,1);
-        if (iWorn != 0 && (llToLower(sFolder)!=llToLower(g_sOutfitsFolder)))
+        if (iWorn != 0 && !(g_sCurrentFolder == "" && llToLower(sFolder)==llToLower(g_sOutfitsFolder)))
             lFolders += [folderIcon(iWorn) + sFolder];
     }
     sPrompt += "\n- Click "+ACTIONS_CURRENT+" to manage this folder content.\n- Click one of the subfolders to browse it.\n";
