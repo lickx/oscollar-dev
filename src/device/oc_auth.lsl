@@ -32,7 +32,7 @@ string g_sParentMenu = "Main";
 string g_sSubMenu = "Access";
 integer g_iRunawayDisable;
 
-string g_sDrop = "oc_dropsound";
+string g_sDrop = "sound_bass";
 
 integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
