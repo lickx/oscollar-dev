@@ -158,7 +158,7 @@ InitiateInstallation() {
         iChan = -llAbs((integer)("0x" + llGetSubString(llGetOwner(),30,-1))); // AO
         llWhisper(iChan,"-.. --- / .- ---"); //AO command
     }
-    llPlaySound("sound_installer_start",1.0);
+    llTriggerSound("sound_installer_start",1.0);
 }
 
 default {
@@ -227,7 +227,6 @@ default {
                     //llSetTimerEvent(30.0);
                 }
                 //Debug("sound");
-                llPlaySound("sound_installer_start",1.0);
                 llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin
             } else if (sCmd == "ready") {
                 // person clicked "Yes I want to update" on the collar menu.
@@ -264,7 +263,7 @@ default {
                 llParticleSystem([]);
                 g_iDone = TRUE;
                 llMessageLinked(LINK_SET,INSTALLION_DONE,"","");
-                llPlaySound("sound_installer_finish", 1.0);
+                llTriggerSound("sound_installer_finish", 1.0);
                 llSleep(1);
                 Say(g_sInfoText);
                 llSetTimerEvent(15.0);
@@ -272,10 +271,7 @@ default {
         }
     }
     timer() {
-        if (g_iDone) {
-            if (g_iInstallOnRez) SetFloatText();
-            else llResetScript();
-        }
+        if (g_iDone) llResetScript();
         llSetTimerEvent(300);
         if (llVecDist(llGetPos(),llList2Vector(llGetObjectDetails(llGetOwner(),[OBJECT_POS]),0)) > 30) llDie();
     }
