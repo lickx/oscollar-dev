@@ -247,6 +247,7 @@ default {
             }
         }
     }
+
     // when we get a BUNDLE_DONE message, move to the next bundle
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == BUNDLE_DONE) {
@@ -270,8 +271,12 @@ default {
             }
         }
     }
+
     timer() {
-        if (g_iDone) llResetScript();
+        if (g_iDone) {
+            if (g_iInstallOnRez) SetFloatText();
+            else llResetScript();
+        }
         llSetTimerEvent(300);
         if (llVecDist(llGetPos(),llList2Vector(llGetObjectDetails(llGetOwner(),[OBJECT_POS]),0)) > 30) llDie();
     }
