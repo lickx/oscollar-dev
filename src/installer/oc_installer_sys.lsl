@@ -227,7 +227,7 @@ default {
                     //llSetTimerEvent(30.0);
                 }
                 //Debug("sound");
-                llPlaySound("oc_installer_sound",1.0);
+                llPlaySound("sound_installer_start",1.0);
                 llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin
             } else if (sCmd == "ready") {
                 // person clicked "Yes I want to update" on the collar menu.
