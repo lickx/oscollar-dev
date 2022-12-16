@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2022.12.14";
+string g_sVersion = "2022.12.16";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -157,7 +157,7 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 }
 
 MainMenu(){
-    string sPrompt = "\nOsCollar Remote\t"+g_sVersion;
+    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  Remote\t"+g_sVersion;
     sPrompt += "\n\nSelected Partner: "+NameURI(g_sActivePartnerID);
     list lButtons = g_lMainMenuButtons + g_lMenus;
     Dialog(sPrompt, lButtons, [], 0, g_sMainMenu);
@@ -256,6 +256,10 @@ default {
         g_iListener=llListen(PersonalChannel(g_kOwner,0),"","",""); //lets listen here
         g_iCmdListener = llListen(g_iChannel,"",g_kOwner,"");
         llMessageLinked(LINK_SET,MENUNAME_REQUEST, g_sMainMenu,"");
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
+            string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
+            if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
+        }
         g_iPicturePrim = PicturePrim();
         NextPartner(0,0);
         MainMenu();
@@ -263,11 +267,11 @@ default {
 
     on_rez(integer i)
     {
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
+        if (g_kOwner != llGetOwner()) llResetScript();
+        else if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
             string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
             if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         }
-        if (g_kOwner != llGetOwner()) llResetScript();
     }
 
     touch_start(integer iNum) {

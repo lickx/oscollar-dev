@@ -23,12 +23,12 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sDevStage="";
-string g_sCollarVersion="2022.12.14";
+string g_sCollarVersion="2022.12.16";
 
 key g_kWearer;
 
-key g_kWWW;
+key g_kHttpVersion;
+key g_kHttpDistsites;
 
 list g_lMenuIDs;//3-strided list of avatars given menus, their dialog ids, and the name of the menu they were given
 integer g_iMenuStride = 3;
@@ -93,14 +93,14 @@ list g_lCacheGlows; // integer link, float glow. for restoring links with glow w
 
 list g_lClosedLockElements; // integer link. links to show when device locked
 list g_lOpenLockElements; // integer link. links to show when device unlocked
-string g_sDefaultLockSound="73f3f84b-0447-487d-8246-4ab3e5fdbf40";
-string g_sDefaultUnlockSound="d64c3566-cf76-44b5-ae76-9aabf60efab8";
-string g_sLockSound="73f3f84b-0447-487d-8246-4ab3e5fdbf40";
-string g_sUnlockSound="d64c3566-cf76-44b5-ae76-9aabf60efab8";
+string g_sDefaultLockSound="sound_lock";
+string g_sDefaultUnlockSound="sound_unlock";
+string g_sLockSound="sound_lock";
+string g_sUnlockSound="sound_unlock";
 
 integer g_iAnimsMenu=FALSE;
 integer g_iRlvMenu=FALSE;
-integer g_iCaptureMenu=FALSE;
+integer g_iKidnapMenu=FALSE;
 integer g_iLooks;
 
 integer g_iUpdateChan = -7483213;
@@ -176,21 +176,21 @@ UpdateConfirmMenu() {
 }
 
 HelpMenu(key kID, integer iAuth) {
-    string sPrompt="\nVersion: "+g_sCollarVersion+g_sDevStage+"\n";
-    sPrompt +="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
-    sPrompt += "\n\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.";
-    sPrompt += "\n\nScript engine: "+osGetScriptEngineName();
+    string sPrompt="\nVersion: "+g_sCollarVersion+"\n";
+    sPrompt += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
+    sPrompt += "\nScript engine: "+osGetScriptEngineName();
     list lUtility = [UPMENU];
     list lStaticButtons=["Help","Update","Version"];
     Dialog(kID, sPrompt, lStaticButtons, lUtility, 0, iAuth, "Help/About");
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\nO s C o l l a r  "+g_sCollarVersion+g_sDevStage;
+    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫\t"+g_sCollarVersion+"\n";
+    sPrompt +="\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     list lStaticButtons=["Apps"];
     if (g_iAnimsMenu) lStaticButtons+="Animations";
     else lStaticButtons+="-";
-    if (g_iCaptureMenu) lStaticButtons+="Capture";
+    if (g_iKidnapMenu) lStaticButtons+="Kidnap";
     else lStaticButtons+="-";
     lStaticButtons+=["Leash"];
     if (g_iRlvMenu) lStaticButtons+="RLV";
@@ -216,7 +216,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         }
     } else if (sStr == "info") {
         string sMessage = "\n\nModel: "+llGetObjectName();
-        sMessage += "\nOsCollar Version: "+g_sCollarVersion+g_sDevStage;
+        sMessage += "\nOsCollar Version: "+g_sCollarVersion;
         sMessage += "\nUser: "+llGetUsername(g_kWearer);
         sMessage += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
         sMessage += "\nThis %DEVICETYPE% has a "+g_sIntegrity+" core.\n";
@@ -291,7 +291,7 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             }
         }
     } else if (sCmd == "version") {
-        string sVersion = "\n\nOsCollar Version: "+g_sCollarVersion+g_sDevStage;
+        string sVersion = "\n\nOsCollar Version: "+g_sCollarVersion;
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sVersion,kID);
     }/* else if (sCmd == "objectversion") {
         // ping from an object, we answer to it on the object channel
@@ -343,7 +343,7 @@ RebuildMenu() {
     //Debug("Rebuild Menu");
     g_iAnimsMenu=FALSE;
     g_iRlvMenu=FALSE;
-    g_iCaptureMenu=FALSE;
+    g_iKidnapMenu=FALSE;
     g_lResizeButtons = [];
     g_lAppsButtons = [] ;
     llMessageLinked(LINK_SET, MENUNAME_REQUEST, "Main", "");
@@ -459,7 +459,7 @@ default {
                 }
             } else if (sStr=="Main|Animations") g_iAnimsMenu=TRUE;
             else if (sStr=="Main|RLV") g_iRlvMenu=TRUE;
-            else if (sStr=="Main|Capture") g_iCaptureMenu=TRUE;
+            else if (sStr=="Main|Kidnap") g_iKidnapMenu=TRUE;
             else if (sStr=="Settings|Size/Position") g_lResizeButtons = ["Position","Rotation","Size"];
         } else if (iNum == MENUNAME_REMOVE) {
             //sStr should be in form of parentmenu|childmenu
@@ -507,11 +507,8 @@ default {
                     else if (sMessage == "Help") UserCommand(iAuth,"help",kAv, TRUE);
                     else if (sMessage == "License") UserCommand(iAuth,"license",kAv, TRUE);
                     else if (sMessage == "Update") UserCommand(iAuth,"update",kAv,TRUE);
-                    else if (sMessage == "Version") {
-                        if (llStringLength(g_sDevStage)) {
-                            llOwnerSay("You are using a version that is still in development");
-                        } else g_kWWW = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/version", [], "");
-                    }
+                    else if (sMessage == "Version")
+                        g_kHttpVersion = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/device", [], "");
                 } else if (sMenu == "UpdateConfirmMenu"){
                     if (sMessage=="Yes") StartUpdate();
                     else {
@@ -654,19 +651,19 @@ default {
     
     http_response(key kID, integer iStatus, list lData, string sBody)
     {
-        if (kID == g_kWWW && iStatus == 200) {
+        if (kID == g_kHttpVersion) {
+            if (iStatus != 200) return;
             list lBody = llParseString2List(sBody, ["\n"], []);
-            string sWebVersion = llList2String(lBody, 0);
-            if (llGetListLength(llParseString2List(sWebVersion, ["."], [])) != 3) {
-                llOwnerSay("Could not retrieve info about the latest version");
-                return;
-            }
-            lBody = llDeleteSubList(lBody, 0, 0); // remove version, the rest is distributors
+            string sWebVersion = llStringTrim(llList2String(lBody, 0), STRING_TRIM);
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
-                llOwnerSay("An update is available!\n\nLatest version: "+sWebVersion+"\nYour version: "+g_sCollarVersion+"\n\n"+llDumpList2String(lBody, "\n"));
-            } else {
-                llOwnerSay("You are using the most recent version of the scripts");
-            }
+                llOwnerSay("An update is available!");
+                // Fetch a list of distribution sites:
+                g_kHttpDistsites = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/distsites", [], "");
+            } else
+                llOwnerSay("You are using the most recent version");
+        } else if (kID == g_kHttpDistsites) {
+            if (iStatus != 200) return;
+            llOwnerSay(sBody);
         }
     }
 }

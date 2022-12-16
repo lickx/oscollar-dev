@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2022.12.14";
+string g_sVersion = "2022.12.16";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -40,14 +40,14 @@ list g_lAnimStates = [ //http://wiki.secondlife.com/wiki/LlSetAnimationOverride
 
 string g_sJson_Anims = "{}";
 integer g_iAO_ON;
-integer g_iSitAnimOn = FALSE;
+integer g_iSitAnimOn = FALSE; // http://opensimulator.org/mantis/view.php?id=9042
 string g_sSitAnim;
 integer g_iSitAnywhereOn;
 string g_sSitAnywhereAnim;
 string g_sWalkAnim;
 integer g_iChangeInterval = 45;
 integer g_iLocked;
-integer g_iShuffle = TRUE;
+integer g_iShuffle;
 integer g_iStandPause;
 
 list g_lMenuIDs;
@@ -96,15 +96,15 @@ FindButtons() { // collect buttons names & links
 DoTextures(string style) {
     list lTextures = [
     "Dark",
-    "Minimize~c2f13a8f-fe38-4129-874b-9e79e011cc3a",
-    "Power~3ff1f3dd-abcf-413d-9e19-6c1a9dc50209",
-    "SitAny~b90745b1-3d4e-4ee3-8a8d-5bf8014c8be3",
-    "Menu~cdcd94ca-e432-4ded-9da2-e52e31f70e22",
+    "Minimize~button_dark_opensim",
+    "Power~button_dark_io",
+    "SitAny~button_dark_groundsit",
+    "Menu~button_dark_menu",
     "Light",
-    "Minimize~42a5d4ed-98d0-4d75-9b36-d06ab3df225a",
-    "Power~0b504c91-efb1-4a69-b833-42b780897b59",
-    "SitAny~2dc164d8-9f85-4247-951b-1c9e124e7f00",
-    "Menu~83779c3b-5028-4a43-87d4-60b924afaebb"
+    "Minimize~button_light_opensim",
+    "Power~button_light_io",
+    "SitAny~button_light_groundsit",
+    "Menu~button_light_menu"
     ];
     integer i = llListFindList(lTextures,[style]);
     integer iEnd = i+4;
@@ -299,7 +299,7 @@ list SortButtons(list lButtons, list lStaticButtons) {
 }
 
 MenuAO(key kID) {
-    string sPrompt = "\nOsCollar AO\t"+g_sVersion;
+    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  AO\t"+g_sVersion;
     list lButtons = ["LOCK"];
     if (g_iLocked) lButtons = ["UNLOCK"];
     if (kID == g_kWearer) lButtons += "Collar Menu";
@@ -440,12 +440,12 @@ Command(key kID, string sCommand) {
     } else if (sCommand == "unlock") {
         g_iLocked = FALSE;
         llOwnerSay("@detach=y");
-        llPlaySound("82fa6d06-b494-f97c-2908-84009380c8d1", 1.0);
+        llPlaySound("sound_unlock", 1.0);
         Notify(kID,"The AO has been unlocked.",TRUE);
     } else if (sCommand == "lock") {
         g_iLocked = TRUE;
         llOwnerSay("@detach=n");
-        llPlaySound("dec9fb53-0fef-29ae-a21d-b3047525d312", 1.0);
+        llPlaySound("sound_lock", 1.0);
         Notify(kID,"The AO has been locked.",TRUE);
     } else if (sCommand == "menu") MenuAO(kID);
     else if (sCommand == "load") {
@@ -474,39 +474,38 @@ StartUpdate(key kID) {
 }
 
 StoreSettings() {
-    integer iSettingsPrim = osGetLinkNumber("settings");
-    if (iSettingsPrim == -1) return;
     string sSettings;
-    sSettings += "ON="+(string)g_iAO_ON;
-    sSettings += "~SitAnimOn="+(string)g_iSitAnimOn;
-    sSettings += "~SitAnim="+g_sSitAnim;
-    sSettings += "~SitAnyOn="+(string)g_iSitAnywhereOn;
-    sSettings += "~WalkAnim="+g_sWalkAnim;
-    sSettings += "~Interval="+(string)g_iChangeInterval;
-    sSettings += "~Locked="+(string)g_iLocked;
-    sSettings += "~Shuffle="+(string)g_iShuffle;
-    sSettings += "~StandPause="+(string)g_iStandPause;
-    llSetLinkPrimitiveParamsFast(iSettingsPrim, [PRIM_DESC, sSettings]);
+    sSettings += "on="+(string)g_iAO_ON;
+    sSettings += "~card="+g_sCard;
+    sSettings += "~s="+(string)g_iSitAnimOn;
+    sSettings += "~sa="+g_sSitAnim;
+    sSettings += "~saw="+(string)g_iSitAnywhereOn;
+    sSettings += "~wa="+g_sWalkAnim;
+    sSettings += "~i="+(string)g_iChangeInterval;
+    sSettings += "~l="+(string)g_iLocked;
+    sSettings += "~rnd="+(string)g_iShuffle;
+    sSettings += "~sp="+(string)g_iStandPause;
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
 }
 
 RestoreSettings()
 {
-    integer iSettingsPrim = osGetLinkNumber("settings");
-    if (iSettingsPrim == -1) return;
-    string sSettings = llList2String(llGetLinkPrimitiveParams(iSettingsPrim, [PRIM_DESC]), 0);
+    string sSettings = llList2String(llGetLinkPrimitiveParams(LINK_THIS, [PRIM_DESC]), 0);
     list lSettings = llParseString2List(sSettings, ["~","="], []);
     integer i;
     for (i = 0; i < llGetListLength(lSettings); i+=2) {
         string sKey = llList2String(lSettings, i);
-        if (sKey == "ON") g_iAO_ON = llList2Integer(lSettings, i+1);
-        else if (sKey == "SitAnimOn") g_iSitAnimOn = llList2Integer(lSettings, i+1);
-        else if (sKey == "SitAnim") g_sSitAnim = llList2String(lSettings, i+1);
-        else if (sKey == "SitAnyOn") g_iSitAnywhereOn = llList2Integer(lSettings, i+1);
-        else if (sKey == "WalkAnim") g_sWalkAnim = llList2String(lSettings, i+1);
-        else if (sKey == "Interval") g_iChangeInterval = llList2Integer(lSettings, i+1);
-        else if (sKey == "Locked") g_iLocked = llList2Integer(lSettings, i+1);
-        else if (sKey == "Shuffle") g_iShuffle = llList2Integer(lSettings, i+1);
-        else if (sKey == "StandPause") g_iStandPause = llList2Integer(lSettings, i+1);
+        string sValue = llList2String(lSettings, i+1);
+        if (sKey == "on") g_iAO_ON = (integer)sValue;
+        else if (sKey == "card") g_sCard = sValue;
+        else if (sKey == "s") g_iSitAnimOn = (integer)sValue;
+        else if (sKey == "sa") g_sSitAnim = sValue;
+        else if (sKey == "saw") g_iSitAnywhereOn = (integer)sValue;
+        else if (sKey == "wa") g_sWalkAnim = sValue;
+        else if (sKey == "i") g_iChangeInterval = (integer)sValue;
+        else if (sKey == "l") g_iLocked = (integer)sValue;
+        else if (sKey == "rnd") g_iShuffle = (integer)sValue;
+        else if (sKey == "sp") g_iStandPause = (integer)sValue;
     }
 }
 

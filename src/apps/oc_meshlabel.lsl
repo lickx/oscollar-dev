@@ -22,7 +22,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.14";
+string g_sAppVersion = "2022.12.16";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
@@ -70,7 +70,7 @@ key g_kFontTexture = "464e8b47-d578-4e24-a671-de7c2f2b7a24";
 integer x = 45;
 integer y = 19;
 
-integer faces = 6;
+integer g_iNumFaces = 6;
 
 float g_fScrollTime = 0.5 ;
 integer g_iSctollPos ;
@@ -100,9 +100,9 @@ integer GetIndex(string sChar) {
 
 RenderString(integer iPos, string sChar) {
     integer frame = GetIndex(sChar);
-    integer i = iPos/faces;
+    integer i = iPos/g_iNumFaces;
     integer link = llList2Integer(g_lLabelLinks,i);
-    integer face = iPos - faces * i;
+    integer face = iPos - g_iNumFaces * i;
     integer frameY = frame / x;
     integer frameX = frame - x * frameY;
     float Uoffset = -0.5 + (Ureps/2 + Ureps*(frameX)) ;
@@ -131,12 +131,12 @@ integer LabelsCount() {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);
         if(sLabel == "MeshLabel") {
-            faces = llGetLinkNumberOfSides(iLink);
+            g_iNumFaces = llGetLinkNumberOfSides(iLink);
             g_lLabelLinks += [0];
             llSetLinkPrimitiveParamsFast(iLink,[PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
         } else if (sLabel == "LabelBase") g_lLabelBaseElements += iLink;
     }
-    g_iCharLimit = llGetListLength(g_lLabelLinks) * faces;
+    g_iCharLimit = llGetListLength(g_lLabelLinks) * g_iNumFaces;
     for(iLink=2; iLink <= iLinkCount; iLink++) {
         lTmp = llParseString2List(llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0), ["~"],[]);
         sLabel = llList2String(lTmp,0);

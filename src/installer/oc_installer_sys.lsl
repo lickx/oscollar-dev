@@ -39,8 +39,6 @@ integer g_iInstallOnRez = FALSE; // TRUE initiates right away on rez
 
 key g_kNameID;
 integer g_initChannel = -7483213;
-//integer g_initChannel = -7483220; //channel for AO SIX
-//integer g_initChannel = -7483210; //channel for Remote HUD SIX
 integer g_iSecureChannel;
 string g_sBuildVersion;
 
@@ -149,25 +147,30 @@ Particles(key kTarget) {
 }
 
 InitiateInstallation() {
-    integer iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1))); //collar+remote
-    //integer iChan = -llAbs((integer)("0x" + llGetSubString(llGetOwner(),30,-1))); // AO
-    llPlaySound("56051ff8-a86f-467a-84fd-96e9cfd10c71",1.0); //device
-    //llPlaySound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c",1.0); //ao
-    //llPlaySound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249",1.0); //remote hud
-    //Debug("Playing sound");
-    llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey()); //device
-    //llWhisper(iChan,"-.. --- / .- ---"); //AO command
-    //llWhisper(iChan,"-.. --- / .... ..- -.."); //Remote HUD command
+    integer iChan;
+    if (g_initChannel == -7483213) {
+        iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1))); //collar+remote
+        llWhisper(iChan,(string)llGetOwner()+":.- ... -.-|"+g_sBuildVersion+"|"+(string)llGetKey());
+    } else if (g_initChannel == -7483210) {
+        iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1))); //collar+remote
+        llWhisper(iChan,"-.. --- / .... ..- -.."); //Remote HUD command
+    } else if (g_initChannel == -7483220) {
+        iChan = -llAbs((integer)("0x" + llGetSubString(llGetOwner(),30,-1))); // AO
+        llWhisper(iChan,"-.. --- / .- ---"); //AO command
+    }
+    llPlaySound("sound_installer_start",1.0);
 }
 
 default {
     state_entry() {
-        llPreloadSound("56051ff8-a86f-467a-84fd-96e9cfd10c71"); //device
-        //llPreloadSound("9a2c5681-94e4-4fcd-881a-90b0b6bec87c"); //ao
-        //llPreloadSound("7c8bd540-3c08-42c4-a5c4-3dfd2349f249"); //remote hud
+        llPreloadSound("sound_installer_start");
+        llPreloadSound("sound_installer_finish");
         llSetTimerEvent(300.0);
         ReadName();
         g_sObjectName = llGetObjectName();
+        if (llGetInventoryType("oc_ao")==INVENTORY_SCRIPT) g_initChannel = -7483220;
+        else if (llGetInventoryType("oc_remote_sys")==INVENTORY_SCRIPT) g_initChannel = -7483210;
+
         llListen(g_initChannel, "", "", "");
         // set all scripts except self to not running
         // also build list of all bundles
@@ -224,7 +227,7 @@ default {
                     //llSetTimerEvent(30.0);
                 }
                 //Debug("sound");
-                llPlaySound("d023339f-9a9d-75cf-4232-93957c6f620c",1.0);
+                llPlaySound("oc_installer_sound",1.0);
                 llWhisper(g_initChannel,"-.. ---|"+g_sBuildVersion); //tell collar we are here and to send the pin
             } else if (sCmd == "ready") {
                 // person clicked "Yes I want to update" on the collar menu.
@@ -261,6 +264,7 @@ default {
                 llParticleSystem([]);
                 g_iDone = TRUE;
                 llMessageLinked(LINK_SET,INSTALLION_DONE,"","");
+                llPlaySound("sound_installer_finish", 1.0);
                 llSleep(1);
                 Say(g_sInfoText);
                 llSetTimerEvent(15.0);

@@ -32,7 +32,7 @@ string g_sParentMenu = "Main";
 string g_sSubMenu = "Access";
 integer g_iRunawayDisable;
 
-string g_sDrop = "f364b699-fb35-1640-d40b-ba59bdd5f7b7";
+string g_sDrop = "oc_dropsound";
 
 integer CMD_ZERO = 0;
 integer CMD_OWNER = 500;
@@ -77,7 +77,6 @@ integer g_iFirstRun;
 integer g_iIsLED;
 
 list g_lBlocklistPrims; // list of links with name 'blocklist'
-integer g_iAuthlistPrim; // searches first for 'authlist', else will be this prim
 
 string g_sSettingToken = "auth_";
 
@@ -195,7 +194,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID) {
         } else if (sToken == "tempowner") {
             lPeople = g_lTempOwner;
             if (llGetListLength(lPeople)) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nSorry!\n\nYou can only be captured by one person at a time.\n",kID);
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nSorry!\n\nYou can only be kidnapped by one person at a time.\n",kID);
                 return;
             }
         } else if (sToken == "block") {
@@ -278,28 +277,28 @@ SaveAuthorized()
         sFirstOwner = llList2String(g_lOwner, 0);
         sSecondOwner = llList2String(g_lOwner, 1);
     }
-    llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 0, sFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,fOpenAccess>, 0]);
-    llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 1, sSecondOwner, <1,1,0>, <fVanilla,fHardVanilla,0>, 0]);
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 0, sFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,fOpenAccess>, 0]);
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 1, sSecondOwner, <1,1,0>, <fVanilla,fHardVanilla,0>, 0]);
 
     if (llGetListLength(g_lTempOwner)) {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <1,1,0>, <0,0,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 2, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
     }
 
     string sGroup = TEXTURE_NOTHING;
     if (g_kGroup != NULL_KEY) sGroup = (string)g_kGroup;
     if (g_iGroupEnabled) {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <1,1,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, sGroup, <1,1,0>, <1,1,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, 3, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 3, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
     }
 
     for (iFace = 4; iFace < llGetNumberOfPrims(); iFace++) {
         if (llGetListLength(g_lTrust) > (iFace-4)) {
-            llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, (iFace-4)), <1,1,0>, <0,0,0>, 0]);
+            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, llList2String(g_lTrust, (iFace-4)), <1,1,0>, <0,0,0>, 0]);
         } else {
-            llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [PRIM_TEXTURE, iFace, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
+            llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, iFace, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
         }
     }
 
@@ -315,24 +314,24 @@ LoadAuthorized()
     list lExclude = ["", TEXTURE_BLANK, TEXTURE_PLYWOOD, TEXTURE_TRANSPARENT];
 
     g_lOwner = [];
-    l = llGetLinkPrimitiveParams(g_iAuthlistPrim, [PRIM_TEXTURE, 0]);
+    l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 0]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lOwner += [llList2Key(l, 0)];
     v = llList2Vector(l, 2);
     g_iLimitRange = (integer)v.x;
     g_iRunawayDisable = (integer)v.y;
     g_iOpenAccess = (integer)v.z;
 
-    l = llGetLinkPrimitiveParams(g_iAuthlistPrim, [PRIM_TEXTURE, 1]);
+    l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 1]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lOwner += [llList2Key(l, 0)];
     v = llList2Vector(l, 2);
     g_iVanilla = (integer)v.x;
     g_iHardVanilla = (integer)v.y;
 
     g_lTempOwner = [];
-    l = llGetLinkPrimitiveParams(g_iAuthlistPrim, [PRIM_TEXTURE, 2]);
+    l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 2]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTempOwner += [llList2Key(l, 0)];
 
-    l = llGetLinkPrimitiveParams(g_iAuthlistPrim, [PRIM_TEXTURE, 3]);
+    l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = llList2Key(l, 0);
     else g_kGroup = NULL_KEY;
     v = llList2Vector(l, 2);
@@ -344,7 +343,7 @@ LoadAuthorized()
     g_lTrust = [];
     integer iFace;
     for (iFace = 4; iFace < 8; iFace++) {
-        l = llGetLinkPrimitiveParams(g_iAuthlistPrim, [PRIM_TEXTURE, iFace]);
+        l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, iFace]);
         if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTrust += [llList2Key(l, 0)];
     }
 }
@@ -625,13 +624,13 @@ PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
     if (llGetAttached()) {
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
             PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.0, 0.20, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
             PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 0.753>, 0.0
         ]);
     } else { // rezzed on ground
-        llSetLinkPrimitiveParamsFast(g_iAuthlistPrim, [
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_ROT_LOCAL, ZERO_ROTATION,
             PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.0, 0.20, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
             PRIM_COLOR, ALL_SIDES, <1.000, 0.753, 0.753>, 1
@@ -649,8 +648,6 @@ default {
         else g_iFirstRun = TRUE;
         g_sWearerID = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
-        g_iAuthlistPrim = osGetLinkNumber("authlist");
-        if (g_iAuthlistPrim == -1) g_iAuthlistPrim = LINK_THIS;
         LoadAuthorized();
         UpdateBlocklistPrims();
         LoadBlocklist();
@@ -794,8 +791,6 @@ default {
 
     changed(integer iChange) {
         if (iChange & CHANGED_LINK) {
-            g_iAuthlistPrim = osGetLinkNumber("authlist");
-            if (g_iAuthlistPrim == -1) g_iAuthlistPrim = LINK_THIS;
             LoadAuthorized();
             UpdateBlocklistPrims();
             LoadBlocklist();

@@ -515,7 +515,7 @@ default {
                 sSaveIntegrity += "handmade";
             } else {
                 sMessage = "Optimal conditions!";
-                sSaveIntegrity += "default";
+                sSaveIntegrity += "professional";
             }
             llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,sSaveIntegrity,"");
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,sSaveIntegrity,"");

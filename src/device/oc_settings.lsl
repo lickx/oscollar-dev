@@ -27,8 +27,6 @@ integer g_iLineNr;
 key g_kLineID;
 key g_kCardID;
 list g_lExceptionTokens = ["texture","glow","shininess","color","intern"];
-key g_kLoadFromWeb;
-key g_kURLLoadRequest;
 key g_kWearer;
 
 integer CMD_OWNER = 500;
@@ -257,19 +255,10 @@ UserCommand(integer iAuth, string sStr, key kID) {
     if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower,0,4));
     else if (!llSubStringIndex(sStrLower,"load")) {
         if (iAuth == CMD_OWNER && kID != g_kTempOwner) {
-            if (llSubStringIndex(sStrLower,"load url") == 0 && iAuth == CMD_OWNER) {
-                string sURL = llList2String(llParseString2List(sStr,[" "],[]),2);
-                if (!llSubStringIndex(sURL,"http")) {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Fetching settings from "+sURL,kID);
-                    g_kURLLoadRequest = kID;
-                    g_kLoadFromWeb = llHTTPRequest(sURL,[HTTP_METHOD, "GET"],"");
-                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Please enter a valid URL like: "+g_sSampleURL,kID);
-            } else if (sStrLower == "load card" || sStrLower == "load") {
-                if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\n",kID);
-                    g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-                } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
-            }
+            if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
+                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\n",kID);
+                g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
+            } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
         } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
     } else if (!llSubStringIndex(sStrLower,"save")) {
         if (iAuth == CMD_OWNER) SaveSettings(kID);
@@ -352,31 +341,6 @@ default {
                 LoadSetting(sData,g_iLineNr);
                 llSetTimerEvent(2.0);
             }
-        }
-    }
-
-    http_response(key kID, integer iStatus, list lMeta, string sBody) {
-        if (kID ==  g_kLoadFromWeb) {
-            if (iStatus == 200) {
-                if (llGetListLength(lMeta) > 0)
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid URL. You need to provide a raw text file like this: "+g_sSampleURL,g_kURLLoadRequest);
-                else {
-                    list lLoadSettings = llParseString2List(sBody,["\n"],[]);
-                    if (llGetListLength(lLoadSettings)) {
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Settings fetched.",g_kURLLoadRequest);
-                        integer i;
-                        string sSetting;
-                        do {
-                            sSetting = llList2String(lLoadSettings,0);
-                            i = llGetListLength(lLoadSettings);
-                            lLoadSettings = llDeleteSubList(lLoadSettings,0,0);
-                            LoadSetting(sSetting,i);
-                        } while (i);
-                        SendValues();
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Empty site provided to load settings.",g_kURLLoadRequest);
-                }
-            } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Invalid url provided to load settings.",g_kURLLoadRequest);
-            g_kURLLoadRequest = NULL_KEY;
         }
     }
 
