@@ -1,6 +1,6 @@
 ### Welcome to OsCollar
 
-OsCollar is a set of gadgets for submission roleplay, that once originated from Second Life
+OsCollar is a set of gadgets for submission roleplay for use in the OpenSim metaverse
 
 Grid and sim owners might want to read [opensim patches](doc/opensim-patches.md)
 
