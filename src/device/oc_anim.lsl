@@ -458,6 +458,7 @@ UserCommand(integer iNum, string sStr, key kID) {
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -479,7 +480,7 @@ default {
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRLV_ON = FALSE;
         checkCrawl();
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        PieSlice();
     }
 
     state_entry() {
@@ -488,7 +489,7 @@ default {
         checkCrawl();
         if (llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
         CreateAnimList();
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        PieSlice();
     }
 
     run_time_permissions(integer iPerm) {

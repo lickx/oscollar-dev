@@ -319,6 +319,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -342,7 +343,7 @@ default {
         g_iRLVOn = FALSE;
         g_lBaked = [];
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_RLV","");
-        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        if (!g_iIsLED) PieSlice();
     }
 
     state_entry() {
@@ -350,7 +351,7 @@ default {
         llOwnerSay("@clear");
         g_kWearer = llGetOwner();
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
-        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        if (!g_iIsLED) PieSlice();
     }
 
     attach(key kID) {

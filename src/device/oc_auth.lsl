@@ -623,6 +623,7 @@ RunAway() {
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -652,7 +653,7 @@ default {
         UpdateBlocklistPrims();
         LoadBlocklist();
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
-        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        if (!g_iIsLED) PieSlice();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {

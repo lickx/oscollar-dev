@@ -321,6 +321,7 @@ dequeueSensor() {
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -347,7 +348,7 @@ default {
         if (!llSubStringIndex(llGetObjectDesc(),"LED")) g_iIsLED = TRUE;
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer),0,1));
         g_sWearerName = NameURI(g_kWearer);
-        if (!g_iIsLED && llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        if (!g_iIsLED) PieSlice();
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_NAME,g_sDeviceName]);
     }
 

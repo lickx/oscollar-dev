@@ -291,6 +291,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
+    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -320,12 +321,12 @@ default {
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+        PieSlice();
     }
 
     on_rez(integer iParam) {
         if (g_kWearer == llGetOwner()) {
-            if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) PieSlice();
+            PieSlice();
             llSetTimerEvent(2.0);
         }
         else llResetScript();
