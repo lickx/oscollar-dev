@@ -1,8 +1,8 @@
 SCRIPT|oc_bell
-SCRIPT|oc_capture
 SCRIPT|oc_com
 SCRIPT|oc_exceptions
 SCRIPT|oc_folders
+SCRIPT|oc_kidnap
 SCRIPT|oc_label
 SCRIPT|oc_leash
 SCRIPT|oc_meshlabel
@@ -14,3 +14,22 @@ SCRIPT|oc_themes
 SCRIPT|oc_titler
 ITEM|OsCollar License
 ITEM|OsCollar Help
+ITEM|sound_lock
+ITEM|sound_unlock
+ITEM|leash_chain
+ITEM|leash_silk
+ITEM|bell_brass_01
+ITEM|bell_brass_02
+ITEM|bell_cow_01
+ITEM|bell_cow_02
+ITEM|bell_cow_03
+ITEM|bell_plastic_01
+ITEM|bell_plastic_02
+ITEM|bell_silver_01
+ITEM|bell_silver_02
+ITEM|bell_silver_03
+ITEM|bell_supersoft_01
+ITEM|bell_supersoft_02
+ITEM|Leash Holder
+ITEM|Leash Post
+ITEM|Pretty Balloon
