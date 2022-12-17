@@ -1,6 +1,6 @@
 ### Welcome to OsCollar
 
-OsCollar is the de-facto OpenSim fork of OpenCollar, a device for submission roleplay that originated in Second Life
+OsCollar is a set of gadgets for submission roleplay, that once originated from Second Life
 
 Grid and sim owners might want to read [opensim patches](doc/opensim-patches.md)
 
