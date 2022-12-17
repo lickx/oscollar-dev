@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "1.3";
+string g_sAppVersion = "2022.12.17";
 
 string g_sSubMenu = "Bookmarks";
 string g_sParentMenu = "Apps";
@@ -32,9 +32,6 @@ list g_lDestinations;
 list g_lDestinations_Slurls;
 list g_lVolatile_Destinations;
 list g_lVolatile_Slurls;
-key g_kRequestHandle;
-vector g_vLocalPos;
-integer g_iRLVOn;
 string g_tempLoc;
 
 list g_lMenuIDs;
@@ -48,7 +45,7 @@ integer g_iLine;
 string UPMENU = "BACK";
 key g_kCommander;
 
-list PLUGIN_BUTTONS = ["SAVE", "PRINT", "REMOVE"];
+list PLUGIN_BUTTONS = ["Add", "Remove", "Print"];
 
 integer CMD_OWNER = 500;
 integer CMD_GROUP = 502;
@@ -96,10 +93,10 @@ UserCommand(integer iNum, string sStr, key kID) {
     } else if (sStr == PLUGIN_CHAT_CMD || llToLower(sStr) == "menu " + PLUGIN_CHAT_CMD_ALT || llToLower(sStr) == PLUGIN_CHAT_CMD_ALT) {
         if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
         else DoMenu(kID, iNum);
-    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD+" save")-1) == PLUGIN_CHAT_CMD+" save") {
+    } else if (llGetSubString(sStr,0,llStringLength(PLUGIN_CHAT_CMD+" add")-1) == PLUGIN_CHAT_CMD+" add") {
         if (iNum == CMD_GROUP) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " save")) {
-            string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " save") + 1, -1), STRING_TRIM);
+        else if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " add")) {
+            string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " add") + 1, -1), STRING_TRIM);
             if(llListFindList(g_lVolatile_Destinations, [sAdd]) >= 0 || llListFindList(g_lDestinations, [sAdd]) >= 0)
                 llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"This destination name is already taken",kID);
             else {
@@ -110,7 +107,7 @@ UserCommand(integer iNum, string sStr, key kID) {
             Dialog(kID,
 "Enter a name for the destination below. Submit a blank field to cancel and return.
 You can enter:
-1) A friendly name to save your current location to your favorites
+1) A friendly name to add your current location to your favorites
 2) A new location or SLurl", [], [], 0, iNum,"TextBoxIdSave");
 
         }
@@ -238,7 +235,7 @@ integer validatePlace(string sStr, key kAv, integer iAuth) {
         sRegionName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM);
     } else if (llGetListLength(lPieces) > MAX_CHAR_TYPE) return 3;
     else  {
-        UserCommand(iAuth, PLUGIN_CHAT_CMD + " save " + sStr, kAv);
+        UserCommand(iAuth, PLUGIN_CHAT_CMD + " add " + sStr, kAv);
         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
         return 0;
     }
@@ -274,28 +271,23 @@ ReadDestinations() {
     g_lDestinations = [];
     g_lDestinations_Slurls = [];
     g_iLine = 0;
-    if(llGetInventoryKey(g_sCard)!=NULL_KEY)
+    if(llGetInventoryType(g_sCard)==INVENTORY_NOTECARD)
         g_kDataID = llGetNotecardLine(g_sCard, 0);
 }
 
 TeleportTo(string sStr) {
     string sRegion = llStringTrim(llGetSubString(sStr, 0, llSubStringIndex(sStr, "(") - 1), STRING_TRIM);
-    string sCoords = llStringTrim(llGetSubString(sStr, llSubStringIndex(sStr, "(") + 1 , llStringLength(sStr) - 2), STRING_TRIM);
-    list tokens = llParseString2List(sCoords, [","], []);
-    g_vLocalPos.x = llList2Float(tokens, 0);
-    g_vLocalPos.y = llList2Float(tokens, 1);
-    g_vLocalPos.z = llList2Float(tokens, 2);
-    if (g_iRLVOn)
-        g_kRequestHandle = llRequestSimulatorData(sRegion, DATA_SIM_POS);
-    else
-        llMapDestination(sRegion, g_vLocalPos, ZERO_VECTOR);
+    string sCoords = "<"+llStringTrim(llGetSubString(sStr, llSubStringIndex(sStr, "(") + 1 , llStringLength(sStr) - 2), STRING_TRIM)+">";
+    vector vCoords = (vector)sCoords;
+    vector vLookAt = llRot2Euler(llGetRot()) * RAD_TO_DEG;
+    osTeleportOwner(sRegion, vCoords, vLookAt); // Threatlevel none, works with HG
 }
 
 PrintDestinations(key kID) {  // On inventory change, re-read our ~destinations notecard
     integer i;
     integer iLength = llGetListLength(g_lDestinations);
     string sMsg;
-    sMsg += "\n\nThe below can be copied and pasted into the " + g_sCard + " notecard. The format should follow:\n\ndestination name~region name(123,123,123)\n\n";
+    sMsg += "\n\nThe below can be copied and pasted into the " + g_sCard + " notecard. The format should follow:\n\nDestination Name~http://hg.example.com:8002:Region Name(127,127,20)\n\n";
     for(; i < iLength; i++) {
         sMsg += llList2String(g_lDestinations, i) + "~" + llList2String(g_lDestinations_Slurls, i) + "\n";
         if (llStringLength(sMsg) >1000) {
@@ -326,22 +318,6 @@ default {
     }
 
     dataserver(key kID, string sData) {
-        if(kID == g_kRequestHandle) {
-            list tokens = llParseString2List(sData, ["<", ",", ">"], []);
-            string pos_str;
-            vector global_pos;
-            global_pos.x = llList2Float(tokens, 0);
-            global_pos.y = llList2Float(tokens, 1);
-            global_pos.z = llList2Float(tokens, 2);
-            global_pos += g_vLocalPos;
-            pos_str = (string)((integer)global_pos.x)
-                      + "/" + (string)((integer)global_pos.y)
-                      + "/" + (string)((integer)global_pos.z);
-            if (g_iRLVOn) {
-                string sRlvCmd = "tpto:" + pos_str + "=force";
-                llMessageLinked(LINK_RLV, RLV_CMD, sRlvCmd, g_kCommander);
-            }
-        }
         if (kID == g_kDataID) {
             list split;
             if (sData != EOF) {
@@ -363,10 +339,6 @@ default {
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if(iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
-        else if (iNum == RLV_OFF)
-            g_iRLVOn = FALSE;
-        else if (iNum == RLV_ON)
-            g_iRLVOn = TRUE;
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
@@ -414,11 +386,11 @@ default {
                         if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
                 } else if (~llListFindList(PLUGIN_BUTTONS, [sMessage])) {
-                    if (sMessage == "SAVE")
-                        UserCommand(iAuth, PLUGIN_CHAT_CMD + " save", kAv);
-                    else if (sMessage == "REMOVE")
+                    if (sMessage == "Add")
+                        UserCommand(iAuth, PLUGIN_CHAT_CMD + " add", kAv);
+                    else if (sMessage == "Remove")
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " remove", kAv);
-                    else if (sMessage == "PRINT") {
+                    else if (sMessage == "Print") {
                         UserCommand(iAuth, PLUGIN_CHAT_CMD + " print", kAv);
                         UserCommand(iAuth, PLUGIN_CHAT_CMD, kAv);
                     }
