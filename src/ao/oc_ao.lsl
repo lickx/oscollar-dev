@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2022.12.16";
+string g_sVersion = "2022.12.18";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -100,14 +100,16 @@ DoTextures(string style) {
     "Power~button_dark_io",
     "SitAny~button_dark_groundsit",
     "Menu~button_dark_menu",
+    "Device~button_dark_device",
     "Light",
     "Minimize~button_light_opensim",
     "Power~button_light_io",
     "SitAny~button_light_groundsit",
-    "Menu~button_light_menu"
+    "Menu~button_light_menu",
+    "Device~button_light_device"
     ];
     integer i = llListFindList(lTextures,[style]);
-    integer iEnd = i+4;
+    integer iEnd = i+(llGetListLength(lTextures)/2)-1;
     while (++i <= iEnd) {
         string sData = llStringTrim(llList2String(lTextures,i),STRING_TRIM);
         list lParams = llParseStringKeepNulls(sData,["~"],[]);
@@ -183,6 +185,7 @@ DoStatus() {
     else vColor = g_vAOoffcolor;
     llSetLinkPrimitiveParamsFast(llListFindList(g_lButtons,["SitAny"]),
         [PRIM_COLOR, ALL_SIDES, vColor, 1]);
+    StoreSettings();
 }
 
 //ao functions
@@ -550,7 +553,7 @@ default {
         } else DefinePosition();
     }
 
-    touch_start(integer total_number) {
+    touch_end(integer total_number) {
         if(llGetAttached()) {
             if (!g_iReady) {
                 MenuLoad(g_kWearer,0);
@@ -569,6 +572,8 @@ default {
             } else if (sButton == "Power") {
                 if (g_iAO_ON) Command(g_kWearer,"off");
                 else if (g_iReady) Command(g_kWearer,"on");
+            } else if (sButton == "Device") {
+                llRegionSayTo(llGetOwner(), g_iHUDChannel, "menu");
             }
         } else if (llDetectedKey(0) == g_kWearer) MenuAO(g_kWearer);
     }
