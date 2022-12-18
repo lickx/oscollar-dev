@@ -23,7 +23,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2022.12.16";
+string g_sCollarVersion="2022.12.18";
 
 key g_kWearer;
 
@@ -265,7 +265,10 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
             RebuildMenu();
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Menus have been fixed!",kID);
         //} else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (sCmd == "update") {
+    } else if (sCmd == "stealth") Stealth(!g_iHide);
+    else if (sCmd == "hide") Stealth(TRUE);
+    else if (sCmd == "show") Stealth(FALSE);
+    else if (sCmd == "update") {
         if (kID == g_kWearer) {
             g_iWillingUpdaters = 0;
             g_kCurrentUser = kID;
@@ -419,6 +422,7 @@ Stealth(integer iHide) {
     }
     g_iHide = iHide;
     SetLockElementAlpha();
+    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"stealth="+(string)g_iHide, "");
 }
 
 init() {
@@ -516,10 +520,10 @@ default {
                         return;
                     }
                 } else if (sMenu == "Settings") {
-                     if (sMessage == "Print") llMessageLinked(LINK_SAVE, iAuth,"print settings",kAv);
-                     else if (sMessage == "Load") llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
-                     else if (sMessage == "Save") llMessageLinked(LINK_SAVE,iAuth,sMessage,kAv);
-                     else if (sMessage == "Fix") {
+                    if (sMessage == "Print") llMessageLinked(LINK_SAVE, iAuth,"print settings",kAv);
+                    else if (sMessage == "Load") llMessageLinked(LINK_SAVE, iAuth,sMessage,kAv);
+                    else if (sMessage == "Save") llMessageLinked(LINK_SAVE,iAuth,sMessage,kAv);
+                    else if (sMessage == "Fix") {
                          UserCommand(iAuth, sMessage, kAv, TRUE);
                          return;
                     } else if (sMessage == "☑ Visible") {
