@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "1.3";
+string g_sAppVersion = "2022.12.18";
 
 string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
@@ -46,7 +46,7 @@ integer g_iLine = 0;
 string  UPMENU                      = "BACK";
 key     g_kCommander;
 
-list    PLUGIN_BUTTONS              = ["SAVE", "PRINT", "REMOVE"];
+list    PLUGIN_BUTTONS              = ["Save", "Remove", "Print"];
 
 //MESSAGE MAP
 integer DIALOG                     = -9000;
@@ -78,10 +78,10 @@ UserCommand(string sStr) {
          llResetScript();
     } else if(sStr == PLUGIN_CHAT_CMD || llToLower(sStr) == "menu " + PLUGIN_CHAT_CMD_ALT || llToLower(sStr) == PLUGIN_CHAT_CMD_ALT)
         DoMenu();
-    else if(llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " save") - 1) == PLUGIN_CHAT_CMD + " save") {
+    else if(llGetSubString(sStr, 0, llStringLength(PLUGIN_CHAT_CMD + " add") - 1) == PLUGIN_CHAT_CMD + " add") {
 //grab partial string match to capture destination name
-        if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " save")) {
-            string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " save") + 1, -1), STRING_TRIM);
+        if(llStringLength(sStr) > llStringLength(PLUGIN_CHAT_CMD + " add")) {
+            string sAdd = llStringTrim(llGetSubString(sStr, llStringLength(PLUGIN_CHAT_CMD + " add") + 1, -1), STRING_TRIM);
             if(llListFindList(g_lVolatile_Destinations, [sAdd]) >= 0 || llListFindList(g_lDestinations, [sAdd]) >= 0)
                 llOwnerSay("This destination name is already taken");
             else {
@@ -89,11 +89,11 @@ UserCommand(string sStr) {
                 addDestination(sAdd, slurl);
             }
         } else {
-            // Notify that they need to give a description of the saved destination ie. <prefix>bookmarks save description
+            // Notify that they need to give a description of the saved destination ie. <prefix>bookmarks add description
             Dialog(
 "Enter a name for the destination below. Submit a blank field to cancel and return.
 You can enter:
-1) A friendly name to save your current location to your favorites
+1) A friendly name to add your current location to your favorites
 2) A new location or SLurl", [], [], 0,"TextBoxIdSave");
 
         }
@@ -163,7 +163,7 @@ You can enter:
 
 addDestination(string sMessage, string sLoc) {
     if (llGetListLength(g_lVolatile_Destinations)+llGetListLength(g_lDestinations) >= 45 ) {
-        llOwnerSay("The maximum number 45 bookmars is already reached.");
+        llOwnerSay("The maximum number 45 bookmarks is already reached.");
         return;
     }
     g_lVolatile_Destinations += sMessage;
@@ -227,7 +227,7 @@ integer validatePlace(string sStr) {
         sRegionName = llStringTrim(llList2String(lPieces, 0), STRING_TRIM); //trim off whitespace from region name
     } else if(llGetListLength(lPieces) > MAX_CHAR_TYPE) {return 3; } //this location looks wrong, retreat
     else  { //there's no location here, kick out new menu
-        UserCommand(PLUGIN_CHAT_CMD + " save " + sStr);
+        UserCommand(PLUGIN_CHAT_CMD + " add " + sStr);
         UserCommand(PLUGIN_CHAT_CMD);
         return 0;
     }
@@ -392,11 +392,11 @@ default {
                         UserCommand(PLUGIN_CHAT_CMD + " remove");
                     } else UserCommand(PLUGIN_CHAT_CMD);
                 } else if(~llListFindList(PLUGIN_BUTTONS, [sMessage])) {
-                    if(sMessage == "SAVE")
-                        UserCommand( PLUGIN_CHAT_CMD + " save");
-                    else if(sMessage == "REMOVE")
+                    if(sMessage == "Save")
+                        UserCommand( PLUGIN_CHAT_CMD + " add");
+                    else if(sMessage == "Remove")
                         UserCommand(PLUGIN_CHAT_CMD + " remove");
-                    else if(sMessage == "PRINT") {
+                    else if(sMessage == "Print") {
                         UserCommand(PLUGIN_CHAT_CMD + " print");
                         UserCommand(PLUGIN_CHAT_CMD);
                     }
