@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2022.12.18";
+string g_sVersion = "2022.12.26";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -515,6 +515,8 @@ RestoreSettings()
 default {
     state_entry() {
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
+        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
+        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_kWearer = llGetOwner();
         g_iInterfaceChannel = -llAbs((integer)("0x" + llGetSubString(g_kWearer,30,-1)));
         llListen(g_iInterfaceChannel, "", "", "");
@@ -531,16 +533,12 @@ default {
     }
 
     on_rez(integer iStart) {
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-            string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-            if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
-        }
         if (g_kWearer != llGetOwner()) llResetScript();
         RestoreSettings();
         g_iReady = FALSE;
         if (llGetAttached()) {
             if (g_iLocked) llOwnerSay("@detach=n");
-            llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
+            llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS | PERMISSION_TAKE_CONTROLS);
         }
     }
 
@@ -813,7 +811,7 @@ default {
                     StoreSettings();
                 }
                 DoStatus();
-                if (llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS);
+                if (llGetAttached()) llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS | PERMISSION_TAKE_CONTROLS);
             }
         }
     }
@@ -825,6 +823,9 @@ default {
             if (g_iAO_ON) SetAnimOverride();
             else llResetAnimationOverride("ALL");
         }
+        if (iFlag & PERMISSION_TAKE_CONTROLS) {
+            llTakeControls(CONTROL_FWD, TRUE, TRUE);
+        }
     }
 
     changed(integer iChange) {
@@ -833,4 +834,3 @@ default {
         } else if (iChange & CHANGED_LINK) llResetScript();
     }
 }
-
