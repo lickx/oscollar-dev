@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2022.12.16";
+string g_sVersion = "2022.12.26";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -50,7 +50,9 @@ integer g_iUpdateChan = -7483210;
 integer g_iHidden;
 integer g_iPicturePrim;
 string g_sPictureID;
-string g_sTextureALL ="57701142-dac0-49f5-9d1c-005bdf10277b";
+string g_sTextureALL = "button_dark_partners";
+
+string g_sCurrentTheme;
 
 //  MESSAGE MAP
 integer CMD_TOUCH            = 100;
@@ -191,6 +193,30 @@ list BuildObjectList() {
     return lRezObjects;
 }
 
+SetPicturePrim(string sActivePartnerName)
+{
+    string sTexture;
+    if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) {
+        sTexture = sActivePartnerName;
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        return;
+    } else if (llGetInventoryType("buttons_"+g_sCurrentTheme+"_initials") != INVENTORY_TEXTURE) {
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
+        return;
+    }
+    string sAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+    string sLetter = llGetSubString(sActivePartnerName, 0, 0);
+    integer iPos = llSubStringIndex(sAlphabet, sLetter);
+    if (~iPos) {
+        sTexture = ".initials";
+        float WIDTH = 1.0 / 6.0;
+        float HEIGHT = 1.0 / 6.0;
+        float fOffsetY = 0.5 - ((iPos / 6) * HEIGHT) - (HEIGHT/2);
+        float fOffsetX = -0.5 + ((iPos % 6) * WIDTH) + (WIDTH/2);
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, "button_"+g_sCurrentTheme+"_initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
+    } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
+}
+
 NextPartner(integer iDirection, integer iTouch) {
     g_lPartnersInSim = PartnersInSim();
     if ((llGetListLength(g_lPartnersInSim) > 1) && iDirection) {
@@ -208,24 +234,7 @@ NextPartner(integer iDirection, integer iTouch) {
         integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
         // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
         if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
-        if (g_iPicturePrim) {
-            if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) {
-                sTexture = sActivePartnerName;
-                llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
-            } else if (llGetInventoryType(".initials") == INVENTORY_TEXTURE) {
-                string sAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
-                string sLetter = llGetSubString(sActivePartnerName, 0, 0);
-                integer iPos = llSubStringIndex(sAlphabet, sLetter);
-                if (~iPos) {
-                    sTexture = ".initials";
-                    float WIDTH = 1.0 / 6.0;
-                    float HEIGHT = 1.0 / 6.0;
-                    float fOffsetY = 0.5 - ((iPos / 6) * HEIGHT) - (HEIGHT/2);
-                    float fOffsetX = -0.5 + ((iPos % 6) * WIDTH) + (WIDTH/2);
-                    llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, ".initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
-                } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
-            } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]); // fallback to default_profile_picture
-        }
+        if (g_iPicturePrim) SetPicturePrim(sActivePartnerName);
     } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     if(iTouch) {
@@ -246,6 +255,9 @@ integer PicturePrim() {
 default {
     state_entry() {
         g_kOwner = llGetOwner();
+        if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
+        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
+        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         llSleep(1.0);//giving time for others to reset before populating menu
         if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
@@ -256,10 +268,6 @@ default {
         g_iListener=llListen(PersonalChannel(g_kOwner,0),"","",""); //lets listen here
         g_iCmdListener = llListen(g_iChannel,"",g_kOwner,"");
         llMessageLinked(LINK_SET,MENUNAME_REQUEST, g_sMainMenu,"");
-        if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-            string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-            if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
-        }
         g_iPicturePrim = PicturePrim();
         NextPartner(0,0);
         MainMenu();
@@ -268,25 +276,22 @@ default {
     on_rez(integer i)
     {
         if (g_kOwner != llGetOwner()) llResetScript();
-        else if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-            string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-            if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
-        }
     }
 
-    touch_start(integer iNum) {
-        if (llGetAttached() && (llDetectedKey(0)==g_kOwner)) {// Dont do anything if not attached to the HUD
-//          I made the root prim the "menu" prim, and the button action default to "menu."
-            string sButton = llToLower((string)llGetLinkPrimitiveParams(llDetectedLinkNumber(0),[PRIM_DESC]));
-            if (~llSubStringIndex(sButton,"remote"))
-                llMessageLinked(LINK_SET, CMD_TOUCH,"hide","");
-            else if (sButton == "hudmenu") MainMenu();
-            else if (sButton == "rez") RezMenu();
-            else if (~llSubStringIndex(sButton,"picture")) NextPartner(1,TRUE);
-            else if (sButton == "bookmarks") llMessageLinked(LINK_THIS,0,"bookmarks menu","");
-            else if (sButton == "tp save") llMessageLinked(LINK_THIS,0,sButton,"");
-            else SendCollarCommand(sButton);
-        }
+    touch_end(integer iNum) {
+        // Dont do anything if not attached to the HUD
+        if (llGetAttached()==0 || llDetectedKey(0)!=g_kOwner) return;
+        // I made the root prim the "menu" prim, and the button action default to "menu."
+        string sButtonDesc = llToLower((string)llGetLinkPrimitiveParams(llDetectedLinkNumber(0),[PRIM_DESC]));
+        string sButtonName = llToLower(llGetLinkName(llDetectedLinkNumber(0)));
+        if (~llSubStringIndex(sButtonName,"remote"))
+            llMessageLinked(LINK_SET, CMD_TOUCH,"hide","");
+        else if (sButtonName == "hudmenu") MainMenu();
+        else if (sButtonName == "rez") RezMenu();
+        else if (~llSubStringIndex(sButtonDesc,"picture")) NextPartner(1,TRUE);
+        else if (sButtonName == "bookmarks") llMessageLinked(LINK_THIS,0,"bookmarks menu","");
+        else if (sButtonName == "tp save") llMessageLinked(LINK_THIS,0,sButtonDesc,"");
+        else SendCollarCommand(sButtonName);
     }
 
     listen(integer iChannel, string sName, key kID, string sMessage) {
@@ -337,6 +342,9 @@ default {
             g_sTextureALL = sStr;
             if (g_sActivePartnerID == g_sAllPartners)
                 llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        } else if (iNum == 112) {
+            g_sCurrentTheme = sStr;
+            SetPicturePrim(llKey2Name((key)g_sActivePartnerID));
         } else if (iNum == DIALOG_RESPONSE && kID == g_kMenuID) {
             list lParams = llParseString2List(sStr, ["|"], []);
             string sMessage = llList2String(lParams, 1);
