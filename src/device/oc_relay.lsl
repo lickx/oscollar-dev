@@ -1,3 +1,4 @@
+
 //  oc_relay.lsl
 //
 //  Copyright (c) 2008 - 2017 Satomi Ahn, Nandana Singh, Wendy Starfall,
@@ -244,10 +245,12 @@ Menu(key kID, integer iAuth) {
         lButtons = ["☐ Ask","☒ Auto"];
         sPrompt += " is set to auto mode.";
     } else sPrompt += " is offline.";
-    if (g_iSmartStrip) lButtons+=["☑ Smart"];
-    else lButtons+=["☐ Smart"];
-    if (g_iAllowAttach) lButtons+=["☑ AllowAttch"];
-    else lButtons+=["☐ AllowAttch"];
+    if (kID == g_kWearer) {
+        if (g_iSmartStrip) lButtons+=["☑ Smart"];
+        else lButtons+=["☐ Smart"];
+        if (g_iAllowAttach) lButtons+=["☑ AllowAttach"];
+        else lButtons+=["☐ AllowAttach"];
+    }
     lButtons += ["Reset"];
     if (g_iHelpless) lButtons+=["☑ Helpless"];
     else lButtons+=["☐ Helpless"];
@@ -326,15 +329,17 @@ UserCommand(integer iAuth, string sStr, key kID) {
                 }
             }
         } else if (llGetSubString(sChangetype,0,4) == "smart") {
-            if (sChangevalue == "off") {
+            if (kID!=g_kWearer) RelayNotify(kID,"Access denied!",0);
+            else if (sChangevalue == "off") {
                 g_iSmartStrip = FALSE;
                 sText = "Smartstrip turned off.\n\nAttachments and clothing, also if layers are somewhere inside #RLV folder directories, will be stripped normally.\n";
             } else if (sChangevalue == "on") {
                 sText = "Smartstrip turned on.\n\nAll smartstrip ready folders in the #RLV directory will be removed as a whole when corresponding clothing layers are stripped.\n";
                 g_iSmartStrip = TRUE;
             }
-        } else if (llGetSubString(sChangetype,0,9) == "allowattch") {
-            if (sChangevalue == "off") {
+        } else if (llGetSubString(sChangetype,0,9) == "allowattach") {
+            if (kID!=g_kWearer) RelayNotify(kID,"Access denied!",0);
+            else if (sChangevalue == "off") {
                 g_iAllowAttach = FALSE;
                 sText = "You can no longer attach objects, if the attachpoint is locked.\n";
             } else if (sChangevalue == "on") {
