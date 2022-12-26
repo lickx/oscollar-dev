@@ -23,7 +23,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2022.12.18";
+string g_sCollarVersion="2022.12.26";
 
 key g_kWearer;
 
@@ -428,10 +428,6 @@ Stealth(integer iHide) {
 init() {
     g_iWaitRebuild = TRUE;
     llSetTimerEvent(1.0);
-    if (llGetInventoryType("oc_installer_sys")==INVENTORY_NONE) {
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sCollarVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
-    }
 }
 
 StartUpdate() {
@@ -443,6 +439,9 @@ StartUpdate() {
 default {
     state_entry() {
         g_kWearer = llGetOwner();
+        if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
+        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sCollarVersion, -1, 0);
+        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_iHide=!(integer)llGetAlpha(ALL_SIDES);
         if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // no dummy pair, so cache lost, rebuild
         init();
@@ -609,9 +608,11 @@ default {
             if(kID == NULL_KEY) {
                 g_bDetached = TRUE;
                 llMessageLinked(LINK_DIALOG,NOTIFY_OWNERS, "%WEARERNAME% has attached me while locked at "+GetTimestamp()+"!",kID);
-            } else if (g_bDetached) {
-                llMessageLinked(LINK_DIALOG,NOTIFY_OWNERS, "%WEARERNAME% has re-attached me at "+GetTimestamp()+"!",kID);
+            } else {
+                if (g_bDetached)
+                    llMessageLinked(LINK_DIALOG,NOTIFY_OWNERS, "%WEARERNAME% has re-attached me at "+GetTimestamp()+"!",kID);
                 g_bDetached = FALSE;
+                if (g_iLocked) llOwnerSay("@detach=n");
             }
         }
     }

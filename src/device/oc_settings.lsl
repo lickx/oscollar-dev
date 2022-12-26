@@ -26,7 +26,7 @@ string g_sSplitLine;
 integer g_iLineNr;
 key g_kLineID;
 key g_kCardID;
-list g_lExceptionTokens = ["texture","glow","shininess","color","intern"];
+list g_lExceptionTokens = ["texture","glow","shininess","color","intern","auth"];
 key g_kWearer;
 
 integer CMD_OWNER = 500;
@@ -59,7 +59,6 @@ integer LOADPIN = -1904;
 
 integer g_iRebootConfirmed;
 key g_kConfirmDialogID;
-string g_sSampleURL = "https://goo.gl/adCn8Y";
 
 list g_lSettings;
 key g_kTempOwner;
@@ -228,9 +227,8 @@ LoadSetting(string sData, integer iLine) {
         for (i = 0; i < llGetListLength(lData); i += 2) {
             sToken = llList2String(lData, i);
             sValue = llList2String(lData, i + 1);
-            if (sValue != "" && sID != "auth_") {
+            if (sValue != "" && sID != "auth_")
                 g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
-            }
         }
     }
 }
