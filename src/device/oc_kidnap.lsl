@@ -71,7 +71,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 KidnapMenu(key kId, integer iAuth) {
     string sPrompt = "\nKidnap";
     list lMyButtons;
-    if (g_sTempOwnerID) lMyButtons += "Release";
+    if (g_sTempOwnerID != "") lMyButtons += "Release";
     else {
         if (g_iKidnapOn) lMyButtons += "OFF";
         else lMyButtons += "ON";
@@ -79,13 +79,13 @@ KidnapMenu(key kId, integer iAuth) {
         if (g_iRiskyOn) lMyButtons += "☑ risky";
         else lMyButtons += "☐ risky";
     }
-    if (g_sTempOwnerID)
+    if (g_sTempOwnerID != "")
         sPrompt += "\n\nKidnapped by: "+NameURI(g_sTempOwnerID);
     Dialog(kId, sPrompt, lMyButtons, ["BACK"], 0, iAuth, "KidnapMenu", "");
 }
 
 saveTempOwners() {
-    if (g_sTempOwnerID) {
+    if (g_sTempOwnerID != "") {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "auth_tempowner="+g_sTempOwnerID, "");
         llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, "auth_tempowner="+g_sTempOwnerID, "");
     } else {
@@ -95,7 +95,7 @@ saveTempOwners() {
 }
 
 doKidnap(string sCaptorID, integer iIsConfirmed) {
-    if (g_sTempOwnerID) {
+    if (g_sTempOwnerID != "") {
         llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%WEARERNAME% is already kidnapped, try another time.",sCaptorID);
         return;
     }
@@ -200,7 +200,7 @@ default{
         key kToucher = llDetectedKey(0);
         if (kToucher == g_kWearer) return;
         if (g_sTempOwnerID == kToucher) return;
-        if (g_sTempOwnerID) return;
+        if (g_sTempOwnerID != "") return;
         if (!g_iKidnapOn) return;
         if (llVecDist(llDetectedPos(0),llGetPos()) > 10 ) llMessageLinked(LINK_SET,NOTIFY,"0"+"You could kidnap %WEARERNAME% if you get a bit closer.",kToucher);
         else llMessageLinked(LINK_AUTH,CMD_ZERO,"kidnap TempOwner~"+(string)kToucher,kToucher);
@@ -222,10 +222,20 @@ default{
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
-            if (sToken == g_sSettingToken+"kidnap") g_iKidnapOn = (integer)sValue;
-            else if (sToken == g_sSettingToken+"risky") g_iRiskyOn = (integer)sValue;
-            else if (sToken == "auth_tempowner") g_sTempOwnerID = sValue;
-            else if (sToken == g_sSettingToken+"info") g_iKidnapInfo = (integer)sValue;
+            if (sToken == g_sSettingToken+"kidnap") {
+                g_iKidnapOn = (integer)sValue;
+                if (g_iKidnapOn) UserCommand(CMD_WEARER,"kidnap on",g_kWearer,FALSE);
+                else UserCommand(CMD_WEARER,"kidnap off",g_kWearer,FALSE);
+            } else if (sToken == g_sSettingToken+"risky") {
+                g_iRiskyOn = (integer)sValue;
+                if (g_iRiskyOn) UserCommand(CMD_WEARER,"kidnap risky on",g_kWearer,FALSE);
+                else UserCommand(CMD_WEARER,"kidnap risky off",g_kWearer,FALSE);
+            } else if (sToken == "auth_tempowner") g_sTempOwnerID = sValue;
+            else if (sToken == g_sSettingToken+"info") {
+                g_iKidnapInfo = (integer)sValue;
+                if (g_iKidnapInfo) UserCommand(CMD_WEARER,"kidnap info on",g_kWearer,FALSE);
+                else UserCommand(CMD_WEARER,"kidnap info on",g_kWearer,FALSE);
+            }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
