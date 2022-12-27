@@ -491,6 +491,11 @@ MenuOptions(key kID) {
 }
 
 MenuGroundSits(key kID) {
+    list lUtilityButtons = ["BACK"];
+    if (llGetAnimation(g_kWearer) == "Standing" && g_iSitAnywhereOn == FALSE) {
+        ToggleSitAnywhere();
+        DoStatus();
+    }
     string sAnim = g_sSitAnywhereAnim;
     string sAnimState = "Sitting on Ground";
     string sPrompt = "\n"+sAnimState+": \""+sAnim+"\"\n";
@@ -503,7 +508,8 @@ MenuGroundSits(key kID) {
         lButtons += (string)i;
         sPrompt += "\n"+(string)i+": "+llList2String(g_lAnims2Choose,i-1);
     }
-    Dialog(kID, sPrompt, lButtons, ["▲", "▼", "BACK"],sAnimState);
+    if (g_iSitAnywhereOn) lUtilityButtons = ["▲", "▼", "BACK"];
+    Dialog(kID, sPrompt, lButtons, lUtilityButtons, sAnimState);
 }
 
 OrderMenu(key kID) {
@@ -653,6 +659,7 @@ default {
         string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
         if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_kWearer = llGetOwner();
+        RestoreSettings();
         g_iInterfaceChannel = -llAbs((integer)("0x" + llGetSubString(g_kWearer,30,-1)));
         llListen(g_iInterfaceChannel, "", "", "");
         g_iHUDChannel = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1)));
