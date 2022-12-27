@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2022.12.26";
+string g_sVersion = "2022.12.27";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -49,6 +49,7 @@ integer g_iChangeInterval = 45;
 integer g_iLocked;
 integer g_iShuffle;
 integer g_iStandPause;
+float g_fSitOffset;
 
 list g_lMenuIDs;
 list g_lAnims2Choose;
@@ -76,6 +77,96 @@ vector g_vAOoffcolor = <0.5,0.5,0.5>;
 vector g_vAOoncolor = <1,1,1>;
 
 string g_sTexture = "Dark"; // current style
+
+integer g_iRlvChecks;
+integer g_iRlvListener;
+integer RLV_MAX_CHECKS = 5;
+integer g_iRLVOn = FALSE;
+
+integer g_iShoeChannel;
+integer g_iShoeListener;
+integer g_iShoesWorn;
+float g_fHeelOffset = -0.1;
+
+// ------------------------- timer multiplexer -------------------------
+list g_lTimers;
+integer g_iTimerRunning;
+
+/*
+When iLoop = TRUE, iTime is loop time in seconds
+When iLoop = FALSE, iTime is seconds until fire
+*/
+NewTimer(string sName, integer iTime, integer iLoop)
+{
+    if (iLoop == FALSE) iTime = llGetUnixTime()+iTime;
+    g_lTimers += [sName, iTime, iLoop];
+    if (!g_iTimerRunning) {
+        llSetTimerEvent(1.0);
+        g_iTimerRunning = TRUE;
+    }
+}
+
+/*
+When iLoop = TRUE, iTime is loop time in seconds
+When iLoop = FALSE, iTime is seconds until fire
+*/
+UpdateTimer(string sName, integer iTime, integer iLoop)
+{
+    integer idx = llListFindList(g_lTimers, [sName]);
+    if (~idx) {
+        if (iLoop == FALSE) iTime = llGetUnixTime()+iTime;
+        g_lTimers = llListReplaceList(g_lTimers, [iTime, iLoop], idx+1, idx+2);
+        if (!g_iTimerRunning) {
+            llSetTimerEvent(1.0);
+            g_iTimerRunning = TRUE;
+        }
+    } else llOwnerSay("[TIMERS] UpdateTimer() in "+llGetScriptName()+": No timer called "+sName);
+}
+
+RemoveTimer(string sName)
+{
+    integer idx = llListFindList(g_lTimers, [sName]);
+    if (~idx) {
+        g_lTimers = llDeleteSubList(g_lTimers, idx, idx+2);
+        if (llGetListLength(g_lTimers) == 0) {
+            llSetTimerEvent(0.0);
+            g_iTimerRunning = FALSE;
+        }
+    } else llOwnerSay("[TIMERS] RemoveTimer() in "+llGetScriptName()+": No timer called "+sName);
+}
+
+/*
+Called by timer(). Here goes your code
+*/
+HandleTimer(string sName, integer iLoop)
+{
+    if (sName=="stand_change") {
+        if (g_iAO_ON && llGetAnimation(g_kWearer)=="Standing") SwitchStand();
+    } else if (sName=="dialog_timeout") {
+        integer n = llGetListLength(g_lMenuIDs) - 5;
+        integer iNow = llGetUnixTime();
+        for (n; n>=0; n=n-5) {
+            integer iDieTime = llList2Integer(g_lMenuIDs,n+3);
+            if (iNow > iDieTime) {
+                llListenRemove(llList2Integer(g_lMenuIDs,n+2));
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs,n,n+4);
+            }
+        }
+    } else if (sName=="rlv_detect") {
+        if (g_iRlvChecks++ < RLV_MAX_CHECKS)
+            llOwnerSay("@versionnew=519274");
+        else {
+            llListenRemove(g_iRlvListener);
+            g_iRlvChecks=0;
+            g_iRLVOn = FALSE;
+        }
+    }
+
+    // Important: leave this next line!
+    if (!iLoop) RemoveTimer(sName);
+}
+
+// ---------------------- end of timer multiplexer ----------------------
 
 integer JsonValid(string sTest) {
     if (~llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest))
@@ -217,7 +308,12 @@ SetAnimOverride() {
                 }
             }
         } while (i--);
-        llSetTimerEvent(g_iChangeInterval);
+
+        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
+        else
+            NewTimer("stand_change", g_iChangeInterval, TRUE);
+
         if (!g_iStandPause) llRegionSayTo(g_kWearer,g_iHUDChannel,(string)g_kWearer+":antislide off ao");
         //llOwnerSay("AO ready ("+(string)llGetFreeMemory()+" bytes free memory)");
     }
@@ -245,15 +341,29 @@ ToggleSitAnywhere() {
         llOwnerSay("SitAnywhere is not possible while you are in a collar pose.");
     else {
         if (g_iSitAnywhereOn) {
-            llSetTimerEvent(g_iChangeInterval);
+            if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+                UpdateTimer("stand_change", g_iChangeInterval, TRUE);
+            else
+                NewTimer("stand_change", g_iChangeInterval, TRUE);
             SwitchStand();
+            if (g_iRLVOn)
+                llOwnerSay("@adjustheight:1;0;0.0=force");
         } else {
-            llSetTimerEvent(0.0);
+            if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+                RemoveTimer("stand_change");
             llSetAnimationOverride("Standing",g_sSitAnywhereAnim);
+            if (g_iRLVOn) AdjustSitOffset();
         }
         g_iSitAnywhereOn = !g_iSitAnywhereOn;
         DoStatus();
     }
+}
+
+AdjustSitOffset() {
+    if (g_iShoesWorn)
+        llOwnerSay("@adjustheight:1;0;"+(string)(g_fSitOffset+g_fHeelOffset)+"=force");
+    else
+        llOwnerSay("@adjustheight:1;0;"+(string)g_fSitOffset+"=force");
 }
 
 Notify(key kID, string sStr, integer iAlsoNotifyWearer) {
@@ -275,7 +385,10 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, string sNam
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
     if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs,[kID, iChannel, iListener, iTime, sName],iIndex,iIndex+4);
     else g_lMenuIDs += [kID, iChannel, iListener, iTime, sName];
-    if (!g_iAO_ON || !g_iChangeInterval) llSetTimerEvent(20);
+    if (llListFindList(g_lTimers,["dialog_timeout"]) >= 0)
+        UpdateTimer("dialog_timeout", 20, FALSE);
+    else
+        NewTimer("dialog_timeout", 20, FALSE);
     llDialog(kID,sPrompt,SortButtons(lChoices,lUtilityButtons),iChannel);
 }
 
@@ -377,6 +490,22 @@ MenuOptions(key kID) {
     Dialog(kID,"\nCustomize your AO!",["Horizontal","Vertical","Order","Dark","Light"],["BACK"], "options");
 }
 
+MenuGroundSits(key kID) {
+    string sAnim = g_sSitAnywhereAnim;
+    string sAnimState = "Sitting on Ground";
+    string sPrompt = "\n"+sAnimState+": \""+sAnim+"\"\n";
+    sPrompt += "Sit offset: "+llGetSubString((string)g_fSitOffset, 0, 3)+"\n";
+    g_lAnims2Choose = llListSort(llParseString2List(llJsonGetValue(g_sJson_Anims,[sAnimState]),["|"],[]),1,TRUE);
+    list lButtons;
+    integer iEnd = llGetListLength(g_lAnims2Choose);
+    integer i;
+    while (++i<=iEnd) {
+        lButtons += (string)i;
+        sPrompt += "\n"+(string)i+": "+llList2String(g_lAnims2Choose,i-1);
+    }
+    Dialog(kID, sPrompt, lButtons, ["▲", "▼", "BACK"],sAnimState);
+}
+
 OrderMenu(key kID) {
     string sPrompt = "\nWhich button do you want to re-order?";
     integer i;
@@ -433,12 +562,16 @@ Command(key kID, string sCommand) {
     } else if (sCommand == "on") {
         SetAnimOverride();
         g_iAO_ON = TRUE;
-        llSetTimerEvent(g_iChangeInterval);
+        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
+        else
+            NewTimer("stand_change", g_iChangeInterval, TRUE);
         DoStatus();
     } else if (sCommand == "off") {
         llResetAnimationOverride("ALL");
         g_iAO_ON = FALSE;
-        llSetTimerEvent(0.0);
+        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+            RemoveTimer("stand_change");
         DoStatus();
     } else if (sCommand == "unlock") {
         g_iLocked = FALSE;
@@ -488,6 +621,7 @@ StoreSettings() {
     sSettings += "~l="+(string)g_iLocked;
     sSettings += "~rnd="+(string)g_iShuffle;
     sSettings += "~sp="+(string)g_iStandPause;
+    sSettings += "~so="+llGetSubString((string)g_fSitOffset, 0, 3);
     llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
 }
 
@@ -509,6 +643,7 @@ RestoreSettings()
         else if (sKey == "l") g_iLocked = (integer)sValue;
         else if (sKey == "rnd") g_iShuffle = (integer)sValue;
         else if (sKey == "sp") g_iStandPause = (integer)sValue;
+        else if (sKey == "so") g_fSitOffset = (float)sValue;
     }
 }
 
@@ -530,6 +665,10 @@ default {
             g_sJson_Anims = "{}";
             g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
         } else MenuLoad(g_kWearer,0);
+        g_iRLVOn = FALSE;
+        g_iRlvListener = llListen(519274, "", (string)g_kWearer, "");
+        g_iRlvChecks = 0;
+        llOwnerSay("@versionnew=519274");
     }
 
     on_rez(integer iStart) {
@@ -539,11 +678,22 @@ default {
         if (llGetAttached()) {
             if (g_iLocked) llOwnerSay("@detach=n");
             llRequestPermissions(g_kWearer,PERMISSION_OVERRIDE_ANIMATIONS | PERMISSION_TAKE_CONTROLS);
+            g_iRLVOn = FALSE;
+            g_iRlvListener = llListen(519274, "", (string)g_kWearer, "");
+            g_iRlvChecks = 0;
+            llOwnerSay("@versionnew=519274");
         }
     }
 
     attach(key kID) {
-        if (kID == NULL_KEY) llResetAnimationOverride("ALL");
+        if (kID == NULL_KEY) {
+            llResetAnimationOverride("ALL");
+            if (g_iRLVOn) {
+                // de-register worn and unworn events (if it gets through)
+                llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=rem");
+                llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=rem");
+            }
+        }
         else if (llGetAttached() <= 30) {
             llOwnerSay("Sorry, this device can only be attached to the HUD.");
             llRequestPermissions(kID, PERMISSION_ATTACH);
@@ -603,12 +753,40 @@ default {
                 else
                     TranslateCollarCMD(llList2String(lParams,2),llList2Key(lParams,3));
             }
+        } else if (iChannel==519274) {
+            g_iRLVOn=TRUE;
+            llListenRemove(g_iRlvListener);
+            llOwnerSay("RLV detected");
+            g_iShoeChannel = (9999 + llRound(llFrand(9999999.0)));
+            llListenRemove(g_iShoeListener);
+            g_iShoeListener = llListen(g_iShoeChannel, "", (string)g_kWearer, "");
+            // get initial state of shoes worn or not:
+            llOwnerSay("@getoutfit="+(string)g_iShoeChannel);
+        } else if (iChannel==g_iShoeChannel) {
+            if (sMessage  == "/unworn legally shoes") {
+                g_iShoesWorn = FALSE;
+                if (g_iSitAnywhereOn) AdjustSitOffset();
+            } else if (sMessage == "/worn legally shoes") {
+                g_iShoesWorn = TRUE;
+                if (g_iSitAnywhereOn) AdjustSitOffset();
+            } else if (llGetSubString(sMessage, 0, 6) != "/notify") {
+                // @getoutfit result (a string of 1's and 0's)
+                string sFlagShoes = llGetSubString(sMessage, 4, 4);
+                if (sFlagShoes == "1" || sFlagShoes == "0")
+                {
+                    g_iShoesWorn = (integer)llGetSubString(sMessage, 4, 4);
+                    if (g_iSitAnywhereOn) AdjustSitOffset();
+                    // Register to be notified of worn and unworn
+                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=add");
+                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=add");
+                }
+            }
         } else if (~llListFindList(g_lMenuIDs,[kID, iChannel])) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
             llListenRemove(llList2Integer(g_lMenuIDs,iMenuIndex+2));
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs,iMenuIndex, iMenuIndex+4);
-            if (llGetListLength(g_lMenuIDs) == 0 && (!g_iAO_ON || !g_iChangeInterval)) llSetTimerEvent(0.0);
+            if (llGetListLength(g_lMenuIDs) == 0 && llListFindList(g_lTimers, ["dialog_timeout"]) >= 0) RemoveTimer("dialog_timeout");
             if (sMenuType == "AO") {
                 if (sMessage == "Cancel") return;
                 else if (sMessage == "-") MenuAO(kID);
@@ -620,7 +798,7 @@ default {
                 else if (sMessage == "Load") MenuLoad(kID,0);
                 else if (sMessage == "Sits") MenuChooseAnim(kID,"Sitting");
                 else if (sMessage == "Walks") MenuChooseAnim(kID,"Walking");
-                else if (sMessage == "Ground Sits") MenuChooseAnim(kID,"Sitting on Ground");
+                else if (sMessage == "Ground Sits") MenuGroundSits(kID);
                 else if (!llSubStringIndex(sMessage,"Sits")) {
                     if (~llSubStringIndex(sMessage,"☑")) {
                         g_iSitAnimOn = FALSE;
@@ -665,15 +843,31 @@ default {
                     return;
                 } else if (sMessage == "Never") {
                     g_iChangeInterval = FALSE;
-                    llSetTimerEvent(g_iChangeInterval);
+                    if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+                        RemoveTimer("stand_change");
                 } else if ((integer)sMessage >= 20) {
                     g_iChangeInterval = (integer)sMessage;
-                    if (g_iAO_ON && !g_iSitAnywhereOn) llSetTimerEvent(g_iChangeInterval);
+                    if (g_iAO_ON && g_iSitAnywhereOn == FALSE) {
+                        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
+                            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
+                        else
+                            NewTimer("stand_change", g_iChangeInterval, TRUE);
+                    }
                 }
                 MenuInterval(kID);
             } else if (~llListFindList(["Walking","Sitting on Ground","Sitting"],[sMenuType])) {
                 if (sMessage == "BACK") MenuAO(kID);
-                else if (sMessage == "-") MenuChooseAnim(kID,sMenuType);
+                else if (sMessage == "▲") {
+                    g_fSitOffset += 0.05;
+                    StoreSettings();
+                    AdjustSitOffset();
+                    MenuGroundSits(kID);
+                } else if (sMessage == "▼") {
+                    g_fSitOffset -= 0.05;
+                    StoreSettings();
+                    AdjustSitOffset();
+                    MenuGroundSits(kID);
+                } else if (sMessage == "-") MenuChooseAnim(kID,sMenuType);
                 else {
                     sMessage = llList2String(g_lAnims2Choose,((integer)sMessage)-1);
                     g_lAnims2Choose = [];
@@ -684,7 +878,8 @@ default {
                         if (g_iAO_ON && (sMenuType != "Sitting" || g_iSitAnimOn))
                             llSetAnimationOverride(sMenuType,sMessage);
                     } else llOwnerSay("No "+sMenuType+" animation set.");
-                    MenuChooseAnim(kID,sMenuType);
+                    if (sMenuType == "Sitting on Ground") MenuGroundSits(kID);
+                    else MenuChooseAnim(kID,sMenuType);
                 }
             } else if (sMenuType == "options") {
                 if (sMessage == "BACK") {
@@ -732,17 +927,18 @@ default {
     }
 
     timer() {
-        if (g_iAO_ON && g_iChangeInterval && llGetAnimation(g_kWearer)=="Standing") SwitchStand();
-        integer n = llGetListLength(g_lMenuIDs) - 5;
-        integer iNow = llGetUnixTime();
-        for (n; n>=0; n=n-5) {
-            integer iDieTime = llList2Integer(g_lMenuIDs,n+3);
-            if (iNow > iDieTime) {
-                llListenRemove(llList2Integer(g_lMenuIDs,n+2));
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs,n,n+4);
+        integer iTimestamp = llGetUnixTime();
+        integer i;
+        for (i = 0; i < llGetListLength(g_lTimers); i+=3) {
+            string sName = llList2String(g_lTimers, i);
+            integer iTime = llList2Integer(g_lTimers, i+1);
+            integer iLoop = llList2Integer(g_lTimers, i+2);
+            if (iLoop && ((iTimestamp % iTime)==0)) {
+                HandleTimer(sName, iLoop);
+            } else if (!iLoop && iTimestamp >= iTime) {
+                HandleTimer(sName, iLoop);
             }
         }
-        if (!llGetListLength(g_lMenuIDs) && (!g_iAO_ON || !g_iChangeInterval)) llSetTimerEvent(0.0);
     }
 
     dataserver(key kRequest, string sData) {

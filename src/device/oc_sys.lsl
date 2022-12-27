@@ -23,7 +23,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2022.12.26";
+string g_sCollarVersion="2022.12.27";
 
 key g_kWearer;
 
@@ -657,7 +657,10 @@ default {
     http_response(key kID, integer iStatus, list lData, string sBody)
     {
         if (kID == g_kHttpVersion) {
-            if (iStatus != 200) return;
+            if (iStatus != 200) {
+                llOwnerSay("Oops! Could not retrieve info about the latest version");
+                return;
+            }
             list lBody = llParseString2List(sBody, ["\n"], []);
             string sWebVersion = llStringTrim(llList2String(lBody, 0), STRING_TRIM);
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
