@@ -1,3 +1,4 @@
+
 //  oc_rlvsuite.lsl
 //
 //  Copyright (c) 2014 - 2017 Wendy Starfall, littlemousy, Sumi Perl,
@@ -28,7 +29,7 @@ string  UPMENU = "BACK";
 string  BACKMENU = "⏎";
 
 integer g_iMenuCommand;
-key     g_kMenuClicker;
+key     g_kMenuClicker = NULL_KEY;
 
 list    g_lMenuIDs;
 integer g_iMenuStride = 3;
@@ -56,7 +57,7 @@ integer g_iRlvaOn = FALSE;
 string g_sPathPrefix = "Outfits/";
 string g_sCoreFolder = "Core"; // always worn folder within #RLV, "" means disabled
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer CMD_OWNER = 500;
 integer CMD_TRUSTED = 501;
@@ -96,7 +97,7 @@ integer SENSORDIALOG = -9003;
 integer g_iAuth;
 
 integer g_iLocked;
-key g_kLastForcedSeat;
+key g_kLastForcedSeat = NULL_KEY;
 string g_sLastForcedSeat;
 string g_sTerminalText = "\nRLV Command Terminal\n\nType one command per line without \"@\" sign.";
 string g_sSettingToken = "rlvsuite_";

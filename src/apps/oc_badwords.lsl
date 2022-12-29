@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "1.3";
+string g_sAppVersion = "2022.12.29";
 
 integer CMD_OWNER = 500;
 integer CMD_WEARER = 503;
@@ -64,7 +64,7 @@ integer g_iDefaultAnim;
 string g_sPenance = "I didn't do it!";
 integer g_iListenerHandle;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 list g_lMenuIDs;
 integer g_iMenuStride=3;
 integer g_iIsEnabled=0;

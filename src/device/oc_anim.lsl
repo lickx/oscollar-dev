@@ -85,7 +85,7 @@ integer DIALOG_TIMEOUT = -9002;
 integer g_iAOChannel = -782690;
 
 string g_sSettingToken = "anim_";
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 list g_lMenuIDs;
 integer g_iMenuStride = 3;

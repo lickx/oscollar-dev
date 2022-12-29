@@ -3,7 +3,7 @@
    |;;|                      |;;||     Copyright (c) 2014 - 2016:
    |[]|----------------------|[]||
    |;;|       AO  Link       |;;||     Medea Destiny, XenHat Liamano,
-   |;;|       170301.1       |;;||     Wendy Starfall, Sumi Perl,
+   |;;|                      |;;||     Wendy Starfall, Sumi Perl,
    |;;|----------------------|;;||     Ansariel Hiller, Garvin Twine,
    |;;|   www.opencollar.at  |;;||     stawberri et al.
    |;;|----------------------|;;||
@@ -31,8 +31,8 @@ the only thing you can do then is to remove the link with: /88 rm aolink
 
 */
 
-string g_sVersion = "4.7"; // keep this simple
-key g_kWearer;
+string g_sVersion = "2022.12.29";
+key g_kWearer = NULL_KEY;
 integer g_iAOType;
 string g_sMyName;
 string g_sObjectName;

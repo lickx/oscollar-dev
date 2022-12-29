@@ -287,14 +287,14 @@ integer g_iRlvActive = TRUE; // we'll get updates from the rlv script(s)
 list    g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-key     g_kSimPosRequestHandle; // UUID of the dataserver request
-key     g_kOwnerRequestHandle;
+key     g_kSimPosRequestHandle = NULL_KEY; // UUID of the dataserver request
+key     g_kOwnerRequestHandle = NULL_KEY;
 
 integer g_iTargetHandle;
 integer g_iTpTries;      // keep track of the number of TP attempts
 integer g_iTimer ;
 
-key     g_kWearer;
+key     g_kWearer = NULL_KEY;
 list    g_lLocalButtons = []; // extra buttons that we get inserted "from above"
 
 

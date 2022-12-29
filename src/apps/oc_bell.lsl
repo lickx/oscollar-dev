@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.04";
+string g_sAppVersion = "2022.12.29";
 
 string g_sSubMenu = "Bell";
 string g_sParentMenu = "Apps";
@@ -41,17 +41,17 @@ string g_sBellHide = "HIDE";
 
 list g_listBellSounds=["10b27c32-43b5-40fb-b5a2-bbf770fbec5c", "a4c075a9-359e-4055-b093-5aa42cddea1c", "1e6f849d-9fee-42f2-b89a-98882a28b152", "d1cdd688-42d7-4780-804f-0abe94ebca2a", "ac855add-8834-4284-a6c1-74769b7cccb4", "aba3c635-efb6-4642-aea4-5a4ea94df059", "a6a3fcd4-3330-451f-b332-3fd59e3d698a", "74811182-df1d-4b72-a9de-87f3706ac7bd", "1d1b675c-4bee-4cc4-b225-69793893e66b", "687a10f6-5c97-419f-8fc4-51013b821d9d", "0c3774b9-90d9-4089-9198-f0445fa053e6", "d71c05d2-1869-4e94-b077-9de8551e8917"];
 
-key g_kCurrentBellSound;
+key g_kCurrentBellSound = NULL_KEY;
 integer g_iCurrentBellSound;
 integer g_iBellSoundCount;
 
-key g_kLastToucher;
+key g_kLastToucher = NULL_KEY;
 float g_fNextTouch;
 
 list g_lBellElements;
 list g_lGlows;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer g_iHasControl;
 

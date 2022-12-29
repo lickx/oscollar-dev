@@ -22,12 +22,12 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.16";
+string g_sAppVersion = "2022.12.29";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer CMD_OWNER = 500;
 integer CMD_TRUSTED = 501;

@@ -19,9 +19,9 @@
 string  SUBMENU_BUTTON              = "SafeZone"; // Name of the submenu
 string  COLLAR_PARENT_MENU          = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
 string  g_sAppName                  = "safezone"; //used to change the name of the app itself (and setting prefixes)
-key     g_kMenuID;                              // menu handler
-key     g_kMenuRemoveID;                        // remove menu handler
-key     g_kWearer;                              // key of the current wearer to reset only on owner changes
+key     g_kMenuID = NULL_KEY;                              // menu handler
+key     g_kMenuRemoveID = NULL_KEY;                        // remove menu handler
+key     g_kWearer = NULL_KEY;                              // key of the current wearer to reset only on owner changes
 string  g_sScript                   = "SafeZone_";                              // part of script name used for settings
 
 integer g_iSafeZoneOn = FALSE;

@@ -59,7 +59,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 string UPMENU = "BACK";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 string g_sSettingToken = "presets"; // or "resizer" for oc_resizer2 settings compatible ?
 

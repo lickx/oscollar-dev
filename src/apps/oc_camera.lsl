@@ -22,13 +22,13 @@
 //allows owner to set different camera mode
 //responds to commands from modes list
 
-string g_sAppVersion = "1.4";
+string g_sAppVersion = "2022.12.29";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 integer g_iLastNum;
 string g_sSubMenu = "Camera";
 string g_sParentMenu = "Apps";
-key g_kMenuID;
+key g_kMenuID = NULL_KEY;
 string g_sCurrentMode = "default";
 float g_fReapeat = 0.5;
 
@@ -37,7 +37,7 @@ integer g_iSync2Me;//TRUE if we're currently dumping cam pos/rot iChanges to cha
 vector g_vCamPos;
 rotation g_rCamRot;
 integer g_iBroadChan;
-key g_kBroadRcpt;
+key g_kBroadRcpt = NULL_KEY;
 
 list g_lModes = ["default", "human", "1stperson", "ass", "far", "god", "ground", "worm"];
 

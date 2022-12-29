@@ -62,7 +62,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 string UPMENU = "BACK";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sSettingsToken = "relay_";
 
 list g_lMenuIDs;
@@ -74,7 +74,7 @@ string g_sSourceID;
 
 string g_sTempTrustObj;
 string g_sTempTrustUser;
-key g_kObjectUser;
+key g_kObjectUser = NULL_KEY;
 
 list g_lBlockObj;
 list g_lBlockAv;
@@ -99,7 +99,7 @@ integer g_iHelpless;
 integer g_iSmartStrip = FALSE;
 integer g_iAllowAttach = FALSE; // when TRUE, disallow @addattach=n restraint
 
-key g_kDebugRcpt;
+key g_kDebugRcpt = NULL_KEY;
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
     key kMenuID = llGenerateKey();

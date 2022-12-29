@@ -71,7 +71,7 @@ integer DIALOG_TIMEOUT = -9002;
 string UPMENU = "BACK";
 string ALL = "ALL";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sSettingsToken = "relay_";
 
 list g_lMenuIDs;

@@ -42,7 +42,7 @@ integer g_iReapeat = 5;
 list g_lMenus;
 integer g_iStrideLength = 12;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sGlobalToken = "global_";
 integer g_iListenChan=1;
 string g_sPrefix;

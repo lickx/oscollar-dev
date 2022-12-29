@@ -56,9 +56,9 @@ float g_Zoff = 0.15; // space between buttons and screen left/right border
 
 // Variables
 
-key g_kOwner;
+key g_kOwner = NULL_KEY;
 vector g_vColor = <1,1,1>;
-key g_kMenuID;
+key g_kMenuID = NULL_KEY;
 string g_sCurrentMenu;
 string g_sCurrentTheme;
 list g_lStyles;

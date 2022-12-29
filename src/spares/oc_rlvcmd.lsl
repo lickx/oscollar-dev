@@ -220,20 +220,20 @@ string  g_sSubMenu    = "RLVcmd"; // Name of the submenu
 string  g_sParentMenu = "Apps"; // name of the menu, where the menu plugs in, should be usually Addons. Please do not use the mainmenu anymore
 string  g_sScript = "RLVcmd_";                             // part of script name used for settings
 
-key     g_kMenuID;                              // menu handler
-key     g_kMenuIDEnablements;                              // menu handler
-key     g_kMenuIDOther;
-key     g_kWearer;                              // key of the current wearer to reset only on owner changes
-key     g_kClicker;                             //capture clicker IDs
+key     g_kMenuID = NULL_KEY;                              // menu handler
+key     g_kMenuIDEnablements = NULL_KEY;                              // menu handler
+key     g_kMenuIDOther = NULL_KEY;
+key     g_kWearer = NULL_KEY;                              // key of the current wearer to reset only on owner changes
+key     g_kClicker = NULL_KEY;                             //capture clicker IDs
 
 integer g_iRlvOn = FALSE;
 integer g_iRlvaOn = FALSE;
 integer g_iListenerHandle;
 
 list g_lListeners;
-key g_kRlvCommand;
+key g_kRlvCommand = NULL_KEY;
 
-key g_kRlvTextboxCommand; //textbox handler in case we need more information
+key g_kRlvTextboxCommand = NULL_KEY; //textbox handler in case we need more information
 list g_lStoredCommand = []; //and a list to queue stored commands (these expire)
 
 list g_lRlvCommandHistory; //history of commands

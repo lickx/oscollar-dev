@@ -37,7 +37,7 @@
 
 integer g_iInstallOnRez = FALSE; // TRUE initiates right away on rez
 
-key g_kNameID;
+key g_kNameID = NULL_KEY;
 integer g_initChannel = -7483213;
 integer g_iSecureChannel;
 string g_sBuildVersion;
@@ -47,7 +47,7 @@ string g_sBuildVersion;
 integer g_iPin;
 
 // the collar's key
-key g_kCollarKey;
+key g_kCollarKey = NULL_KEY;
 
 // strided list of bundles in the prim and whether they are supposed to be
 // installed.
@@ -58,7 +58,7 @@ list g_lBundles;
 integer g_iBundleIndex;
 
 // handle for our dialogs
-key g_kDialogID;
+key g_kDialogID = NULL_KEY;
 
 string g_sShim = "oc_update_shim";
 
@@ -72,7 +72,7 @@ integer g_iIsUpdate;
 string g_sInfoCard = ".info";
 string g_sInfoText;
 string g_sInfoURL;
-key g_kInfoID;
+key g_kInfoID = NULL_KEY;
 integer g_iLine;
 
 string g_sName;

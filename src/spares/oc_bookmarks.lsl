@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.17";
+string g_sAppVersion = "2022.12.29";
 
 string g_sSubMenu = "Bookmarks";
 string g_sParentMenu = "Apps";
@@ -37,13 +37,13 @@ string g_tempLoc;
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 string  g_sSettingToken = "bookmarks_";
-key g_kDataID;
+key g_kDataID = NULL_KEY;
 integer g_iLine;
 string UPMENU = "BACK";
-key g_kCommander;
+key g_kCommander = NULL_KEY;
 
 list PLUGIN_BUTTONS = ["Add", "Remove", "Print"];
 

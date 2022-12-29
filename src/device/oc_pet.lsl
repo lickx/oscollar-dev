@@ -26,7 +26,7 @@ integer g_iMenuStride = 3;
 integer g_iAnimTimeout;
 integer g_iPermissionTimeout;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 string STOP_PET = "STOP";
 string TIME_PET = "TIME";
@@ -42,8 +42,8 @@ integer iCardComplete;
 list g_lAnimCmds;
 list g_lAnimSettings;
 
-key g_kCardID1;
-key g_kCardID2;
+key g_kCardID1 = NULL_KEY;
+key g_kCardID2 = NULL_KEY;
 float g_fRange = 10.0;
 
 float g_fWalkingDistance = 1.0;
@@ -51,10 +51,10 @@ float g_fWalkingTau = 1.5;
 float g_fAlignTau = 0.05;
 float g_fAlignDelay = 0.6;
 
-key g_kCmdGiver;
+key g_kCmdGiver = NULL_KEY;
 integer g_iCmdAuth;
 integer g_iCmdIndex;
-key g_kPartner;
+key g_kPartner = NULL_KEY;
 string g_sPartnerName;
 float g_fTimeOut = 20.0;
 string g_sDeviceName;

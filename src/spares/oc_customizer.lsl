@@ -44,7 +44,7 @@ string SAVE = "SAVE";
 string REMOVE = "REMOVE";
 string RESET = "RESET";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer g_iTexture = FALSE;
 integer g_iColor = FALSE;

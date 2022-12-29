@@ -155,7 +155,7 @@ integer g_iRLVTimeOut = 60;
 integer g_iClothRLV = 78465;
 integer g_iAttachRLV = 78466;
 integer g_iListener;
-key g_kMenuUser;
+key g_kMenuUser = NULL_KEY;
 integer g_iMenuAuth;
 
 integer g_iRLVOn;
@@ -163,7 +163,7 @@ integer g_iRLVOn;
 list g_lLockedItems;
 list g_lLockedAttach;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 integer g_iAllLocked;
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {

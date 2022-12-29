@@ -64,7 +64,7 @@ integer g_iListenHandleAtt;
 integer AUTH_REQUEST = 600;
 integer AUTH_REPLY = 601;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sGlobalToken = "global_";
 string g_sDeviceName = "Collar";
 string g_sWearerName;

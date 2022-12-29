@@ -19,16 +19,16 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2022.12.27";
+string g_sVersion = "2022.12.29";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
 string g_sPendingCmd;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sCard = "Default";
 integer g_iCardLine;
-key g_kCard;
+key g_kCard = NULL_KEY;
 integer g_iReady;
 
 list g_lAnimStates = [ //http://wiki.secondlife.com/wiki/LlSetAnimationOverride

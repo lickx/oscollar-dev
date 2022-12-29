@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.18";
+string g_sAppVersion = "2022.12.29";
 
 string  PLUGIN_CHAT_CMD             = "tp"; // every menu should have a chat command, so the user can easily access it by type for instance *plugin
 string  PLUGIN_CHAT_CMD_ALT         = "bookmarks"; //taking control over some map/tp commands from rlvtp
@@ -40,11 +40,11 @@ string g_tempLoc                      = "";   //This holds a global temp locatio
 list g_lMenuIDs;//3-strided list of avkey, dialogid, menuname
 integer g_iMenuStride = 3;
 
-key     g_kOwner;
-key     g_kDataID;
+key     g_kOwner = NULL_KEY;
+key     g_kDataID = NULL_KEY;
 integer g_iLine = 0;
 string  UPMENU                      = "BACK";
-key     g_kCommander;
+key     g_kCommander = NULL_KEY;
 
 list    PLUGIN_BUTTONS              = ["Save", "Remove", "Print"];
 

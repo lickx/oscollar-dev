@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.04";
+string g_sAppVersion = "2022.12.29";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
@@ -54,7 +54,7 @@ vector g_vColor = <1.0,1.0,1.0>;
 
 integer g_iTextPrim;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sSettingToken = "titler_";
 
 list g_lMenuIDs;

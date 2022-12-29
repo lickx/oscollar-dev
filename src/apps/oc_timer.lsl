@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "1.4";
+string g_sAppVersion = "2022.12.29";
 
 string g_sSubMenu = "Timer";
 string g_sParentMenu = "Apps";
@@ -93,7 +93,7 @@ integer g_iTimeChange;
 
 list g_lLocalMenu;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 list g_lMenuIDs;
 integer g_iMenuStride = 3;

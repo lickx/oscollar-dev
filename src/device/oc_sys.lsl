@@ -23,12 +23,12 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2022.12.27";
+string g_sCollarVersion="2022.12.29";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
-key g_kHttpVersion;
-key g_kHttpDistsites;
+key g_kHttpVersion = NULL_KEY;
+key g_kHttpDistsites = NULL_KEY;
 
 list g_lMenuIDs;//3-strided list of avatars given menus, their dialog ids, and the name of the menu they were given
 integer g_iMenuStride = 3;
@@ -79,7 +79,7 @@ integer REGION_TELEPORT = 10051;
 
 string UPMENU = "BACK";
 
-key g_kCurrentUser;
+key g_kCurrentUser = NULL_KEY;
 
 list g_lAppsButtons;
 list g_lResizeButtons;
@@ -105,7 +105,7 @@ integer g_iLooks;
 
 integer g_iUpdateChan = -7483213;
 integer g_iUpdateHandle;
-key g_kUpdaterOrb;
+key g_kUpdaterOrb = NULL_KEY;
 integer g_iUpdateFromMenu;
 
 integer g_iUpdateAuth;

@@ -78,7 +78,7 @@ integer g_iMenuStride = 3;
 
 integer g_iListener;
 
-key g_kAsyncMenuUser;
+key g_kAsyncMenuUser = NULL_KEY;
 integer g_iAsyncMenuAuth;
 integer g_iAsyncMenuRequested;
 
@@ -90,7 +90,7 @@ list g_lSearchList;
 
 integer g_iLastFolderState;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 string g_sSettingToken = "rlvfolders_";
 
 list g_lHistory;

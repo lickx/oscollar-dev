@@ -71,10 +71,9 @@ list g_lMenuIDs;
 integer g_iMenuStride = 3;
 key g_kWearer;
 
-key NULLKEY;
-key g_kLeashedTo;
-key g_kLeashToPoint;
-key g_kParticleTarget;
+key g_kLeashedTo = NULL_KEY;
+key g_kLeashToPoint = NULL_KEY;
+key g_kParticleTarget = NULL_KEY;
 
 integer g_iLeashActive;
 integer g_iTurnMode;
@@ -129,7 +128,7 @@ FindLinkedPrims() {
 }
 
 Particles(integer iLink, key kParticleTarget) {
-    if (kParticleTarget == NULLKEY) return;
+    if (kParticleTarget == NULL_KEY) return;
     integer iFlags = PSYS_PART_FOLLOW_VELOCITY_MASK | PSYS_PART_TARGET_POS_MASK | PSYS_PART_FOLLOW_SRC_MASK;
     if (g_sParticleMode == "Ribbon") iFlags = iFlags | PSYS_PART_RIBBON_MASK;
     if (g_iParticleGlow) iFlags = iFlags | PSYS_PART_EMISSIVE_MASK;
@@ -165,9 +164,9 @@ StopParticles(integer iEnd) {
         llLinkParticleSystem((integer)llList2String(g_lLeashPrims, g_iLoop + 1), []);
     if (iEnd) {
         g_iLeashActive = FALSE;
-        g_kLeashedTo = NULLKEY;
-        g_kLeashToPoint = NULLKEY;
-        g_kParticleTarget = NULLKEY;
+        g_kLeashedTo = NULL_KEY;
+        g_kLeashToPoint = NULL_KEY;
+        g_kParticleTarget = NULL_KEY;
         llSetTimerEvent(0.0);
     }
 }
@@ -229,9 +228,9 @@ GetSettings(integer iStartParticles) {
     g_vLeashColor = (vector)GetSetting(L_COLOR);
     g_vLeashGravity.z = (float)GetSetting(L_GRAVITY);
     g_iParticleGlow = (integer)GetSetting(L_GLOW);
-    if (g_sParticleMode == "Classic") SetTexture(g_sClassicTexture, NULLKEY);
-    else if (g_sParticleMode == "Ribbon") SetTexture(g_sRibbonTexture, NULLKEY);
-    if (iStartParticles &&  g_kLeashedTo != NULLKEY){
+    if (g_sParticleMode == "Classic") SetTexture(g_sClassicTexture, NULL_KEY);
+    else if (g_sParticleMode == "Ribbon") SetTexture(g_sRibbonTexture, NULL_KEY);
+    if (iStartParticles &&  g_kLeashedTo != NULL_KEY){
         llSleep(0.1);
         StartParticles(g_kParticleTarget);
     }
@@ -253,15 +252,15 @@ SetTexture(string sIn, key kIn) {
         if (llToLower(llGetSubString(sIn,0,6)) == "!ribbon") L_RIBBON_TEX = llGetSubString(sIn, 8, -1);
         else L_RIBBON_TEX = sIn;
         if (GetSetting("R_TextureID")) g_sParticleTextureID = GetSetting("R_TextureID");
-        if (kIn)
+        if (kIn != NULL_KEY)
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Leash texture set to " + L_RIBBON_TEX,kIn);
     }
     else if (g_sParticleMode == "Classic") {
         if (llToLower(llGetSubString(sIn,0,7)) == "!classic") L_CLASSIC_TEX =  llGetSubString(sIn, 9, -1);
         else L_CLASSIC_TEX = sIn;
         if (GetSetting("C_TextureID")) g_sParticleTextureID = GetSetting("C_TextureID");
-        if (kIn) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Leash texture set to " + L_CLASSIC_TEX,kIn);
-    } else  if (kIn) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Leash texture set to " + g_sParticleTexture,kIn);
+        if (kIn != NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Leash texture set to " + L_CLASSIC_TEX,kIn);
+    } else  if (kIn != NULL_KEY) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Leash texture set to " + g_sParticleTexture,kIn);
     if (g_iLeashActive) {
         if (g_sParticleMode == "noParticle") StopParticles(FALSE);
         else StartParticles(g_kParticleTarget);

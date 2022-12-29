@@ -44,7 +44,7 @@ list g_lMenus;//11-strided list in form listenChan, dialogid, listener, starttim
 //and "currentpage" is an integer meaning which page of the menu the user is currently viewing
 integer g_iStrideLength = 12;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 list g_lSensorDetails;
 integer g_bSensorLock;

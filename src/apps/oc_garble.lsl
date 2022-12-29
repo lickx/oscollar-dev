@@ -58,7 +58,7 @@ string g_sParentMenu = "Apps";
 string GARBLE = "☐ Garble";
 string UNGARBLE = "☒ Garble";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer g_iGarbleChan;
 integer g_iGarbleListen;
@@ -69,7 +69,7 @@ string g_sPrefix ;
 integer bOn;
 
 integer g_iBinder;
-key g_kBinder;
+key g_kBinder = NULL_KEY;
 
 Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
     llMessageLinked(LINK_DIALOG,NOTIFY,(string)iAlsoNotifyWearer+sMsg,kID);

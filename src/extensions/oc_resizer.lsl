@@ -78,7 +78,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 string UPMENU = "BACK";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 //string g_sSettingToken = "resizer_";
 //string g_sGlobalToken = "global_";

@@ -24,10 +24,10 @@
 string g_sCard = ".settings";
 string g_sSplitLine;
 integer g_iLineNr;
-key g_kLineID;
-key g_kCardID;
+key g_kLineID = NULL_KEY;
+key g_kCardID = NULL_KEY;
 list g_lExceptionTokens = ["texture","glow","shininess","color","intern","auth"];
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer CMD_OWNER = 500;
 
@@ -58,10 +58,10 @@ integer REBOOT = -1000;
 integer LOADPIN = -1904;
 
 integer g_iRebootConfirmed;
-key g_kConfirmDialogID;
+key g_kConfirmDialogID = NULL_KEY;
 
 list g_lSettings;
-key g_kTempOwner;
+key g_kTempOwner = NULL_KEY;
 
 integer g_iSayLimit = 1024;
 integer g_iCardLimit = 255;

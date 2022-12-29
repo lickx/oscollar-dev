@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2022.12.26";
+string g_sVersion = "2022.12.29";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -37,14 +37,14 @@ string g_sMainMenu = "Main";
 //  Notecard reading bits
 string  g_sCard = ".partners";
 key     g_kCardID = NULL_KEY;
-key     g_kLineID;
+key     g_kLineID = NULL_KEY;
 integer g_iLineNr;
 
 integer g_iListener;
 integer g_iCmdListener;
 integer g_iChannel = 7;
 
-key g_kUpdater;
+key g_kUpdater = NULL_KEY;
 integer g_iUpdateChan = -7483210;
 
 integer g_iHidden;
@@ -75,11 +75,11 @@ string g_sAddPartners = "Add";
 //list g_lMainMenuButtons = [" ◄ ",g_sAllPartners," ► ",g_sAddPartners, g_sListPartners, g_sRemovePartner, "Collar Menu", "Rez"];
 list g_lMainMenuButtons = [" ◄ ", "ALL", " ► ", "Add", "List", "Remove", "Collar Menu", "Rez"];
 list g_lMenus = ["HUD Style"];
-key    g_kMenuID;
+key    g_kMenuID = NULL_KEY;
 string g_sMenuType;
 
-key    g_kRemovedPartnerID;
-key    g_kOwner;
+key    g_kRemovedPartnerID = NULL_KEY;
+key    g_kOwner = NULL_KEY;
 
 string  g_sRezObject;
 

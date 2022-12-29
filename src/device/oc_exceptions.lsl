@@ -88,7 +88,7 @@ string TURNOFF = "☑";
 
 integer g_iRLVOn;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer CMD_OWNER = 500;
 integer CMD_EVERYONE = 504;

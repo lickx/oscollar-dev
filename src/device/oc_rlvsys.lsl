@@ -88,7 +88,7 @@ string TURNON = "  ON";
 string TURNOFF = " OFF";
 string CLEAR = "CLEAR ALL";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 string g_sSettingToken = "rlvsys_";
 string g_sGlobalToken = "global_";
@@ -98,8 +98,8 @@ string g_sRlvaVersionString = "(unknown)";
 list g_lOwners;
 list g_lRestrictions;
 list g_lBaked;
-key g_kSitter;
-key g_kSitTarget;
+key g_kSitter = NULL_KEY;
+key g_kSitTarget = NULL_KEY;
 
 integer g_iShoeNotify = TRUE;
 integer g_iShoeListener;

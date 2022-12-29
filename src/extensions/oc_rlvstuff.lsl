@@ -106,7 +106,7 @@ integer DIALOG_TIMEOUT = -9002;
 
 string UPMENU = "BACK";
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer g_iRLVOn;
 

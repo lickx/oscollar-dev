@@ -36,13 +36,13 @@ integer INSTALLION_DONE = 98751;
 integer g_iDebug = FALSE;
 
 integer g_iTalkChannel;
-key g_kRCPT;
+key g_kRCPT = NULL_KEY;
 string g_sCard;
 integer g_iPin;
 string g_sMode;
 
 integer g_iLine;
-key g_kLineID;
+key g_kLineID = NULL_KEY;
 integer g_iListener;
 
 float g_iItemCounter;

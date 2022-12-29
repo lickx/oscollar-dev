@@ -63,11 +63,11 @@ string BUTTON_SUBMENU = "Leash";
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-key g_kLeashCmderID;
+key g_kLeashCmderID = NULL_KEY;
 
 list g_lButtons;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 integer g_iJustMoved;
 integer g_iLength = 3;
@@ -77,7 +77,7 @@ integer g_iLastRank;
 integer g_iStayRank;
 integer g_iStrictRank;
 vector g_vPos = ZERO_VECTOR;
-key g_kCmdGiver;
+key g_kCmdGiver = NULL_KEY;
 key g_kLeashedTo = NULL_KEY;
 integer g_bLeashedToAvi;
 integer g_bFollowMode;

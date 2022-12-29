@@ -61,17 +61,17 @@ integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
 integer DIALOG_TIMEOUT = -9002;
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 list g_lShiny = ["none","low","medium","high","specular"];
 list g_lGlow = ["none",0.0,"low",0.1,"medium",0.2,"high",0.4,"veryHigh",0.8];
 integer g_iNumHideableElements;
 integer g_iNumElements;
 string g_sThemesCard = ".themes";
-key g_kThemesNotecardRead;
-key g_kThemesCardUUID;
+key g_kThemesNotecardRead = NULL_KEY;
+key g_kThemesCardUUID = NULL_KEY;
 integer g_iSetThemeAuth;
-key g_kSetThemeUser;
+key g_kSetThemeUser = NULL_KEY;
 string g_sThemesNotecardReadType;
 list g_lThemes;
 integer g_iThemesNotecardLine;

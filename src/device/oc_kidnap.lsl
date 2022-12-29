@@ -18,7 +18,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-key g_kWearer;
+key g_kWearer = NULL_KEY;
 
 list g_lMenuIDs;
 
@@ -224,17 +224,14 @@ default{
             string sValue = llList2String(lParams, 1);
             if (sToken == g_sSettingToken+"kidnap") {
                 g_iKidnapOn = (integer)sValue;
-                if (g_iKidnapOn) UserCommand(CMD_WEARER,"kidnap on",g_kWearer,FALSE);
-                else UserCommand(CMD_WEARER,"kidnap off",g_kWearer,FALSE);
+                if (g_iKidnapOn && g_iKidnapInfo) llSetTimerEvent(900.0);
             } else if (sToken == g_sSettingToken+"risky") {
                 g_iRiskyOn = (integer)sValue;
-                if (g_iRiskyOn) UserCommand(CMD_WEARER,"kidnap risky on",g_kWearer,FALSE);
-                else UserCommand(CMD_WEARER,"kidnap risky off",g_kWearer,FALSE);
+                if (g_iKidnapOn && g_iKidnapInfo) llSetTimerEvent(900.0);
             } else if (sToken == "auth_tempowner") g_sTempOwnerID = sValue;
             else if (sToken == g_sSettingToken+"info") {
                 g_iKidnapInfo = (integer)sValue;
-                if (g_iKidnapInfo) UserCommand(CMD_WEARER,"kidnap info on",g_kWearer,FALSE);
-                else UserCommand(CMD_WEARER,"kidnap info on",g_kWearer,FALSE);
+                if (g_iKidnapOn && g_iKidnapInfo) llSetTimerEvent(900.0);
             }
         } else if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == DIALOG_RESPONSE) {
