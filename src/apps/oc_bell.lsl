@@ -358,7 +358,7 @@ default {
     }
 
     touch_start(integer n) {
-        if (g_iBellShow && g_iHide==FALSE && llListFindList(g_lBellElements, [llDetectedLinkNumber(0)]) >= 0) {
+        if (g_iBellShow && g_iHide==FALSE && llListFindList(g_lBellElements, [llDetectedLinkNumber(0)]) != -1) {
             key kToucher = llDetectedKey(0);
             if (kToucher != g_kLastToucher || llGetTime() > g_fNextTouch) {
                 g_fNextTouch = llGetTime()+10.0;

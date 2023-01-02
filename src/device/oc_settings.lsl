@@ -68,57 +68,64 @@ integer g_iCardLimit = 255;
 string g_sDelimiter = "\\";
 integer g_iSaveAttempted = FALSE;
 
-string SplitToken(string sIn, integer iSlot) {
+string SplitToken(string sIn, integer iSlot)
+{
     integer i = llSubStringIndex(sIn, "_");
-    if (!iSlot) return llGetSubString(sIn, 0, i - 1);
-    return llGetSubString(sIn, i + 1, -1);
+    if (iSlot == 0) return llGetSubString(sIn, 0, i-1);
+    return llGetSubString(sIn, i+1, -1);
 }
 
-integer GroupIndex(list lCache, string sToken) {
+integer GroupIndex(list lCache, string sToken)
+{
     string sGroup = SplitToken(sToken, 0);
     integer i = llGetListLength(lCache) - 1;
-    for (; ~i ; i -= 2) {
-        if (SplitToken(llList2String(lCache, i - 1), 0) == sGroup) return i + 1;
+    for (; i >= 0; i -= 2) {
+        if (SplitToken(llList2String(lCache, i-1), 0) == sGroup) return i+1;
     }
     return -1;
 }
-integer SettingExists(string sToken) {
-    if (~llListFindList(g_lSettings, [sToken])) return TRUE;
+integer SettingExists(string sToken)
+{
+    if (llListFindList(g_lSettings, [sToken]) != -1) return TRUE;
     return FALSE;
 }
 
-list SetSetting(list lCache, string sToken, string sValue) {
+list SetSetting(list lCache, string sToken, string sValue)
+{
     integer idx = llListFindList(lCache, [sToken]);
-    if (~idx) return llListReplaceList(lCache, [sValue], idx + 1, idx + 1);
+    if (idx != -1) return llListReplaceList(lCache, [sValue], idx+1, idx+1);
     idx = GroupIndex(lCache, sToken);
-    if (~idx) return llListInsertList(lCache, [sToken, sValue], idx);
+    if (idx != -1) return llListInsertList(lCache, [sToken, sValue], idx);
     return lCache + [sToken, sValue];
 }
 
-string GetSetting(string sToken) {
+string GetSetting(string sToken)
+{
     integer i = llListFindList(g_lSettings, [sToken]);
-    return llList2String(g_lSettings, i + 1);
+    return llList2String(g_lSettings, i+1);
 }
 
-DelSetting(string sToken) {
+DelSetting(string sToken)
+{
     integer i = llGetListLength(g_lSettings) - 1;
     if (SplitToken(sToken, 1) == "all") {
         sToken = SplitToken(sToken, 0);
-        for (; ~i; i -= 2) {
-            if (SplitToken(llList2String(g_lSettings, i - 1), 0) == sToken)
-                g_lSettings = llDeleteSubList(g_lSettings, i - 1, i);
+        for (; i >= 0; i -= 2) {
+            if (SplitToken(llList2String(g_lSettings, i-1), 0) == sToken)
+                g_lSettings = llDeleteSubList(g_lSettings, i-1, i);
         }
         return;
     }
     i = llListFindList(g_lSettings, [sToken]);
-    if (~i) {
+    if (i != -1) {
         if (sToken == "auth_tempowner") g_kTempOwner = NULL_KEY;
-        g_lSettings = llDeleteSubList(g_lSettings, i, i + 1);
+        g_lSettings = llDeleteSubList(g_lSettings, i, i+1);
     }
 }
 
-list Add2OutList(list lIn, string sDebug) {
-    if (!llGetListLength(lIn)) return [];
+list Add2OutList(list lIn, string sDebug)
+{
+    if (llGetListLength(lIn) == 0) return [];
     list lOut;
     string sBuffer;
     string sTemp;
@@ -128,11 +135,11 @@ list Add2OutList(list lIn, string sDebug) {
     string sToken;
     string sValue;
     integer i;
-    for (i=0 ; i < llGetListLength(lIn); i += 2) {
+    for (i = 0; i < llGetListLength(lIn); i += 2) {
         sToken = llList2String(lIn, i);
         sValue = llList2String(lIn, i + 1);
         sGroup = llToUpper(SplitToken(sToken, 0));
-        if (sDebug == "print" && ~llListFindList(g_lExceptionTokens,[llToLower(sGroup)])) jump next;
+        if (sDebug == "print" && llListFindList(g_lExceptionTokens, [llToLower(sGroup)]) != -1) jump next;
         sToken = SplitToken(sToken, 1);
         integer bIsSplit = FALSE ;
         integer iAddedLength = llStringLength(sBuffer) + llStringLength(sValue)
@@ -144,12 +151,12 @@ list Add2OutList(list lIn, string sDebug) {
         }
         else sPre = sBuffer + "~";
         sTemp = sPre + sToken + "~" + sValue;
-        while (llStringLength(sTemp)) {
+        while (llStringLength(sTemp) > 0) {
             sBuffer = sTemp;
             if (llStringLength(sTemp) > g_iCardLimit) {
                 bIsSplit = TRUE ;
-                sBuffer = llGetSubString(sTemp, 0, g_iCardLimit - 2) + g_sDelimiter;
-                sTemp = "\n" + llDeleteSubString(sTemp, 0, g_iCardLimit - 2);
+                sBuffer = llGetSubString(sTemp, 0, g_iCardLimit-2) + g_sDelimiter;
+                sTemp = "\n" + llDeleteSubString(sTemp, 0, g_iCardLimit-2);
             } else sTemp = "";
             if ( bIsSplit ) {
                 lOut += [sBuffer];
@@ -158,11 +165,12 @@ list Add2OutList(list lIn, string sDebug) {
         }
         @next;
     }
-    if ( llStringLength(sBuffer) ) lOut += [sBuffer] ;
+    if (llStringLength(sBuffer) > 0) lOut += [sBuffer] ;
     return lOut;
 }
 
-PrintSettings(key kID, string sDebug) {
+PrintSettings(key kID, string sDebug)
+{
     list lOut;
     string sLinkNr = (string)llGetLinkNumber();
     string sLinkName = llGetLinkName(LINK_THIS);
@@ -173,7 +181,7 @@ PrintSettings(key kID, string sDebug) {
     string sOld;
     string sNew;
     integer i;
-    while (llGetListLength(lSay)) {
+    while (llGetListLength(lSay) > 0) {
         sNew = llList2String(lSay, 0);
         i = llStringLength(sOld + sNew) + 2;
         if (i > g_iSayLimit) {
@@ -184,20 +192,22 @@ PrintSettings(key kID, string sDebug) {
         lSay = llDeleteSubList(lSay, 0, 0);
     }
     lOut += [sOld];
-    while (llGetListLength(lOut)) {
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+llList2String(lOut, 0), kID);
+    while (llGetListLength(lOut) > 0) {
+        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+llList2String(lOut, 0), kID);
         lOut = llDeleteSubList(lOut, 0, 0);
     }
 }
 
-SaveSettings(key kID) {
+SaveSettings(key kID)
+{
     list lOut = Add2OutList(g_lSettings, "print");
     g_iSaveAttempted = TRUE;
     llSetTimerEvent(3.0);
     osMakeNotecard(g_sCard+".new", lOut);
 }
 
-LoadSetting(string sData, integer iLine) {
+LoadSetting(string sData, integer iLine)
+{
     string sID;
     string sToken;
     string sValue;
@@ -206,90 +216,79 @@ LoadSetting(string sData, integer iLine) {
         sData = g_sSplitLine ;
         g_sSplitLine = "" ;
     }
-    if (iLine) {
+    if (iLine > 0) {
         sData = llStringTrim(sData, STRING_TRIM_HEAD);
         if (sData == "" || llGetSubString(sData, 0, 0) == "#") return;
         if (llStringLength(g_sSplitLine)) {
             sData = g_sSplitLine + sData ;
             g_sSplitLine = "" ;
         }
-        if (llGetSubString(sData,-1,-1) == g_sDelimiter) {
-            g_sSplitLine = llDeleteSubString(sData,-1,-1) ;
+        if (llGetSubString(sData, -1, -1) == g_sDelimiter) {
+            g_sSplitLine = llDeleteSubString(sData, -1, -1) ;
             return;
         }
         i = llSubStringIndex(sData, "=");
-        sID = llGetSubString(sData, 0, i - 1);
-        sData = llGetSubString(sData, i + 1, -1);
-        if (~llSubStringIndex(llToLower(sID), "_")) return;
-        else if (~llListFindList(g_lExceptionTokens,[sID])) return;
-        sID = llToLower(sID)+"_";
+        sID = llGetSubString(sData, 0, i-1);
+        sData = llGetSubString(sData, i+1, -1);
+        if (llSubStringIndex(llToLower(sID), "_") != -1) return;
+        else if (llListFindList(g_lExceptionTokens, [sID]) != -1) return;
+        sID = llToLower(sID) + "_";
         list lData = llParseString2List(sData, ["~"], []);
         for (i = 0; i < llGetListLength(lData); i += 2) {
             sToken = llList2String(lData, i);
-            sValue = llList2String(lData, i + 1);
+            sValue = llList2String(lData, i+1);
             if (sValue != "" && sID != "auth_")
-                g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
+                g_lSettings = SetSetting(g_lSettings, sID+sToken, sValue);
         }
     }
 }
 
-SendValues() {
+SendValues()
+{
     integer n;
     string sToken;
     list lOut;
-    for (; n < llGetListLength(g_lSettings); n += 2) {
+    for (n = 0; n < llGetListLength(g_lSettings); n += 2) {
         sToken = llList2String(g_lSettings, n) + "=";
-        sToken += llList2String(g_lSettings, n + 1);
+        sToken += llList2String(g_lSettings, n+1);
         if (llListFindList(lOut, [sToken]) == -1) lOut += [sToken];
     }
     n = 0;
-    for (; n < llGetListLength(lOut); n++)
+    for (n = 0; n < llGetListLength(lOut); n++)
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llList2String(lOut, n), "");
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, "settings=sent", "");
 }
 
-UserCommand(integer iAuth, string sStr, key kID) {
+UserCommand(integer iAuth, string sStr, key kID)
+{
     string sStrLower = llToLower(sStr);
-    if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower,0,4));
-    else if (!llSubStringIndex(sStrLower,"load")) {
+    if (sStrLower == "print settings" || sStrLower == "debug settings") PrintSettings(kID, llGetSubString(sStrLower, 0, 4));
+    else if (llSubStringIndex(sStrLower,"load") == 0) {
         if (iAuth == CMD_OWNER && kID != g_kTempOwner) {
-            if (llGetInventoryKey(g_sCard)!=NULL_KEY) {
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\n",kID);
+            if (llGetInventoryKey(g_sCard) != NULL_KEY) {
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+ "\n\nLoading backup from "+g_sCard+" card. If you want to load settings from the web, please type: /%CHANNEL% %PREFIX% load url <url>\n\n", kID);
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-            } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"No "+g_sCard+" to load found.",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-    } else if (!llSubStringIndex(sStrLower,"save")) {
+            } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"No "+g_sCard+" to load found.", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
+    } else if (llSubStringIndex(sStrLower,"save") == 0) {
         if (iAuth == CMD_OWNER) SaveSettings(kID);
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Rebooting your %DEVICETYPE% ....",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Rebooting your %DEVICETYPE% ....", kID);
             g_iRebootConfirmed = FALSE;
-            llMessageLinked(LINK_ALL_OTHERS, REBOOT,"reboot","");
+            llMessageLinked(LINK_ALL_OTHERS, REBOOT, "reboot", "");
             llSetTimerEvent(2.0);
         } else {
             g_kConfirmDialogID = llGenerateKey();
-            llMessageLinked(LINK_DIALOG,DIALOG,(string)kID+"|\nAre you sure you want to reboot the %DEVICETYPE%?|0|Yes`No|Cancel|"+(string)iAuth,g_kConfirmDialogID);
+            llMessageLinked(LINK_DIALOG, DIALOG, (string)kID+"|\nAre you sure you want to reboot the %DEVICETYPE%?|0|Yes`No|Cancel|"+(string)iAuth, g_kConfirmDialogID);
         }
-    } else if (sStrLower == "show storage") {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [
-            PRIM_POS_LOCAL, <0,0,0.1>, PRIM_SIZE, <0.1, 0.1, 0.02>, PRIM_POS_LOCAL, ZERO_ROTATION,
-            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
-            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 1
-        ]);
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the storage prim again type:\n\n/%CHANNEL% %PREFIX% hide storage\n",kID);
-    } else if (sStrLower == "hide storage")
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [
-            PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.05, 0.05, 0.01>, PRIM_POS_LOCAL, ZERO_ROTATION,
-            PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.60, 0.80, 0>, 0.05, ZERO_VECTOR, <1,1,0>, ZERO_VECTOR,
-            PRIM_COLOR, ALL_SIDES, <0.753, 0.753, 1>, 0.0
-        ]);
-    else if (sStrLower == "runaway") llSetTimerEvent(2.0);
+    } else if (sStrLower == "runaway") llSetTimerEvent(2.0);
 }
 
 PieSlice()
 {
     if (llGetLinkNumber() == LINK_ROOT) return;
-    if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
+    if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
     if (llGetAttached()) {
         llSetLinkPrimitiveParamsFast(LINK_THIS, [
             PRIM_POS_LOCAL, ZERO_VECTOR, PRIM_SIZE, <0.01, 0.01, 0.01>, PRIM_ROT_LOCAL, ZERO_ROTATION,
@@ -305,24 +304,27 @@ PieSlice()
     }
 }
 
-default {
-    state_entry() {
+default
+{
+    state_entry()
+    {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
-        if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist",(string)llGetObjectDetails(llGetLinkKey(1),[27])];
-        if (llGetInventoryType("OC_Cuffs_sync")==INVENTORY_SCRIPT) llRemoveInventory("OC_Cuffs_sync");
+        if (llGetNumberOfPrims() > 5) g_lSettings = ["intern_dist", (string)llGetObjectDetails(llGetLinkKey(1), [27])];
+        if (llGetInventoryType("OC_Cuffs_sync") == INVENTORY_SCRIPT) llRemoveInventory("OC_Cuffs_sync");
         llSleep(0.5);
         g_kWearer = llGetOwner();
         g_iLineNr = 0;
-        if (!llGetStartParameter()) {
-            if (llGetInventoryType(g_sCard)==INVENTORY_NOTECARD) {
+        if (llGetStartParameter() == 0) {
+            if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) {
                 g_kCardID = llGetInventoryKey(g_sCard);
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-            } else if (llGetListLength(g_lSettings)) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
+            } else if (llGetListLength(g_lSettings) > 0) llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
         PieSlice();
     }
 
-    on_rez(integer iParam) {
+    on_rez(integer iParam)
+    {
         if (g_kWearer == llGetOwner()) {
             PieSlice();
             llSetTimerEvent(2.0);
@@ -330,20 +332,22 @@ default {
         else llResetScript();
     }
 
-    dataserver(key kID, string sData) {
+    dataserver(key kID, string sData)
+    {
         if (kID == g_kLineID) {
             if (sData != EOF) {
-                LoadSetting(sData,++g_iLineNr);
+                LoadSetting(sData, ++g_iLineNr);
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             } else {
                 g_iLineNr = 0;
-                LoadSetting(sData,g_iLineNr);
+                LoadSetting(sData, g_iLineNr);
                 llSetTimerEvent(2.0);
             }
         }
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == CMD_OWNER || kID == g_kWearer) UserCommand(iNum, sStr, kID);
         else if (iNum == LM_SETTING_SAVE) {
             list lParams = llParseString2List(sStr, ["="], []);
@@ -353,7 +357,7 @@ default {
             if (sToken == "auth_tempowner" && sValue != "") g_kTempOwner = (key)sValue;
             if (LINK_CUFFS) {
                 lParams = llParseString2List(sStr, ["_"], []);
-                if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
+                if (llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)]) != -1) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
             }
         }
         else if (iNum == LM_SETTING_REQUEST) {
@@ -366,7 +370,7 @@ default {
             DelSetting(sStr);
             if (LINK_CUFFS) {
                 list lParams = llParseString2List(sStr, ["_"], []);
-                if (~llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)])) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
+                if (llListFindList(CUFFS_GROUPS,[llList2String(lParams, 0)]) != -1) llMessageLinked(LINK_CUFFS, LM_CUFF_SET, sStr, "");
             }
         } else if (iNum == DIALOG_RESPONSE && kID == g_kConfirmDialogID) {
             list lMenuParams = llParseString2List(sStr, ["|"], []);
@@ -374,26 +378,27 @@ default {
             if (llList2String(lMenuParams,1) == "Yes") {
                 g_iRebootConfirmed = TRUE;
                 UserCommand(llList2Integer(lMenuParams,3),"reboot",kID);
-            } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Reboot aborted.",kID);
-        } else if (iNum == LOADPIN && ~llSubStringIndex(llGetScriptName(),sStr)) {
+            } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Reboot aborted.", kID);
+        } else if (iNum == LOADPIN && llSubStringIndex(llGetScriptName(), sStr) != -1) {
             integer iPin = (integer)llFrand(99999.0)+1;
             llSetRemoteScriptAccessPin(iPin);
-            llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(),llGetKey());
+            llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(), llGetKey());
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
-            else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_SAVE","");
+            else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE, "LINK_SAVE", "");
         } else if (iNum == LM_CUFF_SET && sStr == "LINK_CUFFS") LINK_CUFFS = iSender;
         else if (iNum == REGION_CROSSED || iNum == REGION_TELEPORT) llSetTimerEvent(2.0);
     }
 
-    timer() {
+    timer()
+    {
         llSetTimerEvent(0.0);
         if (g_iSaveAttempted) {
             g_iSaveAttempted = FALSE;
-            if (llGetInventoryType(g_sCard+".new")==INVENTORY_NOTECARD) {
+            if (llGetInventoryType(g_sCard+".new") == INVENTORY_NOTECARD) {
                 // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryType(g_sCard)==INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
+                if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
                 string sNewSettings = osGetNotecard(g_sCard+".new");
                 osMakeNotecard(g_sCard, sNewSettings);
                 llRemoveInventory(g_sCard+".new");
@@ -404,8 +409,9 @@ default {
         } else SendValues();
     }
 
-    changed(integer iChange) {
-        if ((iChange & CHANGED_INVENTORY) && (llGetInventoryKey(g_sCard) != g_kCardID)) {
+    changed(integer iChange)
+    {
+        if ((iChange & CHANGED_INVENTORY) && llGetInventoryKey(g_sCard) != g_kCardID) {
             // Re-read settings card if it has been changed
             llSetTimerEvent(0.0);
             g_iLineNr = 0;

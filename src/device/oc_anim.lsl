@@ -1,3 +1,4 @@
+
 //  oc_anim.lsl
 //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,
@@ -92,16 +93,18 @@ integer g_iMenuStride = 3;
 
 float g_fHeelOffset = -0.1;
 
-Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
+Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
 
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kID, kMenuID, sName];
 }
 
-AnimMenu(key kID, integer iAuth) {
+AnimMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nAnimations\n\n%WEARERNAME%";
     list lButtons;
 
@@ -124,32 +127,33 @@ AnimMenu(key kID, integer iAuth) {
     if (g_iCrawl) lButtons += ["☑ Crawl"];
     else lButtons += ["☐ Crawl"];
     lButtons += ["AO Menu", "AO ON", "AO OFF", "Pose"];
-    if (~llSubStringIndex(llGetInventoryName(INVENTORY_SCRIPT,1),"couples")) lButtons += "Couples";
+    if (llSubStringIndex(llGetInventoryName(INVENTORY_SCRIPT, 1), "couples") != -1) lButtons += "Couples";
     else if (llGetInventoryType("oc_pet") == INVENTORY_SCRIPT) lButtons +=  "Pet me!";
     Dialog(kID, sPrompt, lButtons+g_lAnimButtons, ["BACK"], 0, iAuth, "Anim");
 }
 
-PoseMenu(key kID, integer iPage, integer iAuth) {
+PoseMenu(key kID, integer iPage, integer iAuth)
+{
     string sPrompt = "\nPose\n\nCurrently playing: ";
-    if (g_sCurrentPose == "")sPrompt += "-\n";
+    if (g_sCurrentPose == "") sPrompt += "-\n";
     else {
         string sActivePose = g_sCurrentPose;
         if (g_iRLV_ON && g_iHoverOn) {
-            integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
-            if (~index) {
-                string sAdjustment = llList2String(g_lHeightAdjustments,index+1);
-                if ((float)sAdjustment>0.0) sAdjustment = " (+"+llGetSubString(sAdjustment,0,3)+")";
-                else if ((float)sAdjustment<0.0) sAdjustment = " ("+llGetSubString(sAdjustment,0,4)+")";
+            integer index = llListFindList(g_lHeightAdjustments, [g_sCurrentPose]);
+            if (index != -1) {
+                string sAdjustment = llList2String(g_lHeightAdjustments, index+1);
+                if ((float)sAdjustment > 0.0) sAdjustment = " (+" + llGetSubString(sAdjustment, 0, 3) + ")";
+                else if ((float)sAdjustment < 0.0) sAdjustment = " (" + llGetSubString(sAdjustment, 0, 4) +")";
                 else sAdjustment = "";
-                sActivePose = g_sCurrentPose+sAdjustment;
+                sActivePose = g_sCurrentPose + sAdjustment;
             }
         }
         sPrompt += sActivePose +"\n";
     }
-    if (g_fStandHover!=0.0 && g_iRLV_ON && g_iHoverOn) {
+    if (g_fStandHover != 0.0 && g_iRLV_ON && g_iHoverOn) {
         string sAdjustment;
-        if (g_fStandHover>0.0) sAdjustment = "+"+llGetSubString((string)g_fStandHover,0,3);
-        else if (g_fStandHover<0.0) sAdjustment = llGetSubString((string)g_fStandHover,0,4);
+        if (g_fStandHover > 0.0) sAdjustment = "+" + llGetSubString((string)g_fStandHover, 0, 3);
+        else if (g_fStandHover < 0.0) sAdjustment = llGetSubString((string)g_fStandHover, 0, 4);
         sPrompt += "Default Hover = "+(string)sAdjustment;
     }
     list lStaticButtons;
@@ -160,19 +164,21 @@ PoseMenu(key kID, integer iPage, integer iAuth) {
     Dialog(kID, sPrompt, lTotalPoseList, lStaticButtons, iPage, iAuth, "Pose");
 }
 
-AOMenu(key kID, integer iAuth) {
-    llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|"+(string)iAuth+"|ZHAO_MENU|"+(string)kID, g_kWearer);
+AOMenu(key kID, integer iAuth)
+{
+    llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE, "CollarCommand|"+(string)iAuth+"|ZHAO_MENU|"+(string)kID, g_kWearer);
     llRegionSayTo(g_kWearer,g_iAOChannel, "ZHAO_MENU|" + (string)kID);
 }
 
-integer SetPosture(integer iOn, key kCommander) {
-    if (llGetInventoryType("~stiff")!=INVENTORY_ANIMATION) return FALSE;
+integer SetPosture(integer iOn, key kCommander)
+{
+    if (llGetInventoryType("~stiff") != INVENTORY_ANIMATION) return FALSE;
     if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
-        if (iOn && !g_iPosture) {
+        if (iOn && g_iPosture == FALSE) {
             llStartAnimation("~stiff");
             if (kCommander != NULL_KEY) llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Posture override active.", kCommander);
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"posture=1","");
-        } else if (!iOn) {
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"posture=1", "");
+        } else if (iOn = FALSE) {
             llStopAnimation("~stiff");
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"posture", "");
         }
@@ -182,64 +188,68 @@ integer SetPosture(integer iOn, key kCommander) {
     return FALSE;
 }
 
-SetHover(string sStr) {
+SetHover(string sStr)
+{
     float fNewHover = g_fHoverIncrement;
     if (sStr == "↓" || sStr == "hoverdown") fNewHover = -fNewHover;
     else if (sStr != "↑" && sStr != "hoverup") return;
     if (g_sCurrentPose == "") {
         g_fStandHover += fNewHover;
         fNewHover = g_fStandHover;
-        if (g_fStandHover)
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_standhover="+(string)g_fStandHover,"");
+        if (g_fStandHover != 0.0)
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "offset_standhover="+(string)g_fStandHover, "");
         else
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "offset_standhover", "");
         jump next;
     }
-    integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
-    if (~index) {
-        fNewHover = fNewHover + llList2Float(g_lHeightAdjustments,index+1);
-        if (fNewHover)
-            g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments,[fNewHover],index+1,index+1);
+    integer index = llListFindList(g_lHeightAdjustments, [g_sCurrentPose]);
+    if (index != -1) {
+        fNewHover = fNewHover + llList2Float(g_lHeightAdjustments, index+1);
+        if (fNewHover != 0.0)
+            g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments, [fNewHover], index+1, index+1);
         else
-            g_lHeightAdjustments = llDeleteSubList(g_lHeightAdjustments,index,index+1);
-    } else g_lHeightAdjustments += [g_sCurrentPose,fNewHover];
+            g_lHeightAdjustments = llDeleteSubList(g_lHeightAdjustments, index, index+1);
+    } else g_lHeightAdjustments += [g_sCurrentPose, fNewHover];
     @next;
     if (g_sCurrentPose == g_sCrawlWalk) g_fPoseMoveHover = fNewHover;
     if (g_iShoesWorn)
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force", g_kWearer);
     else
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fNewHover+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fNewHover+"=force", g_kWearer);
     string sSettings;
     integer i;
-    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i += 2) {
         string sPose = llList2String(g_lHeightAdjustments, i);
-        if (llGetSubString(sPose, 0, 0)=="~") sPose = "++"+llGetSubString(sPose, 1, -1); // convert ~ prefix to ++
+        if (llGetSubString(sPose, 0, 0) == "~") sPose = "++" + llGetSubString(sPose, 1, -1); // convert ~ prefix to ++
         string sOffset = llGetSubString((string)llList2Float(g_lHeightAdjustments, i+1), 0, 3); // 2 decimals
         sSettings += sPose+","+sOffset+",";
     }
-    llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"offset_hovers="+sSettings,"");
+    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "offset_hovers="+sSettings, "");
 }
 
-MessageAOs(string sONOFF, string sWhat) {
+MessageAOs(string sONOFF, string sWhat)
+{
     llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|" + (string)EXT_CMD_COLLAR + "|ZHAO_"+sWhat+sONOFF, g_kWearer);
-    llRegionSayTo(g_kWearer,g_iAOChannel, "ZHAO_"+sWhat+sONOFF);
-    llRegionSayTo(g_kWearer,-8888,(string)g_kWearer+"boot"+llToLower(sONOFF));
+    llRegionSayTo(g_kWearer, g_iAOChannel, "ZHAO_"+sWhat+sONOFF);
+    llRegionSayTo(g_kWearer, -8888, (string)g_kWearer+"boot"+llToLower(sONOFF));
 }
 
-RefreshAnim() {
-    if (llGetListLength(g_lAnims)) {
+RefreshAnim()
+{
+    if (llGetListLength(g_lAnims) > 0) {
         if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
             if (g_iPosture) llStartAnimation("~stiff");
-            if (!g_iCrawl) llSetTimerEvent(0.0);
-            StartAnim(llList2String(g_lAnims,0));
+            if (g_iCrawl == FALSE) llSetTimerEvent(0.0);
+            StartAnim(llList2String(g_lAnims, 0));
         }
     }
 }
 
-StartAnim(string sAnim) {
+StartAnim(string sAnim)
+{
     if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
-            if (llGetListLength(g_lAnims)) UnPlayAnim(llList2String(g_lAnims, 0));
+            if (llGetListLength(g_lAnims) > 0) UnPlayAnim(llList2String(g_lAnims, 0));
             g_lAnims = [sAnim] + g_lAnims;
             PlayAnim(sAnim);
             MessageAOs("OFF","STAND");
@@ -247,78 +257,86 @@ StartAnim(string sAnim) {
     }
 }
 
-PlayAnim(string sAnim) {
+PlayAnim(string sAnim)
+{
     if (g_iRLV_ON && g_iHoverOn) {
-        integer index = llListFindList(g_lHeightAdjustments,[sAnim]);
+        integer index = llListFindList(g_lHeightAdjustments, [sAnim]);
         float fOffset = 0.0;
-        if (~index) fOffset += llList2Float(g_lHeightAdjustments,index+1);
+        if (index != -1) fOffset += llList2Float(g_lHeightAdjustments, index+1);
         if (g_iShoesWorn) fOffset += g_fHeelOffset;
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fOffset+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fOffset+"=force", g_kWearer);
     }
     llStartAnimation(sAnim);
     if (g_iCrawl && g_sCurrentPose != "") llSetTimerEvent(0.5);
 }
 
-StopAnim(string sAnim, integer isPoseChange) {
+StopAnim(string sAnim, integer isPoseChange)
+{
     if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             integer n;
-            while(~(n=llListFindList(g_lAnims,[sAnim])))
+            while((n = llListFindList(g_lAnims,[sAnim])) != -1)
                 g_lAnims = llDeleteSubList(g_lAnims,n,n);
             if (sAnim != "") UnPlayAnim(sAnim);
-            if (llGetListLength(g_lAnims)) PlayAnim(llList2String(g_lAnims, 0));
-            else if (!isPoseChange) MessageAOs("ON","STAND");
+            if (llGetListLength(g_lAnims) > 0) PlayAnim(llList2String(g_lAnims, 0));
+            else if (isPoseChange == FALSE) MessageAOs("ON","STAND");
         }
     }
 }
 
-UnPlayAnim(string sAnim) {
+UnPlayAnim(string sAnim)
+{
     if (g_iCrawl) {
         llSetTimerEvent(0.0);
         llStopAnimation(g_sPoseMoveRun);
         llStopAnimation(g_sCrawlWalk);
     }
     if (g_iRLV_ON && g_iHoverOn)
-        llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)g_fStandHover+"=force",g_kWearer);
+        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)g_fStandHover+"=force", g_kWearer);
     llStopAnimation(sAnim);
 }
 
-checkCrawl() {
+checkCrawl()
+{
     if (llGetInventoryType(g_sCrawlWalk) != INVENTORY_ANIMATION) {
         g_iCrawl = 0;
-        llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,g_sSettingToken+"crawl","");
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"crawl", "");
     }
 }
 
-CreateAnimList() {
+CreateAnimList()
+{
     g_lPoseList=[];
     g_lOtherAnims =[];
     g_iNumberOfAnims = llGetInventoryNumber(INVENTORY_ANIMATION);
     string sName;
     integer i;
-    do { sName = llGetInventoryName(INVENTORY_ANIMATION, i);
+    do {
+        sName = llGetInventoryName(INVENTORY_ANIMATION, i);
         if (sName != "" && llSubStringIndex(sName,"~") != 0) {
-            if (llListFindList(["-1","-2","+1","+2"],[llGetSubString(sName,-2,-1)]) == -1)
+            if (llListFindList(["-1","-2","+1","+2"], [llGetSubString(sName,-2,-1)]) == -1)
                 g_lPoseList+=[sName];
         } else if (llSubStringIndex(sName,"~") == 0) g_lOtherAnims+=sName;
     } while (g_iNumberOfAnims > ++i);
-    llMessageLinked(LINK_SET,ANIM_LIST_RESPONSE,llDumpList2String(g_lPoseList+g_lOtherAnims,"|"),"");
+    llMessageLinked(LINK_SET, ANIM_LIST_RESPONSE, llDumpList2String(g_lPoseList+g_lOtherAnims,"|"), "");
 }
 
 // Case insensitive match of sName against any inventory item of type iType
 // Returns actual inventory name when matched
 // Returns empty string if no match
-string MatchInventoryName(string sName, integer iType) {
+string MatchInventoryName(string sName, integer iType)
+{
     integer i = 0;
     while (i < llGetInventoryNumber(iType)) {
         string sItemName = llGetInventoryName(iType, i);
-        if (~llSubStringIndex(llToLower(sItemName), llToLower(sName))) return sItemName;
+        if (llSubStringIndex(llToLower(sItemName), llToLower(sName)) != -1) return sItemName;
         i++;
     }
     return "";
 }
 
-UserCommand(integer iNum, string sStr, key kID) {
+UserCommand(integer iNum, string sStr, key kID)
+{
     if (iNum == CMD_EVERYONE) return;
     list lParams = llParseString2List(sStr, [" "], []);
     string sCommand = llToLower(llList2String(lParams, 0));
@@ -328,7 +346,7 @@ UserCommand(integer iNum, string sStr, key kID) {
         else if (sValue == "ao") AOMenu(kID, iNum);
         else if (sValue == "animations") AnimMenu(kID, iNum);
     } else if (sStr == "release" || sStr == "stop") {
-        if (iNum <= g_iLastRank || !g_iAnimLock) {
+        if (iNum <= g_iLastRank || g_iAnimLock == FALSE) {
             g_iLastRank = 0;
             StopAnim(g_sCurrentPose,FALSE);
             g_sCurrentPose = "";
@@ -336,13 +354,13 @@ UserCommand(integer iNum, string sStr, key kID) {
         }
     } else if (sStr == "animations") AnimMenu(kID, iNum);
     else if (sStr == "pose") PoseMenu(kID, 0, iNum);
-    else if (!llSubStringIndex(sCommand,"hover")) {
+    else if (llSubStringIndex(sCommand,"hover") == 0) {
         if (llToLower(sStr) == "hover reset") {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The default hover was reset.",kID);
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"offset_standhover","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The default hover was reset.", kID);
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "offset_standhover", "");
             g_fStandHover = 0.0;
             if (g_iRLV_ON && g_iHoverOn && llGetListLength(g_lAnims) == 0)
-                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;0.0=force",g_kWearer);
+                llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;0.0=force", g_kWearer);
         } else SetHover(sCommand);
     } else if (sStr == "runaway" && (iNum == CMD_OWNER || iNum == CMD_WEARER)) {
         if (g_sCurrentPose != "") StopAnim(g_sCurrentPose,FALSE);
@@ -352,8 +370,8 @@ UserCommand(integer iNum, string sStr, key kID) {
             if (iNum <= CMD_WEARER) {
                 g_iLastPostureRank = iNum;
                 SetPosture(TRUE,kID);
-                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"PostureRank="+(string)g_iLastPostureRank,"");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Your neck is locked in place.",g_kWearer);
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"PostureRank="+(string)g_iLastPostureRank, "");
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Your neck is locked in place.", g_kWearer);
                 if (kID != g_kWearer) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%WEARERNAME%'s neck is locked in place.", kID);
             } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if ( sValue == "off") {
@@ -361,7 +379,7 @@ UserCommand(integer iNum, string sStr, key kID) {
                 g_iLastPostureRank = CMD_WEARER;
                 SetPosture(FALSE,kID);
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"PostureRank", "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You can move your neck again.",g_kWearer);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You can move your neck again.", g_kWearer);
                 if (kID != g_kWearer) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%WEARERNAME% is free to move their neck.", kID);
             }
                 else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%",kID);
@@ -376,17 +394,17 @@ UserCommand(integer iNum, string sStr, key kID) {
             string sPrompt = "\nATTENTION: The pose that you are about to delete is not copyable! It will be removed from the %DEVICETYPE% and sent to you. Please make sure to accept the inventory.\n\nDo you really want to remove the \""+g_sPose2Remove+"\" pose?";
             if (llGetInventoryPermMask(g_sPose2Remove,MASK_OWNER) & PERM_COPY)
                 sPrompt = "\nDo you really want to remove the \""+g_sPose2Remove+"\" pose?";
-            Dialog(g_kWearer,sPrompt,["Yes","No"],["CANCEL"],0,CMD_WEARER,"RmPose");
+            Dialog(g_kWearer, sPrompt, ["Yes","No"], ["CANCEL"], 0, CMD_WEARER, "RmPose");
         } else
-            Dialog(g_kWearer, "\nWhich pose do you want to remove?\n", g_lPoseList,["CANCEL"],0,CMD_WEARER,"RmPoseSelect");
+            Dialog(g_kWearer, "\nWhich pose do you want to remove?\n", g_lPoseList, ["CANCEL"], 0, CMD_WEARER, "RmPoseSelect");
     } else if (sCommand == "animlock") {
         if (sValue=="on") {
             if (iNum<=CMD_WEARER) {
                 g_iLastPoselockRank = iNum;
-                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"PoselockRank="+(string)g_iLastPoselockRank,"");
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"PoselockRank="+(string)g_iLastPoselockRank, "");
                 g_iAnimLock = TRUE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"animlock=1", "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners can change or stop your poses now.",g_kWearer);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners can change or stop your poses now.", g_kWearer);
                 if (kID != g_kWearer) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%WEARERNAME% can have their poses changed or stopped only by owners.", kID);
             } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sValue == "off") {
@@ -394,7 +412,7 @@ UserCommand(integer iNum, string sStr, key kID) {
                 g_iAnimLock = FALSE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"animlock", "");
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"PoselockRank", "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You are now free to change or stop poses on your own.",g_kWearer);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You are now free to change or stop poses on your own.", g_kWearer);
                 if (kID != g_kWearer) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%WEARERNAME% is free to change or stop poses on their own.", kID);
             } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         }
@@ -424,28 +442,24 @@ UserCommand(integer iNum, string sStr, key kID) {
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change crawl settings.",kID);
     } else if (sCommand == "heeloffset") {
         if ((iNum == CMD_OWNER) || (kID == g_kWearer)) {
-            if (sValue == "" || sValue == "reset") {
+            if (sValue == "reset" || sValue != "") {
                 g_fHeelOffset = -0.1;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"heeloffset", "");
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset has been reset to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
             } else {
                 g_fHeelOffset = (float)sValue;
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"heeloffset="+(string)g_fHeelOffset, "");
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset changed to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
             }
-            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"New heeloffset is now "+(string)g_fHeelOffset,g_kWearer);
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.",kID);
-    } else if ((sStr == "show animator")&&(iNum == CMD_OWNER || kID == g_kWearer)){
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_BLANK,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,TRUE]);
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nTo hide the animator prim again type:\n\n/%CHANNEL% %PREFIX% hide animator\n",kID);
-    } else if ((sStr == "hide animator")&&(iNum == CMD_OWNER || kID == g_kWearer))
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1,1,0>,ZERO_VECTOR,0.0,PRIM_FULLBRIGHT,ALL_SIDES,FALSE]);
-    else {
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.", kID);
+    } else {
         // Check if given command is a pose in inv, and if so play it
         if (llStringLength(sStr) > 63) return; // inv item names can only have up to 63 chars
         if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) {
             sStr = MatchInventoryName(sStr, INVENTORY_ANIMATION);
             if (sStr == "") return; // no match in aNy cAsE
         } // else sStr is an exact match
-        if (iNum <= g_iLastRank || !g_iAnimLock || g_sCurrentPose == "") {
+        if (iNum <= g_iLastRank || g_iAnimLock == FALSE || g_sCurrentPose == "") {
             StopAnim(g_sCurrentPose,(g_sCurrentPose != ""));
             g_sCurrentPose = sStr;
             g_iLastRank = iNum;
@@ -474,8 +488,10 @@ PieSlice()
     }
 }
 
-default {
-    on_rez(integer iNum) {
+default
+{
+    on_rez(integer iNum)
+    {
         if (iNum == 825) llSetRemoteScriptAccessPin(0);
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRLV_ON = FALSE;
@@ -483,7 +499,8 @@ default {
         PieSlice();
     }
 
-    state_entry() {
+    state_entry()
+    {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         g_kWearer = llGetOwner();
         checkCrawl();
@@ -492,18 +509,21 @@ default {
         PieSlice();
     }
 
-    run_time_permissions(integer iPerm) {
+    run_time_permissions(integer iPerm)
+    {
         if (iPerm & PERMISSION_TRIGGER_ANIMATION) {
             if (g_iPosture) llStartAnimation("~stiff");
         }
     }
 
-    attach(key kID) {
+    attach(key kID)
+    {
         if (kID == NULL_KEY) g_lAnims = [];
         else llRequestPermissions(g_kWearer, PERMISSION_TRIGGER_ANIMATION);
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum <= CMD_EVERYONE && iNum >= CMD_OWNER) UserCommand(iNum, sStr, kID);
         else if (iNum == ANIM_START) StartAnim(sStr);
         else if (iNum == ANIM_STOP) StopAnim(sStr,FALSE);
@@ -533,11 +553,11 @@ default {
             string sValue = llList2String(lParams, 1);
             integer i = llSubStringIndex(sToken, "_");
             if (llGetSubString(sToken, 0, i) == g_sSettingToken) {
-                sToken = llGetSubString(sToken, i + 1, -1);
+                sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "currentpose") {
                     list lAnimParams = llParseString2List(sValue, [","], []);
                     g_sCurrentPose = llList2String(lAnimParams, 0);
-                    g_iLastRank = (integer)llList2String(lAnimParams, 1);
+                    g_iLastRank = llList2Integer(lAnimParams, 1);
                     StartAnim(g_sCurrentPose);
                 } else if (sToken == "animlock") g_iAnimLock = (integer)sValue;
                 else if (sToken =="posture") SetPosture((integer)sValue,NULL_KEY);
@@ -547,50 +567,50 @@ default {
                     g_iCrawl = (integer)sValue;
                     checkCrawl();
                 } else if (sToken == "heeloffset") g_fHeelOffset = (float)sValue;
-            } else if (llGetSubString(sToken,0,i) == "offset_") {
-                sToken = llGetSubString(sToken,i+1,-1);
+            } else if (llGetSubString(sToken, 0, i) == "offset_") {
+                sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "AllowHover") {
-                    g_iHoverOn = (integer)llGetSubString(sValue,0,0);
-                    g_fHoverIncrement = (float)llGetSubString(sValue,2,-1);
+                    g_iHoverOn = (integer)llGetSubString(sValue, 0, 0);
+                    g_fHoverIncrement = (float)llGetSubString(sValue, 2, -1);
                     if (g_fHoverIncrement == 0.0) g_fHoverIncrement = 0.02;
                 } else if (sToken == "hovers") {
-                    g_lHeightAdjustments = llParseString2List(sValue,[","],[]);
-                    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i+=2) {
+                    g_lHeightAdjustments = llParseString2List(sValue, [","], []);
+                    for (i = 0; i < llGetListLength(g_lHeightAdjustments); i += 2) {
                         // convert ++ prefix to ~ if found
                         string sName = llList2String(g_lHeightAdjustments, i);
                         if (llSubStringIndex(sName, "++") == 0) {
-                            sName = "~"+llGetSubString(sName, 2, -1);
+                            sName = "~" + llGetSubString(sName, 2, -1);
                             g_lHeightAdjustments = llListReplaceList(g_lHeightAdjustments, [sName], i, i);
                         }
                     }
-                    integer index = llListFindList(g_lHeightAdjustments,[g_sCrawlWalk]);
-                    if (~index)
-                        g_fPoseMoveHover = (float)llList2String(g_lHeightAdjustments,index+1);
+                    integer index = llListFindList(g_lHeightAdjustments, [g_sCrawlWalk]);
+                    if (index != -1)
+                        g_fPoseMoveHover = llList2Float(g_lHeightAdjustments, index+1);
                 } else if (sToken == "standhover") g_fStandHover = (float)sValue;
             }
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
+                integer iPage = llList2Integer(lMenuParams, 2);
                 integer iAuth = llList2Integer(lMenuParams, 3);
-                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2 + g_iMenuStride);
                 if (sMenuType == "Anim") {
                     if (sMessage == "BACK")
                         llMessageLinked(LINK_ALL_OTHERS, iAuth, "menu Main", kAv);
                     else if (sMessage == "Pose") PoseMenu(kAv, 0, iAuth);
-                    else if (sMessage == "Couples") llMessageLinked(LINK_THIS,iAuth,"menu Couples",kAv);
-                    else if (sMessage == "Pet me!") llMessageLinked(LINK_THIS,iAuth,"menu pet",kAv);
+                    else if (sMessage == "Couples") llMessageLinked(LINK_THIS, iAuth, "menu Couples", kAv);
+                    else if (sMessage == "Pet me!") llMessageLinked(LINK_THIS, iAuth, "menu pet", kAv);
                     else if (sMessage == "AO Menu") {
-                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OsCollar AO or a ZHAO AO with the 'Zhao-OsCollar Link' script in their AO HUD.\n\nhttps://github.com/lickx/oscollar/wiki/OsCollar-AO\n", kAv);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\nAttempting to trigger the AO menu. This will only work if %WEARERNAME% is using an OSCollar AO or a ZHAO AO with the 'Zhao-OSCollar Link' script in their AO HUD.\n", kAv);
                         AOMenu(kAv, iAuth);
                     } else {
                         string sOnOff;
-                        if (!llSubStringIndex(sMessage,"☐")) sOnOff = " on";
-                        else if (!llSubStringIndex(sMessage,"☑")) sOnOff = " off";
+                        if (llSubStringIndex(sMessage,"☐") == 0) sOnOff = " on";
+                        else if (llSubStringIndex(sMessage,"☑") == 0) sOnOff = " off";
                         if (sOnOff != "")
                             UserCommand(iAuth,llGetSubString(sMessage,2,-1)+sOnOff,kAv);
                         else UserCommand(iAuth, sMessage, kAv);
@@ -607,16 +627,16 @@ default {
                         PoseMenu(kAv, iPage, iAuth);
                     }
                 } else if (sMenuType == "RmPoseSelect") {
-                    if (sMessage != "CANCEL") UserCommand(iAuth, "rm pose "+sMessage,kAv);
+                    if (sMessage != "CANCEL") UserCommand(iAuth, "rm pose "+sMessage, kAv);
                 } else if (sMenuType == "RmPose") {
                     if (sMessage == "Yes") {
                         if (llGetInventoryType(g_sPose2Remove) == INVENTORY_ANIMATION) {
-                            if (llGetInventoryPermMask(g_sPose2Remove,MASK_OWNER) & PERM_COPY) {
+                            if (llGetInventoryPermMask(g_sPose2Remove, MASK_OWNER) & PERM_COPY) {
                                 llRemoveInventory(g_sPose2Remove);
-                                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThe \""+g_sPose2Remove+"\" pose has been removed from your %DEVICETYPE%.\n",g_kWearer);
+                                llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"\n\nThe \""+g_sPose2Remove+"\" pose has been removed from your %DEVICETYPE%.\n", g_kWearer);
                             } else {
-                                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nThe \""+g_sPose2Remove+"\" pose has been removed from your %DEVICETYPE% and is now being delivered to you from an object called \""+llGetObjectName()+"\". This particular pose is not copyable. If you want to keep it, please make sure to accept the inventory.\n",g_kWearer);
-                                llGiveInventory(g_kWearer,g_sPose2Remove);
+                                llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"\n\nThe \""+g_sPose2Remove+"\" pose has been removed from your %DEVICETYPE% and is now being delivered to you from an object called \""+llGetObjectName()+"\". This particular pose is not copyable. If you want to keep it, please make sure to accept the inventory.\n", g_kWearer);
+                                llGiveInventory(g_kWearer, g_sPose2Remove);
                             }
                         }
                         CreateAnimList();
@@ -626,16 +646,16 @@ default {
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
-        } else if (iNum == LOADPIN && ~llSubStringIndex(llGetScriptName(),sStr)) {
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex+3);
+        } else if (iNum == LOADPIN && llSubStringIndex(llGetScriptName(), sStr) != -1) {
             integer iPin = (integer)llFrand(99999.0)+1;
             llSetRemoteScriptAccessPin(iPin);
-            llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(),llGetKey());
+            llMessageLinked(iSender, LOADPIN, (string)iPin+"@"+llGetScriptName(), llGetKey());
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
-            else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_ANIM","");
+            else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE, "LINK_ANIM", "");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
         else if (iNum == RLV_SHOES) g_iShoesWorn = TRUE;
@@ -644,7 +664,8 @@ default {
         else if (iNum == REGION_TELEPORT) RefreshAnim();
     }
 
-    timer() {
+    timer()
+    {
         integer iAgentState = llGetAgentInfo(g_kWearer);
         float fHover;
         if ((iAgentState & AGENT_ALWAYS_RUN) == AGENT_ALWAYS_RUN) {
@@ -654,7 +675,7 @@ default {
                 llStopAnimation(g_sCrawlWalk);
                 if (g_iRLV_ON && g_iHoverOn) {
                     fHover = g_fStandHover;
-                    llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
+                    llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fHover+"=force", g_kWearer);
                 }
                 llStartAnimation(g_sPoseMoveRun);
             }
@@ -664,7 +685,7 @@ default {
                 llStopAnimation(g_sCurrentPose);
                 if (g_iRLV_ON && g_iHoverOn) {
                     fHover = g_fPoseMoveHover;
-                    llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
+                    llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fHover+"=force", g_kWearer);
                 }
                 llStartAnimation(g_sCrawlWalk);
             }
@@ -674,16 +695,17 @@ default {
             g_iAgentStanding = 1;
             if (g_iRLV_ON && g_iHoverOn) {
                 fHover = 0.0;
-                integer index = llListFindList(g_lHeightAdjustments,[g_sCurrentPose]);
-                if (~index) fHover = (float)llList2String(g_lHeightAdjustments,index+1);
+                integer index = llListFindList(g_lHeightAdjustments, [g_sCurrentPose]);
+                if (index != -1) fHover = llList2Float(g_lHeightAdjustments, index+1);
                 if (g_iShoesWorn) fHover += g_fHeelOffset;
-                llMessageLinked(LINK_RLV,RLV_CMD,"adjustheight:1;0;"+(string)fHover+"=force",g_kWearer);
+                llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fHover+"=force", g_kWearer);
             }
             StartAnim(llList2String(g_lAnims,0));
         }
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
             if (g_iNumberOfAnims != llGetInventoryNumber(INVENTORY_ANIMATION)) CreateAnimList();
