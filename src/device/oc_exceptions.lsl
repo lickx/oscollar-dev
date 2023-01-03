@@ -119,17 +119,19 @@ string UPMENU = "BACK";
 
 string g_sSettingToken = "rlvex_";
 
-Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth,string sMenuID) {
+Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth,string sMenuID)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuID], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuID], iIndex, iIndex + g_iMenuStride-1);
     else g_lMenuIDs += [kRCPT, kMenuID, sMenuID];
 }
 
-Menu(key kID, integer iAuth) {
-    if (!g_iRLVOn) {
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.",kID);
+Menu(key kID, integer iAuth)
+{
+    if (g_iRLVOn == FALSE) {
+        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.", kID);
         llMessageLinked(LINK_RLV, iAuth, "menu RLV", kID);
         return;
     }
@@ -138,40 +140,42 @@ Menu(key kID, integer iAuth) {
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "main");
 }
 
-ExMenu(key kID, string sWho, integer iAuth) {
-    if (!g_iRLVOn) {
-        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.",kID);
+ExMenu(key kID, string sWho, integer iAuth)
+{
+    if (g_iRLVOn == FALSE) {
+        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.", kID);
         llMessageLinked(LINK_RLV, iAuth, "menu RLV", kID);
         return;
     }
     integer iExSettings = 0;
     integer iInd;
-    if (sWho == "owner" || ~llListFindList(g_lOwners, [sWho]))
+    if (sWho == "owner" || llListFindList(g_lOwners, [sWho]) != -1)
         iExSettings = g_iOwnerDefault;
-    else if (sWho == "trusted" || ~llListFindList(g_lSecOwners, [sWho]))
+    else if (sWho == "trusted" || llListFindList(g_lSecOwners, [sWho]) != -1)
         iExSettings = g_iTrustedDefault;
     iInd = llListFindList(g_lSettings, [sWho]);
-    if (~iInd)
+    if (iInd != -1)
         iExSettings = llList2Integer(g_lSettings, iInd + 1);
 
     string sPrompt = "\nCurrent Settings for "+sWho+": "+"\n";
     list lButtons;
     integer n;
-    for (; n < llGetListLength(g_lPrettyCmds); n++) {
+    for (n = 0; n < llGetListLength(g_lPrettyCmds); n++) {
         string sPretty = llList2String(g_lPrettyCmds, n);
         if (iExSettings & llList2Integer(g_lBinCmds, n)) {
             lButtons += [TURNOFF + " " + sPretty];
-            sPrompt += "\n" + llList2String(g_lDescriptionsOn,n)+".";
+            sPrompt += "\n" + llList2String(g_lDescriptionsOn, n)+".";
         } else {
             lButtons += [TURNON + " " + sPretty];
-            sPrompt += "\n" + llList2String(g_lDescriptionsOff,n)+".";
+            sPrompt += "\n" + llList2String(g_lDescriptionsOff, n)+".";
         }
     }
     lButtons += ["All","None"];
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "ex "+sWho);
 }
 
-SaveDefaults() {
+SaveDefaults()
+{
     if (OWNER_DEFAULT == g_iOwnerDefault && TRUSTED_DEFAULT == g_iTrustedDefault) {
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "trusted", "");
@@ -182,14 +186,14 @@ SaveDefaults() {
 }
 
 SaveSettings() {
-    if (llGetListLength(g_lSettings))
+    if (llGetListLength(g_lSettings) > 0)
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "List=" + llDumpList2String(g_lSettings, ","), "");
     else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "List", "");
 }
 
 SetAllExs() {
-    if (!g_iRLVOn) return;
+    if (g_iRLVOn == FALSE) return;
     integer iStop = llGetListLength(g_lRLVcmds);
     integer n;
     integer i;
@@ -197,9 +201,9 @@ SetAllExs() {
     integer iLength = llGetListLength(g_lSecOwners);
     for (n = 0; n < iLength; ++n) {
         string sTmpOwner = llList2String(g_lSecOwners, n);
-        if (llListFindList(g_lSettings, [sTmpOwner]) == -1 && sTmpOwner!=g_kWearer) {
-            for (i = 0; i<iStop; i++) {
-                if (g_iTrustedDefault & llList2Integer(g_lBinCmds, i) )
+        if (llListFindList(g_lSettings, [sTmpOwner]) == -1 && sTmpOwner != g_kWearer) {
+            for (i = 0; i < iStop; i++) {
+                if (g_iTrustedDefault & llList2Integer(g_lBinCmds, i))
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=n";
                 else
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=y";
@@ -211,9 +215,9 @@ SetAllExs() {
     iLength = llGetListLength(g_lOwners+g_lTempOwners);
     for (n = 0; n < iLength; ++n) {
         string sTmpOwner = llList2String(g_lOwners+g_lTempOwners, n);
-        if (llListFindList(g_lSettings, [sTmpOwner]) == -1 && sTmpOwner!=g_kWearer) {
-            for (i = 0; i<iStop; i++) {
-                if (g_iOwnerDefault & llList2Integer(g_lBinCmds, i) )
+        if (llListFindList(g_lSettings, [sTmpOwner]) == -1 && sTmpOwner != g_kWearer) {
+            for (i = 0; i < iStop; i++) {
+                if (g_iOwnerDefault & llList2Integer(g_lBinCmds, i))
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=n";
                 else
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=y";
@@ -225,10 +229,10 @@ SetAllExs() {
     iLength = llGetListLength(g_lSettings);
     for (n = 0; n < iLength; n += 2) {
         string sTmpOwner = llList2String(g_lSettings, n);
-        if(sTmpOwner!=g_kWearer) {
+        if(sTmpOwner != g_kWearer) {
             integer iTmpOwner = llList2Integer(g_lSettings, n+1);
-            for (i = 0; i<iStop; i++) {
-                if (iTmpOwner & llList2Integer(g_lBinCmds, i) )
+            for (i = 0; i < iStop; i++) {
+                if (iTmpOwner & llList2Integer(g_lBinCmds, i))
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=n";
                 else
                     sRLVCmd += llList2String(g_lRLVcmds, i) + ":" + sTmpOwner + "=y";
@@ -239,12 +243,14 @@ SetAllExs() {
     }
 }
 
-ClearEx() {
+ClearEx()
+{
     if (g_iRLVOn) {
         integer i = llGetListLength(g_lRLVcmds);
-        do { i--;
+        do {
+            i--;
             llOwnerSay("@clear="+llList2String(g_lRLVcmds,i));
-        } while (i);
+        } while (i > 0);
     }
 }
 
@@ -252,7 +258,7 @@ UserCommand(integer iNum, string sStr, key kID) {
     string sLower = llToLower(sStr);
     if (iNum != CMD_OWNER) {
         if (sLower == "ex" || sLower == "menu exceptions") {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
             llMessageLinked(LINK_RLV, iNum, "menu rlv", kID);
         }
         return;
@@ -270,7 +276,7 @@ UserCommand(integer iNum, string sStr, key kID) {
     if (iInd == 1) {
         if (sCom == "owner") ExMenu(kID, "owner", iNum);
         else if (sCom == "trusted") ExMenu(kID, "trusted", iNum);
-        if (!llSubStringIndex(sCom, ":")) jump UCDone;
+        if (llSubStringIndex(sCom, ":") == 0) jump UCDone;
     }
     string sVal = llList2String(lParts, 1);
     lParts = llParseString2List(llList2String(lParts, 0), [":"], []);
@@ -284,20 +290,20 @@ UserCommand(integer iNum, string sStr, key kID) {
     integer iNames;
     integer iL = 0;
     integer iC = 0;
-    for (; iL < iInd; iL += 2) {
+    for (iL = 0; iL < iInd; iL += 2) {
         sWho = llList2String(lParts, iL);
         string sWhoName;
         if (osIsUUID(sWho)) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
         else sWhoName = sWho;
         sLower = llToLower(sWho);
-        if (~llListFindList(g_lOwners, [sWho])) {
+        if (llListFindList(g_lOwners, [sWho]) != -1) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You cannot set exceptions for "+sWhoName + " different from other Owners, unless you use terminal.",kID);
             jump nextwho;
-        } else if (~llListFindList(g_lSecOwners, [sWho])) {
+        } else if (llListFindList(g_lSecOwners, [sWho]) != -1) {
             llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You cannot set exceptions for "+sWhoName + " different from other Trusted, unless you use terminal.",kID);
             jump nextwho;
         }
-        lCom = llParseString2List(llToLower(llList2String(lParts, iL + 1)), [","], []);
+        lCom = llParseString2List(llToLower(llList2String(lParts, iL+1)), [","], []);
         sCom = llList2String(lCom, 0);
         if (llGetSubString(sCom, 0, 3) == "all=") {
             lCom = [];
@@ -309,9 +315,9 @@ UserCommand(integer iNum, string sStr, key kID) {
             sCom = llList2String(lCom, iC);
             if (sCom == "clear") jump nextcom;
             iNames = llSubStringIndex(sCom, "=");
-            if (~iNames) {
-                sVal = llGetSubString(sCom, iNames + 1, -1);
-                sCom = llGetSubString(sCom, 0, iNames -1);
+            if (iNames != -1) {
+                sVal = llGetSubString(sCom, iNames+1, -1);
+                sCom = llGetSubString(sCom, 0, iNames-1);
             } else sVal = "";
             if (sVal == "exempt" || sVal == "add") sVal = "n";
             else if (sVal == "enforce" || sVal == "rem") sVal = "y";
@@ -333,18 +339,18 @@ UserCommand(integer iNum, string sStr, key kID) {
             }
             iNames = llListFindList(g_lSettings, [sWho]);
             if (sCom == "defaults") {
-                if (~iNames) g_lSettings = llDeleteSubList(g_lSettings, iNames, iNames + 1);
+                if (iNames != -1) g_lSettings = llDeleteSubList(g_lSettings, iNames, iNames+1);
                 bChange = bChange | 2;
                 jump nextcom;
             }
-            if (~iNames) iSet = llList2Integer(g_lSettings, iNames + 1);
-            else if (~llListFindList(g_lOwners, [sWho])) iSet = g_iOwnerDefault;
-            else if (~llListFindList(g_lSecOwners, [sWho])) iSet = g_iTrustedDefault;
+            if (iNames != -1) iSet = llList2Integer(g_lSettings, iNames + 1);
+            else if (llListFindList(g_lOwners, [sWho]) != -1) iSet = g_iOwnerDefault;
+            else if (llListFindList(g_lSecOwners, [sWho]) != -1) iSet = g_iTrustedDefault;
             else iSet = 0;
             if (sVal == "n") iSet = iSet | iBin;
             else if (sVal == "y") iSet = iSet & ~iBin;
             else jump nextcom;
-            if (~iNames) g_lSettings = llListReplaceList(g_lSettings, [iSet], iNames + 1, iNames + 1);
+            if (iNames != -1) g_lSettings = llListReplaceList(g_lSettings, [iSet], iNames+1, iNames+1);
             else g_lSettings += [sWho, iSet];
             bChange = bChange | 2;
             @nextcom;
@@ -359,16 +365,20 @@ UserCommand(integer iNum, string sStr, key kID) {
     @UCDone;
 }
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         llResetScript();
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sStr, kID);
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
@@ -378,7 +388,7 @@ default {
             string sValue = llList2String(lParams, 1);
             integer i = llSubStringIndex(sToken, "_");
             if (llGetSubString(sToken, 0, i) == g_sSettingToken) {
-                sToken = llGetSubString(sToken, i + 1, -1);
+                sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "owner") g_iOwnerDefault = (integer)sValue;
                 else if (sToken == "trusted") g_iTrustedDefault = (integer)sValue;
             } else if (llGetSubString(sToken, 0, i) == "auth_") {
@@ -401,16 +411,16 @@ default {
             SetAllExs();
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 string sMenu=llList2String(g_lMenuIDs, iMenuIndex+1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2 + g_iMenuStride);
                 if (sMenu == "main") {
                     if (sMessage == UPMENU)
-                        llMessageLinked(LINK_RLV, iAuth, "menu " + g_sParentMenu, kAv);
+                        llMessageLinked(LINK_RLV, iAuth, "menu "+g_sParentMenu, kAv);
                     else if (sMessage == "Owner")
                         ExMenu(kAv, "owner", iAuth);
                     else if (sMessage == "Trusted")
@@ -433,7 +443,7 @@ default {
                             sOut += "all=y";
                             UserCommand(iAuth, sOut, kAv);
                             ExMenu(kAv, sMenu, iAuth);
-                        } else if (~iIndex) {
+                        } else if (iIndex != -1) {
                             sOut += llList2String(g_lRLVcmds, iIndex);
                             if (sSwitch == TURNOFF) sOut += "=y";
                             else if (sSwitch == TURNON) sOut += "=n";
@@ -448,7 +458,7 @@ default {
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2 + g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;

@@ -459,7 +459,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
             integer iLength = ~llGetListLength(g_lOwner);
             string sOutput="";
             while (iLength < -1) {
-                sOutput += "\n" + NameURI(llList2String(g_lOwner, ++iLength));
+                sOutput += "\n\t" + NameURI(llList2String(g_lOwner, ++iLength));
                 if (llStringLength(sOutput) > 948) {
                     llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"Owners: "+sOutput, kID);
                     sOutput = "";
@@ -477,7 +477,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
             iLength = ~llGetListLength(g_lTrust);
             sOutput = "";
             while (iLength < -1) {
-                sOutput += "\n" + NameURI(llList2String(g_lTrust, ++iLength));
+                sOutput += "\n\t" + NameURI(llList2String(g_lTrust, ++iLength));
                 if (llStringLength(sOutput) > 948) {
                     llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Trusted: "+sOutput, kID);
                     sOutput = "";
@@ -489,7 +489,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
             iLength = ~llGetListLength(g_lBlock);
             sOutput = "";
             while (iLength < -1) {
-                sOutput += "\n" + NameURI(llList2String(g_lBlock, ++iLength));
+                sOutput += "\n\t" + NameURI(llList2String(g_lBlock, ++iLength));
                 if (llStringLength(sOutput) > 948) {
                     llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"Blocked: "+sOutput, kID);
                     sOutput = "";

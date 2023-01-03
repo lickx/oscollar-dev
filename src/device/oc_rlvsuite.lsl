@@ -102,27 +102,29 @@ string g_sLastForcedSeat;
 string g_sTerminalText = "\nRLV Command Terminal\n\nType one command per line without \"@\" sign.";
 string g_sSettingToken = "rlvsuite_";
 
-Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer iPage, integer iAuth, string sMenuID) {
+Dialog(key kRCPT, string sPrompt, list lButtons, list lUtilityButtons, integer iPage, integer iAuth, string sMenuID)
+{
     key kMenuID = llGenerateKey();
     if (sMenuID == "sensor" || sMenuID == "find")
         llMessageLinked(LINK_DIALOG, SENSORDIALOG, (string)kRCPT +"|"+sPrompt+"|0|``"+(string)(SCRIPTED|PASSIVE)+"`20`"+(string)PI+"`"+llDumpList2String(lUtilityButtons,"`")+"|"+llDumpList2String(lButtons,"`")+"|" + (string)iAuth, kMenuID);
     else
         llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lButtons, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuID], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuID], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kRCPT, kMenuID, sMenuID];
 }
 
-integer CheckLastSit(key kSit) {
-    vector avPos=llGetPos();
-    list lastSeatInfo=llGetObjectDetails(kSit, [OBJECT_POS]);
-    vector lastSeatPos=(vector)llList2String(lastSeatInfo,0);
-    if (llVecDist(avPos,lastSeatPos)<20) return TRUE;
+integer CheckLastSit(key kSit)
+{
+    vector avPos = llGetPos();
+    list lastSeatInfo = llGetObjectDetails(kSit, [OBJECT_POS]);
+    vector lastSeatPos = llList2Vector(lastSeatInfo,0);
+    if (llVecDist(avPos,lastSeatPos) < 20) return TRUE;
     else return FALSE;
 }
 
 SitMenu(key kID, integer iAuth) {
-    integer iSitting=llGetAgentInfo(g_kWearer)&AGENT_SITTING;
+    integer iSitting = (llGetAgentInfo(g_kWearer) & AGENT_SITTING);
     string sButton;
     string sitPrompt = "\nAbility to Stand up is ";
     if (g_iStandRestricted) sitPrompt += "restricted by ";
@@ -142,7 +144,8 @@ SitMenu(key kID, integer iAuth) {
     Dialog(kID, sitPrompt+"\nChoose a seat:\n", [sButton], [], 0, iAuth, "sensor");
 }
 
-RestrictionsMenu(key keyID, integer iAuth) {
+RestrictionsMenu(key keyID, integer iAuth)
+{
     string sPrompt = "\nRestrictions";
     list lMyButtons;
     if (g_iSendRestricted) lMyButtons += "☐ Send IMs";
@@ -169,7 +172,8 @@ RestrictionsMenu(key keyID, integer iAuth) {
     Dialog(keyID, sPrompt, lMyButtons, ["BACK"], 0, iAuth, "restrictions");
 }
 
-DoTerminalCommand(string sMessage, key kID) {
+DoTerminalCommand(string sMessage, key kID)
+{
     string sCRLF= llUnescapeURL("%0A");
     list lCommands = llParseString2List(sMessage, [sCRLF], []);
     sMessage = llDumpList2String(lCommands, ",");
@@ -178,7 +182,8 @@ DoTerminalCommand(string sMessage, key kID) {
     llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"secondlife:///app/agent/"+(string)kID+"/about" + " has changed your rlv restrictions.", g_kWearer);
 }
 
-OutfitsMenu(key kID, integer iAuth) {
+OutfitsMenu(key kID, integer iAuth)
+{
     llMessageLinked(LINK_SAVE, LM_SETTING_REQUEST, "global_lock", "");
     g_kMenuClicker = kID;
     g_iAuth = iAuth;
@@ -187,10 +192,11 @@ OutfitsMenu(key kID, integer iAuth) {
     llOwnerSay("@getinv:"+g_sPathPrefix+"="+(string)g_iFolderRLV);
 }
 
-WearFolder(string sStr, key kID) {
-    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Changing outfit!",kID);
+WearFolder(string sStr, key kID)
+{
+    llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Changing outfit!", kID);
     string sOutfit = llGetSubString(sStr, llStringLength(g_sPathPrefix), -2);
-    llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE,"CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit,kID);
+    llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE, "CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit, kID);
     // always lock collar during outfit change
     llOwnerSay("@detach=n");
     // lock the core folder if exists
@@ -208,7 +214,8 @@ WearFolder(string sStr, key kID) {
     llSleep(1.5); // delay for SSA
 }
 
-doRestrictions(){
+doRestrictions()
+{
     if (g_iSendRestricted)     llMessageLinked(LINK_RLV,RLV_CMD,"sendim=n","vdRestrict");
     else llMessageLinked(LINK_RLV,RLV_CMD,"sendim=y","vdRestrict");
     if (g_iReadRestricted)     llMessageLinked(LINK_RLV,RLV_CMD,"recvim=n,viewnote=n","vdRestrict");
@@ -222,7 +229,7 @@ doRestrictions(){
     if (g_iStrayRestricted)    llMessageLinked(LINK_RLV,RLV_CMD,"tplm=n,tploc=n,tplure=n,sittp:6=n","vdRestrict");
     else llMessageLinked(LINK_RLV,RLV_CMD,"tplm=y,tploc=y,tplure=y,sittp:6=y","vdRestrict");
     if (g_iStandRestricted) {
-        if (llGetAgentInfo(g_kWearer)&AGENT_SITTING) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
+        if (llGetAgentInfo(g_kWearer) & AGENT_SITTING) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
     } else llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y","vdRestrict");
     if (g_iRummageRestricted)  llMessageLinked(LINK_RLV,RLV_CMD,"showinv=n,viewscript=n,viewtexture=n,edit=n,rez=n","vdRestrict");
     else llMessageLinked(LINK_RLV,RLV_CMD,"showinv=y,viewscript=y,viewtexture=y,edit=y,rez=y","vdRestrict");
@@ -234,7 +241,8 @@ doRestrictions(){
     else llMessageLinked(LINK_RLV,RLV_CMD,"shownames=y,showhovertextworld=y,showloc=y,showworldmap=y,showminimap=y","vdRestrict");
 }
 
-releaseRestrictions() {
+releaseRestrictions()
+{
     g_iSendRestricted=FALSE;
     llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_send","");
     g_iReadRestricted=FALSE;
@@ -260,7 +268,8 @@ releaseRestrictions() {
     doRestrictions();
 }
 
-UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
+UserCommand(integer iNum, string sStr, key kID, integer bFromMenu)
+{
     string sLowerStr=llToLower(sStr);
     if (sLowerStr == "outfits" || sLowerStr == "menu outfits") {
         OutfitsMenu(kID, iNum);
@@ -269,12 +278,12 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
         string sCoreFolder = llList2String(llParseString2List(sStr, [" "], []), 1);
         if (sCoreFolder == "none" || sCoreFolder == "disable") {
             g_sCoreFolder = "";
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"corefolder=none","");
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0No core folder will be used anymore from now on",(string)g_kWearer);
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"corefolder=none", "");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0No core folder will be used anymore from now on", (string)g_kWearer);
         } else if (sCoreFolder != "") {
             g_sCoreFolder = sCoreFolder;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"corefolder="+g_sCoreFolder,"");
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0Core folder changed to "+g_sCoreFolder,(string)g_kWearer);
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"corefolder="+g_sCoreFolder, "");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0Core folder changed to "+g_sCoreFolder, (string)g_kWearer);
         }
     } else if (llSubStringIndex(sStr,"wear ") == 0) {
         if (g_iDressRestricted)
@@ -294,9 +303,9 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     }
     if (iNum == CMD_WEARER) {
         if (sStr == RESTRICTIONS_CHAT_COMMAND || sLowerStr == "sit" || sLowerStr == TERMINAL_CHAT_COMMAND) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1%NOACCESS%", kID);
         } else if (sLowerStr == "menu force sit" || sStr == "menu " + RESTRICTION_BUTTON || sStr == "menu " + TERMINAL_BUTTON){
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1%NOACCESS%", kID);
             llMessageLinked(LINK_RLV, iNum, "menu " + COLLAR_PARENT_MENU, kID);
         }
         return;
@@ -314,227 +323,231 @@ UserCommand(integer iNum, string sStr, key kID, integer bFromMenu) {
     } else if (sLowerStr == "restrictions back") {
         llMessageLinked(LINK_RLV, iNum, "menu " + COLLAR_PARENT_MENU, kID);
         return;
-    } else if (sLowerStr == "restrictions reset" || sLowerStr == "allow all"){
+    } else if (sLowerStr == "restrictions reset" || sLowerStr == "allow all") {
         if (iNum == CMD_OWNER) releaseRestrictions();
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ send ims" || sLowerStr == "allow sendim"){
-        if (iNum <= g_iSendRestricted || !g_iSendRestricted) {
-            g_iSendRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_send","");
+        else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ send ims" || sLowerStr == "allow sendim") {
+        if (iNum <= g_iSendRestricted || g_iSendRestricted==FALSE) {
+            g_iSendRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_send", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Send IMs is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ send ims" || sLowerStr == "forbid sendim"){
-        if (iNum <= g_iSendRestricted || !g_iSendRestricted) {
-            g_iSendRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_send="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Send IMs is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ send ims" || sLowerStr == "forbid sendim") {
+        if (iNum <= g_iSendRestricted || g_iSendRestricted == FALSE) {
+            g_iSendRestricted = iNum;
+            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE, "restrictions_send="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Send IMs is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ read ims" || sLowerStr == "allow readim"){
-        if (iNum <= g_iReadRestricted || !g_iReadRestricted) {
-            g_iReadRestricted=FALSE;
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Send IMs is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ read ims" || sLowerStr == "allow readim") {
+        if (iNum <= g_iReadRestricted || g_iReadRestricted == FALSE) {
+            g_iReadRestricted = FALSE;
             llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_read","");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Read IMs is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ read ims" || sLowerStr == "forbid readim"){
-        if (iNum <= g_iReadRestricted || !g_iReadRestricted) {
-            g_iReadRestricted=iNum;
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Read IMs is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ read ims" || sLowerStr == "forbid readim") {
+        if (iNum <= g_iReadRestricted || g_iReadRestricted == FALSE) {
+            g_iReadRestricted = iNum;
             llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_read="+(string)iNum,"");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Read IMs is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ hear" || sLowerStr == "allow hear"){
-        if (iNum <= g_iHearRestricted || !g_iHearRestricted) {
-            g_iHearRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_hear","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Read IMs is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ hear" || sLowerStr == "allow hear") {
+        if (iNum <= g_iHearRestricted || g_iHearRestricted == FALSE) {
+            g_iHearRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_hear", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Hear is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ hear" || sLowerStr == "forbid hear"){
-        if (iNum <= g_iHearRestricted || !g_iHearRestricted) {
-            g_iHearRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_hear="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Hear is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ hear" || sLowerStr == "forbid hear") {
+        if (iNum <= g_iHearRestricted || g_iHearRestricted == FALSE) {
+            g_iHearRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_hear="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Hear is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ touch" || sLowerStr == "allow touch"){
-        if (iNum <= g_iTouchRestricted || !g_iTouchRestricted) {
-            g_iTouchRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_touch","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Hear is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ touch" || sLowerStr == "allow touch") {
+        if (iNum <= g_iTouchRestricted || g_iTouchRestricted == FALSE) {
+            g_iTouchRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_touch", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Touch is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ touch" || sLowerStr == "forbid touch"){
-        if (iNum <= g_iTouchRestricted || !g_iTouchRestricted) {
-            g_iTouchRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_touch="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Touch is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ touch" || sLowerStr == "forbid touch") {
+        if (iNum <= g_iTouchRestricted || g_iTouchRestricted == FALSE) {
+            g_iTouchRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_touch="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Touch restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ stray" || sLowerStr == "allow stray"){
-        if (iNum <= g_iStrayRestricted || !g_iStrayRestricted) {
-            g_iStrayRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_stray","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Touch restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ stray" || sLowerStr == "allow stray") {
+        if (iNum <= g_iStrayRestricted || g_iStrayRestricted == FALSE) {
+            g_iStrayRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_stray", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Stray is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ stray" || sLowerStr == "forbid stray"){
-        if (iNum <= g_iStrayRestricted || !g_iStrayRestricted) {
-            g_iStrayRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_stray="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Stray is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ stray" || sLowerStr == "forbid stray") {
+        if (iNum <= g_iStrayRestricted || g_iStrayRestricted == FALSE) {
+            g_iStrayRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_stray="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Stray is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ stand" || sLowerStr == "allow stand"){
-        if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
-            g_iStandRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_stand","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Stray is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ stand" || sLowerStr == "allow stand") {
+        if (iNum <= g_iStandRestricted || g_iStandRestricted == FALSE) {
+            g_iStandRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_stand", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Stand up is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Stand up is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
     } else if (sLowerStr == "restrictions ☑ stand" || sLowerStr == "forbid stand"){
-        if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
-            g_iStandRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_stand="+(string)iNum,"");
+        if (iNum <= g_iStandRestricted || g_iStandRestricted == FALSE) {
+            g_iStandRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_stand="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Stand up is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ talk" || sLowerStr == "allow talk"){
-        if (iNum <= g_iTalkRestricted || !g_iTalkRestricted) {
-            g_iTalkRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_talk","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Stand up is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ talk" || sLowerStr == "allow talk") {
+        if (iNum <= g_iTalkRestricted || g_iTalkRestricted == FALSE) {
+            g_iTalkRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_talk", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Talk is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ talk" || sLowerStr == "forbid talk"){
-        if (iNum <= g_iTalkRestricted || !g_iTalkRestricted) {
-            g_iTalkRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_talk="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Talk is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ talk" || sLowerStr == "forbid talk") {
+        if (iNum <= g_iTalkRestricted || g_iTalkRestricted == FALSE) {
+            g_iTalkRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_talk="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Talk is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ rummage" || sLowerStr == "allow rummage"){
-        if (iNum <= g_iRummageRestricted || !g_iRummageRestricted) {
-            g_iRummageRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_rummage","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Talk is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ rummage" || sLowerStr == "allow rummage") {
+        if (iNum <= g_iRummageRestricted || g_iRummageRestricted == FALSE) {
+            g_iRummageRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_rummage", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Rummage is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ rummage" || sLowerStr == "forbid rummage"){
-        if (iNum <= g_iRummageRestricted || !g_iRummageRestricted) {
-            g_iRummageRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_rummage="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Rummage is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ rummage" || sLowerStr == "forbid rummage") {
+        if (iNum <= g_iRummageRestricted || g_iRummageRestricted == FALSE) {
+            g_iRummageRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_rummage="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Rummage is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☐ dress" || sLowerStr == "allow dress"){
-        if (iNum <= g_iDressRestricted || !g_iDressRestricted) {
-            g_iDressRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_dress","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Rummage is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☐ dress" || sLowerStr == "allow dress") {
+        if (iNum <= g_iDressRestricted || g_iDressRestricted == FALSE) {
+            g_iDressRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_dress", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Dress is un-restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions ☑ dress" || sLowerStr == "forbid dress"){
-        if (iNum <= g_iDressRestricted || !g_iDressRestricted) {
-            g_iDressRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_dress="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Dress is un-restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions ☑ dress" || sLowerStr == "forbid dress") {
+        if (iNum <= g_iDressRestricted || g_iDressRestricted == FALSE) {
+            g_iDressRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_dress="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Ability to Dress is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions un-dazzle" || sLowerStr == "undazzle"){
-        if (iNum <= g_iBlurredRestricted || !g_iBlurredRestricted) {
-            g_iBlurredRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_blurred","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Ability to Dress is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions un-dazzle" || sLowerStr == "undazzle") {
+        if (iNum <= g_iBlurredRestricted || g_iBlurredRestricted == FALSE) {
+            g_iBlurredRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_blurred", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Vision is clear",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Vision is clear", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
     } else if (sLowerStr == "restrictions dazzle" || sLowerStr == "dazzle"){
-        if (iNum <= g_iBlurredRestricted || !g_iBlurredRestricted) {
-            g_iBlurredRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_blurred="+(string)iNum,"");
+        if (iNum <= g_iBlurredRestricted || g_iBlurredRestricted == FALSE) {
+            g_iBlurredRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_blurred="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Vision is restricted",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions un-daze" || sLowerStr == "undaze"){
-        if (iNum <= g_iDazedRestricted || !g_iDazedRestricted) {
-            g_iDazedRestricted=FALSE;
-            llMessageLinked(LINK_SAVE,LM_SETTING_DELETE,"restrictions_dazed","");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Vision is restricted", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions un-daze" || sLowerStr == "undaze") {
+        if (iNum <= g_iDazedRestricted || g_iDazedRestricted == FALSE) {
+            g_iDazedRestricted = FALSE;
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "restrictions_dazed", "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Clarity is restored",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "restrictions daze" || sLowerStr == "daze"){
-        if (iNum <= g_iDazedRestricted || !g_iDazedRestricted) {
-            g_iDazedRestricted=iNum;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"restrictions_dazed="+(string)iNum,"");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Clarity is restored", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "restrictions daze" || sLowerStr == "daze") {
+        if (iNum <= g_iDazedRestricted || g_iDazedRestricted == FALSE) {
+            g_iDazedRestricted = iNum;
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "restrictions_dazed="+(string)iNum, "");
             doRestrictions();
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1Confusion is imposed",kID);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
-    } else if (sLowerStr == "stand" || sLowerStr == "standnow"){
-        if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
-            llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y,unsit=force","vdRestrict");
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1Confusion is imposed", kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
+    } else if (sLowerStr == "stand" || sLowerStr == "standnow") {
+        if (iNum <= g_iStandRestricted || g_iStandRestricted == FALSE) {
+            llMessageLinked(LINK_RLV, RLV_CMD, "unsit=y,unsit=force", "vdRestrict");
             g_iSitting = FALSE;
             llSleep(0.5);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
         if (bFromMenu) SitMenu(kID, iNum);
         return;
     } else if (sLowerStr == "menu force sit" || sLowerStr == "sit" || sLowerStr == "sitnow"){
         SitMenu(kID, iNum);
         return;
     } else if (sLowerStr == "sit back") {
-        if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
+        if (iNum <= g_iStandRestricted || g_iStandRestricted == FALSE) {
             if (CheckLastSit(g_kLastForcedSeat)==FALSE) return;
-            llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y,unsit=force","vdRestrict");
+            llMessageLinked(LINK_RLV, RLV_CMD, "unsit=y,unsit=force", "vdRestrict");
             llSleep(0.5);
-            llMessageLinked(LINK_RLV,RLV_CMD,"sit:"+(string)g_kLastForcedSeat+"=force","vdRestrict");
-            if (g_iStandRestricted) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
+            llMessageLinked(LINK_RLV, RLV_CMD, "sit:"+(string)g_kLastForcedSeat+"=force", "vdRestrict");
+            if (g_iStandRestricted) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=n", "vdRestrict");
             g_iSitting = TRUE;
             llSleep(0.5);
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
         if (bFromMenu) SitMenu(kID, iNum);
         return;
     } else if (llSubStringIndex(sLowerStr,"sit ") == 0) {
-        if (iNum <= g_iStandRestricted || !g_iStandRestricted) {
+        if (iNum <= g_iStandRestricted || g_iStandRestricted == FALSE) {
             sLowerStr = llDeleteSubString(sStr,0,llStringLength("sit ")-1);
             if (osIsUUID(sLowerStr)) {
-                llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y,unsit=force","vdRestrict");
+                llMessageLinked(LINK_RLV, RLV_CMD, "unsit=y,unsit=force", "vdRestrict");
                 llSleep(0.5);
                 g_kLastForcedSeat=(key)sLowerStr;
                 g_sLastForcedSeat=llKey2Name(g_kLastForcedSeat);
-                llMessageLinked(LINK_RLV,RLV_CMD,"sit:"+sLowerStr+"=force","vdRestrict");
-                if (g_iStandRestricted) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
+                llMessageLinked(LINK_RLV, RLV_CMD, "sit:"+sLowerStr+"=force", "vdRestrict");
+                if (g_iStandRestricted) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=n", "vdRestrict");
                 g_iSitting = TRUE;
                 llSleep(0.5);
             } else {
                 Dialog(kID, "", [""], [sLowerStr,"1"], 0, iNum, "find");
                 return;
             }
-        } else llMessageLinked(LINK_DIALOG,NOTIFY,"0%NOACCESS%",kID);
+        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0%NOACCESS%", kID);
         if (bFromMenu) SitMenu(kID, iNum);
         return;
     } else if (sLowerStr == "clear") {
         releaseRestrictions();
         return;
-    } else if (!llSubStringIndex(sLowerStr, "hudtpto:") && (iNum == CMD_OWNER || iNum == CMD_TRUSTED)) {
-        if (g_iRlvOn) llMessageLinked(LINK_RLV,RLV_CMD,llGetSubString(sLowerStr,3,-1),"");
+    } else if (llSubStringIndex(sLowerStr, "hudtpto:") == 0 && (iNum == CMD_OWNER || iNum == CMD_TRUSTED)) {
+        if (g_iRlvOn) llMessageLinked(LINK_RLV, RLV_CMD, llGetSubString(sLowerStr, 3, -1), "");
     }
-    if (bFromMenu) RestrictionsMenu(kID,iNum);
+    if (bFromMenu) RestrictionsMenu(kID, iNum);
 }
 
-default {
+default
+{
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
     }
 
-    on_rez(integer iParam) {
+    on_rez(integer iParam)
+    {
         if (llGetOwner() != g_kWearer) llResetScript();
         g_iRlvOn = FALSE;
         g_iRlvaOn = FALSE;
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == MENUNAME_REQUEST && sStr == COLLAR_PARENT_MENU) {
             llMessageLinked(iSender, MENUNAME_RESPONSE, COLLAR_PARENT_MENU + "|" + RESTRICTION_BUTTON, "");
             llMessageLinked(iSender, MENUNAME_RESPONSE, COLLAR_PARENT_MENU + "|Force Sit", "");
@@ -556,7 +569,7 @@ default {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
-            if (~llSubStringIndex(sToken,"restrictions_")){
+            if (llSubStringIndex(sToken,"restrictions_") != -1){
                 if (sToken=="restrictions_send")          g_iSendRestricted=(integer)sValue;
                 else if (sToken=="restrictions_read")     g_iReadRestricted=(integer)sValue;
                 else if (sToken=="restrictions_hear")     g_iHearRestricted=(integer)sValue;
@@ -578,9 +591,9 @@ default {
             doRestrictions();
             if (g_iSitting && g_iStandRestricted) {
                 if (CheckLastSit(g_kLastForcedSeat)==TRUE) {
-                    llMessageLinked(LINK_RLV,RLV_CMD,"sit:"+(string)g_kLastForcedSeat+"=force","vdRestrict");
-                    if (g_iStandRestricted) llMessageLinked(LINK_RLV,RLV_CMD,"unsit=n","vdRestrict");
-                } else llMessageLinked(LINK_RLV,RLV_CMD,"unsit=y","vdRestrict");
+                    llMessageLinked(LINK_RLV, RLV_CMD, "sit:"+(string)g_kLastForcedSeat+"=force", "vdRestrict");
+                    if (g_iStandRestricted) llMessageLinked(LINK_RLV, RLV_CMD, "unsit=n", "vdRestrict");
+                } else llMessageLinked(LINK_RLV, RLV_CMD, "unsit=y", "vdRestrict");
             }
         } else if (iNum == RLV_OFF) {
             g_iRlvOn = FALSE;
@@ -590,17 +603,17 @@ default {
         else if (iNum == CMD_SAFEWORD || iNum == CMD_RELAY_SAFEWORD) releaseRestrictions();
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 list lMenuParams = llParseStringKeepNulls(sStr, ["|"], []);
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
-                string sMenu=llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                string sMenu=llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 if (sMenu == "restrictions") UserCommand(iAuth, "restrictions "+sMessage,kAv,TRUE);
                 else if (sMenu == "sensor") {
                     if (sMessage=="BACK") {
-                        llMessageLinked(LINK_RLV, iAuth, "menu " + COLLAR_PARENT_MENU, kAv);
+                        llMessageLinked(LINK_RLV, iAuth, "menu "+COLLAR_PARENT_MENU, kAv);
                         return;
                     }
                     else if (sMessage == "[Sit back]") UserCommand(iAuth, "sit back", kAv, FALSE);
@@ -627,7 +640,7 @@ default {
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
@@ -635,7 +648,8 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    listen(integer iChan, string sName, key kID, string sMsg) {
+    listen(integer iChan, string sName, key kID, string sMsg)
+    {
         llSetTimerEvent(0.0);
         if (iChan == g_iFolderRLV) {
             if (llStringLength(sMsg) == 1023) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"\n\nATTENTION: Either some of the names of your outfit folders are too long, or there are too many folders in your Outfits directory. This could lead to gaps in your outfits folder index. For best operability, please consider reducing the overall amount of subfolders within the Outfits directory and use shorter names.\n",g_kWearer);
@@ -658,7 +672,8 @@ default {
         }
     }
 
-    timer() {
+    timer()
+    {
         llListenRemove(g_iListener);
         llSetTimerEvent(0.0);
     }
