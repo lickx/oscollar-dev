@@ -71,15 +71,18 @@ integer bOn;
 integer g_iBinder;
 key g_kBinder = NULL_KEY;
 
-Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
+Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
+{
     llMessageLinked(LINK_DIALOG,NOTIFY,(string)iAlsoNotifyWearer+sMsg,kID);
 }
 
-string Name(key id) {
+string Name(key id)
+{
     return "secondlife:///app/agent/"+(string)id+"/inspect";
 }
 
-string garble(string in) {
+string garble(string in)
+{
     // return punctuations unharmed
     if (in == "." || in == "," || in == ";" || in == ":" || in == "?") return in;
     if (in == "!" || in == " " || in == "(" || in == ")") return in;
@@ -95,7 +98,8 @@ string garble(string in) {
     return "nh";
 }
 
-bind() {
+bind()
+{
     if (bOn) return ;
     bOn = TRUE;
     llMessageLinked(LINK_THIS, MENUNAME_RESPONSE, g_sParentMenu+"|"+UNGARBLE, "");
@@ -105,8 +109,9 @@ bind() {
     llMessageLinked(LINK_RLV, RLV_CMD, "redirchat:"+(string)g_iGarbleChan+"=add,chatshout=n,sendim=n", NULL_KEY);
 }
 
-release() {
-    if (!bOn) return;
+release()
+{
+    if (bOn == FALSE) return;
     bOn = FALSE;
     g_iBinder = CMD_EVERYONE;
     g_kBinder = NULL_KEY;
@@ -117,7 +122,8 @@ release() {
     llListenRemove(g_iGarbleListen);
 }
 
-UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
+UserCommand(integer iAuth, string sStr, key kID, integer iMenu)
+{
     if (iAuth < CMD_OWNER || iAuth > CMD_WEARER) return;
     else if (llToLower(sStr) == "settings") {
         if (bOn) Notify(kID, "Garbled.", FALSE);
@@ -142,12 +148,15 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
     if (iMenu) llMessageLinked(LINK_THIS, iAuth, "menu "+g_sParentMenu, kID);
 }
 
-default {
-    on_rez(integer num) {
+default
+{
+    on_rez(integer num)
+    {
         if (llGetOwner() != g_kWearer) llResetScript();
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
         g_sPrefix = llGetSubString(llKey2Name(g_kWearer),0,1);
         release();
@@ -157,7 +166,8 @@ default {
         //Debug("Starting");
     }
 
-    link_message(integer iLink, integer iNum, string sMsg, key kID) {
+    link_message(integer iLink, integer iNum, string sMsg, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sMsg, kID, FALSE);
         else if (iNum == MENUNAME_REQUEST && sMsg == g_sParentMenu) {
             if (bOn) llMessageLinked(LINK_THIS, MENUNAME_RESPONSE, g_sParentMenu+"|"+UNGARBLE, "");
@@ -172,8 +182,8 @@ default {
             string sToken = llList2String(lParam, 0);
             if (sToken == "garble_Binder") {
                 list lValue = llParseString2List(llList2String(lParam,1), [","], []);
-                g_kBinder = (key)llList2String(lValue, 0);
-                g_iBinder = (integer)llList2String(lValue, 1);
+                g_kBinder = llList2Key(lValue, 0);
+                g_iBinder = llList2Integer(lValue, 1);
                 bind();
             }
             else if (sToken == "global_safeword") g_sSafeWord = llList2String(lParam, 1);
@@ -188,7 +198,8 @@ default {
         } else if (iNum == REBOOT && sMsg == "reboot") llResetScript();
     }
 
-    listen(integer iChan, string sName, key kID, string sMsg) {
+    listen(integer iChan, string sName, key kID, string sMsg)
+    {
         if (iChan == g_iGarbleChan && kID == g_kWearer) {
             string sw = sMsg;
             if (llGetSubString(sw, 0, 3) == "/me ") sw = llGetSubString(sw, 4, -1);

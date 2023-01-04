@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.29";
+string g_sAppVersion = "2023.01.04";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Titler";
@@ -68,7 +68,8 @@ string OFF = "☐ Show";
 string UPMENU = "BACK";
 string g_sUp;
 
-string MakeGraph(integer iPercent, string sTitle) {
+string MakeGraph(integer iPercent, string sTitle)
+{
     string sResult = (string)iPercent+"% "+sTitle+"\n";
     integer iSlots = llRound(iPercent / 10);
     if (iPercent <= 100) iSlots = llRound(iPercent / 10);
@@ -83,25 +84,29 @@ string MakeGraph(integer iPercent, string sTitle) {
     return sResult;
 }
 
-Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
+Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, iMenuType];
 }
 
-ShowHideText() {
+ShowHideText()
+{
     if (g_sText == "") g_iOn = FALSE;
-    llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TEXT,g_sText+g_sUp,g_vColor,(float)g_iOn]);
+    llSetLinkPrimitiveParamsFast(g_iTextPrim, [PRIM_TEXT, g_sText+g_sUp, g_vColor, (float)g_iOn]);
 }
 
-ConfirmDeleteMenu(key kAv, integer iAuth) {
+ConfirmDeleteMenu(key kAv, integer iAuth)
+{
     string sPrompt ="\nDo you really want to uninstall the "+g_sSubMenu+" App?";
-    Dialog(kAv, sPrompt, ["Yes","No","Cancel"], [], 0, iAuth,"rmtitler");
+    Dialog(kAv, sPrompt, ["Yes","No","Cancel"], [], 0, iAuth, "rmtitler");
 }
 
-UserCommand(integer iAuth, string sStr, key kAv) {
+UserCommand(integer iAuth, string sStr, key kAv)
+{
     list lParams = llParseString2List(sStr, [" "], []);
     string sCommand = llToLower(llList2String(lParams, 0));
     string sAction = llToLower(llList2String(lParams, 1));
@@ -112,25 +117,25 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         sPrompt = "\nTitler\t"+g_sAppVersion+"\n\nCurrent Title: " + g_sText ;
         if(g_iOn == TRUE) ON_OFF = ON ;
         else ON_OFF = OFF ;
-        Dialog(kAv, sPrompt, [SET,UP,DN,ON_OFF,"Color"], [UPMENU],0, iAuth,"main");
+        Dialog(kAv, sPrompt, [SET,UP,DN,ON_OFF,"Color"], [UPMENU], 0, iAuth, "main");
     } else if (sLowerStr == "menu titler color" || sLowerStr == "titler color")
-        Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],0,iAuth,"color");
+        Dialog(kAv,"\n\nSelect a color from the list", ["colormenu please"], [UPMENU], 0, iAuth, "color");
     else if ((sCommand=="titler" || sCommand == "title") && sAction == "color") {
         string sColor= llDumpList2String(llDeleteSubList(lParams,0,1)," ");
         if (sColor != ""){
             g_vColor=(vector)sColor;
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"color="+(string)g_vColor,"");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"color="+(string)g_vColor, "");
         }
         ShowHideText();
     } else if (sCommand=="titler" && sAction == "box")
-        Dialog(kAv, "\n- Submit the new title in the field below.\n- Submit a blank field to go back to " + g_sSubMenu + ".", [], [], 0, iAuth,"textbox");
+        Dialog(kAv, "\n- Submit the new title in the field below.\n- Submit a blank field to go back to " + g_sSubMenu + ".", [], [], 0, iAuth, "textbox");
     else if (sStr == "runaway" && (iAuth == CMD_OWNER || iAuth == CMD_WEARER)) {
-        UserCommand(CMD_OWNER,"title off", g_kWearer);
+        UserCommand(CMD_OWNER, "title off", g_kWearer);
     } else if (sCommand == "title" || sCommand == "graph") {
         integer iIsCommand;
         if (llGetListLength(lParams) <= 2) iIsCommand = TRUE;
         if (g_iOn && iAuth > g_iLastRank)
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You currently have not the right to change the Titler settings, someone with a higher rank set it!",kAv);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You currently have not the right to change the Titler settings, someone with a higher rank set it!", kAv);
         else if (sAction == "on") {
             g_iLastRank = iAuth;
             g_iOn = TRUE;
@@ -143,12 +148,12 @@ UserCommand(integer iAuth, string sStr, key kAv) {
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"auth", "");
         } else if (sAction == "up" && iIsCommand) {
             g_sUp += "\n ";
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])), "");
         } else if (sAction ==  "down" && iIsCommand) {
-            if (g_sUp == "") llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"The titler cannot be lower than this.",kAv);
+            if (g_sUp == "") llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"The titler cannot be lower than this.", kAv);
             if (llStringLength(g_sUp) <= 2) g_sUp = "";
-            else g_sUp = llGetSubString(g_sUp,2,-1);
-            llMessageLinked(LINK_SAVE,LM_SETTING_SAVE, g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])),"");
+            else g_sUp = llGetSubString(g_sUp, 2, -1);
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"height="+(string)llGetListLength(llParseStringKeepNulls(g_sUp,["\n"],[])), "");
         } else {
             string sNewText= llDumpList2String(llDeleteSubList(lParams, 0, 0), " ");
             g_sText = llDumpList2String(llParseStringKeepNulls(sNewText, ["\n"], []), "\n");
@@ -172,63 +177,66 @@ UserCommand(integer iAuth, string sStr, key kAv) {
         }
         ShowHideText();
     } else if (sStr == "rm titler") {
-            if (kAv!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kAv);
+            if (kAv != g_kWearer && iAuth != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kAv);
             else ConfirmDeleteMenu(kAv, iAuth);
     }
 }
 
-default{
-    state_entry(){
+default
+{
+    state_entry()
+    {
         g_iTextPrim = LINK_ROOT;
         integer linkNumber = llGetNumberOfPrims()+1;
         while (linkNumber-- > 2) {
-            string desc = llList2String(llGetLinkPrimitiveParams(linkNumber, [PRIM_DESC]),0);
+            string desc = llList2String(llGetLinkPrimitiveParams(linkNumber, [PRIM_DESC]), 0);
             if (llSubStringIndex(desc, g_sPrimDesc) == 0) {
                 g_iTextPrim = linkNumber;
-                llSetLinkPrimitiveParamsFast(g_iTextPrim,[PRIM_TYPE,PRIM_TYPE_CYLINDER,0,<0.0,1.0,0.0>,0.0,ZERO_VECTOR,<1.0,1.0,0.0>,ZERO_VECTOR,PRIM_TEXTURE,ALL_SIDES,TEXTURE_TRANSPARENT,<1.0, 1.0, 0.0>,ZERO_VECTOR,0.0,PRIM_SLICE,<0.490,0.51,0.0>,PRIM_DESC,g_sPrimDesc+"~notexture~nocolor~nohide~noshiny~noglow"]);
+                llSetLinkPrimitiveParamsFast(g_iTextPrim, [PRIM_TYPE, PRIM_TYPE_CYLINDER, 0, <0.0,1.0,0.0>, 0.0, ZERO_VECTOR, <1.0,1.0,0.0>, ZERO_VECTOR, PRIM_TEXTURE, ALL_SIDES, TEXTURE_TRANSPARENT, <1.0, 1.0, 0.0>, ZERO_VECTOR ,0.0, PRIM_SLICE, <0.490,0.51,0.0>, PRIM_DESC, g_sPrimDesc+"~notexture~nocolor~nohide~noshiny~noglow"]);
                 linkNumber = 0;
             } else {
-                llSetLinkPrimitiveParamsFast(linkNumber,[PRIM_TEXT,"",<0,0,0>,0]);
+                llSetLinkPrimitiveParamsFast(linkNumber,[PRIM_TEXT, "", <0,0,0>, 0]);
             }
         }
         g_kWearer = llGetOwner();
         ShowHideText();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID){
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID);
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         else if (iNum == LM_SETTING_RESPONSE) {
-            string sGroup = llGetSubString(sStr, 0,  llSubStringIndex(sStr, "_") );
+            string sGroup = llGetSubString(sStr, 0, llSubStringIndex(sStr, "_") );
             string sToken = llGetSubString(sStr, llSubStringIndex(sStr, "_")+1, llSubStringIndex(sStr, "=")-1);
             string sValue = llGetSubString(sStr, llSubStringIndex(sStr, "=")+1, -1);
             if (sGroup == g_sSettingToken) {
-                if(sToken == "title") g_sText = sValue;
-                if(sToken == "on") g_iOn = (integer)sValue;
-                if(sToken == "color") g_vColor = (vector)sValue;
-                if(sToken == "height") {
+                if (sToken == "title") g_sText = sValue;
+                if (sToken == "on") g_iOn = (integer)sValue;
+                if (sToken == "color") g_vColor = (vector)sValue;
+                if (sToken == "height") {
                     integer i = 1;
                     g_sUp = "";
-                    for(;i < (integer)sValue; ++i) g_sUp += "\n ";
+                    for(i = 1; i < (integer)sValue; ++i) g_sUp += "\n ";
                 }
                 if(sToken == "auth") g_iLastRank = (integer)sValue;
-            } else if( sStr == "settings=sent") ShowHideText();
+            } else if (sStr == "settings=sent") ShowHideText();
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
-                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+            if (iMenuIndex != -1) {
+                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iPage = llList2Integer(lMenuParams, 2);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 if (sMenuType == "main") {
                     if (sMessage == SET) UserCommand(iAuth, "titler box", kAv);
-                    else if (sMessage == "Color") Dialog(kAv,"\n\nSelect a color from the list",["colormenu please"],[UPMENU],iPage,iAuth,"color");
+                    else if (sMessage == "Color") Dialog(kAv, "\n\nSelect a color from the list", ["colormenu please"], [UPMENU], iPage, iAuth, "color");
                     else if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
-                    else if (sMessage == "Uninstall") ConfirmDeleteMenu(kAv,iAuth);
+                    else if (sMessage == "Uninstall") ConfirmDeleteMenu(kAv, iAuth);
                     else {
                         if (sMessage == UP) UserCommand(iAuth, "title up", kAv);
                         else if (sMessage == DN) UserCommand(iAuth, "title down", kAv);
@@ -249,24 +257,26 @@ default{
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
-                    if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                        llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
                 }
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex +3);
+            g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex+3);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    changed(integer iChange){
+    changed(integer iChange)
+    {
         if (iChange & (CHANGED_OWNER|CHANGED_LINK)) llResetScript();
     }
 
-    on_rez(integer param){
+    on_rez(integer param)
+    {
         llResetScript();
     }
 }

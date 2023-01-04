@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.29";
+string g_sAppVersion = "2023.01.04";
 
 string g_sSubMenu = "Timer";
 string g_sParentMenu = "Apps";
@@ -98,15 +98,17 @@ key g_kWearer = NULL_KEY;
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-Dialog(key kID, string sPrompt, list lChoices, list lUtility, integer iPage, integer iAuth, string sName) {
+Dialog(key kID, string sPrompt, list lChoices, list lUtility, integer iPage, integer iAuth, string sName)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtility, "`") + "|" + (string)iAuth, kMenuID);
     integer i = llListFindList(g_lMenuIDs, [kID]);
-    if (~i) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], i, i + g_iMenuStride - 1);
+    if (i != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], i, i+g_iMenuStride-1);
     else g_lMenuIDs += [kID, kMenuID, sName];
 }
 
-DoMenu(key keyID, integer iAuth) {
+DoMenu(key keyID, integer iAuth)
+{
     string sPrompt = "\nTimer\t"+g_sAppVersion+"\n\nA frozen pizza takes ~12 min to bake.\n";
     list lMyButtons = ["Real Timer","Online Timer"];
     sPrompt += "\n Online Timer: "+Int2Time(g_iOnSetTime);
@@ -128,7 +130,8 @@ DoMenu(key keyID, integer iAuth) {
     Dialog(keyID, sPrompt, lMyButtons + g_lLocalMenu, [UPMENU], 0, iAuth, "menu");
 }
 
-DoOnMenu(key keyID, integer iAuth) {
+DoOnMenu(key keyID, integer iAuth)
+{
     string sPrompt = "\n Online Time Settings\n";
     sPrompt += "\n Online Timer: "+Int2Time(g_iOnSetTime);
     if (g_iOnRunning) sPrompt += "\n Online Timer: "+Int2Time(g_iOnTimeUpAt-g_iOnTime)+" left";
@@ -136,7 +139,8 @@ DoOnMenu(key keyID, integer iAuth) {
     Dialog(keyID, sPrompt, g_lTimeButtons, [UPMENU], 0, iAuth, "online");
 }
 
-DoRealMenu(key keyID, integer iAuth) {
+DoRealMenu(key keyID, integer iAuth)
+{
     string sPrompt = "\n RL Time Settings\n";
     sPrompt += "\n RL timer: " + Int2Time(g_iRealSetTime);
     if (g_iRealRunning) sPrompt += "\n RL Timer: "+Int2Time(g_iRealTimeUpAt-g_iCurrentTime)+" left";
@@ -144,26 +148,28 @@ DoRealMenu(key keyID, integer iAuth) {
     Dialog(keyID, sPrompt, g_lTimeButtons, [UPMENU], 0, iAuth, "real");
 }
 
-string Int2Time(integer sTime) {
-    if (sTime<0) sTime=0;
-    integer iSecs=sTime%60;
-    sTime = (sTime-iSecs)/60;
-    integer iMins=sTime%60;
-    sTime = (sTime-iMins)/60;
-    integer iHours=sTime%24;
-    integer iDays = (sTime-iHours)/24;
+string Int2Time(integer sTime)
+{
+    if (sTime < 0) sTime = 0;
+    integer iSecs = sTime % 60;
+    sTime = (sTime-iSecs) / 60;
+    integer iMins = sTime % 60;
+    sTime = (sTime-iMins) / 60;
+    integer iHours = sTime % 24;
+    integer iDays = (sTime-iHours) / 24;
     return ( (string)iDays+" days "+
-        llGetSubString("0"+(string)iHours,-2,-1) + ":"+
-        llGetSubString("0"+(string)iMins,-2,-1) + ":"+
-        llGetSubString("0"+(string)iSecs,-2,-1) );
+        llGetSubString("0"+(string)iHours, -2, -1) + ":"+
+        llGetSubString("0"+(string)iMins, -2, -1) + ":"+
+        llGetSubString("0"+(string)iSecs, -2, -1) );
 }
 
-TimerFinish() {
+TimerFinish()
+{
     if (g_iBoth && (g_iOnRunning == 1 || g_iRealRunning == 1)) return;
     if (g_iUnlockCollar) llMessageLinked(LINK_SET, CMD_OWNER, "unlock", g_kWearer);
     if (g_iClearRLVRestions) {
         llMessageLinked(LINK_SET, CMD_OWNER, "clear", g_kWearer);
-        if (!g_iUnlockCollar && g_iCollarLocked) {
+        if (g_iUnlockCollar == FALSE && g_iCollarLocked) {
             llSleep(2);
             llMessageLinked(LINK_SET, CMD_OWNER, "lock", g_kWearer);
         }
@@ -175,37 +181,39 @@ TimerFinish() {
     g_iOnRunning = g_iRealRunning = 0;
     g_iOnTimeUpAt = g_iRealTimeUpAt = 0;
     g_iWhoCanChangeTime = 504;
-    llMessageLinked(LINK_AUTH,CMD_OWNER,"lockout false","");
-    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Yay! Timer expired!",g_kWearer);
+    llMessageLinked(LINK_AUTH, CMD_OWNER, "lockout false", "");
+    llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Yay! Timer expired!", g_kWearer);
     llMessageLinked(LINK_SET, TIMER_EVENT, "end", "");
 }
 
-TimerStart(integer perm) {
+TimerStart(integer perm)
+{
     g_iWhoCanChangeTime = perm;
     if (g_iRealSetTime) {
-        g_iRealTimeUpAt = g_iCurrentTime+g_iRealSetTime;
-        llMessageLinked(LINK_AUTH,CMD_OWNER,"lockout true","");
+        g_iRealTimeUpAt = g_iCurrentTime + g_iRealSetTime;
+        llMessageLinked(LINK_AUTH, CMD_OWNER, "lockout true", "");
         llMessageLinked(LINK_SET, TIMER_EVENT, "START", "RL");
         g_iRealRunning=1;
     } else g_iRealRunning=3;
 
     if (g_iOnSetTime) {
-        g_iOnTimeUpAt = g_iOnTime+g_iOnSetTime;
-        llMessageLinked(LINK_AUTH,CMD_OWNER,"lockout true","");
+        g_iOnTimeUpAt = g_iOnTime + g_iOnSetTime;
+        llMessageLinked(LINK_AUTH, CMD_OWNER, "lockout true", "");
         llMessageLinked(LINK_SET, TIMER_EVENT, "START", "Online Timer");
         g_iOnRunning = 1;
     } else g_iOnRunning = 3;
 }
 
-UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
+UserCommand(integer iAuth, string sStr, key kID, integer iMenu)
+{
     if ((g_iOnRunning || g_iRealRunning) && kID == g_kWearer) {
-        if (!llSubStringIndex(llToLower(sStr),"timer")) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"You can't access here until the timer went off.",kID);
+        if (llSubStringIndex(llToLower(sStr), "timer") == 0) {
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"You can't access here until the timer went off.", kID);
             return;
         }
     }
     if (llToLower(sStr) == "rm timer" && (iAuth == CMD_OWNER || kID ==  g_kWearer))
-        Dialog(kID, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth,"rmtimer");
+        Dialog(kID, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth, "rmtimer");
     if (llToLower(sStr) == "timer" || sStr == "menu "+g_sSubMenu) DoMenu(kID, iAuth);
     else if (llGetSubString(sStr, 0, 5) == "timer ") {
         string sMsg = llGetSubString(sStr, 6, -1);
@@ -225,22 +233,22 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
         else if (sMsg == "☐ combined") g_iBoth = TRUE;
         else if (sMsg == "☑ unlock") {
             if (iAuth == CMD_OWNER) g_iUnlockCollar = 0;
-            else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sMsg == "☐ unlock") {
             if (iAuth == CMD_OWNER) g_iUnlockCollar = 1;
-            else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sMsg == "☑ clear RLV") {
-            if (iAuth == CMD_WEARER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            if (iAuth == CMD_WEARER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
             else g_iClearRLVRestions = 0;
         } else if (sMsg == "☐ clear RLV") {
-            if (iAuth == CMD_WEARER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            if (iAuth == CMD_WEARER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
             else g_iClearRLVRestions = 1;
         } else if (sMsg == "☑ unleash") {
             if (iAuth <= g_iWhoCanChangeLeash) g_iUnleash = 0;
-            else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sMsg == "☐ unleash") {
             if (iAuth <= g_iWhoCanChangeLeash) g_iUnleash = 1;
-            else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+            else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (llGetSubString(sMsg, 0, 11) == "Online Timer")
             sMsg = "online" + llStringTrim(llGetSubString(sMsg, 12, -1), STRING_TRIM_HEAD);
         else if (llGetSubString(sMsg, 0, 9) == "Real Timer")
@@ -257,15 +265,15 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
                         TimerFinish();
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "+") {
-                    g_iTimeChange=llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60;
+                    g_iTimeChange=llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60;
                     g_iOnSetTime += g_iTimeChange;
                     if (g_iOnRunning == 1) g_iOnTimeUpAt += g_iTimeChange;
                     else if (g_iOnRunning == 3) {
-                        g_iOnTimeUpAt = g_iOnTime+g_iOnSetTime;
+                        g_iOnTimeUpAt = g_iOnTime + g_iOnSetTime;
                         g_iOnRunning = 1;
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "-") {
-                    g_iTimeChange=-(llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60);
+                    g_iTimeChange=-(llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60);
                     g_iOnSetTime += g_iTimeChange;
                     if (g_iOnSetTime < 0) g_iOnSetTime = 0;
                     if (g_iOnRunning == 1) {
@@ -276,7 +284,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
                         }
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "=") {
-                    g_iTimeChange=llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60;
+                    g_iTimeChange=llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60;
                     if (g_iTimeChange <= 0) return;
                     g_iOnSetTime = g_iTimeChange;
                     if (g_iOnRunning == 1) g_iOnTimeUpAt = g_iOnTime + g_iTimeChange;
@@ -299,7 +307,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
                         TimerFinish();
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "+") {
-                    g_iTimeChange = llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60;
+                    g_iTimeChange = llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60;
                     g_iRealSetTime += g_iTimeChange;
                     if (g_iRealRunning == 1) g_iRealTimeUpAt += g_iTimeChange;
                     else if (g_iRealRunning == 3) {
@@ -307,7 +315,7 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
                         g_iRealRunning=1;
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "-") {
-                    g_iTimeChange = -(llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60);
+                    g_iTimeChange = -(llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60);
                     g_iRealSetTime += g_iTimeChange;
                     if (g_iRealSetTime < 0) g_iRealSetTime = 0;
                     if (g_iRealRunning == 1) {
@@ -318,13 +326,13 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
                         }
                     }
                 } else if (llGetSubString(sMsg, 0, 0) == "=") {
-                    g_iTimeChange=llList2Integer(lTimes,0)*60*60+llList2Integer(lTimes,1)*60;
+                    g_iTimeChange = llList2Integer(lTimes,0) * 60 * 60 + llList2Integer(lTimes, 1) * 60;
                     if (g_iTimeChange <= 0) return;
                     g_iRealSetTime = g_iTimeChange;
-                    if (g_iRealRunning==1) g_iRealTimeUpAt = g_iCurrentTime+g_iRealSetTime;
-                    else if (g_iRealRunning==3) {
-                        g_iRealTimeUpAt=g_iCurrentTime+g_iRealSetTime;
-                        g_iRealRunning=1;
+                    if (g_iRealRunning == 1) g_iRealTimeUpAt = g_iCurrentTime + g_iRealSetTime;
+                    else if (g_iRealRunning == 3) {
+                        g_iRealTimeUpAt = g_iCurrentTime + g_iRealSetTime;
+                        g_iRealRunning = 1;
                     }
                 } else return ;
             }
@@ -335,14 +343,17 @@ UserCommand(integer iAuth, string sStr, key kID, integer iMenu) {
     }
 }
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         if (g_kWearer != llGetOwner()) llResetScript();
-        g_iLastTime=g_iLastRez=llGetUnixTime();
+        g_iLastTime = g_iLastRez = llGetUnixTime();
         llRegionSayTo(g_kWearer, g_iInterfaceChannel, "timer|sendtimers");
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_iLastTime = llGetUnixTime();
         llSetTimerEvent(1);
         g_kWearer = llGetOwner();
@@ -353,36 +364,37 @@ default {
         llRegionSayTo(g_kWearer, g_iInterfaceChannel, "timer|sendtimers");
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
-        else if (iNum==ATTACHMENT_FORWARD) {
+        else if (iNum == ATTACHMENT_FORWARD) {
             list info = llParseString2List (sStr, ["|"], []);
-            if (llList2String(info, 0)!="timer") return;
+            if (llList2String(info, 0) != "timer") return;
             string sCommand = llList2String(info, 1);
             integer type = llList2Integer(info, 2);
-            if (sCommand=="settimer") {
-                if (type==REAL_TIME) {
-                    integer newtime = llList2Integer(info, 3) +g_iCurrentTime;
-                    g_lTimes=g_lTimes+[REAL_TIME,newtime];
-                    if (g_iFirstRealTime>newtime) g_iFirstRealTime=newtime;
-                    g_sMessage="timer|timeis|"+(string)REAL_TIME+"|"+(string)g_iCurrentTime;
-                } else if (type==REAL_TIME_EXACT) {
+            if (sCommand == "settimer") {
+                if (type == REAL_TIME) {
+                    integer newtime = llList2Integer(info, 3) + g_iCurrentTime;
+                    g_lTimes = g_lTimes + [REAL_TIME, newtime];
+                    if (g_iFirstRealTime > newtime) g_iFirstRealTime = newtime;
+                    g_sMessage = "timer|timeis|" + (string)REAL_TIME+"|"+(string)g_iCurrentTime;
+                } else if (type == REAL_TIME_EXACT) {
                     integer newtime = llList2Integer(info, 3);
-                    g_lTimes=g_lTimes+[REAL_TIME,newtime];
-                    if (g_iFirstRealTime>newtime) g_iFirstRealTime=newtime;
-                } else if (type==ON_TIME) {
-                    integer newtime = llList2Integer(info, 3) +g_iOnTime;
-                    g_lTimes=g_lTimes+[ON_TIME,newtime];
-                    if (g_iFirstOnTime>newtime) g_iFirstOnTime=newtime;
-                    g_sMessage="timer|timeis|"+(string)ON_TIME+"|"+(string)g_iOnTime;
-                } else if (type==ON_TIME_EXACT) {
-                    integer newtime = llList2Integer(info, 3) +g_iOnTime;
-                    g_lTimes=g_lTimes+[ON_TIME,newtime];
-                    if (g_iFirstOnTime>newtime) g_iFirstOnTime=newtime;
+                    g_lTimes = g_lTimes + [REAL_TIME, newtime];
+                    if (g_iFirstRealTime > newtime) g_iFirstRealTime = newtime;
+                } else if (type == ON_TIME) {
+                    integer newtime = llList2Integer(info, 3) + g_iOnTime;
+                    g_lTimes = g_lTimes + [ON_TIME, newtime];
+                    if (g_iFirstOnTime > newtime) g_iFirstOnTime = newtime;
+                    g_sMessage = "timer|timeis|"+(string)ON_TIME+"|"+(string)g_iOnTime;
+                } else if (type == ON_TIME_EXACT) {
+                    integer newtime = llList2Integer(info, 3) + g_iOnTime;
+                    g_lTimes = g_lTimes + [ON_TIME, newtime];
+                    if (g_iFirstOnTime > newtime) g_iFirstOnTime = newtime;
                 }
             } else if (sCommand=="gettime") {
-                if (type==REAL_TIME) g_sMessage="timer|timeis|"+(string)REAL_TIME+"|"+(string)g_iCurrentTime;
-                else if (type==ON_TIME) g_sMessage="timer|timeis|"+(string)ON_TIME+"|"+(string)g_iOnTime;
+                if (type == REAL_TIME) g_sMessage = "timer|timeis|"+(string)REAL_TIME+"|"+(string)g_iCurrentTime;
+                else if (type == ON_TIME) g_sMessage = "timer|timeis|"+(string)ON_TIME+"|"+(string)g_iOnTime;
             } else return;
             llRegionSayTo(g_kWearer, g_iInterfaceChannel, g_sMessage);
         } else if (iNum == LM_SETTING_EMPTY) {
@@ -392,9 +404,9 @@ default {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
-            if (sToken == "global_locked") g_iCollarLocked=(integer)sValue;
+            if (sToken == "global_locked") g_iCollarLocked = (integer)sValue;
             else if (sToken == "leash_leashedto") {
-                g_iWhoCanChangeLeash = (integer)llList2String(llParseString2List(sValue,[","],[]),1);
+                g_iWhoCanChangeLeash = llList2Integer(llParseString2List(sValue, [","], []), 1);
             }
         } else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu) {
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
@@ -412,7 +424,7 @@ default {
             if (llList2String(lParts, 0) == g_sSubMenu) {
                 string sButton = llList2String(lParts, 1);
                 integer iIndex = llListFindList(g_lLocalMenu, [sButton]);
-                if (~iIndex) g_lLocalMenu = llDeleteSubList(g_lLocalMenu, iIndex, iIndex);
+                if (iIndex != -1) g_lLocalMenu = llDeleteSubList(g_lLocalMenu, iIndex, iIndex);
             }
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
@@ -420,14 +432,14 @@ default {
             string sMenu = llList2String(g_lMenuIDs, iMenuIndex+1);
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
             list lMenuParams = llParseString2List(sStr, ["|"], []);
-            key kAv = (key)llList2String(lMenuParams, 0);
+            key kAv = llList2Key(lMenuParams, 0);
             string sMsg = llList2String(lMenuParams, 1);
-            integer iAuth = (integer)llList2String(lMenuParams, 3);
+            integer iAuth = llList2Integer(lMenuParams, 3);
             if (sMenu == "menu") {
                 if (sMsg == UPMENU) llMessageLinked(LINK_SET, iAuth, "menu "+g_sParentMenu, kAv);
                 else if (sMsg == "Real Timer") DoRealMenu(kAv, iAuth);
                 else if (sMsg == "Online Timer") DoOnMenu(kAv, iAuth);
-                else if (~llListFindList(g_lLocalMenu, [sMsg])) llMessageLinked(LINK_SET, iAuth, "menu "+sMsg, kAv);
+                else if (llListFindList(g_lLocalMenu, [sMsg]) != -1) llMessageLinked(LINK_SET, iAuth, "menu "+sMsg, kAv);
                 else UserCommand(iAuth, "timer " + sMsg, kAv, TRUE);
             } else if (sMenu == "real") {
                 if (sMsg == UPMENU) DoMenu(kAv, iAuth);
@@ -439,12 +451,12 @@ default {
                 if (sMsg == "Yes") {
                     llMessageLinked(LINK_ROOT, MENUNAME_REMOVE, g_sParentMenu+"|"+g_sSubMenu, "");
                     llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
-                    if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                    llRemoveInventory(llGetScriptName());
                 } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
+            if (iMenuIndex != -1) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_AUTH") LINK_AUTH = iSender;
@@ -453,55 +465,57 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    timer() {
+    timer()
+    {
         g_iCurrentTime = llGetUnixTime();
         if (g_iCurrentTime < (g_iLastRez+60)) return;
         if ((g_iCurrentTime-g_iLastTime) < 60) g_iOnTime += g_iCurrentTime-g_iLastTime;
         if (g_iOnTime >= g_iFirstOnTime) {
             g_sMessage = "timer|timeis|"+(string)ON_TIME+"|"+(string)g_iOnTime;
             llRegionSayTo(g_kWearer, g_iInterfaceChannel, g_sMessage);
-            g_iFirstOnTime=MAX_TIME;
-            g_iTimesLength=llGetListLength(g_lTimes);
-            for(n = 0; n < g_iTimesLength; n+=2) {
-                if (llList2Integer(g_lTimes, n)==ON_TIME) {
-                    while(llList2Integer(g_lTimes, n+1)<=g_iOnTime&&llList2Integer(g_lTimes, n)==ON_TIME&&llGetListLength(g_lTimes)>0) {
+            g_iFirstOnTime = MAX_TIME;
+            g_iTimesLength = llGetListLength(g_lTimes);
+            for(n = 0; n < g_iTimesLength; n += 2) {
+                if (llList2Integer(g_lTimes, n) == ON_TIME) {
+                    while(llList2Integer(g_lTimes, n+1) <= g_iOnTime && llList2Integer(g_lTimes, n) == ON_TIME && llGetListLength(g_lTimes) > 0) {
                         g_lTimes=llDeleteSubList(g_lTimes, n, n+1);
                         g_iTimesLength=llGetListLength(g_lTimes);
                     }
-                    if (llList2Integer(g_lTimes, n)==ON_TIME&&llList2Integer(g_lTimes, n+1)<g_iFirstOnTime)
+                    if (llList2Integer(g_lTimes, n) == ON_TIME && llList2Integer(g_lTimes, n+1) < g_iFirstOnTime)
                         g_iFirstOnTime=llList2Integer(g_lTimes, n+1);
                 }
             }
         }
-        if (g_iCurrentTime>=g_iFirstRealTime) {
-            g_sMessage="timer|timeis|"+(string)REAL_TIME+"|"+(string)g_iCurrentTime;
+        if (g_iCurrentTime >= g_iFirstRealTime) {
+            g_sMessage = "timer|timeis|"+(string)REAL_TIME+"|"+(string)g_iCurrentTime;
             llRegionSayTo(g_kWearer, g_iInterfaceChannel, g_sMessage);
-            g_iFirstRealTime=MAX_TIME;
-            g_iTimesLength=llGetListLength(g_lTimes);
-            for(n = 0; n < g_iTimesLength; n+=2) {
-                if (llList2Integer(g_lTimes, n)==REAL_TIME) {
-                    while(llList2Integer(g_lTimes, n+1)<=g_iCurrentTime&&llList2Integer(g_lTimes, n)==REAL_TIME) {
-                        g_lTimes=llDeleteSubList(g_lTimes, n, n+1);
-                        g_iTimesLength=llGetListLength(g_lTimes);
+            g_iFirstRealTime = MAX_TIME;
+            g_iTimesLength = llGetListLength(g_lTimes);
+            for(n = 0; n < g_iTimesLength; n += 2) {
+                if (llList2Integer(g_lTimes, n) == REAL_TIME) {
+                    while(llList2Integer(g_lTimes, n+1) <= g_iCurrentTime && llList2Integer(g_lTimes, n) == REAL_TIME) {
+                        g_lTimes = llDeleteSubList(g_lTimes, n, n+1);
+                        g_iTimesLength = llGetListLength(g_lTimes);
                     }
-                    if (llList2Integer(g_lTimes, n)==REAL_TIME&&llList2Integer(g_lTimes, n+1)<g_iFirstRealTime) {
-                        g_iFirstRealTime=llList2Integer(g_lTimes, n+1);
+                    if (llList2Integer(g_lTimes, n) == REAL_TIME && llList2Integer(g_lTimes, n+1) < g_iFirstRealTime) {
+                        g_iFirstRealTime = llList2Integer(g_lTimes, n+1);
                     }
                 }
             }
         }
-        if (g_iOnRunning == 1 && g_iOnTimeUpAt<=g_iOnTime) {
+        if (g_iOnRunning == 1 && g_iOnTimeUpAt <= g_iOnTime) {
             g_iOnRunning = 0;
             TimerFinish();
         }
-        if (g_iRealRunning == 1 && g_iRealTimeUpAt<=g_iCurrentTime) {
+        if (g_iRealRunning == 1 && g_iRealTimeUpAt <= g_iCurrentTime) {
             g_iRealRunning = 0;
             TimerFinish();
         }
         g_iLastTime=g_iCurrentTime;
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if (iChange & CHANGED_OWNER) llResetScript();
     }
 }

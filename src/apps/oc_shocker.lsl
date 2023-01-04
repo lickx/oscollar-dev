@@ -18,7 +18,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.29";
+string g_sAppVersion = "2023.01.04";
 
 string g_sSubMenu = "Shocker";
 string g_sParentMenu = "Apps";
@@ -75,8 +75,7 @@ string g_sSetAnim = "Set Anim";
 string g_sSetSound = "Set Sound";
 
 string g_sDefaultAnim = "~shock";
-//string g_sDefaultSound = "011ef7f4-40e8-28fe-4ea5-f2fda0883707";
-string g_sDefaultSound = "4546cdc8-8682-6763-7d52-2c1e67e8257d";
+string g_sDefaultSound = "~shocksound";
 string g_sNoSound = "silent" ;
 
 string g_sShockAnim ;
@@ -91,33 +90,37 @@ integer g_iShock = FALSE ;
 list g_lAnims ;
 integer g_iDefaultAnim = FALSE;
 
-Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
+Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
 
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kID, kMenuID, sName];
     //Debug("Made "+sName+" menu.");
 }
 
-DialogShocker(key kID, integer iAuth) {
+DialogShocker(key kID, integer iAuth)
+{
     string sText = "\nShocker!\t"+g_sAppVersion+"\n\nYour pet is naughty? Just punish him/her.\n";
     sText += "- Chose time to start punishment.\n" ;
     sText += "- 'Quick Help' will give you a brief help how to use shocker.\n";
-    Dialog(kID, sText, g_lButtons, [HELP,g_sSetAnim, g_sSetSound,UPMENU],0,iAuth,"shocker");
+    Dialog(kID, sText, g_lButtons, [HELP,g_sSetAnim, g_sSetSound,UPMENU], 0, iAuth, "shocker");
 }
 
-DialogSelectAnim(key kID, integer iAuth) {
+DialogSelectAnim(key kID, integer iAuth)
+{
     list lAnims ;
     if (g_iDefaultAnim) lAnims = [DEFAULT];
     lAnims += g_lAnims;
     string sText = "\nCurrent punishment animation is: "+g_sShockAnim+"\n\n";
     sText += "Chose new animation to use as a punishment:\n";
-    Dialog(kID, sText, lAnims, [UPMENU],0, iAuth,"anim");
+    Dialog(kID, sText, lAnims, [UPMENU],0, iAuth, "anim");
 }
 
-DialogSelectSound(key kID, integer iAuth) {
+DialogSelectSound(key kID, integer iAuth)
+{
     list lSoundList = [DEFAULT];
     integer iMax = llGetInventoryNumber(INVENTORY_SOUND);
     integer i;
@@ -133,7 +136,8 @@ DialogSelectSound(key kID, integer iAuth) {
     Dialog(kID, sText, lSoundList, [UPMENU],0, iAuth,"sound");
 }
 
-DialogHelp(key kID, integer iAuth) {
+DialogHelp(key kID, integer iAuth)
+{
     string sMsg = "Shocker chat commands:\n\n";
     sMsg += "%PREFIX% shocker <seconds>\n     where <seconds> is time in seconds to punish you pet.\n\n";
     sMsg += "%PREFIX% shocker 0/stop/off\n     is stop to punish you pet immediately.\n\n";
@@ -144,7 +148,8 @@ DialogHelp(key kID, integer iAuth) {
     llMessageLinked(LINK_DIALOG, NOTIFY, "0"+sMsg, kID);
 }
 
-Shock(integer time, key kID) {
+Shock(integer time, key kID)
+{
     if (time > 0) {
         //llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"%WEARERNAME% now shocked for "+(string)time+" seconds.", kID);
         llMessageLinked(LINK_DIALOG, SAY, "1"+"%WEARERNAME% now shocked for "+(string)time+" seconds.","");
@@ -165,7 +170,8 @@ Shock(integer time, key kID) {
     }
 }
 
-Stop() {
+Stop()
+{
     if (g_iShock) {
         if (g_sShockSound != g_sNoSound) llStopSound();
         if (g_sShockAnim == DEFAULT) llMessageLinked(LINK_ANIM, ANIM_STOP, g_sDefaultAnim, "");
@@ -175,12 +181,13 @@ Stop() {
 }
 
 
-UserCommand(integer iAuth, string sStr, key kID, integer remenu) {
+UserCommand(integer iAuth, string sStr, key kID, integer remenu)
+{
     if (iAuth > CMD_WEARER || iAuth < CMD_OWNER) return; // sanity check
 
     if (llToLower(sStr) == "rm shocker") {
-        if (kID!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
-        else  Dialog(kID,"\nAre you sure you want to delete the "+g_sSubMenu+" App?\n", ["Yes","No","Cancel"], [], 0, iAuth,"rmshocker");
+        if (kID != g_kWearer && iAuth != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
+        else  Dialog(kID,"\nAre you sure you want to delete the "+g_sSubMenu+" App?\n", ["Yes","No","Cancel"], [], 0, iAuth, "rmshocker");
         return;
     }
 
@@ -200,56 +207,62 @@ UserCommand(integer iAuth, string sStr, key kID, integer remenu) {
             Stop();
             string sAnim = llStringTrim(sValue, STRING_TRIM);
             if (sAnim != "") {
-                if (~llListFindList(g_lAnims,[sAnim])) g_sShockAnim = sAnim;
+                if (llListFindList(g_lAnims,[sAnim]) != -1) g_sShockAnim = sAnim;
                 else {
-                    llMessageLinked(LINK_DIALOG, NOTIFY,"0"+sAnim+" is not a valid animation name.",kID);
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "0"+sAnim+" is not a valid animation name.", kID);
                     g_sShockAnim = DEFAULT;
                 }
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "shocker_anim=" + g_sShockAnim, "");
-                llMessageLinked(LINK_DIALOG, NOTIFY,"0"+"Punishment anim for shocker is now '"+g_sShockAnim+"'.",kID);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Punishment anim for shocker is now '"+g_sShockAnim+"'.", kID);
             } else DialogSelectAnim(kID, iAuth);
         } else if (sCommand == "sound") {
             string sSound = llStringTrim(sValue, STRING_TRIM);
             if (sSound != "") {
-                if (sSound == g_sNoSound) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Punishment will be silently.",kID);
+                if (sSound == g_sNoSound) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Punishment will be silently.", kID);
                 else if (llGetInventoryType(sSound) != INVENTORY_SOUND) {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+sSound+" is not a valid sound name.",kID);
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "0"+sSound+" is not a valid sound name.", kID);
                     sSound = DEFAULT ;
                 }
                 g_sShockSound = sSound;
-                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,"shocker_sound="+g_sShockSound, "");
-                llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Punishment sound for shocker is now '"+g_sShockSound+"'.",kID);
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "shocker_sound="+g_sShockSound, "");
+                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Punishment sound for shocker is now '"+g_sShockSound+"'.", kID);
             } else DialogSelectSound(kID, iAuth);
         } else Shock((integer)sCommand, kID);
     }
     if (remenu) DialogShocker(kID, iAuth);
 }
 
-ParseAnimList(string sStr) {
-    g_lAnims = llParseString2List(sStr, ["|"],[]);
+ParseAnimList(string sStr)
+{
+    g_lAnims = llParseString2List(sStr, ["|"], []);
     integer i = llGetListLength(g_lAnims);
     string sTest;
-    do { i--;
-        sTest = llList2String(g_lAnims,i);
-        if (!llSubStringIndex(sTest,"~")) {
-            g_lAnims = llDeleteSubList(g_lAnims,i,i);
+    do {
+        i--;
+        sTest = llList2String(g_lAnims, i);
+        if (llSubStringIndex(sTest,"~") == 0) {
+            g_lAnims = llDeleteSubList(g_lAnims, i, i);
             if (sTest == "~shock") g_iDefaultAnim = TRUE;
         }
-    } while (i>0);
+    } while (i > 0);
 }
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         llResetScript();
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
         g_sShockAnim = DEFAULT;
         g_sShockSound = DEFAULT ;
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE);
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
@@ -264,16 +277,16 @@ default {
         } else if (iNum == ANIM_LIST_RESPONSE) ParseAnimList(sStr);
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMsg = llList2String(lMenuParams, 1);
-                //integer iPage = (integer)llList2String(lMenuParams, 2);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                //integer iPage = llList2Integer(lMenuParams, 2);
+                integer iAuth = llList2Integer(lMenuParams, 3);
 
                 //remove stride from g_lMenuIDs
-                string sMenu = llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                string sMenu = llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
 
                 if (sMenu == "shocker") {
                     if (sMsg == UPMENU) llMessageLinked(LINK_THIS, iAuth, "menu "+g_sParentMenu, kAv);
@@ -296,7 +309,7 @@ default {
                         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "shocker_sound", "");
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
-                        if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                        llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
                 }
                 //else if (sMenu == "help" && sMsg == "Ok") UserCommand(iAuth,"shocker", kAv, FALSE);
@@ -305,7 +318,7 @@ default {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             //remove stride from g_lMenuIDs
             //we have to subtract from the index because the dialog id comes in the middle of the stride
-            if (~iMenuIndex) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+            if (iMenuIndex != -1) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             //else if (sStr == "LINK_RLV") LINK_RLV = iSender;
@@ -314,7 +327,8 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    timer() {
+    timer()
+    {
         llSetTimerEvent(0.0);
         Stop();
     }

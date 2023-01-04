@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.29";
+string g_sAppVersion = "2023.01.04";
 
 string g_sSubMenu = "Bell";
 string g_sParentMenu = "Apps";
@@ -83,15 +83,17 @@ string UPMENU = "BACK";
 string g_sSettingToken = "bell_";
 integer g_iHasBellPrims;
 
-Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
+Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kRCPT, kMenuID, iMenuType];
 }
 
-BellMenu(key kID, integer iAuth) {
+BellMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nBell\t"+g_sAppVersion+"\n\n";
     list lMyButtons;
     if (g_iBellOn) {
@@ -114,7 +116,8 @@ BellMenu(key kID, integer iAuth) {
     Dialog(kID, sPrompt, lMyButtons, [UPMENU], 0, iAuth, "BellMenu");
 }
 
-SetBellElementAlpha() {
+SetBellElementAlpha()
+{
     if (g_iHide) return ;
     integer n;
     integer iLinkElements = llGetListLength(g_lBellElements);
@@ -124,14 +127,16 @@ SetBellElementAlpha() {
     }
 }
 
-UpdateGlow(integer link, integer alpha) {
+UpdateGlow(integer link, integer alpha)
+{
     if (alpha == 0) {
         SavePrimGlow(link);
         llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, ALL_SIDES, 0.0]);
     } else RestorePrimGlow(link);
 }
 
-SavePrimGlow(integer link) {
+SavePrimGlow(integer link)
+{
     float glow = llList2Float(llGetLinkPrimitiveParams(link, [PRIM_GLOW,0]), 0);
     integer i = llListFindList(g_lGlows, [link]);
     if (i !=-1 && glow > 0) g_lGlows = llListReplaceList(g_lGlows, [glow], i+1, i+1);
@@ -139,16 +144,18 @@ SavePrimGlow(integer link) {
     if (i == -1 && glow > 0) g_lGlows += [link, glow];
 }
 
-RestorePrimGlow(integer link) {
+RestorePrimGlow(integer link)
+{
     integer i = llListFindList(g_lGlows, [link]);
     if (i != -1) llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, ALL_SIDES, llList2Float(g_lGlows, i+1)]);
 }
 
-BuildBellElementList() {
+BuildBellElementList()
+{
     list lParams;
     g_lBellElements = [];
     integer i = 2;
-    for (; i <= llGetNumberOfPrims(); i++) {
+    for (i = 2; i <= llGetNumberOfPrims(); i++) {
         lParams = llParseString2List((string)llGetObjectDetails(llGetLinkKey(i), [OBJECT_DESC]), ["~"], []);
         if (llList2String(lParams, 0) == "Bell") {
             g_lBellElements += [i];
@@ -157,7 +164,8 @@ BuildBellElementList() {
     if (llGetListLength(g_lBellElements)) g_iHasBellPrims = TRUE;
 }
 
-PrepareSounds() {
+PrepareSounds()
+{
     g_listBellSounds = [];
     integer i;
     string sSoundName;
@@ -171,7 +179,8 @@ PrepareSounds() {
     g_kCurrentBellSound = llList2Key(g_listBellSounds, g_iCurrentBellSound);
 }
 
-UserCommand(integer iAuth, string sStr, key kID) {
+UserCommand(integer iAuth, string sStr, key kID)
+{
     sStr = llToLower(sStr);
     if (sStr == "menu bell" || sStr == "bell" || sStr == g_sSubMenu)
         BellMenu(kID, iAuth);
@@ -186,14 +195,14 @@ UserCommand(integer iAuth, string sStr, key kID) {
             g_fVolume = (float)n/10;
             llPlaySound(g_kCurrentBellSound, g_fVolume);
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "vol=" + (string)llFloor(g_fVolume*10), "");
-            llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Bell volume set to "+(string)n, kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Bell volume set to "+(string)n, kID);
         } else if (sToken == "show" || sToken == "hide") {
             if (sToken == "show") {
                 g_iBellShow = TRUE;
-                llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The bell is now visible.", kID);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The bell is now visible.", kID);
             } else  {
                 g_iBellShow = FALSE;
-                llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The bell is now invisible.", kID);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The bell is now invisible.", kID);
             }
             SetBellElementAlpha();
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "show=" + (string)g_iBellShow, "");
@@ -203,9 +212,9 @@ UserCommand(integer iAuth, string sStr, key kID) {
                     g_iBellOn = iAuth;
                     if (g_iHasControl == FALSE) llRequestPermissions(g_kWearer, PERMISSION_TAKE_CONTROLS);
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "on=" + (string)g_iBellOn, "");
-                    llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"The bell rings now.", kID);
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The bell rings now.", kID);
                 }
-            } else llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"%NOACCESS%", kID);
+            } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sToken == "off") {
             if ((g_iBellOn > 0) && (iAuth != CMD_GROUP)) {
                 g_iBellOn = 0;
@@ -214,7 +223,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
                     g_iHasControl = FALSE;
                 }
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "on=" + (string)g_iBellOn, "");
-                llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"The bell is now quiet.", kID);
+                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The bell is now quiet.", kID);
             } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         } else if (sToken == "nextsound") {
             g_iCurrentBellSound++;
@@ -222,7 +231,7 @@ UserCommand(integer iAuth, string sStr, key kID) {
             g_kCurrentBellSound = llList2Key(g_listBellSounds, g_iCurrentBellSound);
             llPlaySound(g_kCurrentBellSound, g_fVolume);
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "sound=" + (string)g_iCurrentBellSound, "");
-            llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"Bell sound changed, now using "+(string)(g_iCurrentBellSound+1)+" of "+(string)g_iBellSoundCount+".", kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Bell sound changed, now using "+(string)(g_iCurrentBellSound+1)+" of "+(string)g_iBellSoundCount+".", kID);
         } else if (sToken == "ring") {
             g_fNextRing = llGetTime() + 1.0;
             llPlaySound(g_kCurrentBellSound, g_fVolume);
@@ -233,33 +242,37 @@ UserCommand(integer iAuth, string sStr, key kID) {
     }
 }
 
-default {
-    on_rez(integer param) {
+default
+{
+    on_rez(integer param)
+    {
         if (g_kWearer != llGetOwner()) llResetScript();
-        if (g_iBellOn && llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TAKE_CONTROLS);
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
         BuildBellElementList();
         PrepareSounds();
         SetBellElementAlpha();
+        if (g_iBellOn && llGetAttached()) llRequestPermissions(g_kWearer, PERMISSION_TAKE_CONTROLS);
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu+"|"+g_sSubMenu, "");
         else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER)
             UserCommand(iNum, sStr, kID);
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
-                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2 + g_iMenuStride);
+            if (iMenuIndex != -1) {
+                string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAV = llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 if (sMessage == UPMENU) {
                     llMessageLinked(LINK_ROOT, iAuth, "menu "+g_sParentMenu, kAV);
                     return;
@@ -291,7 +304,7 @@ default {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAV);
-                        if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                        llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAV);
                     return;
                 }
@@ -302,15 +315,15 @@ default {
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex+3);
         } else if (iNum == LM_SETTING_RESPONSE) {
             integer i = llSubStringIndex(sStr, "=");
-            string sToken = llGetSubString(sStr, 0, i - 1);
-            string sValue = llGetSubString(sStr, i + 1, -1);
+            string sToken = llGetSubString(sStr, 0, i-1);
+            string sValue = llGetSubString(sStr, i+1, -1);
             i = llSubStringIndex(sToken, "_");
             if (llGetSubString(sToken, 0, i) == g_sSettingToken) {
-                sToken = llGetSubString(sToken, i + 1, -1);
+                sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "on") {
                     g_iBellOn=(integer)sValue;
                     if (g_iBellOn && g_iHasControl == FALSE && llGetAttached())
-                        llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
+                        llRequestPermissions(g_kWearer, PERMISSION_TAKE_CONTROLS);
                     else if (g_iBellOn == FALSE && g_iHasControl) {
                         llReleaseControls();
                         g_iHasControl = FALSE;
@@ -332,7 +345,8 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    control( key kID, integer nHeld, integer nChange ) {
+    control( key kID, integer nHeld, integer nChange )
+    {
         if (g_iBellOn == FALSE) return;
         if (nChange & (CONTROL_LEFT|CONTROL_RIGHT|CONTROL_DOWN|CONTROL_UP|CONTROL_FWD|CONTROL_BACK))
             llPlaySound(g_kCurrentBellSound, g_fVolume);
@@ -344,20 +358,23 @@ default {
         }
     }
 
-    collision_start(integer iNum) {
+    collision_start(integer iNum)
+    {
         if (g_iBellOn)
             llPlaySound(g_kCurrentBellSound, g_fVolume);
     }
 
-    run_time_permissions(integer nParam) {
-        if(nParam & PERMISSION_TAKE_CONTROLS){
+    run_time_permissions(integer nParam)
+    {
+        if (nParam & PERMISSION_TAKE_CONTROLS){
             llTakeControls(CONTROL_DOWN|CONTROL_UP|CONTROL_FWD|CONTROL_BACK|CONTROL_LEFT|CONTROL_RIGHT|CONTROL_ROT_LEFT|CONTROL_ROT_RIGHT, TRUE, TRUE);
             g_iHasControl = TRUE;
             g_fNextRing = llGetTime()+1.0;
         }
     }
 
-    touch_start(integer n) {
+    touch_start(integer n)
+    {
         if (g_iBellShow && g_iHide==FALSE && llListFindList(g_lBellElements, [llDetectedLinkNumber(0)]) != -1) {
             key kToucher = llDetectedKey(0);
             if (kToucher != g_kLastToucher || llGetTime() > g_fNextTouch) {
@@ -369,9 +386,10 @@ default {
         }
     }
 
-    changed(integer iChange) {
-        if(iChange & CHANGED_LINK) BuildBellElementList();
-        else if (iChange & CHANGED_INVENTORY) PrepareSounds();
+    changed(integer iChange)
+    {
+        if (iChange & CHANGED_LINK) BuildBellElementList();
+        if (iChange & CHANGED_INVENTORY) PrepareSounds();
         if (iChange & CHANGED_COLOR) {
             integer iNewHide = !(integer)llGetAlpha(ALL_SIDES);
             if (g_iHide != iNewHide) {

@@ -22,7 +22,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "2022.12.29";
+string g_sAppVersion = "2023.01.04";
 
 string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
@@ -74,6 +74,7 @@ vector g_vOffset;
 integer FACE = -1;
 
 key g_kFontTexture = NULL_KEY;
+//todo: uuid's
 list g_lFonts = [
     "Andale 1", "ccc5a5c9-6324-d8f8-e727-ced142c873da",
     "Andale 2", "8e10462f-f7e9-0387-d60b-622fa60aefbc",
@@ -85,7 +86,8 @@ list g_lFonts = [
 string g_sCharIndex;
 list g_lDecode;
 
-ResetCharIndex() {
+ResetCharIndex()
+{
     g_sCharIndex  = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`";
     g_sCharIndex += "abcdefghijklmnopqrstuvwxyz{|}~\n\n\n\n\n";
     g_lDecode= [ "%C3%87", "%C3%BC", "%C3%A9", "%C3%A2", "%C3%A4", "%C3%A0", "%C3%A5", "%C3%A7", "%C3%AA", "%C3%AB" ];
@@ -98,32 +100,36 @@ ResetCharIndex() {
     g_lDecode+=[ "%C3%B7", "%E2%89%88", "%C2%B0", "%E2%88%99", "%C2%B7", "%E2%88%9A", "%E2%81%BF", "%C2%B2", "%E2%82%AC", "" ];
 }
 
-vector GetGridOffset(integer iIndex) {
+vector GetGridOffset(integer iIndex)
+{
     integer iRow = iIndex / 10;
     integer iCol = iIndex % 10;
     return <g_vGridOffset.x + 0.1 * iCol, g_vGridOffset.y - 0.05 * iRow, g_vGridOffset.z>;
 }
 
-ShowChars(integer link,vector grkID_offset) {
+ShowChars(integer link,vector grkID_offset)
+{
     float alpha = llList2Float(llGetLinkPrimitiveParams( link,[PRIM_COLOR,FACE]),1);
     llSetLinkPrimitiveParamsFast( link,[
         PRIM_TEXTURE, FACE, (string)g_kFontTexture, g_vRepeats, grkID_offset - g_vOffset, 0.0,
         PRIM_COLOR, FACE, g_vColor, alpha]);
 }
 
-integer GetIndex(string sChar) {
-    integer  iRet=llSubStringIndex(g_sCharIndex, sChar);
-    if(iRet>=0) return iRet;
-    string sEscaped=llEscapeURL(sChar);
-    integer iFound=llListFindList(g_lDecode, [sEscaped]);
-    if(iFound<0) return 0;
+integer GetIndex(string sChar)
+{
+    integer iRet = llSubStringIndex(g_sCharIndex, sChar);
+    if (iRet >= 0) return iRet;
+    string sEscaped = llEscapeURL(sChar);
+    integer iFound = llListFindList(g_lDecode, [sEscaped]);
+    if (iFound < 0) return 0;
     return 100+iFound;
 }
 
-RenderString(integer iLink, string sStr) {
+RenderString(integer iLink, string sStr)
+{
     if(iLink <= 0) return;
-    vector GridOffset1 = GetGridOffset( GetIndex(llGetSubString(sStr, 0, 0)) );
-    ShowChars(iLink,GridOffset1);
+    vector GridOffset1 = GetGridOffset(GetIndex(llGetSubString(sStr, 0, 0)));
+    ShowChars(iLink, GridOffset1);
 }
 
 float g_fScrollTime = 0.5 ;
@@ -133,7 +139,8 @@ list g_lLabelLinks ;
 list g_lLabelBaseElements;
 list g_lGlows;
 
-integer LabelsCount() {
+integer LabelsCount()
+{
     integer ok = TRUE ;
     g_lLabelLinks = [] ;
     g_lLabelBaseElements = [];
@@ -142,23 +149,23 @@ integer LabelsCount() {
     integer iLink;
     integer iLinkCount = llGetNumberOfPrims();
     for(iLink=2; iLink <= iLinkCount; iLink++) {
-        sLabel = llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0);
-        lTmp = llParseString2List(sLabel, ["~"],[]);
-        sLabel = llList2String(lTmp,0);
-        if(sLabel == "Label") {
+        sLabel = llList2String(llGetLinkPrimitiveParams(iLink, [PRIM_NAME]), 0);
+        lTmp = llParseString2List(sLabel, ["~"], []);
+        sLabel = llList2String(lTmp, 0);
+        if (sLabel == "Label") {
             g_lLabelLinks += [0];
-            llSetLinkPrimitiveParamsFast(iLink,[PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
+            llSetLinkPrimitiveParamsFast(iLink, [PRIM_DESC,"Label~notexture~nocolor~nohide~noshiny"]);
         } else if (sLabel == "LabelBase") g_lLabelBaseElements += iLink;
     }
     g_iCharLimit = llGetListLength(g_lLabelLinks);
     for(iLink=2; iLink <= iLinkCount; iLink++) {
-        sLabel = llList2String(llGetLinkPrimitiveParams(iLink,[PRIM_NAME]),0);
-        lTmp = llParseString2List(sLabel, ["~"],[]);
-        sLabel = llList2String(lTmp,0);
-        if(sLabel == "Label") {
-            integer iLabel = (integer)llList2String(lTmp,1);
-            integer link = llList2Integer(g_lLabelLinks,iLabel);
-            if(link == 0) g_lLabelLinks = llListReplaceList(g_lLabelLinks,[iLink],iLabel,iLabel);
+        sLabel = llList2String(llGetLinkPrimitiveParams(iLink, [PRIM_NAME]), 0);
+        lTmp = llParseString2List(sLabel, ["~"], []);
+        sLabel = llList2String(lTmp, 0);
+        if (sLabel == "Label") {
+            integer iLabel = llList2Integer(lTmp, 1);
+            integer link = llList2Integer(g_lLabelLinks, iLabel);
+            if (link == 0) g_lLabelLinks = llListReplaceList(g_lLabelLinks, [iLink], iLabel, iLabel);
             else {
                 ok = FALSE;
                 llOwnerSay("Warning! Found duplicated label prims: "+sLabel+" with link numbers: "+(string)link+" and "+(string)iLink);
@@ -168,7 +175,8 @@ integer LabelsCount() {
     return ok;
 }
 
-SetLabelBaseAlpha() {
+SetLabelBaseAlpha()
+{
     if (g_iHide) return ;
     integer n;
     integer iLinkElements = llGetListLength(g_lLabelBaseElements);
@@ -178,51 +186,56 @@ SetLabelBaseAlpha() {
     }
 }
 
-UpdateGlow(integer iLink, integer iAlpha) {
+UpdateGlow(integer iLink, integer iAlpha)
+{
     if (iAlpha == 0) {
         SavePrimGlow(iLink);
         llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, 0.0]);
     } else RestorePrimGlow(iLink);
 }
 
-SavePrimGlow(integer iLink) {
-    float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink,[PRIM_GLOW,0]),0);
+SavePrimGlow(integer iLink)
+{
+    float fGlow = llList2Float(llGetLinkPrimitiveParams(iLink, [PRIM_GLOW, 0]), 0);
     integer i = llListFindList(g_lGlows,[iLink]);
-    if (i !=-1 && fGlow > 0) g_lGlows = llListReplaceList(g_lGlows,[fGlow],i+1,i+1);
-    if (i !=-1 && fGlow == 0) g_lGlows = llDeleteSubList(g_lGlows,i,i+1);
+    if (i !=-1 && fGlow > 0) g_lGlows = llListReplaceList(g_lGlows, [fGlow], i+1, i+1);
+    if (i !=-1 && fGlow == 0) g_lGlows = llDeleteSubList(g_lGlows, i, i+1);
     if (i == -1 && fGlow > 0) g_lGlows += [iLink, fGlow];
 }
 
-RestorePrimGlow(integer iLink) {
+RestorePrimGlow(integer iLink)
+{
     integer i = llListFindList(g_lGlows,[iLink]);
     if (i != -1) llSetLinkPrimitiveParamsFast(iLink, [PRIM_GLOW, ALL_SIDES, llList2Float(g_lGlows, i+1)]);
 }
 
-SetLabel() {
+SetLabel()
+{
     string sText ;
     if (g_iShow) sText = g_sLabelText;
     string sPadding;
     if (g_iScroll) {
-        while(llStringLength(sPadding) < g_iCharLimit) sPadding += " ";
+        while (llStringLength(sPadding) < g_iCharLimit) sPadding += " ";
         g_sScrollText = sPadding + sText;
         llSetTimerEvent(g_fScrollTime);
     } else {
         g_sScrollText = "";
         llSetTimerEvent(0.0);
-        while(llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
+        while (llStringLength(sPadding + sText + sPadding) < g_iCharLimit) sPadding += " ";
         sText = sPadding + sText;
         integer iCharPosition;
-        for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
+        for (iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
             RenderString(llList2Integer(g_lLabelLinks, iCharPosition), llGetSubString(sText, iCharPosition, iCharPosition));
     }
 }
 
-SetOffsets(key font) {
+SetOffsets(key font)
+{
     integer link = llList2Integer(g_lLabelLinks, 0);
     list params = llGetLinkPrimitiveParams(link, [PRIM_DESC, PRIM_TYPE]);
     string desc = llGetSubString(llList2String(params, 0), 0, 4);
     if (desc == "Label") {
-        integer t = (integer)llList2String(params, 1);
+        integer t = llList2Integer(params, 1);
         if (t == PRIM_TYPE_BOX) {
             if (font == NULL_KEY) font = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe";
             g_vGridOffset = <-0.45, 0.425, 0.0>;
@@ -238,7 +251,7 @@ SetOffsets(key font) {
         }
         integer o = llListFindList(g_lFonts, [(string)g_kFontTexture]);
         integer n = llListFindList(g_lFonts, [(string)font]);
-        if ((~o) && o != n) {
+        if (o != -1 && o != n) {
             if (n < 8 && o == 9) g_vOffset.y += 0.0015;
             else if (o < 8 && n == 9) g_vOffset.y -= 0.0015;
         }
@@ -246,15 +259,17 @@ SetOffsets(key font) {
     g_kFontTexture = font;
 }
 
-Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType) {
+Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string iMenuType)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, iMenuType], iIndex, iIndex + g_iMenuStride - 1);
     else g_lMenuIDs += [kRCPT, kMenuID, iMenuType];
 }
 
-MainMenu(key kID, integer iAuth) {
+MainMenu(key kID, integer iAuth)
+{
     list lButtons= [g_sTextMenu, g_sColorMenu, g_sFontMenu];
     if (g_iShow) lButtons += ["☑ Show"];
     else lButtons += ["☐ Show"];
@@ -264,27 +279,31 @@ MainMenu(key kID, integer iAuth) {
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"main");
 }
 
-TextMenu(key kID, integer iAuth) {
+TextMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nLabel\n\n- Submit the new label in the field below.\n- Submit a few spaces to clear the label.\n- Submit a blank field to go back to " + g_sSubMenu + ".";
     Dialog(kID, sPrompt, [], [], 0, iAuth,"textbox");
 }
 
-ColorMenu(key kID, integer iAuth) {
+ColorMenu(key kID, integer iAuth)
+{
     string sPrompt = "\n\nSelect a colour from the list";
     Dialog(kID, sPrompt, ["colormenu please"], [UPMENU], 0, iAuth,"color");
 }
 
-FontMenu(key kID, integer iAuth) {
-    list lButtons=llList2ListStrided(g_lFonts,0,-1,2);
+FontMenu(key kID, integer iAuth)
+{
+    list lButtons=llList2ListStrided(g_lFonts, 0, -1, 2);
     string sPrompt = "\nLabel\n\nSelect the font for the %DEVICETYPE%'s label.";
 
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth,"font");
 }
 
-UserCommand(integer iAuth, string sStr, key kAv) {
+UserCommand(integer iAuth, string sStr, key kAv)
+{
     string sLowerStr = llToLower(sStr);
     if (sStr == "rm label") {
-        if (kAv!=g_kWearer && iAuth!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kAv);
+        if (kAv != g_kWearer && iAuth != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kAv);
         else Dialog(kAv, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth,"rmlabel");
     } else if (iAuth == CMD_OWNER) {
         if (sLowerStr == "menu label" || sLowerStr == "label") {
@@ -301,12 +320,12 @@ UserCommand(integer iAuth, string sStr, key kAv) {
                 string font = llDumpList2String(lParams, " ");
                 integer iIndex = llListFindList(g_lFonts, [font]);
                 if (iIndex != -1) {
-                    SetOffsets((key)llList2String(g_lFonts, iIndex + 1));
+                    SetOffsets(llList2Key(g_lFonts, iIndex+1));
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "font=" + (string)g_kFontTexture, "");
                 }
                 else FontMenu(kAv, iAuth);
             } else if (sAction == "color") {
-                string sColor= llDumpList2String(llDeleteSubList(lParams,0,1)," ");
+                string sColor= llDumpList2String(llDeleteSubList(lParams, 0, 1), " ");
                 if (sColor != "") {
                     g_vColor=(vector)sColor;
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"color="+(string)g_vColor, "");
@@ -324,7 +343,7 @@ UserCommand(integer iAuth, string sStr, key kAv) {
                 else if (sValue == "off") g_iScroll = FALSE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"scroll="+(string)g_iScroll, "");
             } else {
-                g_sLabelText = llStringTrim(llDumpList2String(llDeleteSubList(lParams,0,0)," "),STRING_TRIM);
+                g_sLabelText = llStringTrim(llDumpList2String(llDeleteSubList(lParams, 0, 0), " "), STRING_TRIM);
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "text=" + g_sLabelText, "");
                 if (llStringLength(g_sLabelText) > g_iCharLimit) {
                     string sDisplayText = llGetSubString(g_sLabelText, 0, g_iCharLimit-1);
@@ -343,8 +362,10 @@ UserCommand(integer iAuth, string sStr, key kAv) {
     }
 }
 
-default {
-    state_entry() {
+default
+{
+    state_entry()
+    {
         g_kWearer = llGetOwner();
         LabelsCount();
         SetOffsets(NULL_KEY);
@@ -357,11 +378,13 @@ default {
         SetLabel();
     }
 
-    on_rez(integer iNum) {
+    on_rez(integer iNum)
+    {
         llResetScript();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID);
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
@@ -382,13 +405,13 @@ default {
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
                 g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 if (sMenuType=="main") {
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == g_sTextMenu) TextMenu(kAv, iAuth);
@@ -427,7 +450,7 @@ default {
                         if (g_sScrollText) UserCommand(iAuth, "label scroll off", kAv);
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+g_sSubMenu+" App has been removed.", kAv);
-                    if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                        llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+g_sSubMenu+" App remains installed.", kAv);
                 }
             }
@@ -440,7 +463,8 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    timer() {
+    timer()
+    {
         string sText = llGetSubString(g_sScrollText, g_iSctollPos, -1);
         integer iCharPosition;
         for(iCharPosition=0; iCharPosition < g_iCharLimit; iCharPosition++)
@@ -449,7 +473,8 @@ default {
         if (g_iSctollPos > llStringLength(g_sScrollText)) g_iSctollPos = 0 ;
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if(iChange & CHANGED_LINK) {
             if (LabelsCount()) SetLabel();
         }
@@ -461,5 +486,5 @@ default {
             }
         }
     }
-}
 
+}
