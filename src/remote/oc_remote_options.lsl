@@ -80,45 +80,49 @@ integer g_iMaxRows = 4; // maximal Rows in Columns
 
 //**************************
 
-key Dialog(key kRcpt, string sPrompt, list lChoices, list lUtilityButtons, integer iPage) {
+key Dialog(key kRcpt, string sPrompt, list lChoices, list lUtilityButtons, integer iPage)
+{
     key kID = llGenerateKey();
     llMessageLinked(LINK_SET, DIALOG, (string)kRcpt + "|" + sPrompt + "|" + (string)iPage +
  "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`"), kID);
     return kID;
 }
 
-FindButtons() { // collect buttons names & links
+// collect buttons names & links
+FindButtons()
+{
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for texture
     g_lPrimOrder = [0, 1];  //  '1' - root prim
     integer i;
-    for (i=2; i<llGetNumberOfPrims()+1; ++i) {
+    for (i = 2; i < llGetNumberOfPrims()+1; ++i) {
         g_lButtons += llGetLinkName(i);
         g_lPrimOrder += i;
     }
     g_iMaxRows = llFloor(llSqrt(llGetListLength(g_lButtons)-1));
 }
 
-PlaceTheButton(float fYoff, float fZoff) {
+PlaceTheButton(float fYoff, float fZoff)
+{
     list lPrimOrder = llDeleteSubList(g_lPrimOrder, 0, 0);
     integer n = llGetListLength(lPrimOrder);
     vector pos ;
     integer i;
     float fXoff = 0.01; // small X offset
-    for (i=1; i < n; ++i) {
+    for (i = 1; i < n; ++i) {
         if (g_iColumn == 0) { // Column
-            if (!g_iLayout) pos = <fXoff, fYoff*(i-(i/(n/g_iRows))*(n/g_iRows)), fZoff*(i/(n/g_iRows))>;
+            if (g_iLayout == 0) pos = <fXoff, fYoff*(i-(i/(n/g_iRows))*(n/g_iRows)), fZoff*(i/(n/g_iRows))>;
             else pos = <fXoff, fYoff*(i/(n/g_iRows)), fZoff*(i-(i/(n/g_iRows))*(n/g_iRows))>;
         } else if (g_iColumn == 1) { // Alternate
-            if (!g_iLayout) pos = <fXoff, fYoff*(i/g_iRows), fZoff*(i-(i/g_iRows)*g_iRows)>;
+            if (g_iLayout == 0) pos = <fXoff, fYoff*(i/g_iRows), fZoff*(i-(i/g_iRows)*g_iRows)>;
             else  pos = <fXoff, fYoff*(i-(i/g_iRows)*g_iRows), fZoff*(i/g_iRows)>;
         }
-        llSetLinkPrimitiveParamsFast(llList2Integer(lPrimOrder,i),[PRIM_POSITION,pos]);
+        llSetLinkPrimitiveParamsFast(llList2Integer(lPrimOrder, i), [PRIM_POSITION, pos]);
     }
 }
 
 
-DoStyle(string style) {
-
+DoStyle(string style)
+{
     list lTextures = [
     "[ Dark ]",
     "Minimize~button_dark_opensim",
@@ -162,26 +166,26 @@ DoStyle(string style) {
 
     integer i;
     while (i < llGetListLength(lTextures)) {
-        string sData = llStringTrim(llList2String(lTextures,i),STRING_TRIM);
-        if (sData!="" && llSubStringIndex(sData,"#") != 0) {
-            if (llGetSubString(sData,0,0) == "[") {
-                sData = llGetSubString(sData,llSubStringIndex(sData,"[")+1,llSubStringIndex(sData,"]")-1);
-                sData = llStringTrim(sData,STRING_TRIM);
-                if (style=="initialize") {  //reading notecard to determine style names
+        string sData = llStringTrim(llList2String(lTextures, i), STRING_TRIM);
+        if (sData != "" && llSubStringIndex(sData, "#") != 0) {
+            if (llGetSubString(sData, 0, 0) == "[") {
+                sData = llGetSubString(sData,llSubStringIndex(sData, "[")+1, llSubStringIndex(sData, "]")-1);
+                sData = llStringTrim(sData, STRING_TRIM);
+                if (style == "initialize") {  //reading notecard to determine style names
                     g_lStyles += sData;
-                } else if (sData==style) {  //we just found our section
-                    style="processing";
+                } else if (sData == style) {  //we just found our section
+                    style = "processing";
                     g_sCurrentTheme = sData;
                     llMessageLinked(LINK_SET, 112, g_sCurrentTheme, "");
-                } else if (style=="processing") {  //we just found the start of the next section, we're
+                } else if (style == "processing") {  //we just found the start of the next section, we're
                     return;
                 }
-            } else if (style=="processing") {
-                list lParams = llParseStringKeepNulls(sData,["~"],[]);
-                string sButton = llStringTrim(llList2String(lParams,0),STRING_TRIM);
-                integer link = llListFindList(g_lButtons,[sButton]);
+            } else if (style == "processing") {
+                list lParams = llParseStringKeepNulls(sData, ["~"], []);
+                string sButton = llStringTrim(llList2String(lParams, 0),STRING_TRIM);
+                integer link = llListFindList(g_lButtons, [sButton]);
                 if (link > 0) {
-                    sData = llStringTrim(llList2String(lParams,1),STRING_TRIM);
+                    sData = llStringTrim(llList2String(lParams, 1), STRING_TRIM);
                     if (sData != "" && sData != ",") {
                         if (sButton == "Picture") llMessageLinked(LINK_SET, 111, sData, "");
                         else llSetLinkPrimitiveParamsFast(link,[PRIM_TEXTURE, ALL_SIDES, sData , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0, PRIM_COLOR, ALL_SIDES, g_vColor, 1.0]);
@@ -193,16 +197,22 @@ DoStyle(string style) {
     }
 }
 
-DefinePosition() {
+DefinePosition()
+{
     integer iPosition = llListFindList(g_lAttachPoints, [llGetAttached()]);
     vector size = llGetScale();
 //  Allows manual repositioning, without resetting it, if needed
     if (iPosition != g_iSPosition && iPosition != -1) { //do this only when attached to the hud
         vector offset = <0, size.y/2+g_Yoff, size.z/2+g_Zoff>;
-        if (iPosition==0||iPosition==1||iPosition==2) offset.z = -offset.z;
-        if (iPosition==2||iPosition==5) offset.y = -offset.y;
-        if (iPosition==1||iPosition==4) { g_iLayout = 0; g_iVertical = FALSE;}
-        else { g_iLayout = 1; g_iVertical = TRUE; }
+        if (iPosition==0 || iPosition==1 || iPosition==2) offset.z = -offset.z;
+        if (iPosition==2 || iPosition==5) offset.y = -offset.y;
+        if (iPosition==1 || iPosition==4) {
+            g_iLayout = 0;
+            g_iVertical = FALSE;
+        } else {
+            g_iLayout = 1;
+            g_iVertical = TRUE;
+        }
         llSetPos(offset); // Position the Root Prim on screen
         g_iSPosition = iPosition;
     }
@@ -216,13 +226,15 @@ DefinePosition() {
     }
 }
 
-DoButtonOrder() {   // -- Set the button order and reset display
+// -- Set the button order and reset display
+DoButtonOrder()
+{
     integer iOldPos = llList2Integer(g_lPrimOrder,g_iOldPos);
     integer iNewPos = llList2Integer(g_lPrimOrder,g_iNewPos);
     integer i = 2;
     list lTemp = [0,1];
-    for(;i<llGetListLength(g_lPrimOrder);++i) {
-        integer iTempPos = llList2Integer(g_lPrimOrder,i);
+    for(i = 2; i < llGetListLength(g_lPrimOrder); ++i) {
+        integer iTempPos = llList2Integer(g_lPrimOrder, i);
         if (iTempPos == iOldPos) lTemp += [iNewPos];
         else if (iTempPos == iNewPos) lTemp += [iOldPos];
         else lTemp += [iTempPos];
@@ -234,8 +246,8 @@ DoButtonOrder() {   // -- Set the button order and reset display
 }
 
 
-DoMenu(string sMenu) {
-
+DoMenu(string sMenu)
+{
     string sPrompt;
     list lButtons;
     list lUtils = [UPMENU];
@@ -270,11 +282,11 @@ DoMenu(string sMenu) {
         sPrompt = "\nThis is the order menu, simply select the\n";
         sPrompt += "button which you want to re-order.\n\n";
         integer i;
-        for (i=2;i<llGetListLength(g_lPrimOrder);++i) {
-            integer pos = llList2Integer(g_lPrimOrder,i);
-            lButtons += llList2List(g_lButtons,pos,pos);
+        for (i = 2; i < llGetListLength(g_lPrimOrder); ++i) {
+            integer pos = llList2Integer(g_lPrimOrder, i);
+            lButtons += llList2List(g_lButtons, pos, pos);
         }
-        lUtils = ["Reset",UPMENU];
+        lUtils = ["Reset", UPMENU];
     }
     if (sMenu == g_sHudMenu) { // Main
         sPrompt = "\nCustomize your Remote!";
@@ -321,7 +333,7 @@ StoreSettings()
     llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
     // Store button order:
     integer idx = llListFindList(g_lButtons, "Hudmenu");
-    if (~idx) {
+    if (idx != -1) {
         string sOrder = osReplaceString(llList2CSV(g_lPrimOrder), " ", "", -1, 0);
         llSetLinkPrimitiveParamsFast(idx, [PRIM_DESC, sOrder]);
     }
@@ -345,7 +357,7 @@ RestoreSettings()
     }
     // Restore button order:
     integer idx = llListFindList(g_lButtons, "Hudmenu");
-    if (~idx) {
+    if (idx != -1) {
         string sDesc = llList2String(llGetLinkPrimitiveParams(idx, [PRIM_DESC]), 0);
         if (sDesc == "Primitive" || sDesc == "(No Description)" || sDesc == "" || llToLower(sDesc) == "hudmenu") return;
         g_lPrimOrder = llParseString2List(sDesc, [","], []);
@@ -354,7 +366,8 @@ RestoreSettings()
 
 default
 {
-    state_entry() {
+    state_entry()
+    {
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
         g_kOwner = llGetOwner();
         //llSleep(1.0);
@@ -366,11 +379,13 @@ default
        // llOwnerSay("Finalizing HUD Reset... please wait a few seconds so all menus have time to initialize.");
     }
 
-    on_rez(integer i) {
+    on_rez(integer i)
+    {
         if (g_kOwner != llGetOwner()) llResetScript();
     }
 
-    attach(key kAttached) {
+    attach(key kAttached)
+    {
         integer iAttachPoint = llGetAttached();
 //      if being detached
         if (kAttached == NULL_KEY)
@@ -385,13 +400,14 @@ default
             DefinePosition();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == SUBMENU && sStr == g_sHudMenu) DoMenu(g_sHudMenu);
         else if (iNum == DIALOG_RESPONSE && kID == g_kMenuID) {
             list lParams = llParseString2List(sStr, ["|"], []);
-            //kID = (key)llList2String(lParams, 0);
+            //kID = llList2Key(lParams, 0);
             string sButton = llList2String(lParams, 1);
-            //integer iPage = (integer)llList2String(lParams, 2);
+            //integer iPage = llList2Integer(lParams, 2);
             if (g_sCurrentMenu == g_sHudMenu) {   // -- Inside the 'Options' menu, or 'submenu'
                 // If we press the 'Back' and we are inside the Options menu, go back to OwnerHUD menu
                 if (sButton == UPMENU) {
@@ -403,7 +419,7 @@ default
                     llSetObjectDesc("");
                     // Reset button order:
                     integer idx = llListFindList(g_lButtons, "Hudmenu");
-                    if (~idx) {
+                    if (idx != -1) {
                         string sOrder = "hudmenu";
                         llSetLinkPrimitiveParamsFast(idx, [PRIM_DESC, sOrder]);
                     }
@@ -443,7 +459,8 @@ default
         }
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_LINK) llResetScript();
     }
