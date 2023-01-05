@@ -81,20 +81,23 @@ string g_sObjectName;
 
 // A wrapper around llSetScriptState to avoid the problem where it says it can't
 // find scripts that are already not running.
-DisableScript(string sName) {
+DisableScript(string sName)
+{
     if (llGetInventoryType(sName) == INVENTORY_SCRIPT) {
         if (llGetScriptState(sName))
             llSetScriptState(sName, FALSE);
     }
 }
 
-Say(string sStr) {
+Say(string sStr)
+{
     llSetObjectName("Installer");
     llOwnerSay(sStr);
     llSetObjectName(g_sObjectName);
 }
 
-DoBundle() {
+DoBundle()
+{
     // tell bundle slave to load the bundle.
     string card = llList2String(g_lBundles, g_iBundleIndex);
     string mode = llList2String(g_lBundles, g_iBundleIndex + 1);
@@ -102,18 +105,21 @@ DoBundle() {
     llMessageLinked(LINK_SET, DO_BUNDLE, bundlemsg, "");
 }
 
-ReadName() {
+ReadName()
+{
     // try to keep object's name in sync with ".name" notecard.
     if (llGetInventoryType(".name") == INVENTORY_NOTECARD) {
         g_kNameID = llGetNotecardLine(".name", 0);
     }
 }
 
-SetFloatText() {
+SetFloatText()
+{
     llSetText(g_sObjectType+"\n\n "+g_sName, <1,1,1>, 1.0);
 }
 
-Particles(key kTarget) {
+Particles(key kTarget)
+{
     integer i = llGetNumberOfPrims();
     vector vParticleColor;
     do {
@@ -146,7 +152,8 @@ Particles(key kTarget) {
     ]);
 }
 
-InitiateInstallation() {
+InitiateInstallation()
+{
     integer iChan;
     if (g_initChannel == -7483213) {
         iChan = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1))); //collar+remote
@@ -158,18 +165,20 @@ InitiateInstallation() {
         iChan = -llAbs((integer)("0x" + llGetSubString(llGetOwner(),30,-1))); // AO
         llWhisper(iChan,"-.. --- / .- ---"); //AO command
     }
-    llTriggerSound("sound_installer_start",1.0);
+    llTriggerSound("sound_installer_start", 1.0);
 }
 
-default {
-    state_entry() {
+default
+{
+    state_entry()
+    {
         llPreloadSound("sound_installer_start");
         llPreloadSound("sound_installer_finish");
         llSetTimerEvent(300.0);
         ReadName();
         g_sObjectName = llGetObjectName();
-        if (llGetInventoryType("oc_ao")==INVENTORY_SCRIPT) g_initChannel = -7483220;
-        else if (llGetInventoryType("oc_remote_sys")==INVENTORY_SCRIPT) g_initChannel = -7483210;
+        if (llGetInventoryType("oc_ao") == INVENTORY_SCRIPT) g_initChannel = -7483220;
+        else if (llGetInventoryType("oc_remote_sys") == INVENTORY_SCRIPT) g_initChannel = -7483210;
 
         llListen(g_initChannel, "", "", "");
         // set all scripts except self to not running
@@ -185,23 +194,24 @@ default {
                     DisableScript(sName);
             } else if (sType == INVENTORY_NOTECARD) {
                 // add card to bundle list if it's a bundle
-                if (!llSubStringIndex(sName, "BUNDLE_")) {
+                if (llSubStringIndex(sName, "BUNDLE_") == 0) {
                     list lParts = llParseString2List(sName, ["_"], []);
                     g_lBundles += [sName, llList2String(lParts, -1)];
-                    lBundleNumbers += llList2List(lParts,1,1);
+                    lBundleNumbers += llList2List(lParts, 1, 1);
                 }
             }
-        } while (i);
-        if ((~llListFindList(lBundleNumbers,["23"])) || (~llListFindList(lBundleNumbers,["42"]))
-            || (~llListFindList(lBundleNumbers,["00"]))) g_iIsUpdate = TRUE;
-        g_lBundles = llListSort(g_lBundles,2,TRUE);
+        } while (i > 0);
+        if (llListFindList(lBundleNumbers,["23"]) != -1 || llListFindList(lBundleNumbers,["42"]) != -1
+            || llListFindList(lBundleNumbers,["00"]) != -1) g_iIsUpdate = TRUE;
+        g_lBundles = llListSort(g_lBundles, 2, TRUE);
         SetFloatText();
         llParticleSystem([]);
         if (llGetInventoryType(g_sInfoCard) == INVENTORY_NOTECARD)
-            g_kInfoID = llGetNotecardLine(g_sInfoCard,0);
+            g_kInfoID = llGetNotecardLine(g_sInfoCard, 0);
     }
 
-    touch_start(integer iNumber) {
+    touch_start(integer iNumber)
+    {
         if (llDetectedKey(0) != llGetOwner()) return;
         if (g_iDone) {
             g_iDone = FALSE;
@@ -210,7 +220,8 @@ default {
         InitiateInstallation();
     }
 
-    listen(integer iChannel, string sName, key kID, string sMsg) {
+    listen(integer iChannel, string sName, key kID, string sMsg)
+    {
         if (llGetOwnerKey(kID) != llGetOwner()) return;
         //Debug(llDumpList2String([sName, sMsg], ", "));
         if (iChannel == g_initChannel) {
@@ -235,7 +246,7 @@ default {
                 g_kCollarKey = kID;
                 g_iSecureChannel = (integer)llFrand(-2000000000 + 1);
                 if(g_iSecureChannel == 0) g_iSecureChannel = -1234567;
-                if (!g_iIsUpdate) g_iSecureChannel = -g_iSecureChannel;
+                if (g_iIsUpdate == FALSE) g_iSecureChannel = -g_iSecureChannel;
                 llListen(g_iSecureChannel, "", g_kCollarKey, "");
                 llRemoteLoadScriptPin(g_kCollarKey, g_sShim, g_iPin, TRUE, g_iSecureChannel);
             }
@@ -249,7 +260,8 @@ default {
     }
 
     // when we get a BUNDLE_DONE message, move to the next bundle
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == BUNDLE_DONE) {
             // see if there's another bundle
             integer iCount = llGetListLength(g_lBundles);
@@ -272,7 +284,8 @@ default {
         }
     }
 
-    timer() {
+    timer()
+    {
         if (g_iDone) {
             if (g_iInstallOnRez) SetFloatText();
             else llResetScript();
@@ -281,31 +294,34 @@ default {
         if (llVecDist(llGetPos(),llList2Vector(llGetObjectDetails(llGetOwner(),[OBJECT_POS]),0)) > 30) llDie();
     }
 
-    on_rez(integer iStartParam) {
+    on_rez(integer iStartParam)
+    {
         llResetScript();
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
     // Resetting on inventory change ensures that the bundle list is
     // kept current, and that the .name card is re-read if it changes.
         if (iChange & CHANGED_INVENTORY) llResetScript();
     }
 
-    dataserver(key kID, string sData) {
+    dataserver(key kID, string sData)
+    {
         if (kID == g_kNameID) {
             // make sure that object name matches this card.
-            integer index = llSubStringIndex(sData,"&");
-            g_sBuildVersion = llStringTrim(llGetSubString(sData,index+1,-1),STRING_TRIM);
+            integer index = llSubStringIndex(sData, "&");
+            g_sBuildVersion = llStringTrim(llGetSubString(sData, index+1, -1), STRING_TRIM);
             if ((integer)g_sBuildVersion == 0 && g_sBuildVersion != "AppInstall") {
                 llOwnerSay("Invalid .name notecard, please fix!");
                 return;
             }
-            sData = llStringTrim(llGetSubString(sData,0, index-1),STRING_TRIM);
+            sData = llStringTrim(llGetSubString(sData, 0, index-1), STRING_TRIM);
             list lNameParts = llParseString2List(sData, [" - "], []);
             g_sObjectName = sData;
             llSetObjectName(sData);
-            g_sName = llList2String(lNameParts,1);
-            g_sObjectType = llList2String(lNameParts,0);
+            g_sName = llList2String(lNameParts, 1);
+            g_sObjectType = llList2String(lNameParts, 0);
             SetFloatText();
             if (g_iInstallOnRez) InitiateInstallation();
         }

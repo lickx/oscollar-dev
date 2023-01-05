@@ -113,24 +113,28 @@ integer g_iRLVOn;
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
+Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kID, kMenuID, sName];
 }
 
-Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
-    llMessageLinked(LINK_DIALOG,NOTIFY,(string)iAlsoNotifyWearer+sMsg,kID);
+Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
+{
+    llMessageLinked(LINK_DIALOG, NOTIFY, (string)iAlsoNotifyWearer+sMsg, kID);
 }
 
-StuffMenu(key kID, integer iAuth) {
+StuffMenu(key kID, integer iAuth)
+{
     Dialog(kID, "\nLegacy RLV Stuff\t"+g_sAppVersion+"\n", ["Misc","Touch","Talk","Travel","View"], [UPMENU], 0, iAuth, "rlvstuff");
 }
 
-Menu(key kID, integer iAuth, string sMenuName) {
-    if (!g_iRLVOn) {
+Menu(key kID, integer iAuth, string sMenuName)
+{
+    if (g_iRLVOn == FALSE) {
         Notify(kID, "RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.", FALSE);
         llMessageLinked(LINK_SET, iAuth, "menu "+g_sParentMenu, kID);
         return;
@@ -138,11 +142,11 @@ Menu(key kID, integer iAuth, string sMenuName) {
     integer n;
     string sPrompt;
     list lButtons;
-    n = llListFindList(g_lMenuHelpMap,[sMenuName]);
-    if (~n) sPrompt="\nLegacy RLV "+llList2String(g_lMenuHelpMap,n+1)+"\n";
+    n = llListFindList(g_lMenuHelpMap, [sMenuName]);
+    if (n != -1) sPrompt = "\nLegacy RLV " + llList2String(g_lMenuHelpMap, n+1) + "\n";
     integer iStop = llGetListLength(g_lRLVcmds);
-    for (n = 0; n < iStop; n+=g_lRLVcmds_stride) {
-        if (llList2String(g_lRLVcmds,n)==sMenuName){
+    for (n = 0; n < iStop; n += g_lRLVcmds_stride) {
+        if (llList2String(g_lRLVcmds, n) == sMenuName){
             string sCmd = llList2String(g_lRLVcmds, n+1);
             string sPretty = llList2String(g_lRLVcmds, n+2);
             string desc = llList2String(g_lRLVcmds, n+3);
@@ -167,14 +171,16 @@ Menu(key kID, integer iAuth, string sMenuName) {
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, sMenuName);
 }
 
-SetSetting(string sCategory, string sOption, string sValue) {
-    integer iIndex = llListFindList(g_lSettings,[sCategory,sOption]);
-    if (~iIndex) g_lSettings = llListReplaceList(g_lSettings, [sCategory, sOption, sValue], iIndex, iIndex+2);
+SetSetting(string sCategory, string sOption, string sValue)
+{
+    integer iIndex = llListFindList(g_lSettings, [sCategory, sOption]);
+    if (iIndex != -1) g_lSettings = llListReplaceList(g_lSettings, [sCategory, sOption, sValue], iIndex, iIndex+2);
     else g_lSettings += [sCategory, sOption, sValue];
-    if (! ~llListFindList(g_lChangedCategories,[sCategory])) g_lChangedCategories+=sCategory;
+    if (llListFindList(g_lChangedCategories,[sCategory]) == -1) g_lChangedCategories+=sCategory;
 }
 
-UpdateSettings() {
+UpdateSettings()
+{
     integer iSettingsLength = llGetListLength(g_lSettings);
     if (iSettingsLength > 0) {
         list lTempSettings;
@@ -183,47 +189,51 @@ UpdateSettings() {
         integer n;
         list lNewList;
         for (n = 0; n < iSettingsLength; n = n + 3) {
-            sTempRLVSetting=llList2String(g_lSettings, n+1);
-            sTempRLVValue=llList2String(g_lSettings, n + 2);
+            sTempRLVSetting = llList2String(g_lSettings, n+1);
+            sTempRLVValue = llList2String(g_lSettings, n + 2);
             lNewList += [ sTempRLVSetting+ "=" + sTempRLVValue];
-            if (sTempRLVValue!="y")lTempSettings+=[sTempRLVSetting,sTempRLVValue];
+            if (sTempRLVValue != "y") lTempSettings += [sTempRLVSetting, sTempRLVValue];
         }
         llMessageLinked(LINK_RLV, RLV_CMD, llDumpList2String(lNewList, ","), NULL_KEY);
     }
 }
 
-SaveSettings() {
+SaveSettings()
+{
     list lCategorySettings;
-    while (llGetListLength(g_lChangedCategories)) {
-        lCategorySettings=[];
+    while (llGetListLength(g_lChangedCategories))
+    {
+        lCategorySettings = [];
         integer numSettings=llGetListLength(g_lSettings);
         while (numSettings) {
             numSettings -= 3;
-            string sCategory=llList2String(g_lSettings,numSettings);
-            if (sCategory==llList2String(g_lChangedCategories,-1)) {
-                lCategorySettings+=[llList2String(g_lSettings,numSettings+1),llList2String(g_lSettings,numSettings+2)];
+            string sCategory = llList2String(g_lSettings, numSettings);
+            if (sCategory == llList2String(g_lChangedCategories, -1)) {
+                lCategorySettings += [llList2String(g_lSettings,numSettings+1),llList2String(g_lSettings,numSettings+2)];
             }
         }
-        if (llGetListLength(lCategorySettings)>0) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, llList2String(g_lChangedCategories,-1) + "List=" + llDumpList2String(lCategorySettings, ","), "");
+        if (llGetListLength(lCategorySettings) > 0) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, llList2String(g_lChangedCategories,-1) + "List=" + llDumpList2String(lCategorySettings, ","), "");
         else llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, llList2String(g_lChangedCategories,-1) + "List", "");
-        g_lChangedCategories=llDeleteSubList(g_lChangedCategories,-1,-1);
+        g_lChangedCategories=llDeleteSubList(g_lChangedCategories, -1, -1);
     }
 }
 
-ClearSettings(string _category) {
+ClearSettings(string _category)
+{
     integer numSettings = llGetListLength(g_lSettings);
     while (numSettings) {
         numSettings -= 3;
-        string sCategory = llList2String(g_lSettings,numSettings);
+        string sCategory = llList2String(g_lSettings, numSettings);
         if (sCategory == _category || _category == "") {
-            g_lSettings = llDeleteSubList(g_lSettings,numSettings,numSettings+2);
-            if (llListFindList(g_lChangedCategories,[sCategory])==-1) g_lChangedCategories+=sCategory;
+            g_lSettings = llDeleteSubList(g_lSettings, numSettings, numSettings+2);
+            if (llListFindList(g_lChangedCategories,[sCategory]) == -1) g_lChangedCategories += sCategory;
         }
     }
     SaveSettings();
 }
 
-UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
+UserCommand(integer iNum, string sStr, key kID, string fromMenu)
+{
     if (iNum > CMD_WEARER) return;
     sStr=llStringTrim(sStr,STRING_TRIM);
     string sStrLower=llToLower(sStr);
@@ -245,8 +255,8 @@ UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
             string sBehavior = llList2String(llParseString2List(sThisItem, ["="], []), 0);
             integer iBehaviourIndex=llListFindList(g_lRLVcmds, [sBehavior]);
 
-            if (~iBehaviourIndex) {
-                string sCategory=llList2String(g_lRLVcmds,iBehaviourIndex-1);
+            if (iBehaviourIndex != -1) {
+                string sCategory=llList2String(g_lRLVcmds, iBehaviourIndex-1);
                 if (llGetSubString(sCategory,-1,-1)=="_"){  //
                     if (iNum == CMD_WEARER) llOwnerSay("Sorry, but RLV commands may only be given by owner, secowner, or group (if set).");
                     else {
@@ -261,21 +271,25 @@ UserCommand(integer iNum, string sStr, key kID, string fromMenu) {
             UpdateSettings();
             SaveSettings();
         }
-        if (fromMenu!="") Menu(kID, iNum, fromMenu);
+        if (fromMenu != "") Menu(kID, iNum, fromMenu);
     }
 }
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         if (g_kWearer != llGetOwner()) llResetScript();
         llSetTimerEvent(0.0);
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|Stuff", "");
         else if (iNum >= CMD_OWNER && iNum <= CMD_EVERYONE) UserCommand(iNum, sStr, kID, "");
@@ -283,16 +297,16 @@ default {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
-            string category = llList2String(llParseString2List(sToken,["_"],[]),0)+"_";
-            if (~llListFindList(g_lMenuHelpMap,[category])){
-                sToken = llList2String(llParseString2List(sToken,["_"],[]),1);
+            string category = llList2String(llParseString2List(sToken,["_"], []), 0)+"_";
+            if (llListFindList(g_lMenuHelpMap,[category]) != -1) {
+                sToken = llList2String(llParseString2List(sToken,["_"], []), 1);
                 if (sToken == "List") {
                     ClearSettings(category);
                     list lNewSettings = llParseString2List(sValue, [","], []);
-                    while (llGetListLength(lNewSettings)) {
-                        list lTempSettings = [category,llList2String(lNewSettings,-2),llList2String(lNewSettings,-1)];
+                    while (llGetListLength(lNewSettings) > 0) {
+                        list lTempSettings = [category, llList2String(lNewSettings, -2), llList2String(lNewSettings, -1)];
                         g_lSettings += lTempSettings;
-                        lNewSettings = llDeleteSubList(lNewSettings,-2,-1);
+                        lNewSettings = llDeleteSubList(lNewSettings, -2, -1);
                     }
                     UpdateSettings();
                 }
@@ -305,19 +319,19 @@ default {
         else if (iNum == RLV_ON) g_iRLVOn = TRUE;
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
-                string sMenu=llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                integer iAuth = llList2Integer(lMenuParams, 3);
+                string sMenu=llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 if (sMenu == "rmrlvstuff") {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_RLV, MENUNAME_REMOVE, g_sParentMenu + "|Stuff", "");
                         llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Legacy RLV Stuff has been removed.", kAv);
                         ClearSettings("");
-                        if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
+                        llRemoveInventory(llGetScriptName());
                     } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Legacy RLV Stuff remains installed.", kAv);
                 } else if (sMenu == "rlvstuff") {
                     if (sMessage == UPMENU) llMessageLinked(LINK_RLV, iAuth, "menu "+g_sParentMenu, kAv);
@@ -326,7 +340,7 @@ default {
                 else {
                     list lParams = llParseString2List(sMessage, [" "], []);
                     string sSwitch = llList2String(lParams, 0);
-                    string sCmd = llDumpList2String(llDeleteSubList(lParams,0,0)," ");
+                    string sCmd = llDumpList2String(llDeleteSubList(lParams, 0, 0), " ");
                     integer iIndex = llListFindList(g_lRLVcmds, [sCmd]);
                     if (sCmd == "All") {
                         string ONOFF;
@@ -335,14 +349,14 @@ default {
                         string sOut;
                         integer n;
                         integer iStop = llGetListLength(g_lRLVcmds);
-                        for (n = 0; n < iStop; n+=g_lRLVcmds_stride) {
-                            if (llList2String(g_lRLVcmds,n)==sMenu){
+                        for (n = 0; n < iStop; n += g_lRLVcmds_stride) {
+                            if (llList2String(g_lRLVcmds, n) == sMenu){
                                 if (sOut != "")  sOut += ",";
                                 sOut += llList2String(g_lRLVcmds, n+1) + "=" + ONOFF;
                             }
                         }
                         UserCommand(iAuth, sOut, kAv, sMenu);
-                    } else if ((~iIndex) && llList2String(g_lRLVcmds,iIndex-2)==sMenu) {
+                    } else if (iIndex != -1 && llList2String(g_lRLVcmds,iIndex-2) == sMenu) {
                         string sOut = llList2String(g_lRLVcmds, iIndex-1);
                         sOut += "=";
                         if (sSwitch == TURNON) sOut += "y";
@@ -353,7 +367,7 @@ default {
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+            if (iMenuIndex != -1) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;

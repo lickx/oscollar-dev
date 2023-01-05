@@ -81,90 +81,98 @@ integer g_iThemePage;
 
 list g_lCommands = ["themes", "color", "texture", "shiny", "glow", "looks"];
 
-Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName) {
+Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kID, kMenuID, sName];
 }
 
-LooksMenu(key kID, integer iAuth) {
+LooksMenu(key kID, integer iAuth)
+{
     Dialog(kID, "\nHere you can change cosmetic settings of the %DEVICETYPE%. \"Themes\" will also be applied to any matching cuffs.", ["Color","Glow","Shiny","Texture","Themes"], ["BACK"],0, iAuth, "LooksMenu~menu");
 }
 
-ThemeMenu(key kID, integer iAuth, integer iPage) {
+ThemeMenu(key kID, integer iAuth, integer iPage)
+{
     list lButtons;
     integer i;
     while (i < llGetListLength(g_lThemes)) {
-        lButtons += llList2List(g_lThemes,i,i);
-        i=i+2;
+        lButtons += llList2List(g_lThemes, i, i);
+        i = i + 2;
     }
     Dialog(kID, "\nThemes\n\nChoose a visual theme for your %DEVICETYPE%.\n", lButtons, ["BACK"], iPage, iAuth, "ThemeMenu~themes");
     lButtons=[];
 }
 
-ShinyMenu(key kID, integer iAuth, string sElement) {
-    string sShineElement = llList2String(llParseString2List(sElement,[" "],[]),-1);
+ShinyMenu(key kID, integer iAuth, string sElement)
+{
+    string sShineElement = llList2String(llParseString2List(sElement, [" "], []), -1);
     Dialog(kID, "\nSelect a degree of shine for "+sShineElement+".", g_lShiny, ["BACK"], 0, iAuth, "ShinyMenu~"+sElement);
 }
 
-GlowMenu(key kID, integer iAuth, string sElement) {
-    string sGlowElement = llList2String(llParseString2List(sElement,[" "],[]),-1);
+GlowMenu(key kID, integer iAuth, string sElement)
+{
+    string sGlowElement = llList2String(llParseString2List(sElement, [" "], []), -1);
     list lButtons = llList2ListStrided(g_lGlow, 0, -1, 2);
     Dialog(kID, "\nSelect a degree of glow for "+sGlowElement+".", lButtons, ["BACK"], 0, iAuth, "GlowMenu~"+sElement);
 }
 
-TextureMenu(key kID, integer iPage, integer iAuth, string sElement) {
+TextureMenu(key kID, integer iPage, integer iAuth, string sElement)
+{
     list lElementTextures;
     integer iCustomTextureFound;
-    string sTexElement = llList2String(llParseString2List(sElement,[" "],[]),-1);
-    integer iNumTextures=llGetListLength(g_lTextures);
+    string sTexElement = llList2String(llParseString2List(sElement, [" "], []), -1);
+    integer iNumTextures = llGetListLength(g_lTextures);
     while (iNumTextures--) {
-        string sTextureName=llList2String(g_lTextures,iNumTextures);
-        if (llListFindList(lElementTextures,[sTextureName]) == -1) {
-            if (!llSubStringIndex(sTextureName,sTexElement+"~")) {
-                lElementTextures+=llList2String(g_lTextureShortNames,iNumTextures);
-                if ((!iCustomTextureFound) && llGetListLength(lElementTextures) ) {
-                    iCustomTextureFound=1;
-                    lElementTextures=[];
-                    iNumTextures=llGetListLength(g_lTextures);
+        string sTextureName = llList2String(g_lTextures, iNumTextures);
+        if (llListFindList(lElementTextures, [sTextureName]) == -1) {
+            if (llSubStringIndex(sTextureName,sTexElement+"~") == 0) {
+                lElementTextures += llList2String(g_lTextureShortNames, iNumTextures);
+                if (iCustomTextureFound == FALSE && llGetListLength(lElementTextures) > 0) {
+                    iCustomTextureFound = 1;
+                    lElementTextures = [];
+                    iNumTextures = llGetListLength(g_lTextures);
                 }
-            } else if (llSubStringIndex(sTextureName,"~") == -1 && !iCustomTextureFound)
-                lElementTextures+=llList2String(g_lTextureShortNames,iNumTextures);
+            } else if (llSubStringIndex(sTextureName,"~") == -1 && iCustomTextureFound == FALSE)
+                lElementTextures += llList2String(g_lTextureShortNames, iNumTextures);
         }
     }
-    Dialog(kID, "\nSelect a texture to apply to "+sTexElement+".",llListSort(lElementTextures,1,1), ["BACK"], iPage, iAuth, "TextureMenu~"+sElement);
+    Dialog(kID, "\nSelect a texture to apply to "+sTexElement+".", llListSort(lElementTextures, 1, 1), ["BACK"], iPage, iAuth, "TextureMenu~"+sElement);
 }
 
-ColorMenu(key kID, integer iPage, integer iAuth, string sBreadcrumbs) {
-    string sCategory = llList2String(llParseString2List(sBreadcrumbs,[" "],[]),-1);
+ColorMenu(key kID, integer iPage, integer iAuth, string sBreadcrumbs)
+{
+    string sCategory = llList2String(llParseString2List(sBreadcrumbs, [" "], []), -1);
     Dialog(kID, "\nSelect a color for "+sCategory+".", ["colormenu please"], ["BACK"], iPage, iAuth, "ColorMenu~"+sBreadcrumbs);
 }
 
-ElementMenu(key kAv, integer iPage, integer iAuth, string sType) {
+ElementMenu(key kAv, integer iPage, integer iAuth, string sType)
+{
     integer iMask;
     string sTypeNice;
-    sType=llToLower(sType);
+    sType = llToLower(sType);
     if (sType == "texture") {
-        iMask=1;
+        iMask = 1;
         sTypeNice = "Texture";
     } else if (sType == "color") {
-        iMask=2;
+        iMask = 2;
         sTypeNice = "Color";
     } else if (sType == "shiny") {
-        iMask=4;
+        iMask = 4;
         sTypeNice = "Shininess";
     } else if (sType == "glow") {
-        iMask=8;
+        iMask = 8;
         sTypeNice = "Glow";
     }
     string sPrompt = "\nSelect an element to adjust its "+sTypeNice+".";
     list lButtons;
     integer numElements = g_iNumElements;
     while(numElements--) {
-        if ( ~llList2Integer(g_lElementFlags,numElements) & iMask) {
-            string sElement=llList2String(g_lElements,numElements);
+        if (~llList2Integer(g_lElementFlags,numElements) & iMask) {
+            string sElement = llList2String(g_lElements,numElements);
             lButtons += sElement;
         }
     }
@@ -172,32 +180,35 @@ ElementMenu(key kAv, integer iPage, integer iAuth, string sType) {
     Dialog(kAv, sPrompt, lButtons, ["ALL", "BACK"], iPage, iAuth, "ElementMenu~"+sType);
 }
 
-string LinkType(integer iLinkNum, string sSearchString) {
+string LinkType(integer iLinkNum, string sSearchString)
+{
     string sDesc = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
     list lParams = llParseString2List(llStringTrim(sDesc,STRING_TRIM), ["~"], []);
-    if (~llListFindList(lParams,[sSearchString])) return "immutable";
+    if (llListFindList(lParams,[sSearchString]) != -1) return "immutable";
     else if (sDesc == "" || sDesc == "(No Description)") return "";
     else return llList2String(lParams, 0);
 }
 
-BuildThemesList() {
-    if(llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) {
-        g_kThemesCardUUID=llGetInventoryKey(g_sThemesCard);
-        g_lThemes=[];
-        g_iThemesNotecardLine=0;
-        g_sThemesNotecardReadType="initialize";
-        g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,g_iThemesNotecardLine);
+BuildThemesList()
+{
+    if(llGetInventoryType(g_sThemesCard) == INVENTORY_NOTECARD) {
+        g_kThemesCardUUID = llGetInventoryKey(g_sThemesCard);
+        g_lThemes = [];
+        g_iThemesNotecardLine = 0;
+        g_sThemesNotecardReadType = "initialize";
+        g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard, g_iThemesNotecardLine);
     }
 }
 
-BuildTexturesList() {
-    g_lTextures=[];
-    g_lTextureKeys=[];
-    g_lTextureShortNames=[];
+BuildTexturesList()
+{
+    g_lTextures = [];
+    g_lTextureKeys = [];
+    g_lTextureShortNames = [];
     integer numInventoryTextures = llGetInventoryNumber(INVENTORY_TEXTURE);
     while (numInventoryTextures--) {
         string sTextureName = llGetInventoryName(INVENTORY_TEXTURE, numInventoryTextures);
-        string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
+        string sShortName = llList2String(llParseString2List(sTextureName, ["~"], []), -1);
         if (!(llGetSubString(sTextureName, 0, 5) == "leash_" || sTextureName == "chain" || sTextureName == "rope")) {
             g_lTextures += sTextureName;
             g_lTextureKeys += sTextureName;
@@ -205,31 +216,32 @@ BuildTexturesList() {
         }
     }
     g_sTextureCard = "!textures";
-    if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard=".textures";
-    if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard="textures_custom";
-    if(llGetInventoryType(g_sTextureCard)!=INVENTORY_NOTECARD) g_sTextureCard="textures";
-    if(llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) {
-        g_iTexturesNotecardLine=0;
-        g_kTextureCardUUID=llGetInventoryKey(g_sTextureCard);
-        g_kTexturesNotecardRead=llGetNotecardLine(g_sTextureCard,g_iTexturesNotecardLine);
-    } else g_kTextureCardUUID=NULL_KEY;
+    if(llGetInventoryType(g_sTextureCard) != INVENTORY_NOTECARD) g_sTextureCard=".textures";
+    if(llGetInventoryType(g_sTextureCard) != INVENTORY_NOTECARD) g_sTextureCard="textures_custom";
+    if(llGetInventoryType(g_sTextureCard) != INVENTORY_NOTECARD) g_sTextureCard="textures";
+    if(llGetInventoryType(g_sTextureCard) == INVENTORY_NOTECARD) {
+        g_iTexturesNotecardLine = 0;
+        g_kTextureCardUUID = llGetInventoryKey(g_sTextureCard);
+        g_kTexturesNotecardRead = llGetNotecardLine(g_sTextureCard, g_iTexturesNotecardLine);
+    } else g_kTextureCardUUID = NULL_KEY;
 }
 
-BuildElementsList(){
+BuildElementsList()
+{
     g_iNumHideableElements = 0;
     g_iNumElements = 0;
     integer iLinkNum = llGetNumberOfPrims()+1;
     while (iLinkNum-- > 2) {
         string sElement = llList2String(llGetLinkPrimitiveParams(iLinkNum, [PRIM_DESC]),0);
-        if (~llSubStringIndex(llToLower(sElement),"floattext") || ~llSubStringIndex(llToLower(sElement),"leashpoint")) {
+        if (llSubStringIndex(llToLower(sElement), "floattext") != -1 || llSubStringIndex(llToLower(sElement),"leashpoint") != -1) {
         } else if (sElement != "" && sElement != "(No Description)") {
-            list lParams = llParseString2List(llStringTrim(sElement,STRING_TRIM), ["~"], []);
+            list lParams = llParseString2List(llStringTrim(sElement, STRING_TRIM), ["~"], []);
             string sElementName = llList2String(lParams,0);
             integer iLinkFlags;
-            if (~llListFindList(lParams,["notexture"])) iLinkFlags = iLinkFlags | 1;
-            if (~llListFindList(lParams,["nocolor"])) iLinkFlags = iLinkFlags | 2;
-            if (~llListFindList(lParams,["noshiny"])) iLinkFlags = iLinkFlags | 4;
-            if (~llListFindList(lParams,["noglow"])) iLinkFlags = iLinkFlags | 8;
+            if (llListFindList(lParams,["notexture"]) != -1) iLinkFlags = iLinkFlags | 1;
+            if (llListFindList(lParams,["nocolor"]) != -1) iLinkFlags = iLinkFlags | 2;
+            if (llListFindList(lParams,["noshiny"]) != -1) iLinkFlags = iLinkFlags | 4;
+            if (llListFindList(lParams,["noglow"]) != -1) iLinkFlags = iLinkFlags | 8;
             integer iElementIndex=llListFindList(g_lElements, [sElementName]);
             if (iElementIndex == -1) {
                 g_lElements += sElementName;
@@ -239,9 +251,9 @@ BuildElementsList(){
                 }
                 g_iNumElements++;
             } else {
-                integer iOldFlags=llList2Integer(g_lElementFlags,iElementIndex);
+                integer iOldFlags = llList2Integer(g_lElementFlags, iElementIndex);
                 iLinkFlags = iLinkFlags & iOldFlags;
-                g_lElementFlags = llListReplaceList(g_lElementFlags,[iLinkFlags],iElementIndex, iElementIndex);
+                g_lElementFlags = llListReplaceList(g_lElementFlags, [iLinkFlags], iElementIndex, iElementIndex);
                 if (iLinkFlags & 16 & ~iOldFlags) {
                     g_iNumHideableElements++;
                 }
@@ -250,88 +262,89 @@ BuildElementsList(){
     }
 }
 
-UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
+UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage)
+{
     string sStrLower = llToLower(sStr);
     if (sStrLower == "rm themes") {
         Dialog(kID,"\nDo you really want to uninstall the themes plugin?",["Yes","No","Cancel"],[],0,iNum,"rmThemes");
         return;
     }
     list lParams = llParseString2List(sStrLower, [" "], []);
-    if (~llListFindList(g_lCommands, [llList2String(lParams,0)]) || (llList2String(lParams,0)=="menu" && ~llListFindList(g_lCommands, [llList2String(lParams,1)])) ) {
+    if (llListFindList(g_lCommands, [llList2String(lParams,0)]) != -1 || (llList2String(lParams,0)=="menu" && llListFindList(g_lCommands, [llList2String(lParams,1)]) != -1) ) {
         if (kID == g_kWearer || iNum == CMD_OWNER) {
             lParams = llParseString2List(sStr, [" "], []);
-            string sCommand=llToLower(llList2String(lParams,0));
-            string sElement=llList2String(lParams,1);
+            string sCommand = llToLower(llList2String(lParams, 0));
+            string sElement = llList2String(lParams, 1);
             if (sCommand == "themes" || sStrLower == "menu themes") {
                 sElement = llGetSubString(sStr, 7, -1);
-                integer iElementIndex = llListFindList(g_lThemes,[sElement]);
-                if (~iElementIndex) {
-                    g_sThemesNotecardReadType="processing";
-                    g_iThemesNotecardLine = 1 + llList2Integer(g_lThemes,iElementIndex+1);
-                    g_kSetThemeUser=kID;
-                    g_iSetThemeAuth=iNum;
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Applying the "+sElement+" theme...",kID);
-                    llMessageLinked(LINK_ROOT,601,"themes "+sElement,g_kWearer);
+                integer iElementIndex = llListFindList(g_lThemes, [sElement]);
+                if (iElementIndex != -1) {
+                    g_sThemesNotecardReadType = "processing";
+                    g_iThemesNotecardLine = 1 + llList2Integer(g_lThemes, iElementIndex+1);
+                    g_kSetThemeUser = kID;
+                    g_iSetThemeAuth = iNum;
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Applying the "+sElement+" theme...", kID);
+                    llMessageLinked(LINK_ROOT, 601, "themes "+sElement, g_kWearer);
                     g_iThemePage = iPage;
-                    g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,g_iThemesNotecardLine);
+                    g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard, g_iThemesNotecardLine);
                 } else if (g_kThemesCardUUID != NULL_KEY) {
-                    if (g_iThemesReady) ThemeMenu(kID,iNum,iPage);
+                    if (g_iThemesReady) ThemeMenu(kID, iNum, iPage);
                     else {
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Themes still loading...",kID);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Themes still loading...", kID);
                         if (g_iLooks) LooksMenu(kID, iNum);
                         else llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
                     }
-                } else LooksMenu(kID,iNum);
-            } else if (sCommand == "looks") LooksMenu(kID,iNum);
+                } else LooksMenu(kID, iNum);
+            } else if (sCommand == "looks") LooksMenu(kID, iNum);
             else if (sCommand == "menu") ElementMenu(kID, 0, iNum, sElement);
             else if (sCommand == "shiny") {
-                string sShiny=llList2String(lParams,2);
-                integer iShinyIndex=llListFindList(g_lShiny,[sShiny]);
-                if (~iShinyIndex) sShiny=(string)iShinyIndex;
-                integer iShiny=(integer)sShiny;
-                if (sShiny=="") ShinyMenu(kID, iNum, sStr);
-                else if (iShiny || sShiny=="0") {
+                string sShiny = llList2String(lParams, 2);
+                integer iShinyIndex = llListFindList(g_lShiny, [sShiny]);
+                if (iShinyIndex != -1) sShiny = (string)iShinyIndex;
+                integer iShiny = (integer)sShiny;
+                if (sShiny == "") ShinyMenu(kID, iNum, sStr);
+                else if (iShiny || sShiny == "0") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {
-                        string sLinkType=LinkType(iLinkCount, "no"+sCommand);
+                        string sLinkType = LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             if (iShiny < 4 )
-                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)NULL_KEY, <1,1,0>,<0,0,0>,0.0,<1,1,1>,0,0,PRIM_BUMP_SHINY,ALL_SIDES,iShiny,0]);
+                                llSetLinkPrimitiveParamsFast(iLinkCount, [PRIM_SPECULAR, ALL_SIDES, (string)NULL_KEY, <1,1,0>, <0,0,0>, 0.0, <1,1,1>, 0, 0, PRIM_BUMP_SHINY, ALL_SIDES, iShiny, 0]);
                             else
-                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_SPECULAR,ALL_SIDES,(string)TEXTURE_BLANK, <1,1,0>,<0,0,0>,0.0,<1,1,1>,80,2]);
+                                llSetLinkPrimitiveParamsFast(iLinkCount, [PRIM_SPECULAR, ALL_SIDES, (string)TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0.0, <1,1,1>, 80, 2]);
                         }
                     }
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "shininess_" + sElement + "=" + (string)iShiny, "");
                     if (reMenu) ShinyMenu(kID, iNum, "shiny "+sElement);
                 }
             } else if (sCommand == "glow") {
-                string sGlow=llList2String(lParams,2);
-                integer iGlowIndex=llListFindList(g_lGlow,[sGlow]);
+                string sGlow = llList2String(lParams, 2);
+                integer iGlowIndex = llListFindList(g_lGlow, [sGlow]);
                 float fGlow = (float)sGlow;
-                if (~iGlowIndex) {
-                    sGlow=(string)llList2String(g_lGlow,iGlowIndex+1);
-                    fGlow = llList2Float(g_lGlow,iGlowIndex+1);
+                if (iGlowIndex != -1) {
+                    sGlow = llList2String(g_lGlow, iGlowIndex+1);
+                    fGlow = llList2Float(g_lGlow, iGlowIndex+1);
                 }
-                if (sGlow=="") {
+                if (sGlow == "") {
                     GlowMenu(kID, iNum, sStr);
                 } else if ((fGlow >= 0.0 && fGlow <= 1.0)|| sGlow=="0") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {
-                        string sLinkType=LinkType(iLinkCount, "no"+sCommand);
+                        string sLinkType = LinkType(iLinkCount, "no"+sCommand);
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
-                            llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_GLOW,ALL_SIDES,fGlow]);
+                            llSetLinkPrimitiveParamsFast(iLinkCount, [PRIM_GLOW, ALL_SIDES, fGlow]);
                         }
                     }
                     llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "glow_" + sElement + "=" + (string)fGlow, "");
                     if (reMenu) GlowMenu(kID, iNum, "glow "+sElement);
                 }
             } else if (sCommand == "color") {
-                string sColor = llDumpList2String(llDeleteSubList(lParams,0,1)," ");
+                string sColor = llDumpList2String(llDeleteSubList(lParams, 0, 1), " ");
                 if (sColor != "") {
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     vector vColorValue=(vector)sColor;
                     while (iLinkCount-- > 2) {
-                        string sLinkType=LinkType(iLinkCount, "nocolor");
+                        string sLinkType = LinkType(iLinkCount, "nocolor");
                         if (sLinkType == sElement || (sLinkType != "immutable" && sLinkType != "" && sElement=="ALL")) {
                             llSetLinkColor(iLinkCount, vColorValue, ALL_SIDES);
                         }
@@ -342,12 +355,12 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     ColorMenu(kID, iPage, iNum, sCommand+" "+sElement);
                 }
             } else if (sCommand == "texture") {
-                string sTextureShortName=llDumpList2String(llDeleteSubList(lParams,0,1)," ");
-                if (sTextureShortName=="Default") {
+                string sTextureShortName = llDumpList2String(llDeleteSubList(lParams, 0, 1), " ");
+                if (sTextureShortName == "Default") {
                     integer iDefaultTextureIndex = llListFindList(g_lTextureDefaults, [sElement]);
-                    if (~iDefaultTextureIndex) sTextureShortName = llList2String(g_lTextureDefaults, iDefaultTextureIndex + 1);
+                    if (iDefaultTextureIndex != -1) sTextureShortName = llList2String(g_lTextureDefaults, iDefaultTextureIndex+1);
                 }
-                integer iTextureIndex=llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);
+                integer iTextureIndex = llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);
                 if (osIsUUID(sTextureShortName)) iTextureIndex = 0;
                 else if (iTextureIndex == -1)
                     iTextureIndex = llListFindList(g_lTextures,[sTextureShortName]);
@@ -358,8 +371,8 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                     if (reMenu) TextureMenu(kID, 0, iNum, sCommand+" "+sElement);
                 } else {
                     string sTextureKey;
-                    if (osIsUUID(sTextureShortName)) sTextureKey=sTextureShortName;
-                    else sTextureKey= llList2String(g_lTextureKeys,iTextureIndex);
+                    if (osIsUUID(sTextureShortName)) sTextureKey = sTextureShortName;
+                    else sTextureKey = llList2String(g_lTextureKeys,iTextureIndex);
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {
                         string sLinkType = LinkType(iLinkCount, "notexture");
@@ -367,9 +380,9 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                             integer iSides = llGetLinkNumberOfSides(iLinkCount);
                             integer iFace ;
                             for (iFace = 0; iFace < iSides; iFace++) {
-                                list lTextureParams = llGetLinkPrimitiveParams(iLinkCount,[PRIM_TEXTURE,iFace]);
-                                lTextureParams = llDeleteSubList(lTextureParams,0,0);
-                                llSetLinkPrimitiveParamsFast(iLinkCount,[PRIM_TEXTURE,iFace,sTextureKey]+lTextureParams);
+                                list lTextureParams = llGetLinkPrimitiveParams(iLinkCount, [PRIM_TEXTURE, iFace]);
+                                lTextureParams = llDeleteSubList(lTextureParams, 0, 0);
+                                llSetLinkPrimitiveParamsFast(iLinkCount, [PRIM_TEXTURE, iFace, sTextureKey]+lTextureParams);
                             }
                         }
                     }
@@ -378,21 +391,22 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage) {
                 }
             }
         } else {
-            llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"%NOACCESS%",kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
             llMessageLinked(LINK_ROOT, iNum, "menu Settings", kID);
         }
     }
 }
 
-default {
-
-    state_entry() {
+default
+{
+    state_entry()
+    {
         g_kWearer = llGetOwner();
         BuildTexturesList();
         BuildElementsList();
         BuildThemesList();
-        llMessageLinked(LINK_ALL_OTHERS,LM_SETTING_SAVE,"intern_looks=1","");
-        llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,"intern_looks=1","");
+        llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_SAVE, "intern_looks=1", "");
+        llMessageLinked(LINK_THIS, LM_SETTING_RESPONSE, "intern_looks=1", "");
     }
 
     on_rez(integer i)
@@ -400,7 +414,8 @@ default {
         if (g_kWearer != llGetOwner()) llResetScript();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID, FALSE,0);
         else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
@@ -408,54 +423,54 @@ default {
             string sValue = llList2String(lParams, 1);
             integer i = llSubStringIndex(sID, "_");
             string sCategory=llGetSubString(sID, 0, i);
-            string sToken = llGetSubString(sID, i + 1, -1);
+            string sToken = llGetSubString(sID, i+1, -1);
             if (sID == "global_DeviceType") g_sDeviceType = sValue;
             else if (sID == "intern_looks") g_iLooks = (integer)sValue;
             else if (sCategory == "texture_") {
                 i = llListFindList(g_lTextureDefaults, [sToken]);
-                if (~i) g_lTextureDefaults = llListReplaceList(g_lTextureDefaults, [sValue], i + 1, i + 1);
+                if (i != -1) g_lTextureDefaults = llListReplaceList(g_lTextureDefaults, [sValue], i+1, i+1);
                 else g_lTextureDefaults += [sToken, sValue];
             }
             else if (sCategory == "shininess_") {
                 i = llListFindList(g_lShinyDefaults, [sToken]);
-                if (~i) g_lShinyDefaults = llListReplaceList(g_lShinyDefaults, [sValue], i + 1, i + 1);
+                if (i != -1) g_lShinyDefaults = llListReplaceList(g_lShinyDefaults, [sValue], i+1, i+1);
                 else g_lShinyDefaults += [sToken, sValue];
             }
             else if (sCategory == "color_") {
                 i = llListFindList(g_lColorDefaults, [sToken]);
-                if (~i) g_lColorDefaults = llListReplaceList(g_lColorDefaults, [sValue], i + 1, i + 1);
+                if (i != -1) g_lColorDefaults = llListReplaceList(g_lColorDefaults, [sValue], i+1, i+1);
                 else g_lColorDefaults += [sToken, sValue];
             }
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
-                string sMenu=llList2String(g_lMenuIDs, iMenuIndex + 1);
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
-                if (llSubStringIndex(sMenu,"ElementMenu~")==0) {
+                integer iPage = llList2Integer(lMenuParams, 2);
+                integer iAuth = llList2Integer(lMenuParams, 3);
+                string sMenu = llList2String(g_lMenuIDs, iMenuIndex+1);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
+                if (llSubStringIndex(sMenu,"ElementMenu~") == 0) {
                     if (sMessage == "BACK") LooksMenu(kAv, iAuth);
                     else {
-                        string sMenuType=llList2String(llParseString2List(sMenu,["~"],[]),1);
+                        string sMenuType = llList2String(llParseString2List(sMenu, ["~"], []), 1);
                         UserCommand(iAuth, sMenuType+" "+sMessage, kAv, TRUE,iPage);
                     }
                 } else if ((sMenu == "LooksMenu~menu" || sMenu == "NoThemesMenu") && sMessage == "BACK") llMessageLinked(LINK_ROOT,iAuth,"menu Settings",kAv);
                 else if (sMenu == "NoThemesMenu") {
-                     if (sMessage == "Uninstall") UserCommand(iAuth,"rm themes",kAv,TRUE,iPage);
-                     else LooksMenu(kAv,iAuth);
+                     if (sMessage == "Uninstall") UserCommand(iAuth, "rm themes", kAv, TRUE, iPage);
+                     else LooksMenu(kAv, iAuth);
                 } else if (sMenu == "rmThemes") {
                     if (sMessage == "Yes") {
-                        llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The themes plugin has been removed.",kAv);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The themes plugin has been removed.", kAv);
                         llRemoveInventory(llGetScriptName());
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"The themes plugin remains installed.",kAv);
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The themes plugin remains installed.", kAv);
                 } else {
-                    string sBreadcrumbs=llList2String(llParseString2List(sMenu,["~"],[]),1);
-                    string sBackMenu=llList2String(llParseString2List(sBreadcrumbs,[" "],[]),0);
+                    string sBreadcrumbs = llList2String(llParseString2List(sMenu, ["~"], []), 1);
+                    string sBackMenu=llList2String(llParseString2List(sBreadcrumbs, [" "], []), 0);
                     if (sMessage == "BACK") {
-                        if (~llSubStringIndex(sMenu,"ThemeMenu~themes")) {
+                        if (llSubStringIndex(sMenu,"ThemeMenu~themes") != -1) {
                             if (g_iLooks) LooksMenu(kAv, iAuth);
                             else llMessageLinked(LINK_ROOT, iAuth, "menu Settings", kAv);
                         } else  ElementMenu(kAv, 0, iAuth, sBackMenu);
@@ -472,52 +487,53 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    dataserver(key kID, string sData) {
-        if (kID==g_kTexturesNotecardRead) {
-            if(sData!=EOF) {
-                if(llStringTrim(sData,STRING_TRIM) != "" && llGetSubString(sData,0,1) != "//") {
-                    list lThisLine=llParseString2List(sData,[","],[]);
-                    key kTextureKey=(key)llStringTrim(llList2String(lThisLine,1),STRING_TRIM);
-                    string sTextureName=llStringTrim(llList2String(lThisLine,0),STRING_TRIM);
+    dataserver(key kID, string sData)
+    {
+        if (kID == g_kTexturesNotecardRead) {
+            if(sData != EOF) {
+                if(llStringTrim(sData, STRING_TRIM) != "" && llGetSubString(sData, 0, 1) != "//") {
+                    list lThisLine = llParseString2List(sData, [","], []);
+                    key kTextureKey = (key)llStringTrim(llList2String(lThisLine, 1), STRING_TRIM);
+                    string sTextureName=llStringTrim(llList2String(lThisLine, 0), STRING_TRIM);
                     string sShortName=llList2String(llParseString2List(sTextureName, ["~"], []), -1);
-                    if ( ~llListFindList(g_lTextures,[sTextureName])) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" is in the %DEVICETYPE% AND the notecard.  %DEVICETYPE% texture takes priority.",g_kWearer);
+                    if (llListFindList(g_lTextures,[sTextureName]) != -1) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" is in the %DEVICETYPE% AND the notecard.  %DEVICETYPE% texture takes priority.",g_kWearer);
                     else if (kTextureKey != NULL_KEY) {
                         if(llStringLength(sShortName) > 23) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture "+sTextureName+" in textures notecard too long, dropping.",g_kWearer);
                         else {
-                            g_lTextures+=sTextureName;
-                            g_lTextureKeys+=kTextureKey;
-                            g_lTextureShortNames+=sShortName;
+                            g_lTextures += sTextureName;
+                            g_lTextureKeys += kTextureKey;
+                            g_lTextureShortNames += sShortName;
                         }
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Texture key for "+sTextureName+" in textures notecard not recognised, dropping.",g_kWearer);
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Texture key for "+sTextureName+" in textures notecard not recognised, dropping.", g_kWearer);
                 }
-                g_kTexturesNotecardRead=llGetNotecardLine(g_sTextureCard,++g_iTexturesNotecardLine);
+                g_kTexturesNotecardRead = llGetNotecardLine(g_sTextureCard, ++g_iTexturesNotecardLine);
             }
         } else if (kID==g_kThemesNotecardRead) {
             if(sData != EOF) {
                 sData = llStringTrim(sData,STRING_TRIM);
-                if(sData != "" && llSubStringIndex(sData,"#") != 0) {
-                    if( llGetSubString(sData,0,0) == "[" ){
-                        sData = llGetSubString(sData,llSubStringIndex(sData,"[")+1,llSubStringIndex(sData,"]")-1);
-                        sData = llStringTrim(sData,STRING_TRIM);
+                if(sData != "" && llSubStringIndex(sData, "#") != 0) {
+                    if( llGetSubString(sData, 0, 0) == "[" ){
+                        sData = llGetSubString(sData, llSubStringIndex(sData, "[")+1,llSubStringIndex(sData, "]")-1);
+                        sData = llStringTrim(sData, STRING_TRIM);
                         if (g_sThemesNotecardReadType == "initialize") {
                             g_lThemes += [sData,g_iThemesNotecardLine];
                         } else if (sData == g_sThemesNotecardReadType) {
                             g_sThemesNotecardReadType = "processing";
                             g_sCurrentTheme = sData;
                         } else if (g_sThemesNotecardReadType == "processing") {
-                            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Applied!",g_kSetThemeUser);
-                            UserCommand(g_iSetThemeAuth,"themes",g_kSetThemeUser,TRUE,g_iThemePage);
+                            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Applied!", g_kSetThemeUser);
+                            UserCommand(g_iSetThemeAuth, "themes", g_kSetThemeUser, TRUE, g_iThemePage);
                             return;
                         }
-                        g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard,++g_iThemesNotecardLine);
+                        g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard, ++g_iThemesNotecardLine);
                     } else {
                         if (g_sThemesNotecardReadType == "processing"){
-                            list lParams = llParseStringKeepNulls(sData,["~"],[]);
-                            string element = llStringTrim(llList2String(lParams,0),STRING_TRIM);
+                            list lParams = llParseStringKeepNulls(sData, ["~"], []);
+                            string element = llStringTrim(llList2String(lParams, 0), STRING_TRIM);
                             if (element != "") {
-                                if (~llSubStringIndex(element,"particle")) {
+                                if (llSubStringIndex(element, "particle") != -1) {
                                     integer i;
-                                    for (i=1; i < llGetListLength(lParams); i=i+2) {
+                                    for (i = 1; i < llGetListLength(lParams); i = i + 2) {
                                         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "particle_"+llList2String(lParams,i)+"="+ llList2String(lParams,i+1), "");
                                         llMessageLinked(LINK_THIS, LM_SETTING_RESPONSE, "particle_"+llList2String(lParams,i)+"="+ llList2String(lParams,i+1), "");
                                     }
@@ -528,47 +544,48 @@ default {
                                     integer succes;
                                     integer i;
                                     for (i = 1; i < llGetListLength(lParams); i++) {
-                                        string substring = llStringTrim(llList2String(lParams,i),STRING_TRIM);
+                                        string substring = llStringTrim(llList2String(lParams, i), STRING_TRIM);
                                         if (substring != "") {
                                             list params = llParseString2List(substring, ["="], []);
                                             string cmd = llList2String(params,0);
                                             sData = llList2String(params,1);
-                                            if (llListFindList(commands, [cmd])!=-1) {
+                                            if (llListFindList(commands, [cmd]) != -1) {
                                                 UserCommand(g_iSetThemeAuth, cmd+" "+element+" "+sData, g_kSetThemeUser, FALSE,0);
                                                 succes++;
                                             }
                                         }
                                     }
 
-                                    if (!succes) {
+                                    if (succes == FALSE) {
                                         for (i = 0; i < 4; i++) {
-                                            sData = llStringTrim(llList2String(lParams,i+1),STRING_TRIM);
+                                            sData = llStringTrim(llList2String(lParams, i+1), STRING_TRIM);
                                             if (sData != "" && sData != ",,") UserCommand(g_iSetThemeAuth, llList2String(commands,i)+" "+element+" "+sData, g_kSetThemeUser, FALSE,0);
                                         }
                                     }
                                 }
                             }
                         }
-                        g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,++g_iThemesNotecardLine);
+                        g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard, ++g_iThemesNotecardLine);
                     }
-                } else g_kThemesNotecardRead=llGetNotecardLine(g_sThemesCard,++g_iThemesNotecardLine);
+                } else g_kThemesNotecardRead = llGetNotecardLine(g_sThemesCard, ++g_iThemesNotecardLine);
             } else {
                 if (g_sThemesNotecardReadType == "processing") {
-                    llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Applied!",g_kSetThemeUser);
-                    UserCommand(g_iSetThemeAuth,"themes",g_kSetThemeUser,TRUE,g_iThemePage);
+                    llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Applied!", g_kSetThemeUser);
+                    UserCommand(g_iSetThemeAuth, "themes", g_kSetThemeUser, TRUE, g_iThemePage);
                 } else g_iThemesReady = TRUE;
             }
         }
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if (iChange & CHANGED_LINK) BuildElementsList();
         if (iChange & CHANGED_OWNER) llResetScript();
         if (iChange & CHANGED_INVENTORY) {
-            if (llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard)!=g_kTextureCardUUID) BuildTexturesList();
-            else if (!llGetInventoryType(g_sTextureCard)==INVENTORY_NOTECARD) g_kTextureCardUUID = "";
-            if (llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard)!=g_kThemesCardUUID) BuildThemesList();
-            else if (!llGetInventoryType(g_sThemesCard)==INVENTORY_NOTECARD) g_kThemesCardUUID = "";
+            if (llGetInventoryType(g_sTextureCard) == INVENTORY_NOTECARD && llGetInventoryKey(g_sTextureCard) != g_kTextureCardUUID) BuildTexturesList();
+            else if (!llGetInventoryType(g_sTextureCard) == INVENTORY_NOTECARD) g_kTextureCardUUID = "";
+            if (llGetInventoryType(g_sThemesCard) == INVENTORY_NOTECARD && llGetInventoryKey(g_sThemesCard) != g_kThemesCardUUID) BuildThemesList();
+            else if (!llGetInventoryType(g_sThemesCard) == INVENTORY_NOTECARD) g_kThemesCardUUID = "";
         }
     }
 }

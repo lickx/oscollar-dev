@@ -48,9 +48,9 @@ integer g_iListener;
 float g_iItemCounter;
 float g_iTotalItems;
 
-
-StatusBar(float fCount) {
-    fCount = 100*(fCount/g_iTotalItems);
+StatusBar(float fCount)
+{
+    fCount = 100 * (fCount/g_iTotalItems);
     if (fCount > 100) fCount = 100;
     string sCount = ((string)((integer)fCount))+"%";
     if (fCount < 10) sCount = "░░"+sCount;
@@ -60,12 +60,13 @@ StatusBar(float fCount) {
     integer i = (integer)(fCount/5);
     do { i--;
         sStatusBar = "█"+llGetSubString(sStatusBar,0,-2);
-    } while (i>0);
-    llSetLinkPrimitiveParamsFast(4,[PRIM_TEXT,llGetSubString(sStatusBar,0,7)+sCount+llGetSubString(sStatusBar,12,-1), <1,1,0>, 1.0]);
-    //return llGetSubString(sStatusBar,0,7)+sCount+llGetSubString(sStatusBar,12,-1);
+    } while (i > 0);
+    llSetLinkPrimitiveParamsFast(4, [PRIM_TEXT,llGetSubString(sStatusBar,0,7)+sCount+llGetSubString(sStatusBar,12,-1), <1,1,0>, 1.0]);
+    //return llGetSubString(sStatusBar,0,7) + sCount + llGetSubString(sStatusBar, 12, -1);
 }
 
-SetStatus(string sName) {
+SetStatus(string sName)
+{
     // use card name, item type, and item name to set a nice
     // text status message
     g_iItemCounter++;
@@ -82,25 +83,27 @@ SetStatus(string sName) {
 
 default
 {
-    state_entry() {
-        llSetLinkPrimitiveParamsFast(4,[PRIM_TEXT,"", <1,1,1>, 1.0]);
+    state_entry()
+    {
+        llSetLinkPrimitiveParamsFast(4, [PRIM_TEXT, "", <1,1,1>, 1.0]);
         g_iTotalItems = llGetInventoryNumber(INVENTORY_ALL) - llGetInventoryNumber(INVENTORY_NOTECARD) - 3;
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == DO_BUNDLE) {
             //Debug("doing bundle: " + sStr);
             // str will be in form talkchannel|uuid|bundle_card_name
             list lParts = llParseString2List(sStr, ["|"], []);
-            g_iTalkChannel = (integer)llList2String(lParts, 0);
-            g_kRCPT = (key)llList2String(lParts, 1);
+            g_iTalkChannel = llList2Integer(lParts, 0);
+            g_kRCPT = llList2Key(lParts, 1);
             g_sCard = llList2String(lParts, 2);
-            g_iPin = (integer)llList2String(lParts, 3);
+            g_iPin = llList2Integer(lParts, 3);
             g_sMode = llList2String(lParts, 4); // either REQUIRED or DEPRECATED
             g_iLine = 0;
             llListenRemove(g_iListener);
             g_iListener = llListen(g_iTalkChannel, "", g_kRCPT, "");
-            if (~llSubStringIndex(g_sCard,"_DEPRECATED"))
+            if (llSubStringIndex(g_sCard,"_DEPRECATED") != -1)
                 llSay(g_iTalkChannel,"Core5Done");
             // get the first line of the card
             g_kLineID = llGetNotecardLine(g_sCard, g_iLine);
@@ -108,7 +111,8 @@ default
         if (iNum == INSTALLION_DONE) llResetScript();
     }
 
-    dataserver(key kID, string sData) {
+    dataserver(key kID, string sData)
+    {
         if (kID == g_kLineID) {
             if (sData != EOF) {
                 // process bundle line
@@ -135,12 +139,13 @@ default
 
                 llListenRemove(g_iListener);
 
-                llMessageLinked(LINK_SET, BUNDLE_DONE, llDumpList2String([g_iTalkChannel, g_kRCPT, g_sCard, g_iPin, g_sMode], "|"), "");
+                llMessageLinked(LINK_SET, BUNDLE_DONE, llDumpList2String([g_iTalkChannel,g_kRCPT,g_sCard,g_iPin,g_sMode], "|"), "");
             }
         }
     }
 
-    listen(integer iChannel, string sName, key kID, string sMsg) {
+    listen(integer iChannel, string sName, key kID, string sMsg)
+    {
         //Debug("heard: " + sMsg);
         if (llGetOwnerKey(kID) != llGetOwner()) return;
         // let's live on the edge and assume that we only ever listen with a uuid filter so we know it's safe
@@ -170,11 +175,13 @@ default
         }
     }
 
-    on_rez(integer iStart) {
+    on_rez(integer iStart)
+    {
         llResetScript();
     }
 
-    changed(integer iChange) {
+    changed(integer iChange)
+    {
         if (iChange & CHANGED_INVENTORY) llResetScript();
     }
 }

@@ -83,22 +83,25 @@ key g_kWearer = NULL_KEY;
 //string g_sSettingToken = "resizer_";
 //string g_sGlobalToken = "global_";
 
-Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sMenuType) {
+Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sMenuType)
+{
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kRCPT + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     //Debug("Made menu.");
     integer iIndex = llListFindList(g_lMenuIDs, [kRCPT]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuType], iIndex, iIndex + g_iMenuStride - 1);
+    if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kRCPT, kMenuID, sMenuType], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kRCPT, kMenuID, sMenuType];
 }
 
-ForceUpdate() {
+ForceUpdate()
+{
      //workaround for https://jira.secondlife.com/browse/VWR-1168
     llSetText(".", <1,1,1>, 1.0);
     llSetText("", <1,1,1>, 1.0);
 }
 
-vector ConvertPos(vector pos) {
+vector ConvertPos(vector pos)
+{
     integer ATTACH = llGetAttached();
     vector out ;
     if (ATTACH == 1) { out.x = -pos.y; out.y = pos.z; out.z = pos.x; }
@@ -110,12 +113,14 @@ vector ConvertPos(vector pos) {
     return out ;
 }
 
-AdjustPos(vector vDelta) {
+AdjustPos(vector vDelta)
+{
     if (llGetAttached()) llSetPos(llGetLocalPos() + ConvertPos(vDelta));
     ForceUpdate();
 }
 
-vector ConvertRot(vector rot) {
+vector ConvertRot(vector rot)
+{
     integer ATTACH = llGetAttached();
     vector out ;
     if (ATTACH == 1) { out.x = -rot.y; out.y = -rot.z; out.z = -rot.x; }
@@ -127,18 +132,21 @@ vector ConvertRot(vector rot) {
     return out ;
 }
 
-AdjustRot(vector vDelta) {
+AdjustRot(vector vDelta)
+{
     if (llGetAttached()) llSetLocalRot(llGetLocalRot() * llEuler2Rot(ConvertRot(vDelta)));
     ForceUpdate();
 }
 
-RotMenu(key kAv, integer iAuth) {
+RotMenu(key kAv, integer iAuth)
+{
     string sPrompt = "\nHere you can tilt and rotate the %DEVICETYPE%.";
     list lMyButtons = ["tilt up ↻", "left ↶", "tilt left ↙", "tilt down ↺", "right ↷", "tilt right ↘"];// ria change
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth,ROTMENU);
 }
 
-PosMenu(key kAv, integer iAuth) {
+PosMenu(key kAv, integer iAuth)
+{
     string sPrompt = "\nHere you can nudge the %DEVICETYPE% in place.\n\nCurrent nudge strength is: ";
     list lMyButtons = ["left ←", "up ↑", "forward ↳", "right →", "down ↓", "backward ↲"];// ria iChange
     if (g_fNudge!=g_fSmallNudge) lMyButtons+=["▁"];
@@ -150,12 +158,14 @@ PosMenu(key kAv, integer iAuth) {
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth,POSMENU);
 }
 
-SizeMenu(key kAv, integer iAuth) {
+SizeMenu(key kAv, integer iAuth)
+{
     string sPrompt = "\nNumbers are based on the current size of the %DEVICETYPE%.";
     Dialog(kAv, sPrompt, SIZEMENU_BUTTONS, [UPMENU], 0, iAuth,SIZEMENU);
 }
 
-DoMenu(key kAv, integer iAuth) {
+DoMenu(key kAv, integer iAuth)
+{
     list lMyButtons ;
     string sPrompt;
     sPrompt = "\nChange the position, rotation and size of your %DEVICETYPE%.\n\n";
@@ -163,46 +173,51 @@ DoMenu(key kAv, integer iAuth) {
     Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth,g_sSubMenu);
 }
 
-UserCommand(integer iNum, string sStr, key kID) {
+UserCommand(integer iNum, string sStr, key kID)
+{
     list lParams = llParseString2List(sStr, [" "], []);
     string sCommand = llToLower(llList2String(lParams, 0));
     string sValue = llToLower(llList2String(lParams, 1));
     if (sCommand == "menu" && llGetSubString(sStr, 5, -1) == g_sSubMenu) {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) {
-            llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) {
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
             llMessageLinked(LINK_SET, iNum, "menu " + g_sParentMenu, kID);
         } else DoMenu(kID, iNum);
     } else if (sStr == "appearance") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         else DoMenu(kID, iNum);
     } else if (sStr == "rotation") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         else RotMenu(kID, iNum);
     } else if (sStr == "position") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         else PosMenu(kID, iNum);
     } else if (sStr == "size") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         else SizeMenu(kID, iNum);
     } else if (sStr == "rm resizer") {
-        if (kID!=g_kWearer && iNum!=CMD_OWNER) llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        if (kID != g_kWearer && iNum != CMD_OWNER) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         else Dialog(kID, "\nDo you really want to remove the Resizer?", ["Yes","No","Cancel"], [], 0, iNum,"rmresizer");
     }
 }
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         llResetScript();
     }
 
-    state_entry() {
+    state_entry()
+    {
         //llSetMemoryLimit(40960);  //2015-05-16 (5612 bytes free)
         g_kWearer = llGetOwner();
         g_fRotNudge = PI / 32.0;//have to do this here since we can't divide in a global var declaration
         //Debug("Starting");
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
             llMessageLinked(iSender, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER)
@@ -211,14 +226,14 @@ default {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (iMenuIndex != -1) {
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iPage = (integer)llList2String(lMenuParams, 2);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iPage = llList2Integer(lMenuParams, 2);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 string sMenuType = llList2String(g_lMenuIDs, iMenuIndex + 1);
                 //remove stride from g_lMenuIDs
                 //we have to subtract from the index because the dialog id comes in the middle of the stride
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex - 1, iMenuIndex - 2 + g_iMenuStride);
+                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 if (sMenuType == g_sSubMenu) {
                     if (sMessage == UPMENU) llMessageLinked(LINK_ROOT, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == POSMENU) PosMenu(kAv, iAuth);
@@ -238,7 +253,7 @@ default {
                         else if (sMessage == "▁") g_fNudge=g_fSmallNudge;
                         else if (sMessage == "▁ ▂") g_fNudge=g_fMediumNudge;
                         else if (sMessage == "▁ ▂ ▃") g_fNudge=g_fLargeNudge;
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Sorry, position can only be adjusted while worn",kID);
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Sorry, position can only be adjusted while worn", kID);
                     PosMenu(kAv, iAuth);
                 } else if (sMenuType == ROTMENU) {
                     if (sMessage == UPMENU) {
@@ -251,7 +266,7 @@ default {
                         else if (sMessage == "right ↷") AdjustRot(<0, 0, -g_fRotNudge>);
                         else if (sMessage == "tilt left ↙") AdjustRot(<-g_fRotNudge, 0, 0>);
                         else if (sMessage == "tilt down ↺") AdjustRot(<0, -g_fRotNudge, 0>);
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"Sorry, position can only be adjusted while worn",kID);
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY,"0"+"Sorry, position can only be adjusted while worn", kID);
                     RotMenu(kAv, iAuth);
                 }
                 else if (sMenuType == SIZEMENU) {
@@ -262,10 +277,10 @@ default {
                         integer iMenuCommand = llListFindList(SIZEMENU_BUTTONS, [sMessage]);
                         if (iMenuCommand != -1) {
                             float fScale = llList2Float(g_lSizeFactors, iMenuCommand);
-                            if (llScaleByFactor(fScale)==FALSE) {
-                                llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"Can't scale %DEVICETYPE% any further",kID);
+                            if (llScaleByFactor(fScale) == FALSE) {
+                                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Can't scale %DEVICETYPE% any further", kID);
                             } else {
-                                llMessageLinked(LINK_DIALOG,NOTIFY,"1"+"%DEVICETYPE% has been scaled by "+llList2String(SIZEMENU_BUTTONS, iMenuCommand),kID);
+                                llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"%DEVICETYPE% has been scaled by "+llList2String(SIZEMENU_BUTTONS, iMenuCommand), kID);
                             }
                         }
                         SizeMenu(kAv, iAuth);
@@ -274,9 +289,9 @@ default {
                 else if (sMenuType == "rmresizer") {
                     if (sMessage == "Yes") {
                         llMessageLinked(LINK_ROOT, MENUNAME_REMOVE , g_sParentMenu + "|" + g_sSubMenu, "");
-                        llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"Resizer has been removed.", kAv);
-                        if (llGetInventoryType(llGetScriptName()) == INVENTORY_SCRIPT) llRemoveInventory(llGetScriptName());
-                    } else llMessageLinked(LINK_DIALOG,NOTIFY, "0"+"Resizer remains installed.", kAv);
+                        llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Resizer has been removed.", kAv);
+                        llRemoveInventory(llGetScriptName());
+                    } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Resizer remains installed.", kAv);
                 }
             }
         }

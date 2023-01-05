@@ -53,34 +53,39 @@ integer LM_SETTING_RESPONSE = 2002;//the settings script will send responses on 
 integer LM_SETTING_DELETE = 2003;//delete token from store
 integer LM_SETTING_EMPTY = 2004;//sent when a token has no value in the settings store
 
-Check4Core5Script() {
+Check4Core5Script()
+{
     integer i = llGetInventoryNumber(INVENTORY_SCRIPT);
     string sScriptName;
-    do { i--;
-        sScriptName = llGetInventoryName(INVENTORY_SCRIPT,i);
-        integer index = llListFindList(g_lCore5Scripts,[sScriptName]);
-        if (~index) {
+    do {
+        i--;
+        sScriptName = llGetInventoryName(INVENTORY_SCRIPT, i);
+        integer index = llListFindList(g_lCore5Scripts, [sScriptName]);
+        if (index != -1) {
             llMessageLinked(LINK_ALL_OTHERS,LOADPIN,sScriptName,"");
-            g_lCore5Scripts = llDeleteSubList(g_lCore5Scripts,index,index);
+            g_lCore5Scripts = llDeleteSubList(g_lCore5Scripts, index, index);
             return;
         }
-    } while (i);
+    } while (i > 0);
 }
 
-default {
-    state_entry() {
+default
+{
+    state_entry()
+    {
         g_iStartParam = llGetStartParameter();
         if (g_iStartParam < 0 ) g_iIsUpdate = TRUE;
         // build script list
         integer i = llGetInventoryNumber(INVENTORY_SCRIPT);
         string sName;
-        do { i--;
-            sName = llGetInventoryName(INVENTORY_SCRIPT,i);
-            if (~llListFindList(g_lCore5Scripts,[sName])) {
+        do {
+            i--;
+            sName = llGetInventoryName(INVENTORY_SCRIPT, i);
+            if (llListFindList(g_lCore5Scripts, [sName]) != -1) {
                 if (llGetInventoryType(sName) == INVENTORY_SCRIPT)
                     llRemoveInventory(sName);
             } else g_lScripts += sName;
-        } while (i);
+        } while (i > 0);
         //Debug(llDumpList2String(g_lScripts, "|"));
         // listen on the start param channel
         llListen(g_iStartParam, "", "", "");
@@ -88,14 +93,15 @@ default {
         llWhisper(g_iStartParam, "reallyready");
     }
 
-    listen(integer iChannel, string sName, key kID, string sMsg) {
+    listen(integer iChannel, string sName, key kID, string sMsg)
+    {
        // Debug("heard: " + sMsg);
         if (llGetOwnerKey(kID) != llGetOwner()) return;
         list lParts = llParseString2List(sMsg, ["|"], []);
         if (llGetListLength(lParts) == 4) {
             string sType = llList2String(lParts, 0);
             sName = llList2String(lParts, 1);
-            key kUUID = (key)llList2String(lParts, 2);
+            key kUUID = llList2Key(lParts, 2);
             string sMode = llList2String(lParts, 3);
             string sCmd;
             if (sMode == "INSTALL" || sMode == "REQUIRED") {
@@ -155,7 +161,7 @@ default {
             //llRegionSayTo(kID, iChannel, sResponse);
             llRegionSay(iChannel, sResponse);
         } else if (sMsg == "Core5Done") Check4Core5Script();
-        else if (!llSubStringIndex(sMsg, "DONE")){
+        else if (llSubStringIndex(sMsg, "DONE") == 0){
             //restore settings
             if (g_iIsUpdate) {
                 llMessageLinked(LINK_ALL_OTHERS, -10, "LINK_REQUEST","");
@@ -166,16 +172,16 @@ default {
                     //Look through deprecated settings to see if we should ignore any...
                     // Settings look like rlvmain_on=1, we want to deprecate the token ie. rlvmain_on <--store
                    // Debug("Settings: "+sSetting);
-                    list lTest = llParseString2List(sSetting,["="],[]);
-                    string sToken = llList2String(lTest,0);
-                    if (llListFindList(g_lDeprecatedSettingTokens,[sToken]) == -1) { //If it doesn't exist in our list
-                        if (~llListFindList(["auth_block","auth_trust","auth_owner"],[sToken])) {
-                            lTest = llParseString2List(llGetSubString(sSetting,llSubStringIndex(sSetting,"=")+1,-1),[","],[]);
+                    list lTest = llParseString2List(sSetting, ["="], []);
+                    string sToken = llList2String(lTest, 0);
+                    if (llListFindList(g_lDeprecatedSettingTokens, [sToken]) == -1) { //If it doesn't exist in our list
+                        if (llListFindList(["auth_block","auth_trust","auth_owner"], [sToken]) != -1) {
+                            lTest = llParseString2List(llGetSubString(sSetting, llSubStringIndex(sSetting, "=")+1, -1), [","], []);
                             integer i;
-                            for (;i<llGetListLength(lTest);++i) {
-                                string sValue = llList2String(lTest,i);
+                            for (i = 0; i < llGetListLength(lTest); ++i) {
+                                string sValue = llList2String(lTest, i);
                                 if (osIsUUID(sValue)) {}
-                                else lTest = llDeleteSubList(lTest,i,i);
+                                else lTest = llDeleteSubList(lTest, i, i);
                             }
                             sSetting = sToken+"="+llDumpList2String(lTest,",");
                         }
@@ -193,7 +199,7 @@ default {
             // celebrate
             //llOwnerSay("Installation complete!");
             if (llGetInventoryType(".themes") != INVENTORY_NOTECARD) {
-                if (!(~llListFindList(g_lSettings,["intern_looks=1"]))
+                if (llListFindList(g_lSettings,["intern_looks=1"]) == -1
                 && llGetInventoryType("oc_themes") == INVENTORY_SCRIPT)
                     llRemoveInventory("oc_themes");
             }
@@ -207,7 +213,8 @@ default {
         }
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         // The settings script will dump all its settings when an inventory change happens, so listen for that and remember them
         // so they can be restored when we're done.
         if (iNum == LM_SETTING_RESPONSE) {
@@ -218,8 +225,8 @@ default {
             }
         }
         if (iNum == LOADPIN) {
-            integer iPin =  (integer)llGetSubString(sStr,0,llSubStringIndex(sStr,"@")-1);
-            string sScriptName = llGetSubString(sStr,llSubStringIndex(sStr,"@")+1,-1);
+            integer iPin =  (integer)llGetSubString(sStr, 0, llSubStringIndex(sStr,"@")-1);
+            string sScriptName = llGetSubString(sStr, llSubStringIndex(sStr,"@")+1, -1);
            //Debug("PrimNr:"+(string)iSender+" - "+sStr);
             if (llGetInventoryType(sScriptName) == INVENTORY_SCRIPT) {
                 llRemoteLoadScriptPin(kID, sScriptName, iPin, TRUE, 825);
@@ -228,7 +235,8 @@ default {
         }
     }
 
-    changed(integer iChange){
+    changed(integer iChange)
+    {
         if (iChange & (CHANGED_OWNER|CHANGED_LINK)) llResetScript();
     }
 }

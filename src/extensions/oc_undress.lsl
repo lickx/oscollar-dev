@@ -170,27 +170,30 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
     key kMenuID = llGenerateKey();
     llMessageLinked(LINK_DIALOG, DIALOG, (string)kID + "|" + sPrompt + "|" + (string)iPage + "|" + llDumpList2String(lChoices, "`") + "|" + llDumpList2String(lUtilityButtons, "`") + "|" + (string)iAuth, kMenuID);
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
-    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex + g_iMenuStride - 1);
+    if (~iIndex) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, kMenuID, sName], iIndex, iIndex+g_iMenuStride-1);
     else g_lMenuIDs += [kID, kMenuID, sName];
 }
 
-Notify(key kID, string sMsg, integer iAlsoNotifyWearer) {
-    llMessageLinked(LINK_DIALOG,NOTIFY,(string)iAlsoNotifyWearer+sMsg,kID);
+Notify(key kID, string sMsg, integer iAlsoNotifyWearer)
+{
+    llMessageLinked(LINK_DIALOG, NOTIFY, (string)iAlsoNotifyWearer+sMsg, kID);
 }
 
-MainMenu(key kID, integer iAuth) {
+MainMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nUn/dress\t"+g_sAppVersion+"\n";
     if (g_iAllLocked) sPrompt += "\n\nAll clothes and attachments are currently locked.";
     list lButtons;
-    if (!g_iAllLocked) lButtons += ["☐ Lock All","Lock Clothing","Lock Attach."];
+    if (g_iAllLocked == FALSE) lButtons += ["☐ Lock All","Lock Clothing","Lock Attach."];
     else lButtons += ["☑ Lock All"];
     if (g_iSmartStrip) lButtons += "☑ Smartstrip";
     else lButtons += "☐ Smartstrip";
-    if (!g_iAllLocked) lButtons += ["Rem. Clothing","Rem. Attach."];
+    if (g_iAllLocked == FALSE) lButtons += ["Rem. Clothing","Rem. Attach."];
     Dialog(kID, sPrompt, lButtons+g_lSubMenus, [UPMENU], 0, iAuth, "Menu");
 }
 
-QueryClothing(key kAv, integer iAuth) {
+QueryClothing(key kAv, integer iAuth)
+{
     g_iListener = llListen(g_iClothRLV, "", g_kWearer, "");
     llSetTimerEvent(g_iRLVTimeOut);
     if (g_iRLVOn) llOwnerSay("@getoutfit=" + (string)g_iClothRLV);
@@ -198,7 +201,8 @@ QueryClothing(key kAv, integer iAuth) {
     g_iMenuAuth = iAuth;
 }
 
-ClothingMenu(key kID, string sStr, integer iAuth) {
+ClothingMenu(key kID, string sStr, integer iAuth)
+{
     string sPrompt = "\nSelect an article of clothing to remove.\n";
     list lButtons = [];
     integer iStop = llGetListLength(DETACH_CLOTH_POINTS);
@@ -206,29 +210,31 @@ ClothingMenu(key kID, string sStr, integer iAuth) {
     for (n = 0; n < iStop; n++) {
         integer iWorn = (integer)llGetSubString(sStr, n, n);
         list item = [llList2String(DETACH_CLOTH_POINTS, n)];
-        if (iWorn && llListFindList(g_lLockedItems,item) == -1) {
-            if (llList2String(item,0)!="xx") lButtons += item;
+        if (iWorn && llListFindList(g_lLockedItems, item) == -1) {
+            if (llList2String(item,0) != "xx") lButtons += item;
         }
     }
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "strip");
 }
 
-LockClothMenu(key kID, integer iAuth) {
+LockClothMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nSelect an article of clothing to un/lock.\n";
     list lButtons;
-    if (~llListFindList(g_lLockedItems,[ALL])) lButtons += [TICKED+ALL];
+    if (llListFindList(g_lLockedItems,[ALL]) != -1) lButtons += [TICKED+ALL];
     else lButtons += [UNTICKED+ALL];
     integer iStop = llGetListLength(LOCK_CLOTH_POINTS);
     integer n;
     for (n = 0; n < iStop; n++) {
         string sCloth = llList2String(LOCK_CLOTH_POINTS, n);
-        if (~llListFindList(g_lLockedItems,[sCloth])) lButtons += [TICKED+sCloth];
+        if (llListFindList(g_lLockedItems,[sCloth]) != -1) lButtons += [TICKED+sCloth];
         else lButtons += [UNTICKED+sCloth];
     }
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "lockclothing");
 }
 
-QueryAttachments(key kAv, integer iAuth) {
+QueryAttachments(key kAv, integer iAuth)
+{
     g_iListener = llListen(g_iAttachRLV, "", g_kWearer, "");
     llSetTimerEvent(g_iRLVTimeOut);
     if (g_iRLVOn) llOwnerSay("@getattach=" + (string)g_iAttachRLV);
@@ -236,22 +242,24 @@ QueryAttachments(key kAv, integer iAuth) {
     g_iMenuAuth = iAuth;
 }
 
-LockAttachmentMenu(key kID, integer iAuth) {
+LockAttachmentMenu(key kID, integer iAuth)
+{
     string sPrompt = "\nSelect an attachment to un/lock.\n";
     list lButtons;
-    if (~llListFindList(g_lLockedAttach,[ALL])) lButtons += [TICKED+ALL];
+    if (llListFindList(g_lLockedAttach, [ALL]) != -1) lButtons += [TICKED+ALL];
     else lButtons += [UNTICKED+ALL];
     integer iStop = llGetListLength(ATTACH_POINTS);
     integer n;
     for (n = 1; n < iStop; n++) {
         string sAttach = llList2String(ATTACH_POINTS, n);
-        if (~llListFindList(g_lLockedAttach,[sAttach])) lButtons += [TICKED+sAttach];
+        if (llListFindList(g_lLockedAttach, [sAttach]) != -1) lButtons += [TICKED+sAttach];
         else lButtons += [UNTICKED+sAttach];
     }
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "lockattachment");
 }
 
-DetachMenu(key kID, string sStr, integer iAuth) {
+DetachMenu(key kID, string sStr, integer iAuth)
+{
     string sPrompt = "\nSelect an attachment to remove.\n";
     integer myattachpoint = llGetAttached();
     list lButtons;
@@ -266,63 +274,69 @@ DetachMenu(key kID, string sStr, integer iAuth) {
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "detach");
 }
 
-UpdateSettings() {
+UpdateSettings()
+{
     integer iSettingsLength = llGetListLength(g_lSettings);
     if (iSettingsLength > 0) {
-        g_lLockedItems=[];
-        g_lLockedAttach=[];
+        g_lLockedItems = [];
+        g_lLockedAttach = [];
         integer n;
         list lNewList;
-        for (n = 0; n < iSettingsLength; n = n + 2) {
-            list sOption = llParseString2List(llList2String(g_lSettings,n),[":"],[]);
-            lNewList += [llList2String(g_lSettings, n) + "=" + llList2String(g_lSettings, n + 1)];
-            if (llGetListLength(sOption) == 1 && llList2String(sOption,0) == "remoutfit") {
-                if (llListFindList(g_lLockedItems, [ALL])==-1) g_lLockedItems += [ALL];
-            } else if (llGetListLength(sOption) == 2 && ~llSubStringIndex(llList2String(sOption,0),"outfit")) {
-                if (llListFindList(g_lLockedItems, [llList2String(sOption,1)])==-1)
-                    g_lLockedItems += [llList2String(sOption,1)];
-            } else if (llGetListLength(sOption) == 2 && ~llSubStringIndex(llList2String(sOption,0),"tach")) {
-                if (llListFindList(g_lLockedAttach, [llList2String(sOption,1)])==-1)
-                    g_lLockedAttach += [llList2String(sOption,1)];
+        for (n = 0; n < iSettingsLength; n = n+2) {
+            list sOption = llParseString2List(llList2String(g_lSettings, n), [":"], []);
+            lNewList += [llList2String(g_lSettings, n) + "=" + llList2String(g_lSettings, n+1)];
+            if (llGetListLength(sOption) == 1 && llList2String(sOption, 0) == "remoutfit") {
+                if (llListFindList(g_lLockedItems, [ALL]) == -1) g_lLockedItems += [ALL];
+            } else if (llGetListLength(sOption) == 2 && llSubStringIndex(llList2String(sOption,0),"outfit") != -1) {
+                if (llListFindList(g_lLockedItems, [llList2String(sOption, 1)]) == -1)
+                    g_lLockedItems += [llList2String(sOption, 1)];
+            } else if (llGetListLength(sOption) == 2 && llSubStringIndex(llList2String(sOption,0),"tach") != -1) {
+                if (llListFindList(g_lLockedAttach, [llList2String(sOption, 1)]) == -1)
+                    g_lLockedAttach += [llList2String(sOption, 1)];
             }
         }
         if (g_iRLVOn) llOwnerSay("@"+llDumpList2String(lNewList, ","));
     }
 }
 
-ClearSettings() {
+ClearSettings()
+{
     g_lSettings = [];
     g_lLockedItems = [];
-    g_lLockedAttach=[];
+    g_lLockedAttach = [];
     SaveLockAllFlag(0);
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "rlvundress_List", "");
 }
 
-SaveLockAllFlag(integer iSetting) {
+SaveLockAllFlag(integer iSetting)
+{
     if (g_iAllLocked == iSetting) return;
     g_iAllLocked = iSetting;
     if (iSetting > 0) llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "rlvundress_LockAll=1", "");
     else llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "rlvundress_LockAll", "");
 }
 
-DoLockAll() {
+DoLockAll()
+{
     if (g_iRLVOn) llOwnerSay("@addattach=n,remattach=n,addoutfit=n,remoutfit=n");
 }
 
-DoUnlockAll() {
+DoUnlockAll()
+{
     if (g_iRLVOn) llOwnerSay("@addattach=y,remattach=y,addoutfit=y,remoutfit=y");
 }
 
-UserCommand(integer iAuth, string sStr, key kID) {
+UserCommand(integer iAuth, string sStr, key kID)
+{
     if (iAuth > CMD_WEARER || iAuth < CMD_OWNER) return;
     if (llToLower(sStr) == "rm undress" || llToLower(sStr) == "rm un/dress") {
         if (iAuth == CMD_OWNER || kID == g_kWearer)
             Dialog(kID, "\nDo you really want to uninstall the "+g_sSubMenu+" App?", ["Yes","No","Cancel"], [], 0, iAuth,"rmundress");
-        else llMessageLinked(LINK_DIALOG,NOTIFY,"0"+"%NOACCESS%",kID);
+        else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
         return;
     }
-    if (!g_iRLVOn) {
-        if (~llListFindList(["menu "+g_sSubMenu,"undress","lockall","unlockall"],[sStr])) {
+    if (g_iRLVOn == FALSE) {
+        if (llListFindList(["menu "+g_sSubMenu,"undress","lockall","unlockall"],[sStr]) != -1) {
             Notify(kID, "RLV features are now disabled in this %DEVICETYPE%. You can enable those in RLV submenu. Opening it now.", FALSE);
             llMessageLinked(LINK_RLV, iAuth, "menu "+g_sParentMenu, kID);
         }
@@ -347,8 +361,8 @@ UserCommand(integer iAuth, string sStr, key kID) {
             Notify(kID, "%WEARERNAME%'s clothing and attachments have been unlocked.", TRUE);
         }
     } else if (sCommand == "smartstrip") {
-        if (iAuth==CMD_OWNER || iAuth == CMD_WEARER) {
-            string sOpt=llList2String(lParams,1);
+        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
+            string sOpt = llList2String(lParams, 1);
             if (sOpt == "on") {
                 g_iSmartStrip = TRUE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, "rlvundress_smartstrip=1","");
@@ -358,14 +372,14 @@ UserCommand(integer iAuth, string sStr, key kID) {
             }
         } else Notify(kID,"This requires a properly set-up outfit, only wearer or owner can turn it on.", FALSE);
     } else if (sCommand == "strip") {
-        string sOpt = llList2String(lParams,1);
+        string sOpt = llList2String(lParams, 1);
         if (sOpt == "all") {
            if (g_iSmartStrip) {
                 integer x = 14;
                 while (x) {
                     if (x == 13) x = 9;
                     --x;
-                    string sItem = llToLower(llList2String(DETACH_CLOTH_POINTS,x));
+                    string sItem = llToLower(llList2String(DETACH_CLOTH_POINTS, x));
                     if (g_iRLVOn) llOwnerSay("@detachallthis:"+ sItem +"=force");
                  }
             }
@@ -373,10 +387,10 @@ UserCommand(integer iAuth, string sStr, key kID) {
             return ;
         }
         sOpt = llToLower(sOpt);
-        string test=llToUpper(llGetSubString(sOpt,0,0))+llGetSubString(sOpt,1,-1);
-        if(llListFindList(DETACH_CLOTH_POINTS,[test])==-1) return;
+        string test = llToUpper(llGetSubString(sOpt, 0, 0))+llGetSubString(sOpt, 1, -1);
+        if(llListFindList(DETACH_CLOTH_POINTS, [test]) == -1) return;
         if (g_iRLVOn) {
-            if (g_iSmartStrip==TRUE) llOwnerSay("@detachallthis:" + sOpt + "=force");
+            if (g_iSmartStrip == TRUE) llOwnerSay("@detachallthis:" + sOpt + "=force");
             llOwnerSay("@remoutfit:" + sOpt + "=force");
         }
     } else if (llListFindList(g_lRLVcmds, [sCommand]) != -1) {
@@ -385,12 +399,12 @@ UserCommand(integer iAuth, string sStr, key kID) {
     } else if (llGetSubString(sStr, 0, 11) == "lockclothing") {
         string sMessage = llGetSubString(sStr, 13, -1);
         if (iAuth == CMD_WEARER) Notify(kID, "Sorry you need owner privileges for locking clothes.", FALSE);
-        else if (sMessage==ALL||sStr== "lockclothing") {
+        else if (sMessage == ALL || sStr == "lockclothing") {
             g_lLockedItems += [ALL];
             Notify(kID, "%WEARERNAME%'s clothing has been locked.", TRUE);
             RLVCMD("remoutfit=n");
             RLVCMD("addoutfit=n");
-        } else if (llListFindList(LOCK_CLOTH_POINTS,[sMessage])!=-1) {
+        } else if (llListFindList(LOCK_CLOTH_POINTS, [sMessage]) != -1) {
             g_lLockedItems += sMessage;
             Notify(kID, "%WEARERNAME%'s "+sMessage+" has been locked.", TRUE);
             RLVCMD("remoutfit:" + sMessage + "=n");
@@ -400,25 +414,25 @@ UserCommand(integer iAuth, string sStr, key kID) {
         if (iAuth == CMD_WEARER) Notify(kID, "Sorry you need owner privileges for unlocking clothes.", FALSE);
         else {
             string sPoint = llGetSubString(sStr, 15, -1);
-            if (sPoint==ALL||sStr=="unlockclothing") {
+            if (sPoint == ALL || sStr == "unlockclothing") {
                 RLVCMD("remoutfit=y");
                 RLVCMD("addoutfit=y");
                 Notify(kID, "%WEARERNAME%'s clothing has been unlocked.", TRUE);
-                integer iIndex = llListFindList(g_lLockedItems,[ALL]);
-                if (iIndex!=-1) g_lLockedItems = llDeleteSubList(g_lLockedItems,iIndex,iIndex);
+                integer iIndex = llListFindList(g_lLockedItems, [ALL]);
+                if (iIndex != -1) g_lLockedItems = llDeleteSubList(g_lLockedItems, iIndex, iIndex);
             } else {
                 RLVCMD("remoutfit:" + sPoint + "=y");
                 RLVCMD("addoutfit:" + sPoint + "=y");
                 Notify(kID, "%WEARERNAME%'s "+sPoint+" has been unlocked.", TRUE);
-                integer iIndex = llListFindList(g_lLockedItems,[sPoint]);
-                if (iIndex!=-1) g_lLockedItems = llDeleteSubList(g_lLockedItems,iIndex,iIndex);
+                integer iIndex = llListFindList(g_lLockedItems, [sPoint]);
+                if (iIndex != -1) g_lLockedItems = llDeleteSubList(g_lLockedItems, iIndex, iIndex);
             }
         }
     } else if (llGetSubString(sStr, 0, 13) == "lockattachment") {
         string sPoint = llGetSubString(sStr, 15, -1);
         if (iAuth == CMD_WEARER) Notify(kID, "Sorry you need owner privileges for locking attachments.", FALSE);
-        else if (llListFindList(ATTACH_POINTS,[sPoint]) != -1) {
-            if (llListFindList(g_lLockedAttach,[sPoint]) == -1) g_lLockedAttach += [sPoint];
+        else if (llListFindList(ATTACH_POINTS, [sPoint]) != -1) {
+            if (llListFindList(g_lLockedAttach, [sPoint]) == -1) g_lLockedAttach += [sPoint];
             RLVCMD("detach:" + sPoint + "=n");
             Notify(kID, "%WEARERNAME%'s "+sPoint+" attachment point is now locked.", TRUE);
         } else if (sPoint == ALL || sStr == "lockattachment") {
@@ -430,23 +444,24 @@ UserCommand(integer iAuth, string sStr, key kID) {
     } else if (llGetSubString(sStr, 0, 15) == "unlockattachment") {
         string sPoint = llGetSubString(sStr, 17, -1);
         if (iAuth == CMD_WEARER) Notify(kID, "Sorry you need owner privileges for unlocking attachments.", FALSE);
-        else if (sPoint==ALL||sStr=="unlockattachment") {
+        else if (sPoint == ALL || sStr == "unlockattachment") {
             RLVCMD("addattach=y");
             RLVCMD("remattach=y");
             Notify(kID, "%WEARERNAME%'s "+sPoint+" attachment point is now locked.", TRUE);
-            integer iIndex = llListFindList(g_lLockedAttach,[ALL]);
-            if (iIndex!=-1) g_lLockedAttach = llDeleteSubList(g_lLockedAttach,iIndex,iIndex);
-        } else if (llListFindList(ATTACH_POINTS,[sPoint]) != -1) {
+            integer iIndex = llListFindList(g_lLockedAttach, [ALL]);
+            if (iIndex != -1) g_lLockedAttach = llDeleteSubList(g_lLockedAttach, iIndex, iIndex);
+        } else if (llListFindList(ATTACH_POINTS, [sPoint]) != -1) {
             RLVCMD("detach:" + sPoint + "=y");
             Notify(kID, "%WEARERNAME%'s "+sPoint+" has been unlocked.", TRUE);
-            integer iIndex = llListFindList(g_lLockedAttach,[sPoint]);
-            if (iIndex!=-1) g_lLockedAttach = llDeleteSubList(g_lLockedAttach,iIndex,iIndex);
+            integer iIndex = llListFindList(g_lLockedAttach, [sPoint]);
+            if (iIndex != -1) g_lLockedAttach = llDeleteSubList(g_lLockedAttach, iIndex, iIndex);
         }
         else Notify(kID, "Sorry you must either specify a attachment name.", FALSE);
     }
 }
 
-RLVCMD(string sStr) {
+RLVCMD(string sStr)
+{
     if (g_iRLVOn) llOwnerSay("@"+sStr);
     string sOption = llList2String(llParseString2List(sStr, ["="], []), 0);
     string sParam = llList2String(llParseString2List(sStr, ["="], []), 1);
@@ -464,16 +479,20 @@ RLVCMD(string sStr) {
 }
 
 
-default {
-    on_rez(integer iParam) {
+default
+{
+    on_rez(integer iParam)
+    {
         llResetScript();
     }
 
-    state_entry() {
+    state_entry()
+    {
         g_kWearer = llGetOwner();
     }
 
-    link_message(integer iSender, integer iNum, string sStr, key kID) {
+    link_message(integer iSender, integer iNum, string sStr, key kID)
+    {
         if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID);
         else if (iNum == RLV_OFF) g_iRLVOn=FALSE;
         else if (iNum == RLV_ON) g_iRLVOn=TRUE;
@@ -514,13 +533,13 @@ default {
             }
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) {
+            if (iMenuIndex != -1) {
                 string sMenu = llList2String(g_lMenuIDs, iMenuIndex+1);
                 g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
-                key kAv = (key)llList2String(lMenuParams, 0);
+                key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
-                integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iAuth = llList2Integer(lMenuParams, 3);
                 if (sMenu == "Menu") {
                     if (sMessage == UPMENU) llMessageLinked(LINK_RLV, iAuth, "menu " + g_sParentMenu, kAv);
                     else if (sMessage == "Rem. Clothing") QueryClothing(kAv, iAuth);
@@ -552,10 +571,10 @@ default {
                 } else if (sMenu == "lockclothing" || sMenu == "lockattachment") {
                     if (sMessage == UPMENU) MainMenu(kAv, iAuth);
                     else {
-                        string cstate = llGetSubString(sMessage,0,llStringLength(TICKED)-1);
-                        sMessage = llGetSubString(sMessage,llStringLength(TICKED),-1);
-                        if (cstate==UNTICKED) UserCommand(iAuth, sMenu+" "+sMessage, kAv);
-                        else if (cstate==TICKED) UserCommand(iAuth, "un"+sMenu+" "+sMessage, kAv);
+                        string cstate = llGetSubString(sMessage, 0, llStringLength(TICKED)-1);
+                        sMessage = llGetSubString(sMessage, llStringLength(TICKED), -1);
+                        if (cstate == UNTICKED) UserCommand(iAuth, sMenu+" "+sMessage, kAv);
+                        else if (cstate == TICKED) UserCommand(iAuth, "un"+sMenu+" "+sMessage, kAv);
                         if (sMenu == "lockclothing") LockClothMenu(kAv, iAuth);
                         if (sMenu == "lockattachment") LockAttachmentMenu(kAv, iAuth);
                     }
@@ -569,7 +588,7 @@ default {
             }
         } else if (iNum == DIALOG_TIMEOUT) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
-            if (~iMenuIndex) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
+            if (iMenuIndex != -1) g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex-1, iMenuIndex-2+g_iMenuStride);
         } else if (iNum == LINK_UPDATE) {
             if (sStr == "LINK_DIALOG") LINK_DIALOG = iSender;
             else if (sStr == "LINK_RLV") LINK_RLV = iSender;
@@ -577,14 +596,16 @@ default {
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
     }
 
-    listen(integer iChan, string sName, key kID, string sMessage) {
+    listen(integer iChan, string sName, key kID, string sMessage)
+    {
         llListenRemove(g_iListener);
         llSetTimerEvent(0.0);
         if (iChan == g_iClothRLV) ClothingMenu(g_kMenuUser, sMessage, g_iMenuAuth);
         else if (iChan == g_iAttachRLV) DetachMenu(g_kMenuUser, sMessage, g_iMenuAuth);
     }
 
-    timer() {
+    timer()
+    {
         llListenRemove(g_iListener);
         llSetTimerEvent(0.0);
     }
