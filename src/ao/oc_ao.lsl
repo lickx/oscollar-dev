@@ -61,7 +61,7 @@ integer g_iNumberOfPages;
 
 float g_fGap = 0.001; // This is the space between buttons
 float g_Yoff = 0.002; // space between buttons and screen top/bottom border
-float g_Zoff = 0.04; // space between buttons and screen left/right border
+float g_Zoff = 0.06; // space between buttons and screen left/right border
 
 list g_lButtons ; // buttons names for Order menu
 list g_lPrimOrder = [0,1,2,3,4]; // -- List must always start with '0','1'
