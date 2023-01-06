@@ -272,7 +272,6 @@ SaveAuthorized()
     string TEXTURE_NOTHING = TEXTURE_BLANK;
     float fLimitRange = (float)g_iLimitRange;
     float fRunawayDisable = (float) g_iRunawayDisable;
-    float fOpenAccess = (float)g_iOpenAccess;
     float fVanilla = (float)g_iVanilla;
     float fHardVanilla = (float)g_iHardVanilla;
     string sFirstOwner = TEXTURE_NOTHING;
@@ -284,13 +283,14 @@ SaveAuthorized()
         sFirstOwner = llList2String(g_lOwner, 0);
         sSecondOwner = llList2String(g_lOwner, 1);
     }
-    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 0, sFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,fOpenAccess>, 0]);
+    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 0, sFirstOwner, <1,1,0>, <fLimitRange,fRunawayDisable,0>, 0]);
     llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 1, sSecondOwner, <1,1,0>, <fVanilla,fHardVanilla,0>, 0]);
 
+    float fOpenAccess = (float)g_iOpenAccess;
     if (llGetListLength(g_lTempOwner) > 0) {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, llList2String(g_lTempOwner, 0), <fOpenAccess,1,0>, <0,0,0>, 0]);
     } else {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_NOTHING, <1,1,0>, <0,0,0>, 0]);
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXTURE, 2, TEXTURE_NOTHING, <1,1,0>, <fOpenAccess,0,0>, 0]);
     }
 
     string sGroup = TEXTURE_NOTHING;
@@ -326,7 +326,6 @@ LoadAuthorized()
     v = llList2Vector(l, 2);
     g_iLimitRange = (integer)v.x;
     g_iRunawayDisable = (integer)v.y;
-    g_iOpenAccess = (integer)v.z;
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 1]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lOwner += [llList2Key(l, 0)];
@@ -337,6 +336,8 @@ LoadAuthorized()
     g_lTempOwner = [];
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 2]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTempOwner += [llList2Key(l, 0)];
+    v = llList2Vector(l, 2);
+    g_iOpenAccess = (integer)v.x;
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = llList2Key(l, 0);
