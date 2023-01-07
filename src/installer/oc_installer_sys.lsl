@@ -178,7 +178,7 @@ default
         ReadName();
         g_sObjectName = llGetObjectName();
         if (llGetInventoryType("oc_ao") == INVENTORY_SCRIPT) g_initChannel = -7483220;
-        else if (llGetInventoryType("oc_remote_sys") == INVENTORY_SCRIPT) g_initChannel = -7483210;
+        else if (llGetInventoryType("oc_remote_sys") == INVENTORY_SCRIPT || llGetInventoryType("oc_oh_sys") == INVENTORY_SCRIPT) g_initChannel = -7483210;
 
         llListen(g_initChannel, "", "", "");
         // set all scripts except self to not running

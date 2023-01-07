@@ -1,5 +1,5 @@
 
-//  oc_remote_dialog.lsl
+//  oc_oh_dialog.lsl
 //
 //  Copyright (c) 2014 - 2015 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,

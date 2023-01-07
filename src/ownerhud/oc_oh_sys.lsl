@@ -1,5 +1,5 @@
 
-//  oc_remote_sys.lsl
+//  oc_oh_sys.lsl
 //
 //  Copyright (c) 2014 - 2017 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,
@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2023.01.05";
+string g_sVersion = "2023.01.07";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -64,7 +64,7 @@ integer ACC_CMD              = 7000;
 integer DIALOG               = -9000;
 integer DIALOG_RESPONSE      = -9001;
 integer DIALOG_TIMEOUT       = -9002;
-integer CMD_REMOTE           = 10000;
+integer CMD_OWNER_HUD        = 10000;
 integer UPDATE = 5555;
 string UPMENU          = "BACK";
 string g_sListPartners  = "List";
@@ -144,7 +144,7 @@ AddPartner(string sID)
     if (llListFindList(g_lPartners, [sID]) != -1) return;
     if ((key)sID != NULL_KEY) {//don't register any unrecognised
         g_lPartners += [sID];//Well we got here so lets add them to the list.
-        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Remote called '"+llKey2Name((key)sID)+"'.\n");//Tell the owner we made it.
+        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Owner HUD called '"+llKey2Name((key)sID)+"'.\n");//Tell the owner we made it.
     }
 }
 
@@ -168,7 +168,7 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 
 MainMenu()
 {
-    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  Remote\t"+g_sVersion;
+    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  Owner HUD\t"+g_sVersion;
     sPrompt += "\n\nSelected Partner: "+NameURI(g_sActivePartnerID);
     list lButtons = g_lMainMenuButtons + g_lMenus;
     Dialog(sPrompt, lButtons, [], 0, g_sMainMenu);
@@ -278,7 +278,7 @@ default {
             g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             g_kCardID = llGetInventoryKey(g_sCard);
         } else {
-            llOwnerSay("\n\nYou are probably wearing this OsCollar Remote for the first time. I'm opening the remote menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the remote menu again, please select the gear (⚙) icon on your remote HUD.\n");
+            llOwnerSay("\n\nYou are probably wearing this Owner HUD for the first time. I'm opening the menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the menu again, please select the gear (⚙) icon on your HUD.\n");
         }
         g_iListener = llListen(PersonalChannel(g_kOwner, 0), "", "", ""); //lets listen here
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");
@@ -300,7 +300,7 @@ default {
         // I made the root prim the "menu" prim, and the button action default to "menu."
         string sButtonDesc = llToLower((string)llGetLinkPrimitiveParams(llDetectedLinkNumber(0),[PRIM_DESC]));
         string sButtonName = llToLower(llGetLinkName(llDetectedLinkNumber(0)));
-        if (llSubStringIndex(sButtonName, "remote") != -1)
+        if (llSubStringIndex(sButtonName, "remote") != -1 || llSubStringIndex(sButtonName, "owner hud") != -1)
             llMessageLinked(LINK_SET, CMD_TOUCH,"hide", "");
         else if (sButtonName == "hudmenu") MainMenu();
         else if (sButtonName == "rez") RezMenu();
@@ -352,7 +352,7 @@ default {
             }
             lParams = [];
         } else if (iNum == SUBMENU && sStr == "Main") MainMenu();
-        else if (iNum == CMD_REMOTE) SendCollarCommand(sStr);
+        else if (iNum == CMD_OWNER_HUD) SendCollarCommand(sStr);
         else if (iNum == UPDATE) {
             if (sStr != "") g_lPartners = llCSV2List(sStr);
             else llMessageLinked(iSender, UPDATE+1, llList2CSV(g_lPartners),"");

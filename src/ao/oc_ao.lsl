@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2023.01.05";
+string g_sVersion = "2023.01.07";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -459,7 +459,7 @@ MenuLoad(key kID, integer iPage)
     integer i = 0;
     while (i < iEnd) {
         sNotecardName = llGetInventoryName(INVENTORY_NOTECARD, i++);
-        if (llSubStringIndex(sNotecardName,".") > 0 && sNotecardName != "OsCollar Help" &&
+        if (llSubStringIndex(sNotecardName,".") != 0 && sNotecardName != "OsCollar Help" &&
             sNotecardName != "OsCollar License" && sNotecardName != "") {
             if (llSubStringIndex(sNotecardName,"SET") == 0)
                 g_lCustomCards += [sNotecardName,"Wildcard "+(string)(++iCountCustomCards)];// + g_lCustomCards;

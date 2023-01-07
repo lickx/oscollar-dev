@@ -1,5 +1,5 @@
 
-//  oc_remote_options.lsl
+//  oc_oh_options.lsl
 //
 //  Copyright (c) 2014 - 2016 Nandana Singh, Jessenia Mocha, Alexei Maven,
 //  Master Starship, Wendy Starfall, North Glenwalker, Ray Zopf, Sumi Perl,
@@ -289,7 +289,7 @@ DoMenu(string sMenu)
         lUtils = ["Reset", UPMENU];
     }
     if (sMenu == g_sHudMenu) { // Main
-        sPrompt = "\nCustomize your Remote!";
+        sPrompt = "\nCustomize your Owner HUD!";
         lButtons = ["Rows: "+(string)g_iRows] ;
         if (g_iRows > 1) lButtons += llList2List(["Columns >","Alternate >"], g_iColumn, g_iColumn) ;
         else lButtons += [" - "] ;
