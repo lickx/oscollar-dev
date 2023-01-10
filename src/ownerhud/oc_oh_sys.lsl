@@ -305,7 +305,7 @@ default {
         else if (sButtonName == "hudmenu") MainMenu();
         else if (sButtonName == "rez") RezMenu();
         else if (llSubStringIndex(sButtonDesc, "picture") != -1) NextPartner(1, TRUE);
-        else if (sButtonName == "bookmarks") llMessageLinked(LINK_THIS, 0, "bookmarks menu", "");
+        //else if (sButtonName == "bookmarks") llMessageLinked(LINK_THIS, 0, "bookmarks menu", "");
         else if (sButtonName == "tp save") llMessageLinked(LINK_THIS, 0, sButtonDesc, "");
         else SendCollarCommand(sButtonName);
     }
