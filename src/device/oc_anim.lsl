@@ -178,7 +178,7 @@ integer SetPosture(integer iOn, key kCommander)
             llStartAnimation("~stiff");
             if (kCommander != NULL_KEY) llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Posture override active.", kCommander);
             llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"posture=1", "");
-        } else if (iOn = FALSE) {
+        } else if (iOn == FALSE) {
             llStopAnimation("~stiff");
             llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"posture", "");
         }
@@ -275,7 +275,7 @@ StopAnim(string sAnim, integer isPoseChange)
     if (llGetPermissions() & PERMISSION_TRIGGER_ANIMATION) {
         if (llGetInventoryType(sAnim) == INVENTORY_ANIMATION) {
             integer n;
-            while((n = llListFindList(g_lAnims,[sAnim])) != -1)
+            while(~(n = llListFindList(g_lAnims,[sAnim])))
                 g_lAnims = llDeleteSubList(g_lAnims,n,n);
             if (sAnim != "") UnPlayAnim(sAnim);
             if (llGetListLength(g_lAnims) > 0) PlayAnim(llList2String(g_lAnims, 0));
