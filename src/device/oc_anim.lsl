@@ -329,7 +329,7 @@ string MatchInventoryName(string sName, integer iType)
     integer i = 0;
     while (i < llGetInventoryNumber(iType)) {
         string sItemName = llGetInventoryName(iType, i);
-        if (llSubStringIndex(llToLower(sItemName), llToLower(sName)) != -1) return sItemName;
+        if (llSubStringIndex(llToLower(sItemName), llToLower(sName)) == 0) return sItemName;
         i++;
     }
     return "";
