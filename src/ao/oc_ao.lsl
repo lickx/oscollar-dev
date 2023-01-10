@@ -92,6 +92,8 @@ float g_fHeelOffset = -0.1;
 list g_lTimers;
 integer g_iTimerRunning;
 
+string g_sStyle = "Dark"; // only used for settings storing/restoring
+
 /*
 When iLoop = TRUE, iTime is loop time in seconds
 When iLoop = FALSE, iTime is seconds until fire
@@ -217,6 +219,8 @@ DoTextures(string style)
             }
         }
     }
+    g_sStyle = style;
+    StoreSettings();
 }
 
 DefinePosition()
@@ -655,6 +659,7 @@ StoreSettings()
     sSettings += "~rnd="+(string)g_iShuffle;
     sSettings += "~sp="+(string)g_iStandPause;
     sSettings += "~so="+llGetSubString((string)g_fSitOffset, 0, 3);
+    sSettings += "~st="+g_sStyle;
     llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
 }
 
@@ -677,6 +682,7 @@ RestoreSettings()
         else if (sKey == "rnd") g_iShuffle = (integer)sValue;
         else if (sKey == "sp") g_iStandPause = (integer)sValue;
         else if (sKey == "so") g_fSitOffset = (float)sValue;
+        else if (sKey == "st") g_sStyle = sValue;
     }
 }
 
@@ -694,7 +700,7 @@ default
         g_iHUDChannel = -llAbs((integer)("0x"+llGetSubString((string)llGetOwner(),-7,-1)));
         FindButtons();
         DefinePosition();
-        DoTextures("Dark");
+        DoTextures(g_sStyle);
         DetermineColors();
         if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) {
             g_iCardLine = 0;
