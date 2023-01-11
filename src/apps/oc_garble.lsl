@@ -94,7 +94,7 @@ string garble(string in)
     if (in == "b" || in == "p" || in == "v") return "f";
     if (in == "x") return "ek";
     // randomly garble everything else
-    if (llFloor(llFrand(10.0) < 1)) return in;
+    if (llFloor(llFrand(10.0)) < 1) return in;
     return "nh";
 }
 
