@@ -121,13 +121,7 @@ SetFloatText()
 Particles(key kTarget)
 {
     integer i = llGetNumberOfPrims();
-    vector vParticleColor;
-    do {
-        if (llGetLinkName(i) == "<3") {
-            vParticleColor = llList2Vector(llGetLinkPrimitiveParams(i,[PRIM_COLOR,ALL_SIDES]),0);
-            i = 1;
-        }
-    } while (--i > 1);
+    vector vParticleColor = <1,1,1>;
     llParticleSystem([
         PSYS_PART_FLAGS,
             PSYS_PART_INTERP_COLOR_MASK |
