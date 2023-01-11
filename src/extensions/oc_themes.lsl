@@ -360,7 +360,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage)
                 }
                 integer iTextureIndex = llListFindList(g_lTextures, [sElement+"~"+sTextureShortName]);
                 if (osIsUUID(sTextureShortName)) iTextureIndex = 0;
-                else if (iTextureIndex == 0)
+                else if (iTextureIndex == -1)
                     iTextureIndex = llListFindList(g_lTextures, [sTextureShortName]);
                 if (sTextureShortName == "") {
                     TextureMenu(kID, 0, iNum, sStr);
