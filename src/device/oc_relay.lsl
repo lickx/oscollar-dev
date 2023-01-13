@@ -258,12 +258,10 @@ Menu(key kID, integer iAuth)
         lButtons = ["☐ Ask","☒ Auto"];
         sPrompt += " is set to auto mode.";
     } else sPrompt += " is offline.";
-    if (kID == g_kWearer) {
-        if (g_iSmartStrip) lButtons+=["☑ Smart"];
-        else lButtons+=["☐ Smart"];
-        if (g_iAllowAttach) lButtons+=["☑ AllowAttach"];
-        else lButtons+=["☐ AllowAttach"];
-    }
+    if (g_iSmartStrip) lButtons+=["☑ Smart"];
+    else lButtons+=["☐ Smart"];
+    if (g_iAllowAttach) lButtons+=["☑ AllowAttach"];
+    else lButtons+=["☐ AllowAttach"];
     lButtons += ["Reset"];
     if (g_iHelpless) lButtons+=["☑ Helpless"];
     else lButtons+=["☐ Helpless"];
@@ -344,7 +342,7 @@ UserCommand(integer iAuth, string sStr, key kID)
                 }
             }
         } else if (llGetSubString(sChangetype, 0, 4) == "smart") {
-            if (kID != g_kWearer) RelayNotify(kID, "Access denied!", 0);
+            if (iAuth != CMD_WEARER) RelayNotify(kID, "Only wearer can toggle this, since Smartstrip requires the #RLV folder to be setup in a specific way.", 0);
             else if (sChangevalue == "off") {
                 g_iSmartStrip = FALSE;
                 sText = "Smartstrip turned off.\n\nAttachments and clothing, also if layers are somewhere inside #RLV folder directories, will be stripped normally.\n";
@@ -353,7 +351,7 @@ UserCommand(integer iAuth, string sStr, key kID)
                 g_iSmartStrip = TRUE;
             }
         } else if (llGetSubString(sChangetype, 0, 9) == "allowattach") {
-            if (kID != g_kWearer) RelayNotify(kID,"Access denied!",0);
+            if (iAuth != CMD_OWNER) RelayNotify(kID, "Access denied!", 0);
             else if (sChangevalue == "off") {
                 g_iAllowAttach = FALSE;
                 sText = "You can no longer attach objects, if the attachpoint is locked.\n";

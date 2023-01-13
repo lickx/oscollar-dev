@@ -371,7 +371,7 @@ UserCommand(integer iAuth, string sStr, key kID)
             Notify(kID, "%WEARERNAME%'s clothing and attachments have been unlocked.", TRUE);
         }
     } else if (sCommand == "smartstrip") {
-        if (iAuth == CMD_OWNER || iAuth == CMD_WEARER) {
+        if (iAuth == CMD_WEARER) {
             string sOpt = llList2String(lParams, 1);
             if (sOpt == "on") {
                 g_iSmartStrip = TRUE;
@@ -380,7 +380,7 @@ UserCommand(integer iAuth, string sStr, key kID)
                 g_iSmartStrip = FALSE;
                 llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, "rlvundress_smartstrip","");
             }
-        } else Notify(kID,"This requires a properly set-up outfit, only wearer or owner can turn it on.", FALSE);
+        } else Notify(kID,"Only wearer can toggle this, since Smartstrip requires the #RLV folder to be setup in a specific way.", FALSE);
     } else if (sCommand == "strip") {
         string sOpt = llList2String(lParams, 1);
         if (sOpt == "all") {
