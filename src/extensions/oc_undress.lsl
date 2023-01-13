@@ -20,7 +20,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sAppVersion = "1.3";
+string g_sAppVersion = "2023.01.13";
 
 string g_sSubMenu = "Un/Dress";
 string g_sParentMenu = "RLV";
@@ -203,7 +203,7 @@ QueryClothing(key kAv, integer iAuth)
 
 ClothingMenu(key kID, string sStr, integer iAuth)
 {
-    string sPrompt = "\nSelect an article of clothing to remove.\n";
+    string sPrompt = "\nSelect an article of clothing to remove.\n\n";
     list lButtons = [];
     integer iStop = llGetListLength(DETACH_CLOTH_POINTS);
     integer n;
@@ -211,7 +211,17 @@ ClothingMenu(key kID, string sStr, integer iAuth)
         integer iWorn = (integer)llGetSubString(sStr, n, n);
         list item = [llList2String(DETACH_CLOTH_POINTS, n)];
         if (iWorn && llListFindList(g_lLockedItems, item) == -1) {
-            if (llList2String(item,0) != "xx") lButtons += item;
+            string sItem = llList2String(item, 0);
+            if (sItem == "Jacket") sPrompt += "Jacket: also dress, hoodie, gown, sweater\n";
+            else if (sItem == "Shirt") sPrompt += "Shirt: also blouse, croptop, t-shirt, polo\n";
+            else if (sItem == "Undershirt") sPrompt += "Undershirt: also bikini, bra, pasties, tanktop\n";
+            else if (sItem == "Gloves") sPrompt += "Gloves: also armwarmers, handhoofs\n";
+            else if (sItem == "Pants") sPrompt += "Pants: also kilt, leggings, sarong, shorts, skirt\n";
+            else if (sItem == "Underpants") sPrompt += "Underpants: also boxers, swimwear, thong\n";
+            else if (sItem == "Skirt") sPrompt += "Skirt: also dress, gown, kilt, sarong";
+            else if (sItem == "Socks") sPrompt += "Socks: also stockings\n";
+            else if (sItem == "Shoes") sPrompt += "Shoes: also boots, heels, hoofs, sneakers\n";
+            if (sItem != "xx") lButtons += item;
         }
     }
     Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth, "strip");
