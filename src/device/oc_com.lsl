@@ -56,7 +56,7 @@ integer TOUCH_REQUEST = -9500;
 integer TOUCH_CANCEL = -9501;
 integer TOUCH_RESPONSE = -9502;
 integer TOUCH_EXPIRE = -9503;
-string g_sSafeWord;
+string g_sSafeWord = "RED";
 
 integer g_iInterfaceChannel;
 integer g_iListenHandleAtt;
