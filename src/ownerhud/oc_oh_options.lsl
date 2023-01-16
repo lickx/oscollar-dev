@@ -323,6 +323,7 @@ OrderButton(string sButton)
 StoreSettings()
 {
     string sSettings;
+    string sOldSettings;
     sSettings += "v="+(string)g_iVertical;  // can be vertical?
     sSettings += "~l="+(string)g_iLayout; // 0 - Horisontal, 1 - Vertical
     sSettings += "~h="+(string)g_iHidden;
@@ -330,12 +331,15 @@ StoreSettings()
     sSettings += "~iop="+(string)g_iOldPos;
     sSettings += "~inp="+(string)g_iNewPos;
     sSettings += "~th="+g_sCurrentTheme;
-    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
+    sOldSettings = llList2String(llGetLinkPrimitiveParams(LINK_THIS, [PRIM_DESC]), 0);
+    if (sOldSettings != sSettings)
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
     // Store button order:
     integer idx = llListFindList(g_lButtons, "Hudmenu");
     if (idx != -1) {
         string sOrder = osReplaceString(llList2CSV(g_lPrimOrder), " ", "", -1, 0);
-        llSetLinkPrimitiveParamsFast(idx, [PRIM_DESC, sOrder]);
+        sOldSettings = llList2String(llGetLinkPrimitiveParams(idx, [PRIM_DESC]), 0);
+        if (sOldSettings != sOrder) llSetLinkPrimitiveParamsFast(idx, [PRIM_DESC, sOrder]);
     }
 }
 

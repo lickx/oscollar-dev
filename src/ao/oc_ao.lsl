@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2023.01.10";
+string g_sVersion = "2023.01.16";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -183,8 +183,8 @@ FindButtons()
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for g_sTexture
     g_lPrimOrder = [0, 1];  //  '1' - root prim
     integer i;
-    for (i = 2; i <= llGetNumberOfPrims(); ++i) {
-        g_lButtons += llGetLinkPrimitiveParams(i, [PRIM_DESC]);
+    for (i = 2; i <= llGetNumberOfPrims()+1; i++) {
+        g_lButtons += llGetLinkName(i);
         g_lPrimOrder += i;
     }
 }
@@ -648,41 +648,60 @@ StartUpdate(key kID)
 StoreSettings()
 {
     string sSettings;
+    string sOldSettings;
     sSettings += "on="+(string)g_iAO_ON;
     sSettings += "~card="+g_sCard;
-    sSettings += "~s="+(string)g_iSitAnimOn;
-    sSettings += "~sa="+g_sSitAnim;
-    sSettings += "~saw="+(string)g_iSitAnywhereOn;
-    sSettings += "~wa="+g_sWalkAnim;
     sSettings += "~i="+(string)g_iChangeInterval;
     sSettings += "~l="+(string)g_iLocked;
     sSettings += "~rnd="+(string)g_iShuffle;
     sSettings += "~sp="+(string)g_iStandPause;
-    sSettings += "~so="+llGetSubString((string)g_fSitOffset, 0, 3);
     sSettings += "~st="+g_sStyle;
-    llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_DESC, sSettings]);
+    // Now write them away only if changed (to spare the asset server):
+    sOldSettings = llList2String(llGetLinkPrimitiveParams(osGetLinkNumber("Menu"), [PRIM_DESC]), 0);
+    if (sOldSettings != sSettings)
+        llSetLinkPrimitiveParamsFast(osGetLinkNumber("Menu"), [PRIM_DESC, sSettings]);
+    // Put g_sWalkAnim on a seperate prim, as max desc length is 63 characters:
+    sSettings = "wa="+g_sWalkAnim;
+    sOldSettings = llList2String(llGetLinkPrimitiveParams(osGetLinkNumber("Power"), [PRIM_DESC]), 0);
+    if (sOldSettings != sSettings)
+        llSetLinkPrimitiveParamsFast(osGetLinkNumber("Power"), [PRIM_DESC, sSettings]);
+    // Put sit settings on a seperate prim, as max desc length is 63 characters:
+    sSettings = "~s="+(string)g_iSitAnimOn;
+    sSettings += "~saw="+(string)g_iSitAnywhereOn;
+    sSettings += "~so="+llGetSubString((string)g_fSitOffset, 0, 3);
+    sSettings += "~sa="+g_sSitAnim;
+    sOldSettings = llList2String(llGetLinkPrimitiveParams(osGetLinkNumber("SitAny"), [PRIM_DESC]), 0);
+    if (sOldSettings != sSettings)
+        llSetLinkPrimitiveParamsFast(osGetLinkNumber("SitAny"), [PRIM_DESC, sSettings]);
+    // Clean up root prim description if needed as we don't use it:
+    sOldSettings = llList2String(llGetLinkPrimitiveParams(LINK_ROOT, [PRIM_DESC]), 0);
+    if (llSubStringIndex(sOldSettings, "~") != -1)
+        llSetLinkPrimitiveParamsFast(LINK_ROOT, [PRIM_DESC, "(No Description)"]);
 }
 
 RestoreSettings()
 {
-    string sSettings = llList2String(llGetLinkPrimitiveParams(LINK_THIS, [PRIM_DESC]), 0);
-    list lSettings = llParseString2List(sSettings, ["~","="], []);
-    integer i;
-    for (i = 0; i < llGetListLength(lSettings); i += 2) {
-        string sKey = llList2String(lSettings, i);
-        string sValue = llList2String(lSettings, i + 1);
-        if (sKey == "on") g_iAO_ON = (integer)sValue;
-        else if (sKey == "card") g_sCard = sValue;
-        else if (sKey == "s") g_iSitAnimOn = (integer)sValue;
-        else if (sKey == "sa") g_sSitAnim = sValue;
-        else if (sKey == "saw") g_iSitAnywhereOn = (integer)sValue;
-        else if (sKey == "wa") g_sWalkAnim = sValue;
-        else if (sKey == "i") g_iChangeInterval = (integer)sValue;
-        else if (sKey == "l") g_iLocked = (integer)sValue;
-        else if (sKey == "rnd") g_iShuffle = (integer)sValue;
-        else if (sKey == "sp") g_iStandPause = (integer)sValue;
-        else if (sKey == "so") g_fSitOffset = (float)sValue;
-        else if (sKey == "st") g_sStyle = sValue;
+    integer iLink = LINK_ROOT;
+    for (iLink = LINK_ROOT; iLink < llGetNumberOfPrims()+1; iLink++) {
+        string sSettings = llList2String(llGetLinkPrimitiveParams(iLink, [PRIM_DESC]), 0);
+        list lSettings = llParseString2List(sSettings, ["~","="], []);
+        integer i;
+        for (i = 0; i < llGetListLength(lSettings); i += 2) {
+            string sKey = llList2String(lSettings, i);
+            string sValue = llList2String(lSettings, i + 1);
+            if (sKey == "on") g_iAO_ON = (integer)sValue;
+            else if (sKey == "card") g_sCard = sValue;
+            else if (sKey == "s") g_iSitAnimOn = (integer)sValue;
+            else if (sKey == "sa") g_sSitAnim = sValue;
+            else if (sKey == "saw") g_iSitAnywhereOn = (integer)sValue;
+            else if (sKey == "wa") g_sWalkAnim = sValue;
+            else if (sKey == "i") g_iChangeInterval = (integer)sValue;
+            else if (sKey == "l") g_iLocked = (integer)sValue;
+            else if (sKey == "rnd") g_iShuffle = (integer)sValue;
+            else if (sKey == "sp") g_iStandPause = (integer)sValue;
+            else if (sKey == "so") g_fSitOffset = (float)sValue;
+            else if (sKey == "st") g_sStyle = sValue;
+        }
     }
 }
 
@@ -753,7 +772,7 @@ default
                 llOwnerSay("Please load an animation set first.");
                 return;
             }
-            string sButton = (string)llGetObjectDetails(llGetLinkKey(llDetectedLinkNumber(0)), [OBJECT_DESC]);
+            string sButton = llGetLinkName(llDetectedLinkNumber(0));
             string sMessage = "";
             if (sButton == "Menu")
                 MenuAO(g_kWearer);
