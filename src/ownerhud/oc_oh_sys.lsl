@@ -46,7 +46,7 @@ integer g_iPicturePrim;
 string g_sPictureID;
 string g_sTextureALL = "button_dark_partners";
 
-string g_sCurrentTheme;
+string g_sCurrentTheme = "dark";
 
 //  MESSAGE MAP
 integer CMD_TOUCH            = 100;
@@ -119,9 +119,9 @@ SendCollarCommand(string sCmd)
             if (llSubStringIndex(sCmd,"acc-") == 0)
                 llMessageLinked(LINK_THIS, ACC_CMD, sCmd, g_sActivePartnerID);
             else if (llSubStringIndex(sCmd,"leash") == 0) {
-                // don't leash partners further away than 30 meter distance:
+                // don't grab subs further away than say distance:
                 vector vPartnerPos = llList2Vector( llGetObjectDetails((key)g_sActivePartnerID, [OBJECT_POS]) , 0);
-                if (llVecDist(llGetPos(), vPartnerPos) < 30.0)
+                if (llVecDist(llGetPos(), vPartnerPos) < 20.0)
                     llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
             } else {
                 llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
@@ -258,11 +258,11 @@ list BuildObjectList()
 SetPicturePrim(string sActivePartnerName)
 {
     string sTexture;
-    if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) {
+    if (llGetInventoryType(sActivePartnerName)==INVENTORY_TEXTURE) {
         sTexture = sActivePartnerName;
         llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         return;
-    } else if (llGetInventoryType("buttons_"+g_sCurrentTheme+"_initials") != INVENTORY_TEXTURE) {
+    } else if (llGetInventoryType("button_"+llToLower(g_sCurrentTheme)+"_initials") != INVENTORY_TEXTURE) {
         llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
         return;
     }
@@ -275,7 +275,7 @@ SetPicturePrim(string sActivePartnerName)
         float HEIGHT = 1.0 / 6.0;
         float fOffsetY = 0.5 - ((iPos / 6) * HEIGHT) - (HEIGHT/2);
         float fOffsetX = -0.5 + ((iPos % 6) * WIDTH) + (WIDTH/2);
-        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, "button_"+g_sCurrentTheme+"_initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, "button_"+llToLower(g_sCurrentTheme)+"_initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
     } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
 }
 
@@ -297,6 +297,7 @@ NextPartner(integer iDirection, integer iTouch)
         integer iAt = llSubStringIndex(llKey2Name((key)g_sActivePartnerID), "@");
         // Convert 'First.Last @grid:port' to 'First Last' if hypergrid name found
         if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
+llOwnerSay("calling SetPicturePrim for "+sActivePartnerName);
         if (g_iPicturePrim) SetPicturePrim(sActivePartnerName);
     } else if (g_sActivePartnerID == g_sAllPartners)
         if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
@@ -337,8 +338,7 @@ default {
 
     on_rez(integer i)
     {
-        //if (g_kOwner != llGetOwner()) llResetScript();
-        llResetScript();
+        if (g_kOwner != llGetOwner()) llResetScript();
     }
 
     touch_end(integer iNum)
