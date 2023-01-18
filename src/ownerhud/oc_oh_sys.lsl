@@ -34,12 +34,6 @@ list g_lListeners;
 
 string g_sMainMenu = "Main";
 
-//  Notecard reading bits
-string  g_sCard = ".partners";
-key     g_kCardID = NULL_KEY;
-key     g_kLineID = NULL_KEY;
-integer g_iLineNr;
-
 integer g_iListener;
 integer g_iCmdListener;
 integer g_iChannel = 7;
@@ -124,8 +118,14 @@ SendCollarCommand(string sCmd)
         if (osIsUUID(g_sActivePartnerID)) {
             if (llSubStringIndex(sCmd,"acc-") == 0)
                 llMessageLinked(LINK_THIS, ACC_CMD, sCmd, g_sActivePartnerID);
-            else
+            else if (llSubStringIndex(sCmd,"leash") == 0) {
+                // don't grab subs further away than say distance:
+                vector vPartnerPos = llList2Vector( llGetObjectDetails((key)g_sActivePartnerID, [OBJECT_POS]) , 0);
+                if (llVecDist(llGetPos(), vPartnerPos) < 20.0)
+                    llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
+            } else {
                 llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
+            }
         } else if (g_sActivePartnerID == g_sAllPartners) {
              i = llGetListLength(g_lPartnersInSim);
              while (i > 1) { // g_lPartnersInSim has always one entry ["ALL"] do whom we dont want to send anything
@@ -142,12 +142,12 @@ SendCollarCommand(string sCmd)
 string PlainName(key kID)
 {
     string sFullName = llKey2Name(kID);
-    integer idx = llSubStringIndex(sFullName, " ");
+    integer idx = llSubStringIndex(sFullName, "@");
     if (idx != -1) {
         // hg name
         integer iDot = llSubStringIndex(sFullName, ".");
         string sFirstName = llGetSubString(sFullName, 0, iDot-1);
-        string sLastName = llGetSubString(sFullName, iDot+1, idx-1);
+        string sLastName = llGetSubString(sFullName, iDot+1, idx-2);
         return sFirstName+" "+sLastName;
     } else return sFullName; // local grid name
 }
@@ -159,15 +159,15 @@ StorePartners()
     if (g_iPicturePrim == 0) return;
     integer iPartner;
     for (iPartner = 0; iPartner < 6; iPartner++) {
-        if (llGetListLength(g_lPartners)-1 < iPartner) {
-            // pad blank
-            llSetLinkPrimitiveParamsFast(g_iPicturePrim, [
-                PRIM_TEXTURE, iPartner+2, (string)TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0
-            ]);
-        } else {
+        if (iPartner < llGetListLength(g_lPartners)) {
             // write
             llSetLinkPrimitiveParamsFast(g_iPicturePrim, [
                 PRIM_TEXTURE, iPartner+2, llList2String(g_lPartners, iPartner), <1,1,0>, <0,0,0>, 0
+            ]);
+        } else {
+            // pad blank
+            llSetLinkPrimitiveParamsFast(g_iPicturePrim, [
+                PRIM_TEXTURE, iPartner+2, (string)TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0
             ]);
         }
     }
@@ -299,7 +299,7 @@ NextPartner(integer iDirection, integer iTouch)
         if (iDot > 0 && iAt > 0) sActivePartnerName = llGetSubString(sActivePartnerName, 0, iDot-1) +" "+llGetSubString(sActivePartnerName, iDot+1, iAt-2);
         if (g_iPicturePrim) SetPicturePrim(sActivePartnerName);
     } else if (g_sActivePartnerID == g_sAllPartners)
-        if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        if (g_iPicturePrim) llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, g_sTextureALL,<1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
     if(iTouch) {
         if (llGetListLength(g_lPartnersInSim) < 2) llOwnerSay("There is nobody nearby at the moment.");
         else llOwnerSay("\n\nSelected Partner: "+NameURI(g_sActivePartnerID)+"\n");
@@ -323,24 +323,22 @@ default {
         string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
         if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         llSleep(1.0);//giving time for others to reset before populating menu
-        if (llGetInventoryKey(g_sCard) != NULL_KEY) {
-            g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-            g_kCardID = llGetInventoryKey(g_sCard);
-        } else {
-            llOwnerSay("\n\nYou are probably wearing this Owner HUD for the first time. I'm opening the menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the menu again, please select the gear (⚙) icon on your HUD.\n");
-        }
         g_iListener = llListen(PersonalChannel(g_kOwner, 0), "", "", ""); //lets listen here
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");
         llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sMainMenu, "");
         g_iPicturePrim = PicturePrim();
         LoadPartners();
+        if (llGetListLength(g_lPartners) == 0) {
+            llOwnerSay("\n\nYou are probably wearing this Owner HUD for the first time. I'm opening the menu where you can manage your partners. Make sure that your partners are near you and click Add to register them. To open the menu again, please select the gear (⚙) icon on your HUD.\n");
+        }
         NextPartner(0,0);
         MainMenu();
     }
 
     on_rez(integer i)
     {
-        if (g_kOwner != llGetOwner()) llResetScript();
+        //if (g_kOwner != llGetOwner()) llResetScript();
+        llResetScript();
     }
 
     touch_end(integer iNum)
@@ -499,7 +497,10 @@ default {
                     key kNewPartnerID;
                     do {
                         kNewPartnerID = llList2Key(g_lNewPartnerIDs, --i);
-                        if (kNewPartnerID != NULL_KEY) AddPartner(kNewPartnerID);
+                        if (kNewPartnerID != NULL_KEY) {
+                            if (llGetListLength(g_lPartners) < 6) AddPartner(kNewPartnerID);
+                            else llOwnerSay("Can't add any more partners, you are at the maximum of 6");
+                        }
                     } while (i);
                 } else if (osIsUUID(sMessage))
                     AddPartner(sMessage);
@@ -527,18 +528,6 @@ default {
         if (g_iAddPartnerTimer == FALSE) llSetTimerEvent(0.0);
     }
 
-    dataserver(key kRequestID, string sData)
-    {
-        if (kRequestID == g_kLineID) {
-            if (sData == EOF) { //  notify the owner
-                //llOwnerSay(g_sCard+" card loaded.");
-                return;
-            } else if (osIsUUID(sData)) // valid lines contain only a valid UUID which is a key
-                AddPartner(sData);
-            g_kLineID = llGetNotecardLine(g_sCard, ++g_iLineNr);
-        }
-    }
-
     object_rez(key kID)
     {
         llSleep(0.5); // make sure object is rezzed and listens
@@ -550,16 +539,6 @@ default {
 
     changed(integer iChange)
     {
-        if (iChange & CHANGED_INVENTORY) {
-            if (llGetInventoryKey("test")==NULL_KEY && llGetInventoryKey(g_sCard) != g_kCardID) {
-                // the .partners card changed.  Re-read it.
-                g_iLineNr = 0;
-                if (llGetInventoryKey(g_sCard)) {
-                    g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
-                    g_kCardID = llGetInventoryKey(g_sCard);
-                }
-            }
-        }
         if (iChange & CHANGED_OWNER) llResetScript();
     }
 }

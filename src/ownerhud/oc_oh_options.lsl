@@ -187,8 +187,11 @@ DoStyle(string style)
                 if (link > 0) {
                     sData = llStringTrim(llList2String(lParams, 1), STRING_TRIM);
                     if (sData != "" && sData != ",") {
-                        if (sButton == "Picture") llMessageLinked(LINK_SET, 111, sData, "");
-                        else llSetLinkPrimitiveParamsFast(link,[PRIM_TEXTURE, 0, sData , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0, PRIM_COLOR, ALL_SIDES, g_vColor, 1.0]);
+                        if (sButton == "Picture") {
+                            llMessageLinked(LINK_SET, 111, sData, "");
+                            llSetLinkPrimitiveParamsFast(link,[PRIM_TEXTURE, 0, sData , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0, PRIM_COLOR, ALL_SIDES, g_vColor, 1.0]);
+                        }
+                        else llSetLinkPrimitiveParamsFast(link,[PRIM_TEXTURE, ALL_SIDES, sData , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0, PRIM_COLOR, ALL_SIDES, g_vColor, 1.0]);
                     }
                 }
             }
