@@ -152,12 +152,47 @@ string PlainName(key kID)
     } else return sFullName; // local grid name
 }
 
+// Partner avi keys are stores on texture side 2 to 7 of g_iPicturePrim
+// (Side 0 is border, side 1 is actual picture)
+StorePartners()
+{
+    if (g_iPicturePrim == 0) return;
+    integer iPartner;
+    for (iPartner = 0; iPartner < 6; iPartner++) {
+        if (llGetListLength(g_lPartners)-1 < iPartner) {
+            // pad blank
+            llSetLinkPrimitiveParamsFast(g_iPicturePrim, [
+                PRIM_TEXTURE, iPartner+2, (string)TEXTURE_BLANK, <1,1,0>, <0,0,0>, 0
+            ]);
+        } else {
+            // write
+            llSetLinkPrimitiveParamsFast(g_iPicturePrim, [
+                PRIM_TEXTURE, iPartner+2, llList2String(g_lPartners, iPartner), <1,1,0>, <0,0,0>, 0
+            ]);
+        }
+    }
+}
+
+LoadPartners()
+{
+    if (g_iPicturePrim == 0) return;
+    g_lPartners = [];
+    integer iSide;
+    for (iSide = 2; iSide < 8; iSide++) {
+        list l = llGetLinkPrimitiveParams(g_iPicturePrim, [PRIM_TEXTURE, iSide]);
+        key kID = llList2Key(l, 0);
+        if ((string)kID == TEXTURE_BLANK) return; // end of list
+        else g_lPartners += [kID];
+    }
+}
+
 AddPartner(string sID)
 {
     if (llListFindList(g_lPartners, [sID]) != -1) return;
     if ((key)sID != NULL_KEY) {//don't register any unrecognised
         g_lPartners += [sID];//Well we got here so lets add them to the list.
         llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Owner HUD called '"+PlainName((key)sID)+"'.\n");//Tell the owner we made it.
+        StorePartners();
     }
 }
 
@@ -168,6 +203,7 @@ RemovePartner(string sID)
         g_lPartners =llDeleteSubList(g_lPartners, index, index);
         llOwnerSay(NameURI(sID)+" has been removed.");
         if (sID == g_sActivePartnerID) NextPartner(0, FALSE);
+        StorePartners();
     }
 }
 
@@ -297,6 +333,7 @@ default {
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");
         llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sMainMenu, "");
         g_iPicturePrim = PicturePrim();
+        LoadPartners();
         NextPartner(0,0);
         MainMenu();
     }
