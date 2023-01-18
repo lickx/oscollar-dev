@@ -139,12 +139,25 @@ SendCollarCommand(string sCmd)
     } else llOwnerSay("None of your partners are in range.");
 }
 
+string PlainName(key kID)
+{
+    string sFullName = llKey2Name(kID);
+    integer idx = llSubStringIndex(sFullName, " ");
+    if (idx != -1) {
+        // hg name
+        integer iDot = llSubStringIndex(sFullName, ".");
+        string sFirstName = llGetSubString(sFullName, 0, iDot-1);
+        string sLastName = llGetSubString(sFullName, iDot+1, idx-1);
+        return sFirstName+" "+sLastName;
+    } else return sFullName; // local grid name
+}
+
 AddPartner(string sID)
 {
     if (llListFindList(g_lPartners, [sID]) != -1) return;
     if ((key)sID != NULL_KEY) {//don't register any unrecognised
         g_lPartners += [sID];//Well we got here so lets add them to the list.
-        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Owner HUD called '"+llKey2Name((key)sID)+"'.\n");//Tell the owner we made it.
+        llOwnerSay("\n\n"+NameURI(sID)+" has been registered.\nFor easy selection, add a photo or texture to the Owner HUD called '"+PlainName((key)sID)+"'.\n");//Tell the owner we made it.
     }
 }
 
@@ -211,10 +224,10 @@ SetPicturePrim(string sActivePartnerName)
     string sTexture;
     if (llGetInventoryKey(sActivePartnerName)!=NULL_KEY) {
         sTexture = sActivePartnerName;
-        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         return;
     } else if (llGetInventoryType("buttons_"+g_sCurrentTheme+"_initials") != INVENTORY_TEXTURE) {
-        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
         return;
     }
     string sAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
@@ -226,8 +239,8 @@ SetPicturePrim(string sActivePartnerName)
         float HEIGHT = 1.0 / 6.0;
         float fOffsetY = 0.5 - ((iPos / 6) * HEIGHT) - (HEIGHT/2);
         float fOffsetX = -0.5 + ((iPos % 6) * WIDTH) + (WIDTH/2);
-        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, "button_"+g_sCurrentTheme+"_initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
-    } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, ALL_SIDES, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
+        llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, "button_"+g_sCurrentTheme+"_initials", <WIDTH, HEIGHT, 0.0>, <fOffsetX, fOffsetY, 0>, 0.0]);
+    } else llSetLinkPrimitiveParamsFast(g_iPicturePrim,[PRIM_TEXTURE, 1, sTexture, <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);  // fallback to default_profile_picture
 }
 
 NextPartner(integer iDirection, integer iTouch)
