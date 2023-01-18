@@ -119,9 +119,9 @@ SendCollarCommand(string sCmd)
             if (llSubStringIndex(sCmd,"acc-") == 0)
                 llMessageLinked(LINK_THIS, ACC_CMD, sCmd, g_sActivePartnerID);
             else if (llSubStringIndex(sCmd,"leash") == 0) {
-                // don't grab subs further away than say distance:
+                // don't leash partners further away than 30 meter distance:
                 vector vPartnerPos = llList2Vector( llGetObjectDetails((key)g_sActivePartnerID, [OBJECT_POS]) , 0);
-                if (llVecDist(llGetPos(), vPartnerPos) < 20.0)
+                if (llVecDist(llGetPos(), vPartnerPos) < 30.0)
                     llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
             } else {
                 llRegionSayTo(g_sActivePartnerID, PersonalChannel(g_sActivePartnerID,0), g_sActivePartnerID+":"+sCmd);
