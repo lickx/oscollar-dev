@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2023.01.18";
+string g_sVersion = "2023.01.19";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -43,7 +43,6 @@ integer g_iUpdateChan = -7483210;
 
 integer g_iHidden;
 integer g_iPicturePrim;
-string g_sPictureID;
 string g_sTextureALL = "button_dark_partners";
 
 string g_sCurrentTheme = "dark";
@@ -175,13 +174,14 @@ StorePartners()
 
 LoadPartners()
 {
-    if (g_iPicturePrim == 0) return;
     g_lPartners = [];
+    if (g_iPicturePrim == 0) return;
     integer iSide;
     for (iSide = 2; iSide < 8; iSide++) {
         list l = llGetLinkPrimitiveParams(g_iPicturePrim, [PRIM_TEXTURE, iSide]);
         key kID = llList2Key(l, 0);
-        if ((string)kID == TEXTURE_BLANK) return; // end of list
+        if (kID == llGetInventoryKey("button_"+llToLower(g_sCurrentTheme)+"_partners")) { }
+        else if ((string)kID == TEXTURE_BLANK) return; // end of list
         else g_lPartners += [kID];
     }
 }
@@ -407,7 +407,7 @@ default {
         } else if (iNum == 111) {
             g_sTextureALL = sStr;
             if (g_sActivePartnerID == g_sAllPartners)
-                llSetLinkPrimitiveParamsFast(g_iPicturePrim, [PRIM_TEXTURE, ALL_SIDES, g_sTextureALL , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
+                llSetLinkPrimitiveParamsFast(g_iPicturePrim, [PRIM_TEXTURE, 1, g_sTextureALL , <1.0, 1.0, 0.0>, ZERO_VECTOR, 0.0]);
         } else if (iNum == 112) {
             g_sCurrentTheme = sStr;
             SetPicturePrim(llKey2Name((key)g_sActivePartnerID));
