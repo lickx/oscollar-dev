@@ -1,4 +1,3 @@
-
 // oc_sys.lsl
 
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,
@@ -23,7 +22,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2023.01.18";
+string g_sCollarVersion="2023.01.24";
 
 key g_kWearer = NULL_KEY;
 
@@ -239,7 +238,8 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
         if (iNum == CMD_OWNER || kID == g_kWearer ) {   //primary owners and wearer can lock and unlock. no one else
             //inlined old "Lock()" function
             g_iLocked = TRUE;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"lock=1", "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"locked=1", "");
+            llMessageLinked(LINK_ROOT, LM_SETTING_RESPONSE, g_sGlobalToken+"locked=1", "");
             llOwnerSay("@detach=n");
             llMessageLinked(LINK_RLV, RLV_CMD, "detach=n", "main");
             llPlaySound(g_sLockSound, 1.0);
@@ -251,7 +251,8 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     } else if (sStr == "runaway" || sCmd == "unlock" || (g_iLocked && sStr == "togglelock")) {
         if (iNum == CMD_OWNER)  {
             g_iLocked = FALSE;
-            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"lock=0", "");
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sGlobalToken+"locked=0", "");
+            llMessageLinked(LINK_ROOT, LM_SETTING_RESPONSE, g_sGlobalToken+"locked=0", "");
             llOwnerSay("@detach=y");
             llMessageLinked(LINK_RLV, RLV_CMD, "detach=y", "main");
             llPlaySound(g_sUnlockSound, 1.0);
@@ -296,7 +297,8 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     } else if (sCmd == "version") {
         string sVersion = "\n\nOsCollar Version: "+g_sCollarVersion;
         llMessageLinked(LINK_DIALOG, NOTIFY, "0"+sVersion, kID);
-    }/* else if (sCmd == "objectversion") {
+    }
+    /* else if (sCmd == "objectversion") {
         // ping from an object, we answer to it on the object channel
         // inlined single use GetOwnerChannel(key kOwner, integer iOffset) function
         integer iChan = (integer)("0x"+llGetSubString((string)g_kWearer,2,7)) + 1111;
@@ -428,6 +430,8 @@ Stealth(integer iHide) {
 init() {
     g_iWaitRebuild = TRUE;
     llSetTimerEvent(1.0);
+    if (g_iLocked) llOwnerSay("@detach=n");
+    SetLockElementAlpha();
 }
 
 StartUpdate() {
@@ -447,7 +451,7 @@ default {
         init();
         //Debug("Starting");
     }
-    
+
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == MENUNAME_RESPONSE) {
             //sStr will be in form of "parent|menuname"
@@ -653,7 +657,7 @@ default {
         }
         if (g_iWaitUpdate == FALSE && g_iWaitRebuild == FALSE) llSetTimerEvent(0.0);
     }
-    
+
     http_response(key kID, integer iStatus, list lData, string sBody)
     {
         if (kID == g_kHttpVersion) {

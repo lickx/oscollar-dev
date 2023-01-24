@@ -174,7 +174,7 @@ PrintSettings(key kID, string sDebug)
     list lOut;
     string sLinkNr = (string)llGetLinkNumber();
     string sLinkName = llGetLinkName(LINK_THIS);
-    list lSay = ["/me \nTo copy/paste the settings below in the .settings notecard (in the '"+sLinkName+"' prim, link nr. "+sLinkNr+"), make sure the device is unlocked! The '"+sLinkName+"' prim can also be shown and hidden with '<prefix> show storage' and '<prefix>hide storage'.\n----- 8< ----- 8< ----- 8< -----\n"];
+    list lSay = ["/me \nTo copy/paste the settings below in the .settings notecard (in the '"+sLinkName+"' prim, link nr. "+sLinkNr+"), make sure the device is unlocked!\n----- 8< ----- 8< ----- 8< -----\n"];
     if (sDebug == "debug")
         lSay = ["/me Settings Debug:\n"];
     lSay += Add2OutList(g_lSettings, sDebug);

@@ -475,7 +475,7 @@ default
             string sValue = llList2String(lParams, 1);
             lParams=[];
             if (sToken == "auth_owner") g_lOwners = llParseString2List(sValue, [","], []);
-            else if (sToken == g_sGlobalToken+"lock") g_iCollarLocked=(integer)sValue;
+            else if (sToken == g_sGlobalToken+"locked") g_iCollarLocked=(integer)sValue;
             else if (sToken == g_sSettingToken+"handshakes") g_iMaxViewerChecks=(integer)sValue;
             else if (sToken == g_sSettingToken+"on") {
                 g_iRLVOn = (integer)sValue;
