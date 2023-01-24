@@ -184,7 +184,7 @@ DoTerminalCommand(string sMessage, key kID)
 
 OutfitsMenu(key kID, integer iAuth)
 {
-    llMessageLinked(LINK_SAVE, LM_SETTING_REQUEST, "global_lock", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_REQUEST, "global_locked", "");
     g_kMenuClicker = kID;
     g_iAuth = iAuth;
     llSetTimerEvent(g_iTimeOut);
@@ -584,7 +584,7 @@ default
             } else if (sToken==g_sSettingToken+"corefolder") {
                 if (sValue=="none") g_sCoreFolder = "";
                 else g_sCoreFolder = sValue;
-            } else if (sToken == "global_lock") g_iLocked=(integer)sValue;
+            } else if (sToken == "global_locked") g_iLocked=(integer)sValue;
         } else if (iNum >= CMD_OWNER && iNum <= CMD_WEARER) UserCommand(iNum, sStr, kID,FALSE);
         else if (iNum == RLV_ON) {
             g_iRlvOn = TRUE;
