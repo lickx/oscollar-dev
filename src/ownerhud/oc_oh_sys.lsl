@@ -321,8 +321,6 @@ default {
     state_entry() {
         g_kOwner = llGetOwner();
         if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         llSleep(1.0);//giving time for others to reset before populating menu
         g_iListener = llListen(PersonalChannel(g_kOwner, 0), "", "", ""); //lets listen here
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");
@@ -446,7 +444,7 @@ default {
                      i =  llGetListLength(lAgents);
                      do {
                         kID = llList2Key(lAgents, --i);
-                        if (kID != g_kOwner && llListFindList(g_lPartners,[(string)kID]) == -1 && !osIsNpc(kID)) {
+                        if (kID != g_kOwner && llListFindList(g_lPartners,[(string)kID]) == -1) {
                             if (llGetListLength(g_lListeners) < 60) {//Only 65 listens can simultaneously be open in any single script (SL wiki)
                                 iChannel = PersonalChannel(kID, 0);
                                 g_lListeners += [llListen(iChannel, "", "", "" )] ;

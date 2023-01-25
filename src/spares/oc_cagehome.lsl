@@ -614,8 +614,8 @@ SetState(integer iState) {
         g_kOwnerRequestHandle = llRequestAgentData(g_kCageOwnerKey, DATA_ONLINE);
     } else if (iState == iWARNING) {
         if (g_iWarningTime > 1) {
-            string sMsg = osReplaceString(g_sWarningMessage, "@", Name(g_kWearer), -1, 0);
-            sMsg = osReplaceString(sMsg, "#", (string)g_iWarningTime, -1, 0);
+            string sMsg = llDumpList2String(llParseStringKeepNulls((g_sWarningMessage = "") + g_sWarningMessage, ["@"], []), Name(g_kWearer);
+            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["#"], []), (string)g_iWarningTime);
             string sObjectName = llGetObjectName();
             llSetObjectName(g_sPluginTitle);
             llSay(0, sMsg);

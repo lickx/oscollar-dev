@@ -89,13 +89,13 @@ string SubstitudeVars(string sMsg)
 {
         if (sMsg == "%NOACCESS%") return "Access denied.";
         if (llSubStringIndex(sMsg, "%PREFIX%") != -1)
-            sMsg = osReplaceString(sMsg, "%PREFIX%", g_sPrefix, -1, 0);
+            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%PREFIX%"], []), g_sPrefix);
         if (llSubStringIndex(sMsg, "%CHANNEL%") != -1)
-            sMsg = osReplaceString(sMsg, "%CHANNEL%", (string)g_iListenChan, -1, 0);
+            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%CHANNEL%"], []), (string)g_iListenChan);
         if (llSubStringIndex(sMsg, "%DEVICETYPE%") != -1)
-            sMsg = osReplaceString(sMsg, "%DEVICETYPE%", g_sDeviceType, -1, 0);
+            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%DEVICETYPE%"], []), g_sDeviceType);
         if (llSubStringIndex(sMsg, "%WEARERNAME%") != -1)
-            sMsg = osReplaceString(sMsg, "%WEARERNAME%", g_sWearerName, -1, 0);
+            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%WEARERNAME%"], []), g_sWearerName);
         return sMsg;
 }
 
@@ -179,7 +179,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
         sNumberedButtons="\n";
         for (iCur = iStart; iCur <= iEnd; iCur++) {
             string sButton = llList2String(lMenuItems, iCur);
-            if (osIsUUID(sButton)) {
+            if ((key)sButton) {
                 if (g_iSelectAviMenu) sButton = NameURI((key)sButton);
                 else if (llGetDisplayName((key)sButton)) sButton = llGetDisplayName((key)sButton);
                 else sButton = llKey2Name((key)sButton);

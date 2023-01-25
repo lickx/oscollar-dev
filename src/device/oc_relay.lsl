@@ -112,7 +112,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 
 key SanitizeKey(string uuid)
 {
-    if (osIsUUID(uuid)) return llToLower(uuid);
+    if ((key)uuid) return llToLower(uuid);
     return NULL_KEY;
 }
 
@@ -157,7 +157,7 @@ integer Auth(string sObjectID, string sUserID)
     else if (g_sTempTrustObj == sObjectID) {}
     else if (llListFindList(g_lOwner+g_lTrust+[g_sTempOwner],[sOwner]) != -1) {}
     else iAuth = 0;
-    if (osIsUUID(sUserID)) {
+    if ((key)sUserID) {
         if (llListFindList(g_lBlock+g_lBlockAv,[sUserID]) != -1) return -1;
         else if (g_iBaseMode == 3) {}
         else if (g_sTempTrustUser == sUserID) {}

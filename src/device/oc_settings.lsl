@@ -66,7 +66,6 @@ key g_kTempOwner = NULL_KEY;
 integer g_iSayLimit = 1024;
 integer g_iCardLimit = 255;
 string g_sDelimiter = "\\";
-integer g_iSaveAttempted = FALSE;
 
 string SplitToken(string sIn, integer iSlot)
 {
@@ -198,14 +197,6 @@ PrintSettings(key kID, string sDebug)
     }
 }
 
-SaveSettings(key kID)
-{
-    list lOut = Add2OutList(g_lSettings, "print");
-    g_iSaveAttempted = TRUE;
-    llSetTimerEvent(3.0);
-    osMakeNotecard(g_sCard+".new", lOut);
-}
-
 LoadSetting(string sData, integer iLine)
 {
     string sID;
@@ -237,8 +228,24 @@ LoadSetting(string sData, integer iLine)
         for (i = 0; i < llGetListLength(lData); i += 2) {
             sToken = llList2String(lData, i);
             sValue = llList2String(lData, i+1);
-            if (sValue != "" && sID != "auth_")
-                g_lSettings = SetSetting(g_lSettings, sID+sToken, sValue);
+            if (sValue != "") {
+                if (sID == "auth_") {
+                    sToken = llToLower(sToken);
+                    if (llListFindList(["block","trust","owner"], [sToken]) != -1) {
+                        list lTest = llParseString2List(sValue, [","], []);
+                        list lOut;
+                        integer n;
+                        do {
+                            if (llList2Key(lTest, n))
+                                lOut += llList2String(lTest, n);
+                        } while (++n < llGetListLength(lTest));
+                        sValue = llDumpList2String(lOut, ",");
+                        lTest = [];
+                        lOut = [];
+                    }
+                }
+                if (sValue != "") g_lSettings = SetSetting(g_lSettings, sID + sToken, sValue);
+            }
         }
     }
 }
@@ -270,8 +277,6 @@ UserCommand(integer iAuth, string sStr, key kID)
                 g_kLineID = llGetNotecardLine(g_sCard, g_iLineNr);
             } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"No "+g_sCard+" to load found.", kID);
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"%NOACCESS%", kID);
-    } else if (llSubStringIndex(sStrLower,"save") == 0) {
-        if (iAuth == CMD_OWNER) SaveSettings(kID);
     } else if (sStrLower == "reboot" || sStrLower == "reboot --f") {
         if (g_iRebootConfirmed || sStrLower == "reboot --f") {
             llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Rebooting your %DEVICETYPE% ....", kID);
@@ -394,19 +399,7 @@ default
     timer()
     {
         llSetTimerEvent(0.0);
-        if (g_iSaveAttempted) {
-            g_iSaveAttempted = FALSE;
-            if (llGetInventoryType(g_sCard+".new") == INVENTORY_NOTECARD) {
-                // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
-                string sNewSettings = osGetNotecard(g_sCard+".new");
-                osMakeNotecard(g_sCard, sNewSettings);
-                llRemoveInventory(g_sCard+".new");
-                llOwnerSay("\n\nSettings have been saved.\n\n");
-            } else {
-                llOwnerSay("\n\nSaving settings is not supported in this region. Use Settings->Print\n\n");
-            }
-        } else SendValues();
+        SendValues();
     }
 
     changed(integer iChange)

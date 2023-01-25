@@ -133,7 +133,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPa
 // Sanitizes a key coming from the outside, so that only valid
 // keys are returned, and invalid ones are mapped to NULL_KEY
 key SanitizeKey(string uuid) {
-    if (osIsUUID(uuid)) return llToLower(uuid);
+    if ((key)uuid) return llToLower(uuid);
     return NULL_KEY;
 }
 

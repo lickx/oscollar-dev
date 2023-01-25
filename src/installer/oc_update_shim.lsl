@@ -155,11 +155,7 @@ default
             Check4Core5Script();
             string sResponse = llDumpList2String([sType, sName, sCmd], "|");
             //Debug("responding: " + response);
-            // Possible OpenSim bug
-            // See: http://opensimulator.org/mantis/view.php?id=7391
-            // So we use the less optimal llRegionSay() instead
-            //llRegionSayTo(kID, iChannel, sResponse);
-            llRegionSay(iChannel, sResponse);
+            llRegionSayTo(kID, iChannel, sResponse);
         } else if (sMsg == "Core5Done") Check4Core5Script();
         else if (llSubStringIndex(sMsg, "DONE") == 0){
             //restore settings
@@ -180,7 +176,7 @@ default
                             integer i;
                             for (i = 0; i < llGetListLength(lTest); ++i) {
                                 string sValue = llList2String(lTest, i);
-                                if (osIsUUID(sValue)) {}
+                                if ((key)sValue) {}
                                 else lTest = llDeleteSubList(lTest, i, i);
                             }
                             sSetting = sToken+"="+llDumpList2String(lTest,",");

@@ -419,7 +419,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             else if (sVal == "me") {
                 g_iPassConfirmed = TRUE;
                 LeashTo(kMessageID, kMessageID, iAuth, [], TRUE);
-            } else if (osIsUUID(sVal)) {
+            } else if ((key)sVal) {
                 g_iPassConfirmed = TRUE;
                 LeashTo((key)sVal, kMessageID, iAuth, [], TRUE);
             } else
@@ -496,7 +496,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
             if (CheckCommandAuth(kMessageID, iAuth) == FALSE) return;
             if (sVal==llToLower(BUTTON_UPMENU))
                 UserCommand(iAuth, "leashmenu", kMessageID, bFromMenu);
-            else if(osIsUUID(sVal)) {
+            else if((key)sVal) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 LeashTo((key)sVal, kMessageID, iAuth, lPoints, FALSE);
@@ -523,7 +523,7 @@ UserCommand(integer iAuth, string sMessage, key kMessageID, integer bFromMenu) {
                 if (bFromMenu) UserCommand(iAuth, "post", kMessageID, bFromMenu);
             }
             if (sVal == llToLower(BUTTON_UPMENU)) UserCommand(iAuth, "menu leash", kMessageID ,bFromMenu);
-            else if(osIsUUID(sVal)) {
+            else if((key)sVal) {
                 list lPoints;
                 if (llGetListLength(lParam) > 2) lPoints = llList2List(lParam, 2, -1);
                 if (llGetAgentSize((key)sVal) != ZERO_VECTOR) g_iPassConfirmed = FALSE;

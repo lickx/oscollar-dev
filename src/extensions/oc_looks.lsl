@@ -361,7 +361,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage)
                     if (iDefaultTextureIndex != -1) sTextureShortName = llList2String(g_lTextureDefaults, iDefaultTextureIndex+1);
                 }
                 integer iTextureIndex = llListFindList(g_lTextures,[sElement+"~"+sTextureShortName]);
-                if (osIsUUID(sTextureShortName)) iTextureIndex = 0;
+                if ((key)sTextureShortName) iTextureIndex = 0;
                 else if (iTextureIndex == -1)
                     iTextureIndex = llListFindList(g_lTextures,[sTextureShortName]);
                 if (sTextureShortName == "") {
@@ -371,7 +371,7 @@ UserCommand(integer iNum, string sStr, key kID, integer reMenu, integer iPage)
                     if (reMenu) TextureMenu(kID, 0, iNum, sCommand+" "+sElement);
                 } else {
                     string sTextureKey;
-                    if (osIsUUID(sTextureShortName)) sTextureKey = sTextureShortName;
+                    if ((key)sTextureShortName) sTextureKey = sTextureShortName;
                     else sTextureKey = llList2String(g_lTextureKeys,iTextureIndex);
                     integer iLinkCount = llGetNumberOfPrims()+1;
                     while (iLinkCount-- > 2) {

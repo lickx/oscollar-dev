@@ -293,7 +293,7 @@ UserCommand(integer iNum, string sStr, key kID) {
     for (iL = 0; iL < iInd; iL += 2) {
         sWho = llList2String(lParts, iL);
         string sWhoName;
-        if (osIsUUID(sWho)) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
+        if ((key)sWho) sWhoName = "secondlife:///app/agent/"+sWho+"/about";
         else sWhoName = sWho;
         sLower = llToLower(sWho);
         if (llListFindList(g_lOwners, [sWho]) != -1) {

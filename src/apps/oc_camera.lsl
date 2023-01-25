@@ -146,7 +146,13 @@ ClearCam()
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "all", "");
 }
 
-CamFocus(vector g_vCamPos, rotation g_rCamRot) {
+rotation Slerp(rotation a, rotation b, float t)
+{
+   return llAxisAngle2Rot( llRot2Axis(b /= a), t * llRot2Angle(b)) * a;
+}//Written collectively, Taken from http://forums-archive.secondlife.com/54/3b/50692/1.html
+
+CamFocus(vector g_vCamPos, rotation g_rCamRot)
+{
     vector vStartPose = llGetCameraPos();
     rotation rStartRot = llGetCameraRot();
     float fSteps = 8.0;
@@ -161,7 +167,7 @@ CamFocus(vector g_vCamPos, rotation g_rCamRot) {
     for(fCurrentStep = 0.0; fCurrentStep <= fSteps; ++fCurrentStep) {
         //Set next position in tween
         vector vNextPos = vStartPose + (vPosStep * fCurrentStep);
-        rotation rNextRot = osSlerp(rStartRot, g_rCamRot, fCurrentStep / fSteps);
+        rotation rNextRot = Slerp(rStartRot, g_rCamRot, fCurrentStep / fSteps);
          //Set camera parameters
         llSetCameraParams([
             CAMERA_ACTIVE, 1, //1 is active, 0 is inactive
@@ -219,7 +225,10 @@ ChatCamParams(integer iChannel, key kID)
 {
     g_vCamPos = llGetCameraPos();
     g_rCamRot = llGetCameraRot();
-    string sPosLine = osReplaceString((string)g_vCamPos, " ", "", -1, 0) + " " + osReplaceString((string)g_rCamRot, " ", "", -1, 0);
+    string sPosLine = llDumpList2String(llParseStringKeepNulls(((string)g_vCamPos = "") + (string)g_vCamPos, [" "], []), "") +
+        llDumpList2String(llParseStringKeepNulls(((string)g_rCamRot = "") + (string)g_rCamRot, [" "], []), "");
+
+
     //if not channel 0, say to whole region.  else just say locally
     if (iChannel > 0)
         llRegionSayTo(kID, iChannel, sPosLine);

@@ -402,7 +402,7 @@ default
                 while(numAgents--) {
                     key avId = llList2Key(agentList, numAgents);
                     string name = llKey2Name(avId);
-                    if ( llSubStringIndex(llToLower(name), llToLower(find)) == -1 || llListFindList(excl,[(string)avId]) != -1 || osIsNpc(avId)) {       //if this name does not contain find string or key is in the exclude list
+                    if ( llSubStringIndex(llToLower(name), llToLower(find)) == -1 || llListFindList(excl,[(string)avId]) != -1) {       //if this name does not contain find string or key is in the exclude list
                         agentList = llDeleteSubList(agentList, numAgents, numAgents); //delete this agent from the list
                     }
                 }
