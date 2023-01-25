@@ -205,13 +205,13 @@ string folderIcon(integer iState)
     integer iStateSub = iState % 10;
     if (iStateThis==0) sOut += "⬚";
     else if (iStateThis==1) sOut += "◻";
-    else if (iStateThis==2) sOut += "◩";
-    else if (iStateThis==3) sOut += "◼";
+    //else if (iStateThis==2) sOut += "◩";
+    else if (iStateThis==2 || iStateThis==3) sOut += "◼";
     else sOut += " ";
     if (iStateSub==0) sOut += "⬚";
     else if (iStateSub==1) sOut += "◻";
-    else if (iStateSub==2) sOut += "◩";
-    else if (iStateSub==3) sOut += "◼";
+    //else if (iStateSub==2) sOut += "◩";
+    else if (iStateSub==2 || iStateSub==3) sOut += "◼";
     else sOut += " ";
     return sOut;
 }
