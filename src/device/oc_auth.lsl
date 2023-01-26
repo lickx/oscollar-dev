@@ -159,6 +159,10 @@ RemovePerson(string sPersonID, string sToken, key kCmdr, integer iPromoted)
         }
     }
     if (iFound) {
+        if (llGetListLength(lPeople))
+            llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
+        else
+            llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + sToken, "");
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         if (sToken == "owner") {
             g_lOwner = lPeople;
@@ -236,6 +240,7 @@ AddUniquePerson(string sPersonID, string sToken, key kID)
         }
         if (sToken == "trust")
             llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"\n\n%WEARERNAME% seems to trust you.\n\n", sPersonID);
+        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + sToken + "=" + llDumpList2String(lPeople, ","), "");
         if (sToken == "owner") {
             g_lOwner = lPeople;
@@ -333,11 +338,20 @@ LoadAuthorized()
     g_iVanilla = (integer)v.x;
     g_iHardVanilla = (integer)v.y;
 
+    if (llGetListLength(g_lOwner))
+        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "owner=" + llDumpList2String(g_lOwner, ","), "");
+    else
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
+
     g_lTempOwner = [];
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 2]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTempOwner += [llList2Key(l, 0)];
     v = llList2Vector(l, 2);
     g_iOpenAccess = (integer)v.x;
+    if (llGetListLength(g_lTempOwner))
+        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "tempowner="+llList2Key(g_lTempOwner, 0), "");
+    else
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "tempowner", "");
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_kGroup = llList2Key(l, 0);
@@ -347,6 +361,10 @@ LoadAuthorized()
         if (llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
         else g_iGroupEnabled = FALSE;
     } else g_iGroupEnabled = FALSE;
+    if (g_kGroup != NULL_KEY)
+        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "group="+(string)g_kGroup, "");
+    else
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "group", "");
 
     g_lTrust = [];
     integer iFace;
@@ -354,6 +372,10 @@ LoadAuthorized()
         l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, iFace]);
         if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTrust += [llList2Key(l, 0)];
     }
+    if (llGetListLength(g_lTrust))
+        llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
+    else
+        llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "trust" + llDumpList2String(g_lTrust, ","), "");
 }
 
 LoadBlocklist()
@@ -516,9 +538,11 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
             }
             if (sAction == "on") {
                 g_iVanilla = TRUE;
+                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"vanilla=1","");
                 llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Vanilla enabled.", kID);
             } else if (sAction == "off") {
                 g_iVanilla = FALSE;
+                llMessageLinked(LINK_SAVE,LM_SETTING_SAVE,g_sSettingToken+"vanilla=0","");
                 llMessageLinked(LINK_DIALOG, NOTIFY,"1"+"Vanilla disabled.", kID);
                 if (iRemenu && kID == g_sWearerID) iAuth = Auth(kID);
             } else {
@@ -567,12 +591,14 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
                 if (osIsUUID(llList2String(lParams, -1))) g_kGroup = llList2Key(lParams, -1);
                 else g_kGroup = llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0);
                 if (g_kGroup != NULL_KEY) {
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "group=" + (string)g_kGroup, "");
                     g_iGroupEnabled = TRUE;
                     llMessageLinked(LINK_RLV, RLV_CMD, "setgroup=n", "auth");
                     llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"Group set to secondlife:///app/group/" + (string)g_kGroup + "/about\n\nNOTE: If RLV is enabled, the group slot has been locked and group mode has to be disabled before %WEARERNAME% can switch to another group again.\n", kID);
                 }
             } else if (sAction == "off") {
                 g_kGroup = NULL_KEY;
+                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "group", "");
                 g_iGroupEnabled = FALSE;
                 llMessageLinked(LINK_DIALOG,NOTIFY, "1"+"Group unset.", kID);
                 llMessageLinked(LINK_RLV, RLV_CMD, "setgroup=y", "auth");
@@ -584,9 +610,11 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
         if (iAuth==CMD_OWNER){
             if (sAction == "on") {
                 g_iOpenAccess = TRUE;
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "public=" + (string) g_iOpenAccess, "");
                 llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The %DEVICETYPE% is open to the public.", kID);
             } else if (sAction == "off") {
                 g_iOpenAccess = FALSE;
+                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "public", "");
                 llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"The %DEVICETYPE% is closed to the public.", kID);
             }
             SaveAuthorized();
@@ -596,9 +624,11 @@ UserCommand(integer iAuth, string sStr, key kID, integer iRemenu)
         if (iAuth == CMD_OWNER){
             if (sAction == "on") {
                 g_iLimitRange = TRUE;
+                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "limitrange", "");
                 llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Public access range is limited.", kID);
             } else if (sAction == "off") {
                 g_iLimitRange = FALSE;
+                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "limitrange=" + (string) g_iLimitRange, "");
                 llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Public access range is simwide.", kID);
             }
             SaveAuthorized();
@@ -630,10 +660,14 @@ RunAway()
     llMessageLinked(LINK_DIALOG, NOTIFY_OWNERS, "%WEARERNAME% ran away!", "");
     g_lOwner = [];
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "owner=", "");
-    g_iVanilla = FALSE;
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "vanilla", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "hardvanilla", "");
+    g_iVanilla = TRUE;
     g_iHardVanilla = FALSE;
     g_lTempOwner = [];
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "tempowner=", "");
+    llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "tempowner", "");
     SaveAuthorized();
     g_lBlock = [];
     SaveBlocklist();

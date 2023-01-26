@@ -26,7 +26,7 @@ string g_sSplitLine;
 integer g_iLineNr;
 key g_kLineID = NULL_KEY;
 key g_kCardID = NULL_KEY;
-list g_lExceptionTokens = ["texture","glow","shininess","color","intern","auth"];
+list g_lExceptionTokens = ["texture","glow","shininess","color","intern"];
 key g_kWearer = NULL_KEY;
 
 integer CMD_OWNER = 500;
@@ -140,6 +140,7 @@ list Add2OutList(list lIn, string sDebug)
         sValue = llList2String(lIn, i + 1);
         sGroup = llToUpper(SplitToken(sToken, 0));
         if (sDebug == "print" && llListFindList(g_lExceptionTokens, [llToLower(sGroup)]) != -1) jump next;
+        if (sDebug == "save" && llToLower(sGroup)=="auth") jump next;
         sToken = SplitToken(sToken, 1);
         integer bIsSplit = FALSE ;
         integer iAddedLength = llStringLength(sBuffer) + llStringLength(sValue)
@@ -200,7 +201,7 @@ PrintSettings(key kID, string sDebug)
 
 SaveSettings(key kID)
 {
-    list lOut = Add2OutList(g_lSettings, "print");
+    list lOut = Add2OutList(g_lSettings, "save");
     g_iSaveAttempted = TRUE;
     llSetTimerEvent(3.0);
     osMakeNotecard(g_sCard+".new", lOut);
