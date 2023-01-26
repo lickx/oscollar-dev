@@ -64,8 +64,8 @@ float g_Yoff = 0.002; // space between buttons and screen top/bottom border
 float g_Zoff = 0.06; // space between buttons and screen left/right border
 
 list g_lButtons ; // buttons names for Order menu
-list g_lPrimOrder = [0,1,2,3,4]; // -- List must always start with '0','1'
-// -- 0:Spacer, 1:Root, 2:Power, 3:Sit Anywhere, 4:Menu
+list g_lPrimOrder = [0,1,2,3,4,5]; // -- List must always start with '0','1'
+// -- 0:Spacer, 1:Root, 2:Power, 3:Sit Anywhere, 4:Menu, 5:Device
 // -- Spacer serves to even up the list with actual link numbers
 
 integer g_iLayout = 1;
@@ -88,87 +88,22 @@ integer g_iShoeListener;
 integer g_iShoesWorn;
 float g_fHeelOffset = -0.1;
 
-// ------------------------- timer multiplexer -------------------------
-list g_lTimers;
-integer g_iTimerRunning;
+integer g_iTimerRlvDetect;
+integer g_iTimerChangeStand;
+integer g_iTimerDialogTimeout;
 
 string g_sStyle = "Dark"; // only used for settings storing/restoring
 
-/*
-When iLoop = TRUE, iTime is loop time in seconds
-When iLoop = FALSE, iTime is seconds until fire
-*/
-NewTimer(string sName, integer iTime, integer iLoop)
+integer osGetLinkNumber(string sName)
 {
-    if (iLoop == FALSE) iTime = llGetUnixTime()+iTime;
-    g_lTimers += [sName, iTime, iLoop];
-    if (g_iTimerRunning == FALSE) {
-        llSetTimerEvent(1.0);
-        g_iTimerRunning = TRUE;
-    }
-}
-
-/*
-When iLoop = TRUE, iTime is loop time in seconds
-When iLoop = FALSE, iTime is seconds until fire
-*/
-UpdateTimer(string sName, integer iTime, integer iLoop)
-{
-    integer idx = llListFindList(g_lTimers, [sName]);
-    if (idx != -1) {
-        if (iLoop == FALSE) iTime = llGetUnixTime()+iTime;
-        g_lTimers = llListReplaceList(g_lTimers, [iTime, iLoop], idx+1, idx+2);
-        if (g_iTimerRunning == FALSE) {
-            llSetTimerEvent(1.0);
-            g_iTimerRunning = TRUE;
-        }
-    } else llOwnerSay("[TIMERS] UpdateTimer() in "+llGetScriptName()+": No timer called "+sName);
-}
-
-RemoveTimer(string sName)
-{
-    integer idx = llListFindList(g_lTimers, [sName]);
-    if (idx != -1) {
-        g_lTimers = llDeleteSubList(g_lTimers, idx, idx+2);
-        if (llGetListLength(g_lTimers) == 0) {
-            llSetTimerEvent(0.0);
-            g_iTimerRunning = FALSE;
-        }
-    } else llOwnerSay("[TIMERS] RemoveTimer() in "+llGetScriptName()+": No timer called "+sName);
-}
-
-/*
-Called by timer(). Here goes your code
-*/
-HandleTimer(string sName, integer iLoop)
-{
-    if (sName=="stand_change") {
-        if (g_iAO_ON && llGetAnimation(g_kWearer) == "Standing") SwitchStand();
-    } else if (sName=="dialog_timeout") {
-        integer n = llGetListLength(g_lMenuIDs) - 5;
-        integer iNow = llGetUnixTime();
-        for (n; n >= 0; n = n-5) {
-            integer iDieTime = llList2Integer(g_lMenuIDs, n+3);
-            if (iNow > iDieTime) {
-                llListenRemove(llList2Integer(g_lMenuIDs, n+2));
-                g_lMenuIDs = llDeleteSubList(g_lMenuIDs, n, n+4);
-            }
-        }
-    } else if (sName=="rlv_detect") {
-        if (g_iRlvChecks++ < RLV_MAX_CHECKS)
-            llOwnerSay("@versionnew=519274");
-        else {
-            llListenRemove(g_iRlvListener);
-            g_iRlvChecks = 0;
-            g_iRLVOn = FALSE;
+    integer i;
+    for (i = LINK_ROOT; i <= llGetNumberOfPrims(); i++) {
+        if (llGetLinkName(i) == sName) {
+            return i;
         }
     }
-
-    // Important: leave this next line!
-    if (iLoop == FALSE) RemoveTimer(sName);
+    return -1;
 }
-
-// ---------------------- end of timer multiplexer ----------------------
 
 integer JsonValid(string sTest)
 {
@@ -183,7 +118,7 @@ FindButtons()
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for g_sTexture
     g_lPrimOrder = [0, 1];  //  '1' - root prim
     integer i;
-    for (i = 2; i <= llGetNumberOfPrims()+1; i++) {
+    for (i = 2; i <= llGetNumberOfPrims(); i++) {
         g_lButtons += llGetLinkName(i);
         g_lPrimOrder += i;
     }
@@ -296,7 +231,7 @@ SetAnimOverride()
 {
     if (llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) {
         llResetAnimationOverride("ALL");
-        integer i = 22; //llGetListLength(g_lAnimStates);
+        integer i = llGetListLength(g_lAnimStates); //22
         string sAnim;
         string sAnimState;
         do {
@@ -321,10 +256,8 @@ SetAnimOverride()
             }
         } while (i--);
 
-        if (llListFindList(g_lTimers, ["stand_change"]) >= 0)
-            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
-        else
-            NewTimer("stand_change", g_iChangeInterval, TRUE);
+        if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
+        else g_iTimerChangeStand = 0;
 
         if (g_iStandPause == FALSE) llRegionSayTo(g_kWearer, g_iHUDChannel, (string)g_kWearer+":antislide off ao");
         //llOwnerSay("AO ready ("+(string)llGetFreeMemory()+" bytes free memory)");
@@ -355,16 +288,12 @@ ToggleSitAnywhere()
         llOwnerSay("SitAnywhere is not possible while you are in a collar pose.");
     else {
         if (g_iSitAnywhereOn) {
-            if (llListFindList(g_lTimers,["stand_change"]) >= 0)
-                UpdateTimer("stand_change", g_iChangeInterval, TRUE);
-            else
-                NewTimer("stand_change", g_iChangeInterval, TRUE);
+            if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
             SwitchStand();
             if (g_iRLVOn)
                 llOwnerSay("@adjustheight:1;0;0.0=force");
         } else {
-            if (llListFindList(g_lTimers,["stand_change"]) >= 0)
-                RemoveTimer("stand_change");
+            if (g_iTimerChangeStand) g_iTimerChangeStand = 0;
             llSetAnimationOverride("Standing",g_sSitAnywhereAnim);
             if (g_iRLVOn) AdjustSitOffset();
         }
@@ -402,10 +331,7 @@ Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, string sNam
     integer iIndex = llListFindList(g_lMenuIDs, [kID]);
     if (iIndex != -1) g_lMenuIDs = llListReplaceList(g_lMenuIDs, [kID, iChannel, iListener, iTime, sName], iIndex, iIndex+4);
     else g_lMenuIDs += [kID, iChannel, iListener, iTime, sName];
-    if (llListFindList(g_lTimers,["dialog_timeout"]) >= 0)
-        UpdateTimer("dialog_timeout", 20, FALSE);
-    else
-        NewTimer("dialog_timeout", 20, FALSE);
+    g_iTimerDialogTimeout = llGetUnixTime() + 20;
     llDialog(kID, sPrompt, SortButtons(lChoices,lUtilityButtons), iChannel);
 }
 
@@ -508,32 +434,20 @@ MenuChooseAnim(key kID, string sAnimState)
     Dialog(kID, sPrompt, lButtons, ["BACK"], sAnimState);
 }
 
-MenuOptions(key kID)
+MenuGroundSit(key kID)
 {
-    Dialog(kID,"\nCustomize your AO!",["Horizontal","Vertical","Order","Dark","Light"],["BACK"], "options");
-}
-
-MenuGroundSits(key kID)
-{
-    list lUtilityButtons = ["BACK"];
-    if (llGetAnimation(g_kWearer) == "Standing" && g_iSitAnywhereOn == FALSE) {
+    if (llGetAnimation(g_kWearer) == "Standing" && g_iSitAnywhereOn == FALSE && g_sSitAnywhereAnim != "") {
         ToggleSitAnywhere();
         DoStatus();
     }
-    string sAnim = g_sSitAnywhereAnim;
-    string sAnimState = "Sitting on Ground";
-    string sPrompt = "\n"+sAnimState+": \""+sAnim+"\"\n";
-    sPrompt += "Sit offset: "+llGetSubString((string)g_fSitOffset, 0, 3)+"\n";
-    g_lAnims2Choose = llListSort(llParseString2List(llJsonGetValue(g_sJson_Anims,[sAnimState]),["|"],[]),1,TRUE);
-    list lButtons;
-    integer iEnd = llGetListLength(g_lAnims2Choose);
-    integer i = 0;
-    while (++i<=iEnd) {
-        lButtons += (string)i;
-        sPrompt += "\n"+(string)i+": "+llList2String(g_lAnims2Choose, i-1);
-    }
-    if (g_iSitAnywhereOn) lUtilityButtons = ["▲", "▼", "BACK"];
-    Dialog(kID, sPrompt, lButtons, lUtilityButtons, sAnimState);
+    string sPrompt = "\nSitting on Ground: \""+g_sSitAnywhereAnim+"\"\n";
+    sPrompt += "Sit offset: "+llGetSubString((string)g_fSitOffset, 0, 4)+"\n";
+    Dialog(kID, sPrompt, [], ["▲", "▼", "BACK"], "Sitting on Ground");
+}
+
+MenuOptions(key kID)
+{
+    Dialog(kID,"\nCustomize your AO!",["Horizontal","Vertical","Order","Dark","Light"],["BACK"], "options");
 }
 
 OrderMenu(key kID)
@@ -595,16 +509,12 @@ Command(key kID, string sCommand)
     } else if (sCommand == "on") {
         SetAnimOverride();
         g_iAO_ON = TRUE;
-        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
-            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
-        else
-            NewTimer("stand_change", g_iChangeInterval, TRUE);
+        if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
         DoStatus();
     } else if (sCommand == "off") {
         llResetAnimationOverride("ALL");
         g_iAO_ON = FALSE;
-        if (llListFindList(g_lTimers,["stand_change"]) >= 0)
-            RemoveTimer("stand_change");
+        g_iTimerChangeStand = 0;
         DoStatus();
     } else if (sCommand == "unlock") {
         g_iLocked = FALSE;
@@ -661,10 +571,12 @@ default
             g_sJson_Anims = "{}";
             g_kCard = llGetNotecardLine(g_sCard, g_iCardLine);
         } else MenuLoad(g_kWearer,0);
+        g_iTimerRlvDetect = llGetUnixTime() + 120;
         g_iRLVOn = FALSE;
         g_iRlvListener = llListen(519274, "", (string)g_kWearer, "");
         g_iRlvChecks = 0;
         llOwnerSay("@versionnew=519274");
+        llSetTimerEvent(5.0);
     }
 
     on_rez(integer iStart)
@@ -711,7 +623,7 @@ default
             if (sButton == "Menu")
                 MenuAO(g_kWearer);
             else if (sButton == "SitAny") {
-                ToggleSitAnywhere();
+                if (g_sSitAnywhereAnim != "") ToggleSitAnywhere();
             } else if (llSubStringIndex(llToLower(sButton), "ao") >= 0) {
                 g_iHidden = !g_iHidden;
                 DefinePosition();
@@ -752,6 +664,7 @@ default
                     TranslateCollarCMD(llList2String(lParams, 2), llList2Key(lParams, 3));
             }
         } else if (iChannel == 519274) {
+            g_iTimerRlvDetect = 0;
             g_iRLVOn = TRUE;
             llListenRemove(g_iRlvListener);
             g_iShoeChannel = (9999 + llRound(llFrand(9999999.0)));
@@ -783,7 +696,7 @@ default
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
             llListenRemove(llList2Integer(g_lMenuIDs, iMenuIndex+2));
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex, iMenuIndex+4);
-            if (llGetListLength(g_lMenuIDs) == 0 && llListFindList(g_lTimers, ["dialog_timeout"]) >= 0) RemoveTimer("dialog_timeout");
+            if (llGetListLength(g_lMenuIDs) == 0 && g_iTimerDialogTimeout) g_iTimerDialogTimeout = 0;
             if (sMenuType == "AO") {
                 if (sMessage == "Cancel") return;
                 else if (sMessage == "-") MenuAO(kID);
@@ -795,7 +708,7 @@ default
                 else if (sMessage == "Load") MenuLoad(kID, 0);
                 else if (sMessage == "Sits") MenuChooseAnim(kID, "Sitting");
                 else if (sMessage == "Walks") MenuChooseAnim(kID, "Walking");
-                else if (sMessage == "Ground Sits") MenuGroundSits(kID);
+                else if (sMessage == "Ground Sits") MenuGroundSit(kID);
                 else if (!llSubStringIndex(sMessage,"Sits")) {
                     if (llSubStringIndex(sMessage,"☑") != -1) {
                         g_iSitAnimOn = FALSE;
@@ -839,29 +752,35 @@ default
                     return;
                 } else if (sMessage == "Never") {
                     g_iChangeInterval = FALSE;
-                    if (llListFindList(g_lTimers, ["stand_change"]) >= 0)
-                        RemoveTimer("stand_change");
+                    if (g_iTimerChangeStand) g_iTimerChangeStand = 0;
                 } else if ((integer)sMessage >= 20) {
                     g_iChangeInterval = (integer)sMessage;
                     if (g_iAO_ON && g_iSitAnywhereOn == FALSE) {
-                        if (llListFindList(g_lTimers, ["stand_change"]) >= 0)
-                            UpdateTimer("stand_change", g_iChangeInterval, TRUE);
-                        else
-                            NewTimer("stand_change", g_iChangeInterval, TRUE);
+                        g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
                     }
                 }
                 MenuInterval(kID);
             } else if (llListFindList(["Walking","Sitting on Ground","Sitting"], [sMenuType]) != -1) {
-                if (sMessage == "BACK") MenuAO(kID);
+                if (sMessage == "BACK") {
+                    g_lAnims2Choose = [];
+                    if (sMenuType == "Sitting on Ground" && g_iSitAnywhereOn) {
+                        ToggleSitAnywhere();
+                        DoStatus();
+                    }
+                    MenuAO(kID);
+                }
                 else if (sMessage == "▲") {
-                    g_fSitOffset += 0.05;
+                    g_fSitOffset += 0.025;
                     AdjustSitOffset();
-                    MenuGroundSits(kID);
+                    MenuGroundSit(kID);
                 } else if (sMessage == "▼") {
-                    g_fSitOffset -= 0.05;
+                    g_fSitOffset -= 0.025;
                     AdjustSitOffset();
-                    MenuGroundSits(kID);
-                } else if (sMessage == "-") MenuChooseAnim(kID, sMenuType);
+                    MenuGroundSit(kID);
+                } else if (sMessage == "-") {
+                    g_lAnims2Choose = [];
+                    MenuChooseAnim(kID, sMenuType);
+                }
                 else {
                     sMessage = llList2String(g_lAnims2Choose, ((integer)sMessage)-1);
                     g_lAnims2Choose = [];
@@ -872,8 +791,7 @@ default
                         if (g_iAO_ON && (sMenuType != "Sitting" || g_iSitAnimOn))
                             llSetAnimationOverride(sMenuType,sMessage);
                     } else llOwnerSay("No "+sMenuType+" animation set.");
-                    if (sMenuType == "Sitting on Ground") MenuGroundSits(kID);
-                    else MenuChooseAnim(kID, sMenuType);
+                    MenuChooseAnim(kID, sMenuType);
                 }
             } else if (sMenuType == "options") {
                 if (sMessage == "BACK") {
@@ -923,15 +841,28 @@ default
     timer()
     {
         integer iTimestamp = llGetUnixTime();
-        integer i;
-        for (i = 0; i < llGetListLength(g_lTimers); i+=3) {
-            string sName = llList2String(g_lTimers, i);
-            integer iTime = llList2Integer(g_lTimers, i+1);
-            integer iLoop = llList2Integer(g_lTimers, i+2);
-            if (iLoop && ((iTimestamp % iTime)==0)) {
-                HandleTimer(sName, iLoop);
-            } else if (iLoop == FALSE && iTimestamp >= iTime) {
-                HandleTimer(sName, iLoop);
+        
+        if (g_iTimerChangeStand && iTimestamp > g_iTimerChangeStand) {
+            if (g_iAO_ON && llGetAnimation(g_kWearer) == "Standing") SwitchStand();
+        }
+        if (g_iTimerDialogTimeout && iTimestamp > g_iTimerDialogTimeout) {
+            integer n = llGetListLength(g_lMenuIDs) - 5;
+            integer iNow = llGetUnixTime();
+            for (n; n >= 0; n = n-5) {
+                integer iDieTime = llList2Integer(g_lMenuIDs, n+3);
+                if (iNow > iDieTime) {
+                    llListenRemove(llList2Integer(g_lMenuIDs, n+2));
+                    g_lMenuIDs = llDeleteSubList(g_lMenuIDs, n, n+4);
+                }
+            }
+        }
+        if (g_iTimerRlvDetect) {
+            if (g_iRlvChecks++ < RLV_MAX_CHECKS)
+                llOwnerSay("@versionnew=519274");
+            else {
+                llListenRemove(g_iRlvListener);
+                g_iRlvChecks = 0;
+                g_iRLVOn = FALSE;
             }
         }
     }
@@ -942,29 +873,6 @@ default
             if (sData != EOF) {
                 if (llGetSubString(sData,0,0) != "[") jump next;
                 string sAnimationState = llStringTrim(llGetSubString(sData,1,llSubStringIndex(sData,"]")-1),STRING_TRIM);
-                // Translate common ZHAOII, Oracul and AX anim state values
-                if (sAnimationState == "Stand.1" || sAnimationState == "Stand.2" || sAnimationState == "Stand.3") sAnimationState = "Standing";
-                else if (sAnimationState == "Walk.N") sAnimationState = "Walking";
-                //else if (sAnimationState == "") sAnimationState = "Running";
-                else if (sAnimationState == "Turn.L") sAnimationState = "Turning Left";
-                else if (sAnimationState == "Turn.R") sAnimationState = "Turning Right";
-                else if (sAnimationState == "Sit.N") sAnimationState = "Sitting";
-                else if (sAnimationState == "Sit.G" || sAnimationState == "Sitting On Ground") sAnimationState = "Sitting on Ground";
-                else if (sAnimationState == "Crouch") sAnimationState = "Crouching";
-                else if (sAnimationState == "Walk.C" || sAnimationState == "Crouch Walking") sAnimationState = "CrouchWalking";
-                else if (sAnimationState == "Jump.P" || sAnimationState == "Pre Jumping") sAnimationState = "PreJumping";
-                else if (sAnimationState == "Jump.N") sAnimationState = "Jumping";
-                //else if (sAnimationState == "") sAnimationState = "Soft Landing";
-                //else if (sAnimationState == "") sAnimationState = "Taking Off";
-                else if (sAnimationState == "Hover.N") sAnimationState = "Hovering";
-                else if (sAnimationState == "Hover.U" || sAnimationState == "Flying Up") sAnimationState = "Hovering Up";
-                else if (sAnimationState == "Hover.D" || sAnimationState == "Flying Down") sAnimationState = "Hovering Down";
-                else if (sAnimationState == "Fly.N") sAnimationState = "Flying";
-                else if (sAnimationState == "Flying Slow") sAnimationState = "FlyingSlow";
-                else if (sAnimationState == "Land.N") sAnimationState = "Landing";
-                else if (sAnimationState == "Falling") sAnimationState = "Falling Down";
-                else if (sAnimationState == "Stand.U") sAnimationState = "Standing Up";
-                //else if (sAnimationState == "") sAnimationState = "Striding";
                 if (!~llListFindList(g_lAnimStates,[sAnimationState])) jump next;
                 if (llStringLength(sData)-1 > llSubStringIndex(sData,"]")) {
                     sData = llGetSubString(sData, llSubStringIndex(sData,"]")+1, -1);
