@@ -890,6 +890,8 @@ default
 
         if (g_iTimerChangeStand && iTimestamp > g_iTimerChangeStand) {
             if (g_iAO_ON && g_iSitAnywhereOn == FALSE && llGetAnimation(g_kWearer) == "Standing") SwitchStand();
+            if (g_iChangeInterval)
+                g_iTimerChangeStand = iTimestamp + g_iChangeInterval;
         }
         if (g_iTimerDialogTimeout && iTimestamp > g_iTimerDialogTimeout) {
             integer n = llGetListLength(g_lMenuIDs) - 5;
