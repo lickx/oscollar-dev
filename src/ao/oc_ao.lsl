@@ -93,18 +93,16 @@ integer g_iTimerChangeStand;
 integer g_iTimerDialogTimeout;
 
 string g_sStyle = "Dark"; // only used for settings storing/restoring
-
+/*
 integer osGetLinkNumber(string sName)
 {
     integer i;
     for (i = LINK_ROOT; i <= llGetNumberOfPrims(); i++) {
-        if (llGetLinkName(i) == sName) {
-            return i;
-        }
+        if (llGetLinkName(i) == sName) return i;
     }
     return -1;
 }
-
+*/
 integer JsonValid(string sTest)
 {
     if (llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest) != -1)
@@ -116,10 +114,10 @@ integer JsonValid(string sTest)
 FindButtons()
 {
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for g_sTexture
-    g_lPrimOrder = [0, 1];  //  '1' - root prim
+    g_lPrimOrder = [0, LINK_ROOT];  //  '1' - root prim
     integer i;
     for (i = 2; i <= llGetNumberOfPrims(); i++) {
-        g_lButtons += llGetLinkName(i);
+        g_lButtons += [llGetLinkName(i)];
         g_lPrimOrder += i;
     }
 }
@@ -236,7 +234,7 @@ SetAnimOverride()
         string sAnimState;
         do {
             sAnimState = llList2String(g_lAnimStates, i);
-            if (llSubStringIndex(g_sJson_Anims, sAnimState) != -1) {
+            if (llSubStringIndex(g_sJson_Anims, sAnimState) >= 0) {
                 sAnim = llJsonGetValue(g_sJson_Anims, [sAnimState]);
                 if (JsonValid(sAnim)) {
                     if (sAnimState == "Walking" && g_sWalkAnim != "")
@@ -345,7 +343,7 @@ list SortButtons(list lButtons, list lStaticButtons)
         lAllButtons = lButtons + lStaticButtons;
     }
     while (llGetListLength(lAllButtons) % 3 != 0 && llGetListLength(lAllButtons) < 12) {
-        lSpacers += "-";
+        lSpacers += ["-"];
         lAllButtons = lButtons + lSpacers + lStaticButtons;
     }
     integer i = llListFindList(lAllButtons, ["BACK"]);
@@ -363,15 +361,15 @@ MenuAO(key kID)
     string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  AO\t"+g_sVersion;
     list lButtons = ["LOCK"];
     if (g_iLocked) lButtons = ["UNLOCK"];
-    if (kID == g_kWearer) lButtons += "Collar Menu";
-    else lButtons += "-";
+    if (kID == g_kWearer) lButtons += ["Collar Menu"];
+    else lButtons += ["-"];
     lButtons += ["Load","Sits","Ground Sits","Walks"];
     if (g_iSitAnimOn) lButtons += ["Sits ☑"];
     else lButtons += ["Sits ☐"];
-    if (g_iShuffle) lButtons += "Shuffle ☑";
-    else lButtons += "Shuffle ☐";
+    if (g_iShuffle) lButtons += ["Shuffle ☑"];
+    else lButtons += ["Shuffle ☐"];
     lButtons += ["Stand Time","Next Stand"];
-    if (kID == g_kWearer) lButtons += "HUD Style";
+    if (kID == g_kWearer) lButtons += ["HUD Style"];
     Dialog(kID, sPrompt, lButtons, ["Cancel"], "AO");
 }
 
@@ -391,7 +389,7 @@ MenuLoad(key kID, integer iPage)
             sNotecardName != "OsCollar License" && sNotecardName != "") {
             if (llSubStringIndex(sNotecardName,"SET") == 0)
                 g_lCustomCards += [sNotecardName,"Wildcard "+(string)(++iCountCustomCards)];// + g_lCustomCards;
-            else if(llStringLength(sNotecardName) < 24) lButtons += sNotecardName;
+            else if(llStringLength(sNotecardName) < 24) lButtons += [sNotecardName];
             else llOwnerSay(sNotecardName+"'s name is too long to be displayed in menus and cannot be used.");
         }
     }
@@ -406,7 +404,7 @@ MenuLoad(key kID, integer iPage)
         g_iNumberOfPages = llGetListLength(lButtons) / 9;
         lButtons = llList2List(lButtons, iPage*9, iPage*9+8);
     }
-    if (llGetListLength(lButtons) == 0) llOwnerSay("There aren't any animation sets installed!");
+    if (lButtons == []) llOwnerSay("There aren't any animation sets installed!");
     Dialog(kID, sPrompt, lButtons, lStaticButtons,"Load");
 }
 
@@ -423,26 +421,23 @@ MenuChooseAnim(key kID, string sAnimState)
     if (sAnimState == "Walking") sAnim = g_sWalkAnim;
     else if (sAnimState == "Sitting") sAnim = g_sSitAnim;
     string sPrompt = "\n"+sAnimState+": \""+sAnim+"\"\n";
-    g_lAnims2Choose = llListSort(llParseString2List(llJsonGetValue(g_sJson_Anims, [sAnimState]), ["|"], []), 1, TRUE);
+    if (sAnimState == "Sitting on Ground") {
+        if (llGetAnimation(g_kWearer) == "Standing" && g_iSitAnywhereOn == FALSE && g_sSitAnywhereAnim != "") {
+            ToggleSitAnywhere();
+            DoStatus();
+        }
+        sPrompt += "Sit offset: "+llGetSubString((string)g_fSitOffset, 0, 4) + "\n";
+    }
+    g_lAnims2Choose = [] + llListSort(llParseString2List(llJsonGetValue(g_sJson_Anims, [sAnimState]), ["|"], []), 1, TRUE);
     list lButtons;
     integer iEnd = llGetListLength(g_lAnims2Choose);
     integer i = 0;
     while (++i <= iEnd) {
-        lButtons += (string)i;
+        lButtons += [(string)i];
         sPrompt += "\n"+(string)i+": "+llList2String(g_lAnims2Choose, i-1);
     }
-    Dialog(kID, sPrompt, lButtons, ["BACK"], sAnimState);
-}
-
-MenuGroundSit(key kID)
-{
-    if (llGetAnimation(g_kWearer) == "Standing" && g_iSitAnywhereOn == FALSE && g_sSitAnywhereAnim != "") {
-        ToggleSitAnywhere();
-        DoStatus();
-    }
-    string sPrompt = "\nSitting on Ground: \""+g_sSitAnywhereAnim+"\"\n";
-    sPrompt += "Sit offset: "+llGetSubString((string)g_fSitOffset, 0, 4)+"\n";
-    Dialog(kID, sPrompt, [], ["▲", "▼", "BACK"], "Sitting on Ground");
+    if (sAnimState == "Sitting on Ground") Dialog(kID, sPrompt, lButtons, ["▲", "▼", "BACK"], sAnimState);
+    else Dialog(kID, sPrompt, lButtons, ["BACK"], sAnimState);
 }
 
 MenuOptions(key kID)
@@ -475,7 +470,7 @@ TranslateCollarCMD(string sCommand, key kID)
     if (llSubStringIndex(sCommand,"stand") == 0) {
         if (llSubStringIndex(sCommand, "off") != -1) {
             g_iStandPause = TRUE;
-            if (llGetAnimationOverride("Standing") != "")
+            if (llGetAnimationOverride("Standing"))
                 llResetAnimationOverride("Standing");
             llResetAnimationOverride("Turning Left");
             llResetAnimationOverride("Turning Right");
@@ -623,7 +618,7 @@ default
             if (sButton == "Menu")
                 MenuAO(g_kWearer);
             else if (sButton == "SitAny") {
-                if (g_sSitAnywhereAnim != "") ToggleSitAnywhere();
+                if (g_sSitAnywhereAnim) ToggleSitAnywhere();
             } else if (llSubStringIndex(llToLower(sButton), "ao") >= 0) {
                 g_iHidden = !g_iHidden;
                 DefinePosition();
@@ -696,7 +691,7 @@ default
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
             llListenRemove(llList2Integer(g_lMenuIDs, iMenuIndex+2));
             g_lMenuIDs = llDeleteSubList(g_lMenuIDs, iMenuIndex, iMenuIndex+4);
-            if (llGetListLength(g_lMenuIDs) == 0 && g_iTimerDialogTimeout) g_iTimerDialogTimeout = 0;
+            if (g_lMenuIDs == [] && g_iTimerDialogTimeout) g_iTimerDialogTimeout = 0;
             if (sMenuType == "AO") {
                 if (sMessage == "Cancel") return;
                 else if (sMessage == "-") MenuAO(kID);
@@ -708,12 +703,12 @@ default
                 else if (sMessage == "Load") MenuLoad(kID, 0);
                 else if (sMessage == "Sits") MenuChooseAnim(kID, "Sitting");
                 else if (sMessage == "Walks") MenuChooseAnim(kID, "Walking");
-                else if (sMessage == "Ground Sits") MenuGroundSit(kID);
+                else if (sMessage == "Ground Sits") MenuChooseAnim(kID, "Sitting on Ground");
                 else if (!llSubStringIndex(sMessage,"Sits")) {
                     if (llSubStringIndex(sMessage,"☑") != -1) {
                         g_iSitAnimOn = FALSE;
                         llResetAnimationOverride("Sitting");
-                    } else if (g_sSitAnim != "") {
+                    } else if (g_sSitAnim) {
                         g_iSitAnimOn = TRUE;
                         if (g_iAO_ON) llSetAnimationOverride("Sitting", g_sSitAnim);
                     } else Notify(kID,"Sorry, the currently loaded animation set doesn't have any sits.",TRUE);
@@ -768,17 +763,12 @@ default
                         DoStatus();
                     }
                     MenuAO(kID);
-                }
-                else if (sMessage == "▲") {
-                    g_fSitOffset += 0.025;
+                } else if (sMessage == "▲" || sMessage == "▼") {
+                    if (sMessage == "▲") g_fSitOffset += 0.025;
+                    else g_fSitOffset -= 0.025;
                     AdjustSitOffset();
-                    MenuGroundSit(kID);
-                } else if (sMessage == "▼") {
-                    g_fSitOffset -= 0.025;
-                    AdjustSitOffset();
-                    MenuGroundSit(kID);
+                    MenuChooseAnim(kID, sMenuType);
                 } else if (sMessage == "-") {
-                    g_lAnims2Choose = [];
                     MenuChooseAnim(kID, sMenuType);
                 }
                 else {
@@ -844,6 +834,7 @@ default
         
         if (g_iTimerChangeStand && iTimestamp > g_iTimerChangeStand) {
             if (g_iAO_ON && llGetAnimation(g_kWearer) == "Standing") SwitchStand();
+            g_iTimerChangeStand = iTimestamp + g_iChangeInterval;
         }
         if (g_iTimerDialogTimeout && iTimestamp > g_iTimerDialogTimeout) {
             integer n = llGetListLength(g_lMenuIDs) - 5;
@@ -873,7 +864,7 @@ default
             if (sData != EOF) {
                 if (llGetSubString(sData,0,0) != "[") jump next;
                 string sAnimationState = llStringTrim(llGetSubString(sData,1,llSubStringIndex(sData,"]")-1),STRING_TRIM);
-                if (!~llListFindList(g_lAnimStates,[sAnimationState])) jump next;
+                if (llListFindList(g_lAnimStates,[sAnimationState]) == -1) jump next;
                 if (llStringLength(sData)-1 > llSubStringIndex(sData,"]")) {
                     sData = llGetSubString(sData, llSubStringIndex(sData,"]")+1, -1);
                     list lTemp = llParseString2List(sData, ["|",","], []);
@@ -886,12 +877,12 @@ default
                         g_sSitAnywhereAnim = llList2String(lTemp, 0);
                     else if (sAnimationState == "Sitting") {
                         g_sSitAnim = llList2String(lTemp, 0);
-                        if (g_sSitAnim != "") g_iSitAnimOn = TRUE;
+                        if (g_sSitAnim) g_iSitAnimOn = TRUE;
                         else g_iSitAnimOn = FALSE;
                     } else if (sAnimationState == "Walking")
                         g_sWalkAnim = llList2String(lTemp, 0);
                     else if (sAnimationState != "Standing") lTemp = llList2List(lTemp, 0, 0);
-                    if (llGetListLength(lTemp)) g_sJson_Anims = llJsonSetValue(g_sJson_Anims, [sAnimationState], llDumpList2String(lTemp,"|"));
+                    if (lTemp != []) g_sJson_Anims = llJsonSetValue(g_sJson_Anims, [sAnimationState], llDumpList2String(lTemp,"|"));
                 }
                 @next;
                 g_kCard = llGetNotecardLine(g_sCard, ++g_iCardLine);
