@@ -283,7 +283,7 @@ ToggleSitAnywhere()
             if (g_iRLVOn)
                 llOwnerSay("@adjustheight:1;0;0.0=force");
         } else {
-            if (g_iChangeInterval) g_iTimerChangeStand = 0;
+            g_iTimerChangeStand = 0;
             llSetAnimationOverride("Standing",g_sSitAnywhereAnim);
             if (g_iRLVOn) AdjustSitOffset();
         }
