@@ -89,13 +89,13 @@ string SubstitudeVars(string sMsg)
 {
         if (sMsg == "%NOACCESS%") return "Access denied.";
         if (llSubStringIndex(sMsg, "%PREFIX%") != -1)
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%PREFIX%"], []), g_sPrefix);
+            sMsg = llReplaceSubString(sMsg, "%PREFIX%", g_sPrefix, 0);
         if (llSubStringIndex(sMsg, "%CHANNEL%") != -1)
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%CHANNEL%"], []), (string)g_iListenChan);
+            sMsg = llReplaceSubString(sMsg, "%CHANNEL%", (string)g_iListenChan, 0);
         if (llSubStringIndex(sMsg, "%DEVICETYPE%") != -1)
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%DEVICETYPE%"], []), g_sDeviceType);
+            sMsg = llReplaceSubString(sMsg, "%DEVICETYPE%", g_sDeviceType, 0);
         if (llSubStringIndex(sMsg, "%WEARERNAME%") != -1)
-            sMsg = llDumpList2String(llParseStringKeepNulls((sMsg = "") + sMsg, ["%WEARERNAME%"], []), g_sWearerName);
+            sMsg = llReplaceSubString(sMsg, "%WEARERNAME%", g_sWearerName, 0);
         return sMsg;
 }
 

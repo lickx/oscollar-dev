@@ -340,8 +340,7 @@ StoreSettings()
     // Store button order:
     integer idx = llListFindList(g_lButtons, "Hudmenu");
     if (idx != -1) {
-        string sOrder = llDumpList2String(llParseStringKeepNulls((llList2CSV(g_lPrimOrder) = "") + llList2CSV(g_lPrimOrder), [" "], []), "");
-
+        string sOrder = llReplaceSubString(llList2CSV(g_lPrimOrder), " ", "", 0);
         sOldSettings = llList2String(llGetLinkPrimitiveParams(idx, [PRIM_DESC]), 0);
         if (sOldSettings != sOrder) llSetLinkPrimitiveParamsFast(idx, [PRIM_DESC, sOrder]);
     }
