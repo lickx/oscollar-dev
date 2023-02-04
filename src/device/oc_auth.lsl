@@ -377,7 +377,7 @@ LoadAuthorized()
     }
     if (llGetListLength(g_lTrust)) {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
-        llMessageLinked(LINK_ALL_OTHERS=, LM_SETTING_RESPONSE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
+        llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
     } else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "trust" + llDumpList2String(g_lTrust, ","), "");
 }
