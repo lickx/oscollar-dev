@@ -338,9 +338,10 @@ LoadAuthorized()
     g_iVanilla = (integer)v.x;
     g_iHardVanilla = (integer)v.y;
 
-    if (llGetListLength(g_lOwner))
+    if (llGetListLength(g_lOwner)) {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "owner=" + llDumpList2String(g_lOwner, ","), "");
-    else
+        llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "owner=" + llDumpList2String(g_lOwner, ","), "");
+    } else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
 
     g_lTempOwner = [];
@@ -348,9 +349,10 @@ LoadAuthorized()
     if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTempOwner += [llList2Key(l, 0)];
     v = llList2Vector(l, 2);
     g_iOpenAccess = (integer)v.x;
-    if (llGetListLength(g_lTempOwner))
+    if (llGetListLength(g_lTempOwner)) {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "tempowner="+llList2Key(g_lTempOwner, 0), "");
-    else
+        llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "tempowner="+llList2Key(g_lTempOwner, 0), "");
+    } else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "tempowner", "");
 
     l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, 3]);
@@ -361,9 +363,10 @@ LoadAuthorized()
         if (llList2Key(llGetObjectDetails(llGetKey(), [OBJECT_GROUP]), 0) == g_kGroup) g_iGroupEnabled = TRUE;
         else g_iGroupEnabled = FALSE;
     } else g_iGroupEnabled = FALSE;
-    if (g_kGroup != NULL_KEY)
+    if (g_kGroup != NULL_KEY) {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "group="+(string)g_kGroup, "");
-    else
+        llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "group="+(string)g_kGroup, "");
+    } else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "group", "");
 
     g_lTrust = [];
@@ -372,9 +375,10 @@ LoadAuthorized()
         l = llGetLinkPrimitiveParams(LINK_THIS, [PRIM_TEXTURE, iFace]);
         if (llListFindList(lExclude, [llList2Key(l, 0)]) == -1) g_lTrust += [llList2Key(l, 0)];
     }
-    if (llGetListLength(g_lTrust))
+    if (llGetListLength(g_lTrust)) {
         llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
-    else
+        llMessageLinked(LINK_ALL_OTHERS=, LM_SETTING_RESPONSE, g_sSettingToken + "trust=" + llDumpList2String(g_lTrust, ","), "");
+    } else
         llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "trust" + llDumpList2String(g_lTrust, ","), "");
 }
 
