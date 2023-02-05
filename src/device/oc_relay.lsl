@@ -302,7 +302,7 @@ UserCommand(integer iAuth, string sStr, key kID)
         llMessageLinked(LINK_DIALOG, NOTIFY, "0\n\nThe relay requires RLV to be running in the %DEVICETYPE% but it currently is not. To make things work, click \"ON\" in the RLV menu that just popped up!\n", kID);
     } else if (sStr=="relay" || sStr == "menu "+g_sSubMenu) Menu(kID, iAuth);
     else if (iAuth != CMD_OWNER && iAuth != CMD_TRUSTED && kID != g_kWearer) RelayNotify(kID, "Access denied!", 0);
-    else if (llGetSubString(sStr, 6, -1) == "safeword") SafeWord();
+    else if ((sStr = llGetSubString(sStr, 6, -1)) == "safeword") SafeWord();
     else if (sStr == "getdebug") {
         g_kDebugRcpt = kID;
         RelayNotify(kID, "/me messages will be forwarded to "+NameURI(kID)+".", 1);
