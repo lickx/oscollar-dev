@@ -504,8 +504,12 @@ RunAway()
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "owner", "");
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "vanilla", "");
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "hardvanilla", "");
+    g_iVanilla = TRUE;
+    g_iHardVanilla = FALSE;
+    g_lTempOwner = [];
     llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, g_sSettingToken + "tempowner=", "");
     llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken + "tempowner", "");
+    g_lBlock = [];
     llMessageLinked(LINK_ALL_OTHERS, CMD_OWNER, "clear", g_sWearerID);
     llMessageLinked(LINK_ALL_OTHERS, CMD_OWNER, "runaway", g_sWearerID);
     llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Runaway finished.", g_sWearerID);
