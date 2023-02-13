@@ -46,12 +46,8 @@ list listeners=[];      // collar pong listeners per victim
 //=
 //= returns      : Channel iNumber to be used
 //===============================================================================
-integer GetOwnerChannel(key kOwner, integer iOffset)
-{
-    integer iChan = (integer)("0x"+llGetSubString((string)kOwner,2,7)) + iOffset;
-    if (iChan > 0) iChan *= -1;
-    if (iChan > -10000) iChan -= 30000;
-    return iChan;
+integer PersonalChannel(string sID, integer iOffset) {
+    return -llAbs((integer)("0x"+llGetSubString(sID,-7,-1)) + iOffset);
 }
 
 // resets the menu dialog
@@ -88,9 +84,9 @@ notFound(key k)
 // leash a victim
 leash(key k)
 {
-    integer channel=GetOwnerChannel(k,1111);
+    integer channel=PersonalChannel((string)k,0);
     llRegionSayTo(k,channel,"length "+(string) LEASH_LENGTH);
-    llRegionSayTo(k,channel,"leashto "+(string) llGetKey());
+    llRegionSayTo(k,channel,"anchor "+(string) llGetKey());
 }
 
 default
@@ -217,8 +213,8 @@ default
             // get the collar wearer's name
             string sName=llKey2Name(wearer);
 
-            // cut to max. 24 characters and add to the list of names
-            victimNames+=[llGetSubString(sName,0,23)];
+            // cut to max. 11 characters and add to the list of names
+            victimNames+=[llGetSubString(sName,0,11)];
             // add to the list of keys
             victimKeys+=[wearer];
 
@@ -249,14 +245,14 @@ default
             if(k!=menuUser)
             {
                 // calculate collar channel per victim and add a listener
-                channel=GetOwnerChannel(k,1111);
+                channel=PersonalChannel((string)k,0);
                 listeners+=
                 [
                     llListen(channel,"",NULL_KEY,"")
                 ];
 
                 // ping victim's collar
-                llRegionSayTo(k,channel,"ping");
+                llRegionSayTo(k,channel,(string)k+":ping");
             }
         }
 
