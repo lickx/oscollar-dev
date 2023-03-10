@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2023.01.26";
+string g_sVersion = "2023.03.10";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -96,7 +96,7 @@ string g_sStyle = "Dark";
 
 integer JsonValid(string sTest)
 {
-    if (llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest) != -1)
+    if (llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest) >= 0)
         return FALSE;
     return TRUE;
 }
@@ -107,7 +107,7 @@ FindButtons()
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for g_sTexture
     g_lPrimOrder = [0, LINK_ROOT];  //  '1' - root prim
     integer i;
-    for (i = 2; i <= llGetNumberOfPrims(); i++) {
+    for (i = 2; i <= llGetNumberOfPrims(); ++i) {
         g_lButtons += llGetLinkName(i);
         g_lPrimOrder += i;
     }
@@ -226,7 +226,7 @@ SetAnimOverride()
         string sAnimState;
         do {
             sAnimState = llList2String(g_lAnimStates, i);
-            if (llSubStringIndex(g_sJson_Anims, sAnimState) != -1) {
+            if (llSubStringIndex(g_sJson_Anims, sAnimState) >= 0) {
                 sAnim = llJsonGetValue(g_sJson_Anims, [sAnimState]);
                 if (JsonValid(sAnim)) {
                     if (sAnimState == "Walking" && g_sWalkAnim != "")
