@@ -1,4 +1,3 @@
-
 //  oc_com.lsl
 //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Garvin Twine, Cleo Collins,
@@ -339,9 +338,10 @@ default
         }
         key kOwnerID = llGetOwnerKey(kID);
         if (iChan == g_iHUDChan) {
-            if (sMsg == (string)g_kWearer + ":ping")
+            if (sMsg == (string)g_kWearer + ":ping") {
                 llMessageLinked(LINK_AUTH, CMD_ZERO, "ping", kOwnerID);
-            else if (llSubStringIndex(sMsg,(string)g_kWearer + ":") == 0){
+                llRegionSayTo(kID, g_iHUDChan, (string)g_kWearer+":pong");
+            } else if (llSubStringIndex(sMsg,(string)g_kWearer + ":") == 0){
                 sMsg = llGetSubString(sMsg, 37, -1);
                 llMessageLinked(LINK_AUTH, CMD_ZERO, sMsg, kOwnerID);
             } else
