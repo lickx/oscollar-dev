@@ -64,7 +64,7 @@ float g_Yoff = 0.002; // space between buttons and screen top/bottom border
 float g_Zoff = 0.06; // space between buttons and screen left/right border
 
 list g_lButtons ; // buttons names for Order menu
-list g_lPrimOrder = [0,1,2,3,4,5]; // -- List must always start with '0','1'
+list g_lPrimOrder = [0,1,2,3,4]; // -- List must always start with '0','1'
 // -- 0:Spacer, 1:Root, 2:Power, 3:Sit Anywhere, 4:Menu, 5:Device
 // -- Spacer serves to even up the list with actual link numbers
 
@@ -172,7 +172,7 @@ DefinePosition()
         else fZoff = 0;
         integer i;
         integer LinkCount=llGetListLength(g_lPrimOrder);
-        for (i = 2; i <= LinkCount; ++i) {
+        for (i = 2; i < LinkCount; ++i) {
             llSetLinkPrimitiveParamsFast(llList2Integer(g_lPrimOrder, i),[PRIM_POSITION, <0,fYoff*(i-1),fZoff*(i-1)>]);
         }
     }
