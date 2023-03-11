@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2023.01.26";
+string g_sVersion = "2023.03.10";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -64,7 +64,7 @@ float g_Yoff = 0.002; // space between buttons and screen top/bottom border
 float g_Zoff = 0.06; // space between buttons and screen left/right border
 
 list g_lButtons ; // buttons names for Order menu
-list g_lPrimOrder = [0,1,2,3,4,5]; // -- List must always start with '0','1'
+list g_lPrimOrder = [0,1,2,3,4]; // -- List must always start with '0','1'
 // -- 0:Spacer, 1:Root, 2:Power, 3:Sit Anywhere, 4:Menu, 5:Device
 // -- Spacer serves to even up the list with actual link numbers
 
@@ -92,25 +92,11 @@ integer g_iTimerRlvDetect;
 integer g_iTimerChangeStand;
 integer g_iTimerDialogTimeout;
 
-<<<<<<< HEAD
-string g_sStyle = "Dark"; // only used for settings storing/restoring
-/*
-integer osGetLinkNumber(string sName)
-{
-    integer i;
-    for (i = LINK_ROOT; i <= llGetNumberOfPrims(); i++) {
-        if (llGetLinkName(i) == sName) return i;
-    }
-    return -1;
-}
-*/
-=======
 string g_sStyle = "Dark";
 
->>>>>>> master
 integer JsonValid(string sTest)
 {
-    if (llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest) != -1)
+    if (llSubStringIndex(JSON_FALSE+JSON_INVALID+JSON_NULL,sTest) >= 0)
         return FALSE;
     return TRUE;
 }
@@ -121,12 +107,8 @@ FindButtons()
     g_lButtons = [" ", "Minimize"] ; // 'Minimize' need for g_sTexture
     g_lPrimOrder = [0, LINK_ROOT];  //  '1' - root prim
     integer i;
-    for (i = 2; i <= llGetNumberOfPrims(); i++) {
-<<<<<<< HEAD
+    for (i = 2; i <= llGetNumberOfPrims(); ++i) {
         g_lButtons += [llGetLinkName(i)];
-=======
-        g_lButtons += llGetLinkName(i);
->>>>>>> master
         g_lPrimOrder += i;
     }
 }
@@ -189,7 +171,7 @@ DefinePosition()
         else fZoff = 0;
         integer i;
         integer LinkCount=llGetListLength(g_lPrimOrder);
-        for (i = 2; i <= LinkCount; ++i) {
+        for (i = 2; i < LinkCount; ++i) {
             llSetLinkPrimitiveParamsFast(llList2Integer(g_lPrimOrder, i),[PRIM_POSITION, <0,fYoff*(i-1),fZoff*(i-1)>]);
         }
     }
