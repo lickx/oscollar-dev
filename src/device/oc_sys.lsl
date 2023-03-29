@@ -22,7 +22,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2023.02.13";
+string g_sCollarVersion="2023.03.29";
 
 key g_kWearer = NULL_KEY;
 
@@ -409,7 +409,7 @@ Stealth(integer iHide) {
         integer iLink;
         for (iLink = LINK_ROOT; iLink < llGetNumberOfPrims(); iLink++) {
             // restore alpha's:
-            integer idx = llListFindList(g_lCacheAlpha, iLink);
+            integer idx = llListFindList(g_lCacheAlpha, [iLink]);
             if (idx != -1 && (idx % 2 == 0)) {
                 float fAlpha = llList2Float(g_lCacheAlpha, idx+1);
                 llSetLinkAlpha(iLink, fAlpha, ALL_SIDES);
