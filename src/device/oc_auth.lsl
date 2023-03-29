@@ -268,7 +268,8 @@ SayOwners()
                 sMsg += " and others.";
             } else {
                 if (g_iVanilla) sMsg += NameURI(llList2String(g_lOwner,index))+" and yourself.";
-                else sMsg += "and "+NameURI(llList2String(g_lOwner,index))+".";-            }
+                else sMsg += "and "+NameURI(llList2String(g_lOwner,index))+".";
+            }
         }
         if (sMsg == "You belong to ") sMsg += "yourself."; 
         llMessageLinked(LINK_DIALOG,NOTIFY, "0"+sMsg, g_sWearerID);

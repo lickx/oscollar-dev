@@ -540,13 +540,11 @@ default
     on_rez(integer start_param)
     {
         if (llGetOwner() != g_kWearer) llResetScript();
-        g_vRegionSize = osGetRegionSize();
         DoUnleash(FALSE);
     }
 
     state_entry() {
         g_kWearer = llGetOwner();
-        g_vRegionSize = osGetRegionSize();
         DoUnleash(FALSE);
         FindLeashHolder();
     }
@@ -752,7 +750,6 @@ default
     changed (integer iChange)
     {
         if (iChange & CHANGED_OWNER) g_kWearer = llGetOwner();
-        if (iChange & CHANGED_REGION) g_vRegionSize = osGetRegionSize();
         if (iChange & CHANGED_INVENTORY) FindLeashHolder();
     }
 }

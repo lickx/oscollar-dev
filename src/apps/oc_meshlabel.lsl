@@ -65,7 +65,7 @@ string g_sCharmap = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 list g_lFonts;
 
-key g_sFontTexture = "font_System 01";
+string g_sFontTexture = "font_System 01";
 
 integer x = 45;
 integer y = 19;
@@ -277,7 +277,7 @@ UserCommand(integer iAuth, string sStr, key kAv)
                 integer iIndex = llListFindList(g_lFonts, [font]);
                 if (iIndex != -1) {
                     g_sFontTexture = llList2String(g_lFonts, iIndex + 1);
-                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken + "font=" + g_sFontTexture, "");
+                    llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"font="+g_sFontTexture, "");
                 } else FontMenu(kAv, iAuth);
             } else if (sAction == "color") {
                 string sColor= llDumpList2String(llDeleteSubList(lParams,0,1)," ");

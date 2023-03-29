@@ -312,15 +312,43 @@ UserCommand(integer iNum, string sStr, key kID, integer fromMenu) {
     }*/
 }
 
-// Returns timestamp in gridtime (PDT/PST) as YYYY-MM-DD.HH:MM:SS
-string GetTimestamp() {
-    integer sltSecs = (integer) llGetWallclock(); // Get SL time in seconds (will be either PST or PDT)
-    integer diff    = (integer) llGetGMTclock() - sltSecs; // Compute the difference between UTC and SLT
-    integer iEpoch = llGetUnixTime(); // UTC unix
-    if (diff == 25200 || diff == -61200) iEpoch -= 25200; // PDT unix
-    else iEpoch -= 28800; // PST unix
-    string sOut = osUnixTimeToTimestamp(iEpoch); // threatlevel VeryLow
-    return llGetSubString(sOut, 0, 18); // strip off unnecessary microseconds
+string GetTimestamp() { // Return a string of the date and time
+    string out;
+    string DateUTC = llGetDate();
+    if (llGetGMTclock() < 28800) { // that's 28800 seconds, a.k.a. 8 hours.
+        list DateList = llParseString2List(DateUTC, ["-", "-"], []);
+        integer year = llList2Integer(DateList, 0);
+        integer month = llList2Integer(DateList, 1);
+        integer day = llList2Integer(DateList, 2);
+       // day = day - 1; //Remember, remember, the 0th of November!
+       if(day==1) {
+           if(month==1) return (string)(year-1) + "-01-31";
+           else {
+                --month;
+                if(month==2) day = 28+(year%4==FALSE); //To do: fix before 28th feb 2100.
+                else day = 30+ (!~llListFindList([4,6,9,11],[month])); //31 days hath == TRUE
+            }
+        }
+        else --day;
+        out=(string)year + "-" + (string)month + "-" + (string)day;
+    } else out=llGetDate();
+    
+    integer t = (integer)llGetWallclock(); // seconds since midnight
+    out += " " + (string)(t / 3600) + ":";
+    
+    integer mins=(t % 3600) / 60;
+    if (mins <10){
+        out += "0";
+    }
+    out += (string)mins+":";
+
+    integer secs=t % 60;
+    if (secs < 10){
+        out += "0";
+    }
+    out += (string)secs;
+    
+    return out;
 }
 
 SetLockElementAlpha() { //EB
@@ -408,7 +436,7 @@ Stealth(integer iHide) {
         integer iLink;
         for (iLink = LINK_ROOT; iLink < llGetNumberOfPrims(); iLink++) {
             // restore alpha's:
-            integer idx = llListFindList(g_lCacheAlpha, iLink);
+            integer idx = llListFindList(g_lCacheAlpha, [iLink]);
             if (idx != -1 && (idx % 2 == 0)) {
                 float fAlpha = llList2Float(g_lCacheAlpha, idx+1);
                 llSetLinkAlpha(iLink, fAlpha, ALL_SIDES);
