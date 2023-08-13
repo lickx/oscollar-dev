@@ -1,4 +1,6 @@
 
+yoptions;
+
 //  oc_settings.lsl
 //
 //  Copyright (c) 2008 - 2017 Nandana Singh, Cleo Collins, Master Starship,
@@ -66,7 +68,6 @@ key g_kTempOwner = NULL_KEY;
 integer g_iSayLimit = 1024;
 integer g_iCardLimit = 255;
 string g_sDelimiter = "\\";
-integer g_iSaveAttempted = FALSE;
 
 string SplitToken(string sIn, integer iSlot)
 {
@@ -202,9 +203,19 @@ PrintSettings(key kID, string sDebug)
 SaveSettings(key kID)
 {
     list lOut = Add2OutList(g_lSettings, "save");
-    g_iSaveAttempted = TRUE;
-    llSetTimerEvent(3.0);
-    osMakeNotecard(g_sCard+".new", lOut);
+    try
+    {
+        osMakeNotecard(g_sCard, lOut);
+        llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Settings saved.", kID);
+    }
+    catch (scriptexception ex)
+    {
+        string msg = yExceptionMessage(ex);
+        if (osStringStartsWith(msg, "ossl permission error", TRUE))
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Saving is not enabled on this region. Use 'Print' instead, then copy & paste to replace the contents of the settings notecard.", kID);
+        else
+            throw;
+    }
 }
 
 LoadSetting(string sData, integer iLine)
@@ -395,19 +406,7 @@ default
     timer()
     {
         llSetTimerEvent(0.0);
-        if (g_iSaveAttempted) {
-            g_iSaveAttempted = FALSE;
-            if (llGetInventoryType(g_sCard+".new") == INVENTORY_NOTECARD) {
-                // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
-                string sNewSettings = osGetNotecard(g_sCard+".new");
-                osMakeNotecard(g_sCard, sNewSettings);
-                llRemoveInventory(g_sCard+".new");
-                llOwnerSay("\n\nSettings have been saved.\n\n");
-            } else {
-                llOwnerSay("\n\nSaving settings is not supported in this region. Use Settings->Print\n\n");
-            }
-        } else SendValues();
+        SendValues();
     }
 
     changed(integer iChange)
