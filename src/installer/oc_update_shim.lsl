@@ -155,11 +155,11 @@ default
             Check4Core5Script();
             string sResponse = llDumpList2String([sType, sName, sCmd], "|");
             //Debug("responding: " + response);
-            // Possible OpenSim bug
+            // Bug in older OpenSim versions, fixed since 2018-10-18:
+            // 7391: Messages sent with llRegionSayTo are only received by one listening script per prim (object?)
             // See: http://opensimulator.org/mantis/view.php?id=7391
-            // So we use the less optimal llRegionSay() instead
-            //llRegionSayTo(kID, iChannel, sResponse);
-            llRegionSay(iChannel, sResponse);
+            //llRegionSay(iChannel, sResponse); // workaround
+            llRegionSayTo(kID, iChannel, sResponse);
         } else if (sMsg == "Core5Done") Check4Core5Script();
         else if (llSubStringIndex(sMsg, "DONE") == 0){
             //restore settings
