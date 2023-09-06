@@ -82,6 +82,7 @@ key g_kLeashedTo = NULL_KEY;
 integer g_bLeashedToAvi;
 integer g_bFollowMode;
 string g_sSettingToken = "leash_";
+float NEAR_DISTANCE = 20.0;
 
 integer g_iPassConfirmed;
 integer g_iRezAuth;
@@ -186,6 +187,11 @@ ApplyRestrictions()
 integer LeashTo(key kTarget, key kCmdGiver, integer iAuth, list lPoints, integer iFollowMode)
 {
     if (kTarget == g_kWearer) return FALSE;
+    vector vTargetPos = llList2Vector(llGetObjectDetails(kTarget, [OBJECT_POS]), 0);
+    if (llVecDist(vTargetPos, llGetPos()) > NEAR_DISTANCE) {
+        llMessageLinked(LINK_DIALOG, NOTIFY, "0%WEARERNAME% is too far away.", kTarget);
+        return FALSE;
+    }
     if (g_iPassConfirmed == FALSE) {
         g_kLeashCmderID = kCmdGiver;
         if (iFollowMode) {
@@ -256,6 +262,10 @@ integer LeashTo(key kTarget, key kCmdGiver, integer iAuth, list lPoints, integer
 
 DoLeash(key kTarget, integer iAuth, list lPoints)
 {
+    // we need this check here too, DoLeash is called on settings response as well as from object_rez()
+    vector vTargetPos = llList2Vector(llGetObjectDetails(kTarget, [OBJECT_POS]), 0);
+    if (llVecDist(vTargetPos, llGetPos()) > NEAR_DISTANCE) return;
+
     g_iLastRank = iAuth;
     g_kLeashedTo = kTarget;
     if (g_bFollowMode)
