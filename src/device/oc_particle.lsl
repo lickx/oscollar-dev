@@ -155,10 +155,16 @@ StartParticles(key kParticleTarget)
 {
     StopParticles(FALSE);
     if (g_sParticleMode == "noParticle") return;
-    for (g_iLoop = 0; g_iLoop < llGetListLength(g_lLeashPrims); g_iLoop = g_iLoop + 3) {
-        if ((integer)llList2String(g_lLeashPrims, g_iLoop+2)) {
-            Particles((integer)llList2String(g_lLeashPrims, g_iLoop+1), kParticleTarget);
+    else if (g_sParticleMode == "Ribbon") {
+        // Use all leashpoints
+        for (g_iLoop = 0; g_iLoop < llGetListLength(g_lLeashPrims); g_iLoop = g_iLoop + 3) {
+            if ((integer)llList2String(g_lLeashPrims, g_iLoop+2)) {
+                Particles((integer)llList2String(g_lLeashPrims, g_iLoop+1), kParticleTarget);
+            }
         }
+    } else {
+        // Only use first leashpoint
+        Particles((integer)llList2String(g_lLeashPrims, 1), kParticleTarget);
     }
     g_iLeashActive = TRUE;
 }
