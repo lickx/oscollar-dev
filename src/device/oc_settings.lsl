@@ -66,7 +66,6 @@ key g_kTempOwner = NULL_KEY;
 integer g_iSayLimit = 1024;
 integer g_iCardLimit = 255;
 string g_sDelimiter = "\\";
-integer g_iSaveAttempted = FALSE;
 
 string SplitToken(string sIn, integer iSlot)
 {
@@ -401,19 +400,7 @@ default
     timer()
     {
         llSetTimerEvent(0.0);
-        if (g_iSaveAttempted) {
-            g_iSaveAttempted = FALSE;
-            if (llGetInventoryType(g_sCard+".new") == INVENTORY_NOTECARD) {
-                // Move g_sCard.new notecard into g_sCard
-                if (llGetInventoryType(g_sCard) == INVENTORY_NOTECARD) llRemoveInventory(g_sCard);
-                string sNewSettings = osGetNotecard(g_sCard+".new");
-                osMakeNotecard(g_sCard, sNewSettings);
-                llRemoveInventory(g_sCard+".new");
-                llOwnerSay("\n\nSettings have been saved.\n\n");
-            } else {
-                llOwnerSay("\n\nSaving settings is not supported in this region. Use Settings->Print\n\n");
-            }
-        } else SendValues();
+        SendValues();
     }
 
     changed(integer iChange)
