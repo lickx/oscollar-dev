@@ -207,10 +207,6 @@ WearFolder(string sStr, key kID)
     if (g_sCoreFolder != "") llOwnerSay("@attachallover:"+g_sCoreFolder+"=force");
     // wear the chosen outfit:
     llOwnerSay("@attachallover:"+sStr+"=force");
-    // due to a bug (RLVa doesn't handle AISv3 well), we need to repeat twice,
-    // else wearables ('BoM clothes') are not worn, affecting SmartStrip
-    llOwnerSay("@attachallover:"+sStr+"=force");
-    llOwnerSay("@attachallover:"+sStr+"=force");
     // cleanup: unlock core folder if exists
     if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=y");
     // cleanup: unlock the collar, only if it was locked temporarily
