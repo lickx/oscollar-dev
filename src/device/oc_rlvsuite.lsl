@@ -565,6 +565,7 @@ default
             else if (sStr=="restrictions_blurred") g_iBlurredRestricted=FALSE;
             else if (sStr=="restrictions_dazed")   g_iDazedRestricted=FALSE;
             else if (sStr=="restrictions_dress") g_iDressRestricted=FALSE;
+            doRestrictions();
         } else if (iNum == LM_SETTING_RESPONSE) {
             list lParams = llParseString2List(sStr, ["="], []);
             string sToken = llList2String(lParams, 0);
@@ -581,6 +582,7 @@ default
                 else if (sToken=="restrictions_blurred")  g_iBlurredRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dazed")    g_iDazedRestricted=(integer)sValue;
                 else if (sToken=="restrictions_dress")    g_iDressRestricted=(integer)sValue;
+                doRestrictions();
             } else if (sToken==g_sSettingToken+"corefolder") {
                 if (sValue=="none") g_sCoreFolder = "";
                 else g_sCoreFolder = sValue;

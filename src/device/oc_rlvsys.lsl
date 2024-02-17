@@ -362,7 +362,6 @@ default
     state_entry()
     {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
-        llOwnerSay("@clear");
         g_kWearer = llGetOwner();
         if (llSubStringIndex(llGetObjectDesc(),"LED") == 0) g_iIsLED = TRUE;
         if (g_iIsLED == FALSE) PieSlice();
