@@ -492,11 +492,13 @@ Command(key kID, string sCommand)
         MenuLoad(kID,0);
         return;
     } else if (sCommand == "on") {
+        if ((llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) == 0) llRequestPermissions(g_kWearer, PERMISSION_OVERRIDE_ANIMATIONS);
         SetAnimOverride();
         g_iAO_ON = TRUE;
         if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
         DoStatus();
     } else if (sCommand == "off") {
+        if ((llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) == 0) llRequestPermissions(g_kWearer, PERMISSION_OVERRIDE_ANIMATIONS);
         llResetAnimationOverride("ALL");
         g_iAO_ON = FALSE;
         g_iTimerChangeStand = 0;
