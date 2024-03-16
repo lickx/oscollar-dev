@@ -87,7 +87,6 @@ integer g_iShoeChannel;
 integer g_iShoeListener;
 integer g_iShoesWorn;
 float g_fHeelOffset = -0.1;
-integer g_iOffsetAdjustHandle;
 
 integer g_iTimerRlvDetect;
 integer g_iTimerChangeStand;
@@ -281,18 +280,11 @@ ToggleSitAnywhere()
         if (g_iSitAnywhereOn) {
             if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
             SwitchStand();
-            if (g_iRLVOn) {
-                llOwnerSay("@adjustheight:1;0;0.0=force");
-                llListenRemove(g_iOffsetAdjustHandle);
-            }
+            if (g_iRLVOn) llOwnerSay("@adjustheight:1;0;0.0=force");
         } else {
             g_iTimerChangeStand = 0;
             llSetAnimationOverride("Standing",g_sSitAnywhereAnim);
-            if (g_iRLVOn) {
-                AdjustSitOffset();
-                llOwnerSay("Use /2offset <float> to adjust SitAnywhere offset in meters");
-                g_iOffsetAdjustHandle = llListen(2, "", (string)g_kWearer, "");
-            }
+            if (g_iRLVOn) AdjustSitOffset();
         }
         g_iSitAnywhereOn = !g_iSitAnywhereOn;
         DoStatus();
@@ -501,11 +493,13 @@ Command(key kID, string sCommand)
         MenuLoad(kID,0);
         return;
     } else if (sCommand == "on") {
+        if ((llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) == 0) llRequestPermissions(g_kWearer, PERMISSION_OVERRIDE_ANIMATIONS);
         SetAnimOverride();
         g_iAO_ON = TRUE;
         if (g_iChangeInterval) g_iTimerChangeStand = llGetUnixTime() + g_iChangeInterval;
         DoStatus();
     } else if (sCommand == "off") {
+        if ((llGetPermissions() & PERMISSION_OVERRIDE_ANIMATIONS) == 0) llRequestPermissions(g_kWearer, PERMISSION_OVERRIDE_ANIMATIONS);
         llResetAnimationOverride("ALL");
         g_iAO_ON = FALSE;
         g_iTimerChangeStand = 0;
@@ -746,27 +740,6 @@ default
                     llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=add");
                 }
             }
-        } else if (iChannel == 2) {
-            list lCmd = llParseString2List(sMessage, [" "], []);
-            if (llStringTrim(llList2String(lCmd, 0), STRING_TRIM) != "offset") return;
-            string sParam1 = llStringTrim(llList2String(lCmd, 1), STRING_TRIM);
-            float fValue;
-            if (llGetListLength(lCmd) == 3) { // /2offset + 0.05
-                float fParam2 = (float)llList2String(lCmd, 2);
-                if (sParam1 == "+") fValue = g_fSitOffset + fParam2;
-                else if (sParam1 == "-") fValue = g_fSitOffset - fParam2;
-                else fValue = (float)sParam1; // ignore param 2
-            } else if (llGetListLength(lCmd) == 2) { // /2offset +0.05
-                float fParam2 = (float)llGetSubString(sParam1, 1, -1);
-                string sMod = llGetSubString(sParam1, 0, 0);
-                if (sMod == "+") fValue = g_fSitOffset + fParam2;
-                else if (sMod == "-") fValue = g_fSitOffset - fParam2;
-                else fValue = (float)sParam1;
-            }
-            g_fSitOffset = fValue;
-            StoreSettings();
-            AdjustSitOffset();
-            llOwnerSay("New SitAnywhere offset "+llGetSubString((string)g_fSitOffset, 0, 4)+" stored");
         } else if (llListFindList(g_lMenuIDs,[kID, iChannel]) != -1) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
@@ -840,10 +813,6 @@ default
             } else if (llListFindList(["Walking","Sitting on Ground","Sitting"], [sMenuType]) != -1) {
                 if (sMessage == "BACK") {
                     g_lAnims2Choose = [];
-                    if (sMenuType == "Sitting on Ground" && g_iSitAnywhereOn) {
-                        ToggleSitAnywhere();
-                        DoStatus();
-                    }
                     MenuAO(kID);
                 } else if (sMessage == "▲" || sMessage == "▼") {
                     if (sMessage == "▲") g_fSitOffset += 0.025;
