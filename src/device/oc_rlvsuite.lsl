@@ -198,20 +198,28 @@ WearFolder(string sStr, key kID)
     string sOutfit = llGetSubString(sStr, llStringLength(g_sPathPrefix), -2);
     llMessageLinked(LINK_ROOT, ATTACHMENT_RESPONSE, "CollarCommand|"+(string)g_iAuth+"|ZHAO_ao load "+sOutfit, kID);
     // always lock collar during outfit change
-    llOwnerSay("@detach=n");
+    string sRlvCmd = "@detach=n";
     // lock the core folder if exists
-    if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=n");
+    if (g_sCoreFolder != "") sRlvCmd += ",detachallthis:"+g_sCoreFolder+"=n";
     // unwear everything that's not locked:
-    llOwnerSay("@remoutfit=force,detach=force");
-    // wear clothes/parts from the core folder that are not already worn:
-    if (g_sCoreFolder != "") llOwnerSay("@attachallover:"+g_sCoreFolder+"=force");
-    // wear the chosen outfit:
-    llOwnerSay("@attachallover:"+sStr+"=force");
+    sRlvCmd += ",remoutfit=force,detach=force";
+    llOwnerSay(sRlvCmd);
+    llSleep(2.0);
+    if (g_sCoreFolder != "") {
+        // wear clothes/parts from the core folder that are not already worn:
+        sRlvCmd = "@attachallover:"+g_sCoreFolder+"=force";
+        // wear the chosen outfit:
+        sRlvCmd += ",attachallover:"+sStr+"=force";
+    } else {
+        // wear the chosen outfit:
+        sRlvCmd = "@attachallover:"+sStr+"=force";
+    }
+    llOwnerSay(sRlvCmd);
+    llSleep(2.0);
     // cleanup: unlock core folder if exists
     if (g_sCoreFolder != "") llOwnerSay("@detachallthis:"+g_sCoreFolder+"=y");
     // cleanup: unlock the collar, only if it was locked temporarily
     if (g_iLocked == FALSE) llOwnerSay("@detach=y");
-    llSleep(1.5); // delay for SSA
 }
 
 doRestrictions()
