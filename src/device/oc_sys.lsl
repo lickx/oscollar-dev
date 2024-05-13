@@ -22,7 +22,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2023.09.06";
+string g_sCollarVersion="2024.05.13";
 
 key g_kWearer = NULL_KEY;
 
@@ -156,7 +156,7 @@ string NameGroupURI(string sStr){
 
 SettingsMenu(key kID, integer iAuth) {
     string sPrompt = "\nSettings";
-    list lButtons = ["Print","Load","Save","Fix"];
+    list lButtons = ["Print","Load Card","Save Card","Dump LSD","Fix"];
     lButtons += g_lResizeButtons;
     if (g_iHide) lButtons += ["☐ Visible"];
     else lButtons += ["☑ Visible"];
@@ -523,8 +523,9 @@ default {
                     }
                 } else if (sMenu == "Settings") {
                     if (sMessage == "Print") llMessageLinked(LINK_SAVE, iAuth, "print settings", kAv);
-                    else if (sMessage == "Load") llMessageLinked(LINK_SAVE, iAuth, sMessage, kAv);
-                    else if (sMessage == "Save") llMessageLinked(LINK_SAVE, iAuth, sMessage, kAv);
+                    else if (sMessage == "Load Card") llMessageLinked(LINK_SAVE, iAuth, sMessage, kAv);
+                    else if (sMessage == "Save Card") llMessageLinked(LINK_SAVE, iAuth, sMessage, kAv);
+                    else if (sMessage == "Dump LSD") llMessageLinked(LINK_SAVE, iAuth, sMessage, kAv);
                     else if (sMessage == "Fix") {
                          UserCommand(iAuth, sMessage, kAv, TRUE);
                          return;
