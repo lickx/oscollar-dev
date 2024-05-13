@@ -285,7 +285,12 @@ LoadLinksetData()
 
         if (llListFindList(g_lExceptionTokens, [SplitToken(sKey,0)]) == -1)
         {
-            g_lSettings = SetSetting(g_lSettings, sKey, sValue);
+            integer idx = llSubStringIndex(sValue, "~");
+            if (idx) {
+                string sToken = llGetSubString(sValue, 0, idx-1); // extract token from sValue
+                sValue = llGetSubString(sValue, idx+1, -1); // strip token from sValue
+                if (sValue != "") g_lSettings = SetSetting(g_lSettings, sKey+"_"+sToken, sValue);
+            }
         }
     }
     lKeys = []; // force gc
@@ -387,7 +392,7 @@ default
         llSleep(0.5);
         g_kWearer = llGetOwner();
         if (llGetStartParameter() == 0) {
-            if (llGetListLength(g_lSettings) == 0) LoadLinksetData();
+            LoadLinksetData();
             llMessageLinked(LINK_ALL_OTHERS, LM_SETTING_RESPONSE, llDumpList2String(g_lSettings, "="), "");
         }
         PieSlice();
