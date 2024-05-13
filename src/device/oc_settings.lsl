@@ -93,7 +93,7 @@ integer SettingExists(string sToken)
 
 list SetSetting(list lCache, string sToken, string sValue)
 {
-    llLinksetDataWrite(llToUpper(SplitToken(sToken,0)), SplitToken(sToken,1)+"~"+sValue);
+    llLinksetDataWrite(sToken, sValue);
     integer idx = llListFindList(lCache, [sToken]);
     if (idx != -1) return llListReplaceList(lCache, [sValue], idx+1, idx+1);
     idx = GroupIndex(lCache, sToken);
@@ -109,6 +109,7 @@ string GetSetting(string sToken)
 
 DelSetting(string sToken)
 {
+    llLinksetDataDelete(sToken);
     integer i = llGetListLength(g_lSettings) - 1;
     if (SplitToken(sToken, 1) == "all") {
         sToken = SplitToken(sToken, 0);
@@ -177,7 +178,7 @@ PrintSettings(key kID, string sDebug)
     list lOut;
     string sLinkNr = (string)llGetLinkNumber();
     string sLinkName = llGetLinkName(LINK_THIS);
-    list lSay = ["/me \nTo copy/paste the settings below in the .settings notecard (in the '"+sLinkName+"' prim, link nr. "+sLinkNr+"), make sure the device is unlocked!\n----- 8< ----- 8< ----- 8< -----\n"];
+    list lSay = ["/me \nYou can copy/paste the settings below in a notecard to be loaded as backup (in the '"+sLinkName+"' prim, link nr. "+sLinkNr+")\n----- 8< ----- 8< ----- 8< -----\n"];
     if (sDebug == "debug")
         lSay = ["/me Settings Debug:\n"];
     lSay += Add2OutList(g_lSettings, sDebug);
@@ -280,17 +281,22 @@ LoadLinksetData()
     integer i;
     for (i = 0; i < llGetListLength(lKeys); i++)
     {
-        string sKey = llList2String(lKeys,i);
-        string sValue = llLinksetDataRead(sKey);
+        string sToken = llList2String(lKeys,i);
+        string sValue = llLinksetDataRead(sToken);
 
-        if (llListFindList(g_lExceptionTokens, [SplitToken(sKey,0)]) == -1)
+        if (llListFindList(g_lExceptionTokens, [SplitToken(sToken,0)]) == -1)
         {
-            integer idx = llSubStringIndex(sValue, "~");
-            if (idx) {
-                string sToken = llGetSubString(sValue, 0, idx-1); // extract token from sValue
-                sValue = llGetSubString(sValue, idx+1, -1); // strip token from sValue
-                if (sValue != "") g_lSettings = SetSetting(g_lSettings, sKey+"_"+sToken, sValue);
+            integer idx = llListFindList(g_lSettings, [sToken]);
+            if (idx != -1) {
+                g_lSettings = llListReplaceList(g_lSettings, [sValue], idx+1, idx+1);
+                continue;
             }
+            idx = GroupIndex(g_lSettings, sToken);
+            if (idx != -1) {
+                g_lSettings = llListInsertList(g_lSettings, [sToken, sValue], idx);
+                continue;
+            }
+            g_lSettings = g_lSettings + [sToken, sValue];
         }
     }
     lKeys = []; // force gc
