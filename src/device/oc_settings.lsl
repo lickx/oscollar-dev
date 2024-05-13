@@ -93,7 +93,7 @@ integer SettingExists(string sToken)
 
 list SetSetting(list lCache, string sToken, string sValue)
 {
-    llLinksetDataWrite(sToken, sValue);
+    llLinksetDataWrite(llToUpper(SplitToken(sToken,0)), SplitToken(sToken,1)+"~"+sValue);
     integer idx = llListFindList(lCache, [sToken]);
     if (idx != -1) return llListReplaceList(lCache, [sValue], idx+1, idx+1);
     idx = GroupIndex(lCache, sToken);
