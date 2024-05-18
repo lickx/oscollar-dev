@@ -207,6 +207,8 @@ SaveCard(key kID)
     list lOut = Add2OutList(g_lSettings, "save");
     try
     {
+        if (llGetInventoryType(g_sCard)==INVENTORY_NOTECARD)
+            llRemoveInventory(g_sCard);
         osMakeNotecard(g_sCard, lOut);
         llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Settings saved.", kID);
     }
@@ -214,7 +216,7 @@ SaveCard(key kID)
     {
         string msg = yExceptionMessage(ex);
         if (osStringStartsWith(msg, "ossl permission error", TRUE))
-            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Saving is not enabled on this region. Use 'Print' instead, then copy & paste to replace the contents of the settings notecard.", kID);
+            llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Saving is not enabled on this region. Use 'Print' instead, then copy & paste the output into a notecard called .settings within the storage prim - link number "+(string)llGetLinkNumber()+", link name "+llGetObjectName(), kID);
         else
             throw;
     }
