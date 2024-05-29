@@ -74,7 +74,6 @@ list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
 integer g_iFirstRun;
-integer g_iIsLED;
 
 list g_lBlocklistPrims; // list of links with name 'blocklist'
 
@@ -712,21 +711,16 @@ default
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         else g_iFirstRun = TRUE;
         g_sWearerID = llGetOwner();
-        if (llSubStringIndex(llGetObjectDesc(),"LED") == 0) g_iIsLED = TRUE;
         LoadAuthorized();
         GatherBlocklistPrims();
         LoadBlocklist();
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_REQUEST","");
-        if (g_iIsLED == FALSE) PieSlice();
+        PieSlice();
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
     {
         if (iNum == CMD_ZERO) {
-            if (g_iIsLED) {
-                llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, TRUE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_NONE, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.4]);
-                llSetTimerEvent(0.5);
-            }
             integer iAuth = Auth(kID);
             if (kID == g_sWearerID && sStr == "runaway") {
                 if (g_iRunawayDisable)
@@ -775,18 +769,10 @@ default
                 }
             }
         } else if (iNum == AUTH_REQUEST) {
-            if (g_iIsLED) {
-                llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT, ALL_SIDES, TRUE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_NONE, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.4]);
-                llSetTimerEvent(0.5);
-            }
             llMessageLinked(iSender, AUTH_REPLY, "AuthReply|"+(string)kID+"|"+(string)Auth(kID), llGetSubString(sStr,0,35));
         } else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (iMenuIndex != -1) {
-                if (g_iIsLED) {
-                    llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT, ALL_SIDES, TRUE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_NONE, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.4]);
-                    llSetTimerEvent(0.5);
-                }
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = llList2Key(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
@@ -848,12 +834,6 @@ default
             else if (sStr == "LINK_SAVE") LINK_SAVE = iSender;
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_AUTH","");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
-    }
-
-    timer ()
-    {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, FALSE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_HIGH, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.0]);
-        llSetTimerEvent(0.0);
     }
 
     changed(integer iChange)
