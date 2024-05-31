@@ -13,3 +13,5 @@ This affects RLVa, when declining a folder given to your shared #RLV folder by a
 
 [Mantis 8250](http://opensimulator.org/mantis/view.php?id=8250)  
 If your leashed sub has been bunny hopping or is stuck when walking up or down a hill, stairs, or other kind of slope, this patch fixes that leash weirdness.
+
+Alternatively, run my [OpenSim fork](https://github.com/lickx/opensim-lickx) in which this all is fixed
