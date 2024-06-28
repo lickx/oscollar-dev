@@ -78,8 +78,6 @@ list g_lColors = [
 "Midnight",<0.00000, 0.10588, 0.21176>
 ];
 
-integer g_iIsLED;
-
 string NameURI(key kID)
 {
     return "secondlife:///app/agent/"+(string)kID+"/about";
@@ -225,14 +223,12 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
     integer iChan = llRound(llFrand(10000000)) + 100000;
     while (llListFindList(g_lMenus, [iChan]) != -1) iChan=llRound(llFrand(10000000)) + 100000;
     integer iListener = llListen(iChan, "", kRecipient, "");
-    if (g_iIsLED) llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, TRUE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_NONE, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.4]);
     if (llGetListLength(lMenuItems+lUtilityButtons) > 0){
         list lNavButtons;
         if (iNumitems > iMyPageSize) lNavButtons=["◄","►"];
         llDialog(kRecipient, sThisPrompt, PrettyButtons(lButtons, lUtilityButtons, lNavButtons), iChan);
     }
     else llTextBox(kRecipient, sThisPrompt, iChan);
-    if (g_iIsLED) llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, FALSE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_HIGH, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.0]);
     llSetTimerEvent(g_iReapeat);
     integer ts = llGetUnixTime() + g_iTimeOut;
     g_lMenus += [iChan, kID, iListener, ts, kRecipient, sPrompt, llDumpList2String(lMenuItems, "|"), llDumpList2String(lUtilityButtons, "|"), iPage, iWithNums, iAuth,extraInfo];
@@ -360,10 +356,9 @@ default
     {
         if (llGetStartParameter() == 825) llSetRemoteScriptAccessPin(0);
         g_kWearer = llGetOwner();
-        if (llSubStringIndex(llGetObjectDesc(),"LED") == 0) g_iIsLED = TRUE;
         g_sPrefix = llToLower(llGetSubString(llKey2Name(g_kWearer),0,1));
         g_sWearerName = NameURI(g_kWearer);
-        if (g_iIsLED == FALSE) PieSlice();
+        PieSlice();
         llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_NAME,g_sDeviceName]);
     }
 

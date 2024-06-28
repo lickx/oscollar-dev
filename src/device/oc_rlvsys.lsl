@@ -108,7 +108,6 @@ integer g_iShoesWorn = FALSE;
 
 integer CMD_ADDSRC = 11;
 integer CMD_REMSRC = 12;
-integer g_iIsLED;
 
 DoMenu(key kID, integer iAuth)
 {
@@ -350,21 +349,19 @@ default
     on_rez(integer param)
     {
         if (g_kWearer != llGetOwner()) llResetScript();
-        if (llSubStringIndex(llGetObjectDesc(),"LED") == 0) g_iIsLED = TRUE;
         g_iRlvActive = FALSE;
         g_iViewerCheck = FALSE;
         g_iRLVOn = FALSE;
         g_lBaked = [];
         llMessageLinked(LINK_ALL_OTHERS,LINK_UPDATE,"LINK_RLV","");
-        if (g_iIsLED == FALSE) PieSlice();
+        PieSlice();
     }
 
     state_entry()
     {
         if (llGetStartParameter()==825) llSetRemoteScriptAccessPin(0);
         g_kWearer = llGetOwner();
-        if (llSubStringIndex(llGetObjectDesc(),"LED") == 0) g_iIsLED = TRUE;
-        if (g_iIsLED == FALSE) PieSlice();
+        PieSlice();
     }
 
     attach(key kID)
@@ -434,10 +431,6 @@ default
         else if (iNum == DIALOG_RESPONSE) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             if (iMenuIndex != -1) {
-                if (g_iIsLED) {
-                    llSetLinkPrimitiveParamsFast(LINK_THIS,[PRIM_FULLBRIGHT,ALL_SIDES,TRUE,PRIM_BUMP_SHINY,ALL_SIDES,PRIM_SHINY_NONE,PRIM_BUMP_NONE,PRIM_GLOW,ALL_SIDES,0.4]);
-                    llSensorRepeat("N0thin9","abc",ACTIVE,0.1,0.1,0.22);
-                }
                 list lMenuParams = llParseString2List(sStr, ["|"], []);
                 key kAv = llList2Key(lMenuParams, 0);
                 string sMsg = llList2String(lMenuParams, 1);
@@ -520,10 +513,6 @@ default
             while (numBaked--)
                 llOwnerSay("@"+llList2String(g_lBaked, numBaked)+"=n");
         } else if (g_iRlvActive) {
-            if (g_iIsLED) {
-                llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, TRUE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_NONE, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.4]);
-                llSensorRepeat("N0thin9", "abc", ACTIVE, 0.1, 0.1, 0.22);
-            }
             if (iNum == RLV_CMD) {
                 list lCommands = llParseString2List(llToLower(sStr), [","], []);
                 while (llGetListLength(lCommands) > 0) {
@@ -581,12 +570,6 @@ default
                 }
             }
         }
-    }
-
-    no_sensor()
-    {
-        llSetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_FULLBRIGHT, ALL_SIDES, FALSE, PRIM_BUMP_SHINY, ALL_SIDES, PRIM_SHINY_HIGH, PRIM_BUMP_NONE, PRIM_GLOW, ALL_SIDES, 0.0]);
-        llSensorRemove();
     }
 
     timer()
