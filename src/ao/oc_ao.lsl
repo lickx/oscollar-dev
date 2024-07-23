@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2023.09.06";
+string g_sVersion = "2024.07.23";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -680,6 +680,7 @@ default
             } else if (sButton == "Power") {
                 if (g_iAO_ON) Command(g_kWearer, "off");
                 else if (g_iReady) Command(g_kWearer, "on");
+                StoreSettings();
             } else if (sButton == "Device") {
                 llRegionSayTo(llGetOwner(), g_iHUDChannel, "menu");
             }
