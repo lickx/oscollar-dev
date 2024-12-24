@@ -73,8 +73,6 @@ integer RLV_OFF = 6100;
 integer RLV_ON = 6101;
 integer RLV_QUERY = 6102;
 integer RLV_RESPONSE = 6103;
-integer RLV_SHOES = 6108;
-integer RLV_NOSHOES = 6109;
 
 integer DIALOG = -9000;
 integer DIALOG_RESPONSE = -9001;
@@ -100,11 +98,6 @@ list g_lRestrictions;
 list g_lBaked;
 key g_kSitter = NULL_KEY;
 key g_kSitTarget = NULL_KEY;
-
-integer g_iShoeNotify = TRUE;
-integer g_iShoeListener;
-integer g_iShoeChannel;
-integer g_iShoesWorn = FALSE;
 
 integer CMD_ADDSRC = 11;
 integer CMD_REMSRC = 12;
@@ -364,16 +357,6 @@ default
         PieSlice();
     }
 
-    attach(key kID)
-    {
-        if (kID == NULL_KEY && g_iRLVOn) {
-            // Detach, so de-register worn and unworn events (if it gets through)
-            if (g_iRlvActive) {
-                llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=rem");
-                llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=rem");
-            }
-        }
-    }
 
     listen(integer iChan, string sName, key kID, string sMsg)
     {
@@ -394,29 +377,6 @@ default
             g_iRlvaVersion = (llList2Integer(lVersionSplit,0) * 100) + llList2Integer(lVersionSplit, 1);
             setRlvState();
             return;
-        } else if (iChan == g_iShoeChannel) {
-            //if (llGetSubString(sMsg, 0, 6) == "/notify") {
-            //    llOwnerSay("shoe channel: got notify result: "+sMsg);
-            //} else
-            if (sMsg  == "/unworn legally shoes") {
-                g_iShoesWorn = FALSE;
-                llMessageLinked(LINK_ANIM, RLV_NOSHOES, "", "");
-            } else if (sMsg == "/worn legally shoes") {
-                g_iShoesWorn = TRUE;
-                llMessageLinked(LINK_ANIM, RLV_SHOES, "", "");
-            } else if (llGetSubString(sMsg, 0, 6) != "/notify") {
-                // @getoutfit result (a string of 1's and 0's)
-                string sFlagShoes = llGetSubString(sMsg, 4, 4);
-                if (sFlagShoes == "1" || sFlagShoes == "0")
-                {
-                    g_iShoesWorn = (integer)llGetSubString(sMsg, 4, 4);
-                    if (g_iShoesWorn) llMessageLinked(LINK_ANIM, RLV_SHOES, "", "");
-                    else llMessageLinked(LINK_ANIM, RLV_NOSHOES, "", "");
-                    // Register to be notified of worn and unworn
-                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=add");
-                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=add");
-                }
-            }
         }
     }
 
@@ -591,12 +551,6 @@ default
                     key kSource = llList2Key(llList2ListStrided(g_lRestrictions, 0, -1, 2), i);
                     if (kSource != NULL_KEY) llShout(RELAY_CHANNEL, "ping," + (string)kSource + ",ping,ping");
                     else rebakeSourceRestrictions(kSource);
-                }
-                if (g_iShoeNotify) {
-                    g_iShoeChannel = (9999 + llRound(llFrand(9999999.0)));
-                    llListenRemove(g_iShoeListener);
-                    g_iShoeListener = llListen(g_iShoeChannel, "", (string)g_kWearer, "");
-                    llOwnerSay("@getoutfit="+(string)g_iShoeChannel);
                 }
                 if (llGetStartParameter() == 0) llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"RLV ready!", g_kWearer);
             }
