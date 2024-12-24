@@ -694,7 +694,7 @@ default {
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
                 llOwnerSay("An update is available!");
                 // Fetch a list of distribution sites:
-                g_kHttpDistsites = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/distsites", [], "");
+                g_kHttpDistsites = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/sl/web/distsites", [], "");
             } else
                 llOwnerSay("You are using the most recent version");
         } else if (kID == g_kHttpDistsites) {

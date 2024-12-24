@@ -112,17 +112,17 @@ DoTextures(string style)
 {
     list lTextures = [
     "Dark",
-    "Minimize~button_dark_opensim",
-    "Power~button_dark_io",
-    "SitAny~button_dark_groundsit",
-    "Menu~button_dark_menu",
-    "Device~button_dark_device",
+    "Minimize~dc120517-1ff3-11fd-5ea8-f34423a7a664",
+    "Power~932903e4-5054-9cc1-04da-7b18379e2fa3",
+    "SitAny~a0909a18-f525-a40c-9201-9a7a5634b2de",
+    "Menu~b68efeba-0a3b-6eff-5b18-9fbb3833eeca",
+    "Device~4c811a48-7dce-8a7f-0ee8-1af22fa0099a",
     "Light",
-    "Minimize~button_light_opensim",
-    "Power~button_light_io",
-    "SitAny~button_light_groundsit",
-    "Menu~button_light_menu",
-    "Device~button_light_device"
+    "Minimize~9ddcd586-ecd7-5662-7482-bc4089fe09e8",
+    "Power~8ebe634c-3243-3443-6017-16afa20ee421",
+    "SitAny~182c14e4-a9c8-e71f-38bd-d91716abb782",
+    "Menu~4c963ffd-d948-b8d4-7290-12e11d650e56",
+    "Device~6e950b0b-3cc7-ef75-7885-8689d2b9a5e7"
     ];
     integer i = llListFindList(lTextures, [style]);
     integer iEnd = i + (llGetListLength(lTextures)/2) - 1;
