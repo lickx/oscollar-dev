@@ -22,7 +22,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2024.05.13";
+string g_sCollarVersion="2025.01.06";
 
 key g_kWearer = NULL_KEY;
 
@@ -118,7 +118,7 @@ integer g_iWaitUpdate;
 integer g_iWaitRebuild;
 string g_sIntegrity = "(pending...)";
 
-string g_sHelpCard = "OsCollar Help";
+string g_sHelpCard = ".help";
 
 integer compareVersions(string v1, string v2) { //compares two symantic version strings, true if v1 >= v2
     integer v1Index = llSubStringIndex(v1, ".");
@@ -184,7 +184,7 @@ HelpMenu(key kID, integer iAuth) {
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫\t"+g_sCollarVersion+"\n";
+    string sPrompt = "\nOsCollar \t"+g_sCollarVersion+"\n";
     sPrompt += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     list lStaticButtons = ["Apps"];
     if (g_iAnimsMenu) lStaticButtons += "Animations";
@@ -444,8 +444,6 @@ default {
     state_entry() {
         g_kWearer = llGetOwner();
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sCollarVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_iHide = !(integer)llGetAlpha(ALL_SIDES);
         if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // no dummy pair, so cache lost, rebuild
         init();
@@ -671,7 +669,7 @@ default {
             if (compareVersions(sWebVersion, g_sCollarVersion)) {
                 llOwnerSay("An update is available!");
                 // Fetch a list of distribution sites:
-                g_kHttpDistsites = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/stable/web/distsites", [], "");
+                g_kHttpDistsites = llHTTPRequest("https://raw.githubusercontent.com/lickx/oscollar-dev/tamai/web/distsites", [], "");
             } else
                 llOwnerSay("You are using the most recent version");
         } else if (kID == g_kHttpDistsites) {

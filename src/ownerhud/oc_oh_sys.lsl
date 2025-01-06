@@ -22,7 +22,7 @@
 
 //merged HUD-menu, HUD-leash and HUD-rezzer into here June 2015 Otto (garvin.twine)
 
-string g_sVersion = "2023.01.19";
+string g_sVersion = "2025.01.06";
 
 list g_lPartners;
 list g_lNewPartnerIDs;
@@ -217,7 +217,7 @@ Dialog(string sPrompt, list lChoices, list lUtilityButtons, integer iPage, strin
 
 MainMenu()
 {
-    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  Owner HUD\t"+g_sVersion;
+    string sPrompt = "\nOsCollar - Owner HUD\t"+g_sVersion;
     sPrompt += "\n\nSelected Partner: "+NameURI(g_sActivePartnerID);
     list lButtons = g_lMainMenuButtons + g_lMenus;
     Dialog(sPrompt, lButtons, [], 0, g_sMainMenu);
@@ -321,8 +321,6 @@ default {
     state_entry() {
         g_kOwner = llGetOwner();
         if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         llSleep(1.0);//giving time for others to reset before populating menu
         g_iListener = llListen(PersonalChannel(g_kOwner, 0), "", "", ""); //lets listen here
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");

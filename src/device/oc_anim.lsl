@@ -69,14 +69,11 @@ integer MENUNAME_RESPONSE = 3001;
 integer RLV_CMD = 6000;
 integer RLV_OFF = 6100;
 integer RLV_VERSION = 6003;
-integer RLV_SHOES = 6108;
-integer RLV_NOSHOES = 6109;
 integer ANIM_START = 7000;
 integer ANIM_STOP = 7001;
 integer ANIM_LIST_REQUEST = 7002;
 integer ANIM_LIST_RESPONSE =7003;
 float g_fStandHover = 0.0;
-integer g_iShoesWorn = FALSE;
 
 integer REGION_TELEPORT = 10051;
 
@@ -90,8 +87,6 @@ key g_kWearer = NULL_KEY;
 
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
-
-float g_fHeelOffset = -0.1;
 
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
 {
@@ -212,10 +207,7 @@ SetHover(string sStr)
     } else g_lHeightAdjustments += [g_sCurrentPose, fNewHover];
     @next;
     if (g_sCurrentPose == g_sCrawlWalk) g_fPoseMoveHover = fNewHover;
-    if (g_iShoesWorn)
-        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force", g_kWearer);
-    else
-        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fNewHover+"=force", g_kWearer);
+    llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fNewHover+"=force", g_kWearer);
     string sSettings;
     integer i;
     for (i = 0; i < llGetListLength(g_lHeightAdjustments); i += 2) {
@@ -263,7 +255,6 @@ PlayAnim(string sAnim)
         integer index = llListFindList(g_lHeightAdjustments, [sAnim]);
         float fOffset = 0.0;
         if (index != -1) fOffset += llList2Float(g_lHeightAdjustments, index+1);
-        if (g_iShoesWorn) fOffset += g_fHeelOffset;
         llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fOffset+"=force", g_kWearer);
     }
     llStartAnimation(sAnim);
@@ -319,20 +310,6 @@ CreateAnimList()
         } else if (llSubStringIndex(sName,"~") == 0) g_lOtherAnims+=sName;
     } while (g_iNumberOfAnims > ++i);
     llMessageLinked(LINK_SET, ANIM_LIST_RESPONSE, llDumpList2String(g_lPoseList+g_lOtherAnims,"|"), "");
-}
-
-// Case insensitive match of sName against any inventory item of type iType
-// Returns actual inventory name when matched
-// Returns empty string if no match
-string MatchInventoryName(string sName, integer iType)
-{
-    integer i = 0;
-    while (i < llGetInventoryNumber(iType)) {
-        string sItemName = llGetInventoryName(iType, i);
-        if (llSubStringIndex(llToLower(sItemName), llToLower(sName)) == 0) return sItemName;
-        i++;
-    }
-    return "";
 }
 
 UserCommand(integer iNum, string sStr, key kID)
@@ -440,25 +417,11 @@ UserCommand(integer iNum, string sStr, key kID)
                 if (llList2String(lParams,2) == "") llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Crawl mode deactivated.", kID);
             }
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change crawl settings.",kID);
-    } else if (sCommand == "heeloffset") {
-        if ((iNum == CMD_OWNER) || (kID == g_kWearer)) {
-            if (sValue == "reset" || sValue != "") {
-                g_fHeelOffset = -0.1;
-                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"heeloffset", "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset has been reset to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
-            } else {
-                g_fHeelOffset = (float)sValue;
-                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"heeloffset="+(string)g_fHeelOffset, "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset changed to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
-            }
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.", kID);
     } else {
         // Check if given command is a pose in inv, and if so play it
         if (llStringLength(sStr) > 63) return; // inv item names can only have up to 63 chars
-        if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) {
-            sStr = MatchInventoryName(sStr, INVENTORY_ANIMATION);
-            if (sStr == "") return; // no match in aNy cAsE
-        } // else sStr is an exact match
+        if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) return;
+        // else sStr is an exact match
         if (iNum <= g_iLastRank || g_iAnimLock == FALSE || g_sCurrentPose == "") {
             StopAnim(g_sCurrentPose,(g_sCurrentPose != ""));
             g_sCurrentPose = sStr;
@@ -566,7 +529,7 @@ default
                 else if (sToken == "crawl") {
                     g_iCrawl = (integer)sValue;
                     checkCrawl();
-                } else if (sToken == "heeloffset") g_fHeelOffset = (float)sValue;
+                }
             } else if (llGetSubString(sToken, 0, i) == "offset_") {
                 sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "AllowHover") {
@@ -658,8 +621,6 @@ default
             else if (sStr == "LINK_REQUEST") llMessageLinked(LINK_ALL_OTHERS, LINK_UPDATE, "LINK_ANIM", "");
         } else if (iNum == REBOOT && sStr == "reboot") llResetScript();
         else if (iNum == RLV_VERSION) g_iRLV_ON = TRUE;
-        else if (iNum == RLV_SHOES) g_iShoesWorn = TRUE;
-        else if (iNum == RLV_NOSHOES) g_iShoesWorn = FALSE;
         else if (iNum == RLV_OFF) g_iRLV_ON = FALSE;
         else if (iNum == REGION_TELEPORT) RefreshAnim();
     }
@@ -697,7 +658,6 @@ default
                 fHover = 0.0;
                 integer index = llListFindList(g_lHeightAdjustments, [g_sCurrentPose]);
                 if (index != -1) fHover = llList2Float(g_lHeightAdjustments, index+1);
-                if (g_iShoesWorn) fHover += g_fHeelOffset;
                 llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fHover+"=force", g_kWearer);
             }
             StartAnim(llList2String(g_lAnims,0));
