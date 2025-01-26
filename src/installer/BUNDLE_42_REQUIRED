@@ -12,8 +12,8 @@ SCRIPT|oc_resizer
 SCRIPT|oc_rlvsuite
 SCRIPT|oc_themes
 SCRIPT|oc_titler
-ITEM|OsCollar License
-ITEM|OsCollar Help
+ITEM|.license
+ITEM|.help
 ITEM|sound_lock
 ITEM|sound_unlock
 ITEM|leash_chain
