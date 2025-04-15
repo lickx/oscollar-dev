@@ -91,8 +91,6 @@ key g_kWearer = NULL_KEY;
 list g_lMenuIDs;
 integer g_iMenuStride = 3;
 
-float g_fHeelOffset = -0.1;
-
 Dialog(key kID, string sPrompt, list lChoices, list lUtilityButtons, integer iPage, integer iAuth, string sName)
 {
     key kMenuID = llGenerateKey();
@@ -212,9 +210,11 @@ SetHover(string sStr)
     } else g_lHeightAdjustments += [g_sCurrentPose, fNewHover];
     @next;
     if (g_sCurrentPose == g_sCrawlWalk) g_fPoseMoveHover = fNewHover;
-    if (g_iShoesWorn)
-        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)(fNewHover+g_fHeelOffset)+"=force", g_kWearer);
-    else
+    if (g_iShoesWorn) {
+        list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
+        float fHeelOffset = llList2Float(l, 0) + llList2Float(l, 1);
+        llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)(fNewHover+fHeelOffset)+"=force", g_kWearer);
+    } else
         llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fNewHover+"=force", g_kWearer);
     string sSettings;
     integer i;
@@ -263,7 +263,10 @@ PlayAnim(string sAnim)
         integer index = llListFindList(g_lHeightAdjustments, [sAnim]);
         float fOffset = 0.0;
         if (index != -1) fOffset += llList2Float(g_lHeightAdjustments, index+1);
-        if (g_iShoesWorn) fOffset += g_fHeelOffset;
+        if (g_iShoesWorn) {
+            list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
+            fOffset += llList2Float(l, 0) + llList2Float(l, 1);
+        }
         llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fOffset+"=force", g_kWearer);
     }
     llStartAnimation(sAnim);
@@ -440,18 +443,6 @@ UserCommand(integer iNum, string sStr, key kID)
                 if (llList2String(lParams,2) == "") llMessageLinked(LINK_DIALOG, NOTIFY, "1"+"Crawl mode deactivated.", kID);
             }
         } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change crawl settings.",kID);
-    } else if (sCommand == "heeloffset") {
-        if ((iNum == CMD_OWNER) || (kID == g_kWearer)) {
-            if (sValue == "reset" || sValue != "") {
-                g_fHeelOffset = -0.1;
-                llMessageLinked(LINK_SAVE, LM_SETTING_DELETE, g_sSettingToken+"heeloffset", "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset has been reset to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
-            } else {
-                g_fHeelOffset = (float)sValue;
-                llMessageLinked(LINK_SAVE, LM_SETTING_SAVE, g_sSettingToken+"heeloffset="+(string)g_fHeelOffset, "");
-                llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"heeloffset changed to "+llGetSubString((string)g_fHeelOffset, 0, 4), g_kWearer);
-            }
-        } else llMessageLinked(LINK_DIALOG, NOTIFY, "0"+"Only owners or the wearer can change the heel offset.", kID);
     } else {
         // Check if given command is a pose in inv, and if so play it
         if (llStringLength(sStr) > 63) return; // inv item names can only have up to 63 chars
@@ -566,7 +557,7 @@ default
                 else if (sToken == "crawl") {
                     g_iCrawl = (integer)sValue;
                     checkCrawl();
-                } else if (sToken == "heeloffset") g_fHeelOffset = (float)sValue;
+                }
             } else if (llGetSubString(sToken, 0, i) == "offset_") {
                 sToken = llGetSubString(sToken, i+1, -1);
                 if (sToken == "AllowHover") {
@@ -697,7 +688,10 @@ default
                 fHover = 0.0;
                 integer index = llListFindList(g_lHeightAdjustments, [g_sCurrentPose]);
                 if (index != -1) fHover = llList2Float(g_lHeightAdjustments, index+1);
-                if (g_iShoesWorn) fHover += g_fHeelOffset;
+                if (g_iShoesWorn) {
+                    list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
+                    fHover += llList2Float(l, 0) + llList2Float(l, 1);
+                }
                 llMessageLinked(LINK_RLV, RLV_CMD, "adjustheight:1;0;"+(string)fHover+"=force", g_kWearer);
             }
             StartAnim(llList2String(g_lAnims,0));
