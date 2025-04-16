@@ -19,7 +19,7 @@
 
 // Debug(string sStr) { llOwnerSay("Debug ["+llGetScriptName()+"]: " + sStr); }
 
-string g_sVersion = "2024.07.23";
+string g_sVersion = "2025.04";
 
 integer g_iInterfaceChannel = -12587429;
 integer g_iHUDChannel = -1812221819;
@@ -83,9 +83,6 @@ integer g_iRlvListener;
 integer RLV_MAX_CHECKS = 5;
 integer g_iRLVOn = FALSE;
 
-integer g_iShoeChannel;
-integer g_iShoeListener;
-integer g_iShoesWorn;
 float g_fHeelOffset = -0.1;
 
 integer g_iTimerRlvDetect;
@@ -293,10 +290,9 @@ ToggleSitAnywhere()
 
 AdjustSitOffset()
 {
-    if (g_iShoesWorn)
-        llOwnerSay("@adjustheight:1;0;"+(string)(g_fSitOffset+g_fHeelOffset)+"=force");
-    else
-        llOwnerSay("@adjustheight:1;0;"+(string)g_fSitOffset+"=force");
+    list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
+    fHeelOffset = llList2Float(l, 0) + llList2Float(l, 1);
+    llOwnerSay("@adjustheight:1;0;"+(string)(g_fSitOffset+fHeelOffset)+"=force");
 }
 
 Notify(key kID, string sStr, integer iAlsoNotifyWearer)
@@ -349,7 +345,7 @@ list SortButtons(list lButtons, list lStaticButtons)
 
 MenuAO(key kID)
 {
-    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫  AO\t"+g_sVersion;
+    string sPrompt = "\nOsCollar AO\t"+g_sVersion;
     list lButtons = ["LOCK"];
     if (g_iLocked) lButtons = ["UNLOCK"];
     if (kID == g_kWearer) lButtons += ["Collar Menu"];
@@ -645,14 +641,7 @@ default
 
     attach(key kID)
     {
-        if (kID == NULL_KEY) {
-            llResetAnimationOverride("ALL");
-            if (g_iRLVOn) {
-                // de-register worn and unworn events (if it gets through)
-                llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=rem");
-                llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=rem");
-            }
-        }
+        if (kID == NULL_KEY) llResetAnimationOverride("ALL");
         else if (llGetAttached() <= 30) {
             llOwnerSay("Sorry, this device can only be attached to the HUD.");
             llRequestPermissions(kID, PERMISSION_ATTACH);
@@ -717,30 +706,6 @@ default
         } else if (iChannel == 519274) {
             g_iRLVOn = TRUE;
             llListenRemove(g_iRlvListener);
-            g_iShoeChannel = (9999 + llRound(llFrand(9999999.0)));
-            llListenRemove(g_iShoeListener);
-            g_iShoeListener = llListen(g_iShoeChannel, "", (string)g_kWearer, "");
-            // get initial state of shoes worn or not:
-            llOwnerSay("@getoutfit="+(string)g_iShoeChannel);
-        } else if (iChannel==g_iShoeChannel) {
-            if (sMessage  == "/unworn legally shoes") {
-                g_iShoesWorn = FALSE;
-                if (g_iSitAnywhereOn) AdjustSitOffset();
-            } else if (sMessage == "/worn legally shoes") {
-                g_iShoesWorn = TRUE;
-                if (g_iSitAnywhereOn) AdjustSitOffset();
-            } else if (llGetSubString(sMessage, 0, 6) != "/notify") {
-                // @getoutfit result (a string of 1's and 0's)
-                string sFlagShoes = llGetSubString(sMessage, 4, 4);
-                if (sFlagShoes == "1" || sFlagShoes == "0")
-                {
-                    g_iShoesWorn = (integer)llGetSubString(sMessage, 4, 4);
-                    if (g_iSitAnywhereOn) AdjustSitOffset();
-                    // Register to be notified of worn and unworn
-                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";worn legally shoes=add");
-                    llOwnerSay("@notify:"+(string)g_iShoeChannel+";unworn legally shoes=add");
-                }
-            }
         } else if (llListFindList(g_lMenuIDs,[kID, iChannel]) != -1) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
