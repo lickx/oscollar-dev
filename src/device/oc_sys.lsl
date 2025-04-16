@@ -22,7 +22,7 @@
 //on menu request, give dialog, with alphabetized list of submenus
 //on listen, send submenu link message
 
-string g_sCollarVersion="2024.05.13";
+string g_sCollarVersion="2025.04";
 
 key g_kWearer = NULL_KEY;
 
@@ -184,7 +184,7 @@ HelpMenu(key kID, integer iAuth) {
 }
 
 MainMenu(key kID, integer iAuth) {
-    string sPrompt = "\n𝐎 𝐒 𝐂 𝐨 𝐥 𝐥 𝐚 𝐫\t"+g_sCollarVersion+"\n";
+    string sPrompt = "\nOsCollar\t"+g_sCollarVersion+"\n";
     sPrompt += "\nPrefix: %PREFIX%\nChannel: %CHANNEL%\nSafeword: "+g_sSafeWord;
     list lStaticButtons = ["Apps"];
     if (g_iAnimsMenu) lStaticButtons += "Animations";
