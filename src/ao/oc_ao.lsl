@@ -600,8 +600,6 @@ default
     state_entry()
     {
         if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_kWearer = llGetOwner();
         RestoreSettings();
         g_iInterfaceChannel = -llAbs((integer)("0x" + llGetSubString(g_kWearer,30,-1)));
@@ -621,7 +619,7 @@ default
         g_iRlvListener = llListen(519274, "", (string)g_kWearer, "");
         g_iRlvChecks = 0;
         llOwnerSay("@versionnew=519274");
-        llSetTimerEvent(5.0);
+        llSetTimerEvent(30.0);
     }
 
     on_rez(integer iStart)
@@ -706,6 +704,7 @@ default
         } else if (iChannel == 519274) {
             g_iRLVOn = TRUE;
             llListenRemove(g_iRlvListener);
+            llSetTimerEvent(5.0);
         } else if (llListFindList(g_lMenuIDs,[kID, iChannel]) != -1) {
             integer iMenuIndex = llListFindList(g_lMenuIDs, [kID]);
             string sMenuType = llList2String(g_lMenuIDs, iMenuIndex+4);
