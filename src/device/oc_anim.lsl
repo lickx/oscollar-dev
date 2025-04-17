@@ -319,20 +319,6 @@ CreateAnimList()
     llMessageLinked(LINK_SET, ANIM_LIST_RESPONSE, llDumpList2String(g_lPoseList+g_lOtherAnims,"|"), "");
 }
 
-// Case insensitive match of sName against any inventory item of type iType
-// Returns actual inventory name when matched
-// Returns empty string if no match
-string MatchInventoryName(string sName, integer iType)
-{
-    integer i = 0;
-    while (i < llGetInventoryNumber(iType)) {
-        string sItemName = llGetInventoryName(iType, i);
-        if (llSubStringIndex(llToLower(sItemName), llToLower(sName)) == 0) return sItemName;
-        i++;
-    }
-    return "";
-}
-
 UserCommand(integer iNum, string sStr, key kID)
 {
     if (iNum == CMD_EVERYONE) return;
@@ -446,10 +432,8 @@ UserCommand(integer iNum, string sStr, key kID)
     } else {
         // Check if given command is a pose in inv, and if so play it
         if (llStringLength(sStr) > 63) return; // inv item names can only have up to 63 chars
-        if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) {
-            sStr = MatchInventoryName(sStr, INVENTORY_ANIMATION);
-            if (sStr == "") return; // no match in aNy cAsE
-        } // else sStr is an exact match
+        if (llGetInventoryType(sStr) != INVENTORY_ANIMATION) return;
+        // else sStr is an exact match:
         if (iNum <= g_iLastRank || g_iAnimLock == FALSE || g_sCurrentPose == "") {
             StopAnim(g_sCurrentPose,(g_sCurrentPose != ""));
             g_sCurrentPose = sStr;

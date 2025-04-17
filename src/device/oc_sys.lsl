@@ -118,7 +118,7 @@ integer g_iWaitUpdate;
 integer g_iWaitRebuild;
 string g_sIntegrity = "(pending...)";
 
-string g_sHelpCard = "OsCollar Help";
+string g_sHelpCard = ".help";
 
 integer compareVersions(string v1, string v2) { //compares two symantic version strings, true if v1 >= v2
     integer v1Index = llSubStringIndex(v1, ".");
@@ -444,8 +444,6 @@ default {
     state_entry() {
         g_kWearer = llGetOwner();
         if (llGetInventoryType("oc_installer_sys")==INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sCollarVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         g_iHide = !(integer)llGetAlpha(ALL_SIDES);
         if (llGetListLength(g_lCacheAlpha) == 0) RebuildCaches(); // no dummy pair, so cache lost, rebuild
         init();

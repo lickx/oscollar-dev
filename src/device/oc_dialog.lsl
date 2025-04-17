@@ -87,13 +87,13 @@ string SubstitudeVars(string sMsg)
 {
         if (sMsg == "%NOACCESS%") return "Access denied.";
         if (llSubStringIndex(sMsg, "%PREFIX%") != -1)
-            sMsg = osReplaceString(sMsg, "%PREFIX%", g_sPrefix, -1, 0);
+            sMsg = llReplaceSubString(sMsg, "%PREFIX%", g_sPrefix, 0);
         if (llSubStringIndex(sMsg, "%CHANNEL%") != -1)
-            sMsg = osReplaceString(sMsg, "%CHANNEL%", (string)g_iListenChan, -1, 0);
+            sMsg = llReplaceSubString(sMsg, "%CHANNEL%", (string)g_iListenChan, 0);
         if (llSubStringIndex(sMsg, "%DEVICETYPE%") != -1)
-            sMsg = osReplaceString(sMsg, "%DEVICETYPE%", g_sDeviceType, -1, 0);
+            sMsg = llReplaceSubString(sMsg, "%DEVICETYPE%", g_sDeviceType, 0);
         if (llSubStringIndex(sMsg, "%WEARERNAME%") != -1)
-            sMsg = osReplaceString(sMsg, "%WEARERNAME%", g_sWearerName, -1, 0);
+            sMsg = llReplaceSubString(sMsg, "%WEARERNAME%", g_sWearerName, 0);
         return sMsg;
 }
 

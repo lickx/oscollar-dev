@@ -875,6 +875,7 @@ default
                 llListenRemove(g_iRlvListener);
                 g_iRlvChecks = 0;
                 g_iRLVOn = FALSE;
+                llSetTimerEvent(5.0);
             }
         }
     }

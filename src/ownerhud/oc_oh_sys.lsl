@@ -321,8 +321,6 @@ default {
     state_entry() {
         g_kOwner = llGetOwner();
         if (llGetInventoryType("oc_installer_sys") == INVENTORY_SCRIPT) return;
-        string sObjectName = osReplaceString(llGetObjectName(), "\\d+\\.\\d+\\.?\\d+", g_sVersion, -1, 0);
-        if (sObjectName != llGetObjectName()) llSetObjectName(sObjectName);
         llSleep(1.0);//giving time for others to reset before populating menu
         g_iListener = llListen(PersonalChannel(g_kOwner, 0), "", "", ""); //lets listen here
         g_iCmdListener = llListen(g_iChannel, "", g_kOwner, "");

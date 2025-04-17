@@ -37,7 +37,7 @@ For help and chatter, join us on [Matrix](https://matrix.to/#/#oscollar:matrix.o
 
 Simulator: OpenSim 0.9.3.1 or newer
 
-Teleporting to a sim running older versions of OpenSim may result in loss of settings (linkset data) and loss of functionality (non-running scripts)
-Teleporting to a hypergrid sim may result in scripts to stop running and/or reset, unless the destination sim is patched
+Teleporting to a sim running older versions of OpenSim may result in loss of settings (linkset data) and loss of functionality (non-running scripts)  
+Teleporting to a hypergrid sim may result in scripts to stop running and/or reset, unless the destination sim is patched  
 
 General advice is to only use this on your home grid running the recommended OpenSim version.

@@ -219,7 +219,7 @@ ChatCamParams(integer iChannel, key kID)
 {
     g_vCamPos = llGetCameraPos();
     g_rCamRot = llGetCameraRot();
-    string sPosLine = osReplaceString((string)g_vCamPos, " ", "", -1, 0) + " " + osReplaceString((string)g_rCamRot, " ", "", -1, 0);
+    string sPosLine = llReplaceSubString((string)g_vCamPos, " ", "", 0) + " " + llReplaceSubString((string)g_rCamRot, " ", "", 0);
     //if not channel 0, say to whole region.  else just say locally
     if (iChannel > 0)
         llRegionSayTo(kID, iChannel, sPosLine);

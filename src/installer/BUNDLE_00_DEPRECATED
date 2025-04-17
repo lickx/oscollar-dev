@@ -2,7 +2,7 @@ SCRIPT|oc_root
 SCRIPT|oc_update
 SCRIPT|oc_stealth
 SCRIPT|oc_lock
-ITEM|.license
-ITEM|.help
+ITEM|OsCollar License
+ITEM|OsCollar Help
 ITEM|chain
 ITEM|rope
