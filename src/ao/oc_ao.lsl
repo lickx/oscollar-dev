@@ -290,8 +290,11 @@ ToggleSitAnywhere()
 
 AdjustSitOffset()
 {
-    list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
-    fHeelOffset = llList2Float(l, 0) + llList2Float(l, 1);
+    // Commented for now, because these params to llGetVisualParams are not in
+    // the latest opensim release yet; they will be in OpenSim 0.9.3.1:
+    //list l = llGetVisualParams(g_kWearer, ["heel_height", "platform_height"]);
+    //float fHeelOffset = llList2Float(l, 0) + llList2Float(l, 1);
+    float fHeelOffset = 0.0;
     llOwnerSay("@adjustheight:1;0;"+(string)(g_fSitOffset+fHeelOffset)+"=force");
 }
 
